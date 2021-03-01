@@ -1,0 +1,15 @@
+@import "~antd/dist/antd.css";
+
+.header {
+  background: #fff;
+}
+
+.header__logo {
+  float: left;
+  height: 50px;
+}
+
+.header__logo img {
+  max-height: 100%;
+  object-fit: cover;
+}
