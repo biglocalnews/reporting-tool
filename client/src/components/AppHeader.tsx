@@ -1,7 +1,7 @@
 import React from "react";
 import "./AppHeader.css";
 import logo from "../assets/5050logo.jpg";
-import { Menu, Layout, Avatar, Col, Row } from "antd";
+import { Layout, Avatar, Col, Row } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
@@ -18,30 +18,20 @@ export default class AppHeader extends React.Component {
               </div>
             </Col>
             <Col flex="auto">
-              <Menu
-                theme="light"
-                mode="horizontal"
+              <div
+                id="header__user"
                 style={{ float: "right", lineHeight: "64px" }}
               >
-                <Menu.Item
-                  disabled
-                  key="userProfileImage"
-                  className="header__user-profile-item"
-                >
+                <span id="avatar" className="header__user-profile-item">
                   <Avatar
-                    size="large"
                     style={{ backgroundColor: "#87d068" }}
                     icon={<UserOutlined />}
                   />
-                </Menu.Item>
-                <Menu.Item
-                  disabled
-                  key="userProfileName"
-                  className="header__user-profile-item"
-                >
-                  <h5>Tina Turner</h5>
-                </Menu.Item>
-              </Menu>
+                </span>
+                <span id="name" className="header__user-profile-item">
+                  <p>Tina Turner</p>
+                </span>
+              </div>
             </Col>
           </Row>
         </Header>

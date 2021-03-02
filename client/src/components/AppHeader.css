@@ -21,3 +21,8 @@
   height: 20px;
   background-color: #fff;
 }
+
+.header__user-profile-item {
+  display: inline-block;
+  padding-left: 10px;
+}
