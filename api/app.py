@@ -1,10 +1,13 @@
-from api import app
+import uvicorn
+from fastapi import FastAPI
 
-from ariadne import load_schema_from_path, make_executable_schema, graphql_sync, snake_case_fallback_resolvers, ObjectType
-from ariadne.constants import PLAYGROUND_HTML
-from flask import request, jsonify
-from api.queries import resolve_users
-from api.mutations import resolve_create_user
+from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType
+from ariadne.asgi import GraphQL
+
+from queries import resolve_users
+from mutations import resolve_create_user
+
+app = FastAPI()
 
 query = ObjectType("Query")
 mutation = ObjectType("Mutation")
@@ -17,20 +20,11 @@ schema = make_executable_schema(
     type_defs, query, mutation, snake_case_fallback_resolvers
 )
 
-@app.route("/graphql", methods=["GET"])
-def graphql_playground():
-    return PLAYGROUND_HTML, 200
+app.mount("/graphql", GraphQL(schema, debug=True))
 
-@app.route("/graphql", methods=["POST"])
-def graphql_server():
-    data = request.get_json()
+@app.get("/")
+def home():
+    return "Ahh!! Aliens!"
 
-    success, result = graphql_sync(
-        schema,
-        data,
-        context_value=request,
-        debug=app.debug
-    )
-
-    status_code = 200 if success else 400
-    return jsonify(result), status_code
+if __name__ == "__main__":
+    uvicorn.run("fastapi_code:app")
