@@ -1,16 +1,11 @@
 {
-  "short_name": "50:50 Reporting Tool",
-  "name": "50:50 The Equality Project Reporting Tool",
+  "short_name": "Media Equality Reporting Tool",
+  "name": "Media Equality Reporting Tool",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
-    },
-    {
-      "src": "5050logo.png",
-      "type": "image/png",
-      "sizes": "192x192"
     }
   ],
   "start_url": ".",
