@@ -27,4 +27,4 @@ def home():
     return "Ahh!! Aliens!"
 
 if __name__ == "__main__":
-    uvicorn.run("fastapi_code:app")
+    uvicorn.run("app:app")
