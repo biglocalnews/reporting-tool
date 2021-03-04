@@ -1,6 +1,10 @@
-from ariadne import convert_kwargs_to_snake_case
+from ariadne import convert_kwargs_to_snake_case, ObjectType
+
+mutation = ObjectType("Mutation")
+@mutation.field("createUser")
 
 @convert_kwargs_to_snake_case
+
 def resolve_create_user(obj, info, first_name, last_name):
     payload = {
         'user': {

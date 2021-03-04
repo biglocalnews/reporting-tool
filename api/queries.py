@@ -1,6 +1,10 @@
-from ariadne import convert_kwargs_to_snake_case
+from ariadne import convert_kwargs_to_snake_case, ObjectType
+
+query = ObjectType("Query")
+@query.field("users")
 
 @convert_kwargs_to_snake_case
+
 def resolve_users(obj, info):
     payload = {
         'users': [{
