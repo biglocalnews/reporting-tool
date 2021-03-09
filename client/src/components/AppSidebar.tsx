@@ -2,11 +2,14 @@ import React from "react";
 import "../App.css";
 import { Layout, Menu } from "antd";
 import { TeamOutlined, BarChartOutlined } from "@ant-design/icons";
+import { withTranslation, WithTranslation } from "react-i18next";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-export default class AppSidebar extends React.Component {
+type TranslationProps = WithTranslation;
+
+class AppSidebar extends React.Component<TranslationProps> {
   render() {
     return (
       <Sider width="auto" className="sidebar" breakpoint="md">
@@ -17,7 +20,11 @@ export default class AppSidebar extends React.Component {
           defaultOpenKeys={["teams", "stats"]}
           style={{ height: "100%", borderRight: 0 }}
         >
-          <SubMenu key="teams" title="My Teams" icon={<TeamOutlined />}>
+          <SubMenu
+            key="teams"
+            title={this.props.t("My Programs")}
+            icon={<TeamOutlined />}
+          >
             <Menu.ItemGroup title="BBC News">
               <Menu.Item key="1">Weekday Early 0900-1300</Menu.Item>
               <Menu.Item key="2">News At One 1300-1330</Menu.Item>
@@ -38,3 +45,5 @@ export default class AppSidebar extends React.Component {
     );
   }
 }
+
+export default withTranslation("en-gb")(AppSidebar);
