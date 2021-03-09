@@ -2,9 +2,7 @@ from sqlalchemy import create_engine, Table, Column, Integer, Float, String, Dat
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
 Base = declarative_base()
-
 
 class Organization(Base):
     __tablename__ = 'organization'
@@ -110,6 +108,17 @@ class Tag(Base):
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
+#polymorphic relationship 
+# class Tag_Associations(Base):
+#     __tablename__ = 'tag_associations'
+#     id = Column(Integer, primary_key=True)
+#     tag_id = Column(Integer)
+#     table_type = Column(String(255), nullable=False)
+#     record_id = Column(Integer)
+
+#     created = Column(DateTime, nullable=False)  
+#     updated = Column(DateTime)
+#     deleted = Column(DateTime)
 
 class Target(Base):
     __tablename__ = 'target'
@@ -119,6 +128,7 @@ class Target(Base):
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
+    # tag_id = Column(Integer)
 
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
@@ -135,6 +145,7 @@ class Dataset(Base):
     records = relationship('Record')
     inputter = relationship('User')
     inputter_id = Column(Integer, ForeignKey('user.id'))
+    # tag_id = Column(Integer)
     tags = relationship('Tag', secondary=dataset_tags,
             back_populates='datasets')
 
@@ -149,12 +160,26 @@ class Record(Base):
     id = Column(Integer, primary_key=True)
     dataset_id = Column(Integer, ForeignKey('dataset.id'), nullable=False)
     publication_date = Column(DateTime)
-    category = Column(String(255), nullable=False)
-    category_value = Column(String(255), nullable=False)
+    
+    # category = Column(String(255), nullable=False)
+    # category_value = Column(String(255), nullable=False)
     # TODO - this is if we're entering aggregates. Individual level data we
     # will store separately.
-    count = Column(Integer, nullable=False)
+    # count = Column(Integer, nullable=False)
 
+
+    created = Column(DateTime, nullable=False)
+    updated = Column(DateTime)
+    deleted = Column(DateTime)
+
+class Attribute(Base):
+    __tablename__ = 'attribute'
+
+    id = Column(Integer, primary_key=True)
+    record_id = Column(Integer, ForeignKey('record.id'), nullable=False)
+    category = Column(String(255), nullable=False)
+    category_value = Column(String(255), nullable=False)
+    
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
     deleted = Column(DateTime)
