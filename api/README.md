@@ -15,7 +15,7 @@ python3.8 -m venv venv
 
 Do this the first time you set up the project.
 
-To play with the schema I'm just using mysql installed via homebrew on my mac. User is root with no password. You can manually run `create database bbc;`, then run `python database.py` after step (4) below to create tables. [CHANGE ME LATER]
+To play with the schema I'm just using postgres installed via homebrew on my mac. User is root with no password. You can manually run `create database bbc;`, then run `python database.py` after step (4) below to create tables. [CHANGE ME LATER]
 
 ## 3) Activate the virtual environment
 
