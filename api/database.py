@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine, Table, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+import asyncio
+
+from sqlalchemy.ext.asyncio import create_async_engine
 
 Base = declarative_base()
 
@@ -108,17 +111,6 @@ class Tag(Base):
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
-#polymorphic relationship 
-# class Tag_Associations(Base):
-#     __tablename__ = 'tag_associations'
-#     id = Column(Integer, primary_key=True)
-#     tag_id = Column(Integer)
-#     table_type = Column(String(255), nullable=False)
-#     record_id = Column(Integer)
-
-#     created = Column(DateTime, nullable=False)  
-#     updated = Column(DateTime)
-#     deleted = Column(DateTime)
 
 class Target(Base):
     __tablename__ = 'target'
@@ -128,7 +120,6 @@ class Target(Base):
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
-    # tag_id = Column(Integer)
 
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
@@ -145,7 +136,7 @@ class Dataset(Base):
     records = relationship('Record')
     inputter = relationship('User')
     inputter_id = Column(Integer, ForeignKey('user.id'))
-    # tag_id = Column(Integer)
+
     tags = relationship('Tag', secondary=dataset_tags,
             back_populates='datasets')
 
@@ -186,6 +177,6 @@ class Attribute(Base):
 
 
 if __name__ == '__main__':
-    engine = create_engine('mysql+mysqldb://root@localhost/bbc', echo=True)
+    engine = create_async_engine("postgresql+asyncpg://postgres:pass@localhost/bbc")
 
     Base.metadata.create_all(engine)
