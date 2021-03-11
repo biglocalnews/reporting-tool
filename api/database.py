@@ -149,30 +149,13 @@ class Record(Base):
     id = Column(Integer, primary_key=True)
     dataset_id = Column(Integer, ForeignKey('dataset.id'), nullable=False)
     publication_date = Column(DateTime)
-    
-    # category = Column(String(255), nullable=False)
-    # category_value = Column(String(255), nullable=False)
-    # TODO - this is if we're entering aggregates. Individual level data we
-    # will store separately.
-    # count = Column(Integer, nullable=False)
-
-
-    created = Column(DateTime, nullable=False)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
-
-class Attribute(Base):
-    __tablename__ = 'attribute'
-
-    id = Column(Integer, primary_key=True)
-    record_id = Column(Integer, ForeignKey('record.id'), nullable=False)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
-    
+    count = Column(Integer, nullable=False)
+
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
     deleted = Column(DateTime)
-
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://postgres:pass@localhost/bbc')
