@@ -17,16 +17,11 @@ i18next
   .init({
     lng: "en",
     fallbackLng: "en",
+    lowerCaseLng: true,
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
     debug: process.env.NODE_ENV === "development",
-    backend: {
-      // for all available options read the backend's repository readme file
-      loadPath: "./locales/{{lng}}/translation.json",
-      // path to post missing resources
-      addPath: "./locales/add/{{lng}}.json",
-    },
   });
 
 export default i18next;
