@@ -24,7 +24,7 @@ class Team(Base):
     name = Column(String(255))
     users = relationship('User')
     programs = relationship('Program')
-    organization_id = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    organization_id = Column(Integer, ForeignKey('organization.id'), nullable=False, index=True)
 
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
@@ -32,8 +32,8 @@ class Team(Base):
 
 
 user_roles = Table('user_role', Base.metadata,
-        Column('user_id', Integer, ForeignKey('user.id')),
-        Column('role_id', Integer, ForeignKey('role.id')),
+        Column('user_id', Integer, ForeignKey('user.id'), index=True),
+        Column('role_id', Integer, ForeignKey('role.id'), index=True),
         )
 
 
@@ -43,7 +43,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
-    team_id = Column(Integer, ForeignKey('team.id'))
+    team_id = Column(Integer, ForeignKey('team.id'), index=True)
     roles = relationship('UserRole', secondary=user_roles)
 
     created = Column(DateTime, nullable=False)
@@ -64,14 +64,14 @@ class Role(Base):
 
 
 dataset_tags = Table('dataset_tag', Base.metadata,
-        Column('dataset_id', Integer, ForeignKey('dataset.id')),
-        Column('tag_id', Integer, ForeignKey('tag.id')),
+        Column('dataset_id', Integer, ForeignKey('dataset.id'), index=True),
+        Column('tag_id', Integer, ForeignKey('tag.id'), index=True),
         )
 
 
 program_tags = Table('program_tag', Base.metadata,
-        Column('program_id', Integer, ForeignKey('program.id')),
-        Column('tag_id', Integer, ForeignKey('tag.id')),
+        Column('program_id', Integer, ForeignKey('program.id'), index=True),
+        Column('tag_id', Integer, ForeignKey('tag.id'), index=True),
         )
 
 
@@ -81,7 +81,7 @@ class Program(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
-    team_id = Column(Integer, ForeignKey('team.id'))
+    team_id = Column(Integer, ForeignKey('team.id'), index=True)
     datasets = relationship('Dataset')
     targets = relationship('Target')
     tags = relationship('Tag', secondary=program_tags,
@@ -114,7 +114,7 @@ class Target(Base):
     __tablename__ = 'target'
 
     id = Column(Integer, primary_key=True)
-    program_id = Column(Integer, ForeignKey('program.id'))
+    program_id = Column(Integer, ForeignKey('program.id'), index=True)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
@@ -127,13 +127,13 @@ class Target(Base):
 class Dataset(Base):
     __tablename__ = 'dataset'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
-    program_id = Column(Integer, ForeignKey('program.id'))
+    program_id = Column(Integer, ForeignKey('program.id'), index=True)
     records = relationship('Record')
     inputter = relationship('User')
-    inputter_id = Column(Integer, ForeignKey('user.id'))
+    inputter_id = Column(Integer, ForeignKey('user.id'), index=True)
 
     tags = relationship('Tag', secondary=dataset_tags,
             back_populates='datasets')
@@ -147,7 +147,7 @@ class Record(Base):
     __tablename__ = 'record'
 
     id = Column(Integer, primary_key=True)
-    dataset_id = Column(Integer, ForeignKey('dataset.id'), nullable=False)
+    dataset_id = Column(Integer, ForeignKey('dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
