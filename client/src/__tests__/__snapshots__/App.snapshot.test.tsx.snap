@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Layout
+  style={
+    Object {
+      "height": "100vh",
+    }
+  }
+>
+  <AppHeader />
+  <Layout>
+    <AppSidebar />
+    <Layout
+      style={
+        Object {
+          "padding": "0 24px 24px",
+        }
+      }
+    >
+      <Content
+        className="site-layout-background"
+        style={
+          Object {
+            "marginTop": 24,
+            "minHeight": 280,
+            "padding": 24,
+          }
+        }
+      />
+      <Footer
+        style={
+          Object {
+            "textAlign": "center",
+          }
+        }
+      >
+        Footer content
+      </Footer>
+    </Layout>
+  </Layout>
+</Layout>
+`;
