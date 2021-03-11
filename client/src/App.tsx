@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import "./App.css";
 import { Layout } from "antd";
 import AppHeader from "./components/AppHeader";
-import AppSidebar from "./components/AppSidebar";
+import { AppSidebar } from "./components/AppSidebar";
 
 const { Footer, Content } = Layout;
 
