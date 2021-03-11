@@ -1,9 +1,7 @@
 from sqlalchemy import create_engine, Table, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-import asyncio
-
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine
 
 Base = declarative_base()
 
@@ -177,6 +175,6 @@ class Attribute(Base):
 
 
 if __name__ == '__main__':
-    engine = create_async_engine("postgresql+asyncpg://postgres:pass@localhost/bbc")
+    engine = create_engine('postgresql+psycopg2://postgres:pass@localhost/bbc')
 
     Base.metadata.create_all(engine)
