@@ -1,0 +1,28 @@
+@import "~antd/dist/antd.css";
+
+.header {
+  background: #fff;
+}
+
+.header__logo {
+  float: left;
+  height: 50px;
+}
+
+.header__logo img {
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.header__border-image {
+  background-image: url(../assets/border.png);
+  background-size: contain;
+  background-repeat: repeat-x;
+  height: 20px;
+  background-color: #fff;
+}
+
+.header__user-profile-item {
+  display: inline-block;
+  padding-left: 10px;
+}

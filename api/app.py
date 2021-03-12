@@ -1,12 +1,25 @@
-from flask import Flask
-from flask_cors import CORS
+import uvicorn
+from fastapi import FastAPI
 
-app = Flask(__name__)
-CORS(app)
+from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType
+from ariadne.asgi import GraphQL
 
-@app.route('/')
-def say_hello_world():
-    return "Hello, world!"
+from queries import query
+from mutations import mutation
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app = FastAPI()
+
+type_defs = load_schema_from_path("schema.graphql")
+schema = make_executable_schema(
+    type_defs, query, mutation, snake_case_fallback_resolvers
+)
+
+app.mount("/graphql", GraphQL(schema, debug=True))
+
+@app.get("/")
+
+def home():
+    return "Ahh!! Aliens!"
+
+if __name__ == "__main__":
+    uvicorn.run("app:app")
