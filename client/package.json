@@ -131,8 +131,4 @@
     "tslint-plugin-prettier": "^2.3.0"
   },
   "proxy": "http://localhost:8000"
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> daad5b3... Apollo client setup [ch87]
