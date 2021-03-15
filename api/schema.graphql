@@ -85,7 +85,7 @@ input UpsertUserInput {
 }
 
 # TODO Confirm how graphql handles errors / successes. Explicit stating may not be required.
-input UpsertUserOutput {
+type UpsertUserOutput {
     user: User
     success: Boolean!
     errors: [String]
