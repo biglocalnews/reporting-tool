@@ -77,22 +77,17 @@ type Record {
     count: Int
 }
 
-type UserResult {
-    success: Boolean!
-    errors: [String]
-    user: User
-}
-
 input CreateUserInput {
     firstName: String!
     lastName: String!
     role: String!
-
 }
 
+# TODO Confirm how graphql handles errors / successes. Explicit stating may not be required.
 input CreateUserOutput {
-    fullName: String!
-    role: String!
+    user: User
+    success: Boolean!
+    errors: [String]
 }
 
 input DeleteUserInput {
@@ -105,8 +100,15 @@ type DeleteUserOutput {
 }
 
 type Query {
+    # TODO "User Not Found" should raise an exception. Confirm this is the case.
     # Retrieve a single user.
-    user(userId: ID!): UserResult!
+    user(userId: ID!): User!
+
+    # Retrieve all users associated with a specific team.
+    teamUsers(teamId: ID!) : [Users]!
+
+    # Retrieve all users associated with a specific program.
+    programUsers(program: ID!) : [Users]!
 }
 
 type Mutation {
