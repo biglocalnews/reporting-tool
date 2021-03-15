@@ -3,10 +3,77 @@ schema {
     mutation: Mutation
 }
 
+scalar Date
+
+type Organization {
+    id: ID!
+    name: String!
+    teams: [Team]
+}
+
+type Team {
+    id: ID!
+    name: String!
+    users: [User]
+    programs: [Program]
+    organizations: [Organization]
+}
+
 type User {
     id: ID!
     firstName: String!
     lastName: String!
+}
+
+type Role {
+    id: ID!
+    name: String!
+    description: String!
+}
+
+type Program {
+    id: ID!
+    description: String! 
+    team: Team
+    datasets: [Dataset]
+    targets: [Target]
+    tags: [Tag]
+}
+
+type Tag {
+    id: ID!
+    name: String!
+    description: String!
+    tagType: String!
+    programs: [Program]
+    dataset: [Dataset]
+}
+
+type Target {
+    id: ID!
+    program: Program!
+    category: String!
+    categoryValue: String!
+    target: Float
+}
+
+type Dataset {
+    id: ID!
+    name: String!
+    description: String!
+    program: Program!
+    records: [Record]!
+    inputter: User!
+    tags: [Tag]
+}
+
+type Record {
+    id: ID!
+    dataset: Dataset!
+    publicationDate: Date
+    category: String!
+    categoryValue: String!
+    count: Integer
 }
 
 type UserResult {
