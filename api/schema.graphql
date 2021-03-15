@@ -82,23 +82,36 @@ type UserResult {
     user: User
 }
 
-type UsersResult {
-    success: Boolean!
-    errors: [String]
-    users: [User]
+input CreateUserInput {
+    firstName: String!
+    lastName: String!
+    role: String!
+
 }
 
-type DeleteUserResult {
+input CreateUserOutput {
+    fullName: String!
+    role: String!
+}
+
+input DeleteUserInput {
+    id: ID!
+}
+
+type DeleteUserOutput {
     success: Boolean!
     errors: [String]
 }
 
 type Query {
-    users: UsersResult!
+    # Retrieve a single user.
     user(userId: ID!): UserResult!
 }
 
 type Mutation {
-    createUser(firstName: String!, lastName: String!): UserResult!
-    deleteUser(userId: ID!): DeleteUserResult!
+    # Create a user.
+    createUser(input: CreateUserInput): CreateUserOutput!
+
+    # Delete a user.
+    deleteUser(input: DeleteUserInput!): DeleteUserOutput!
 }
