@@ -73,7 +73,7 @@ type Record {
     publicationDate: Date
     category: String!
     categoryValue: String!
-    count: Integer
+    count: Int
 }
 
 type UserResult {
