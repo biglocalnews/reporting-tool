@@ -77,14 +77,15 @@ type Record {
     count: Int
 }
 
-input CreateUserInput {
+input UpsertUserInput {
+    id: ID
     firstName: String!
     lastName: String!
     role: String!
 }
 
 # TODO Confirm how graphql handles errors / successes. Explicit stating may not be required.
-input CreateUserOutput {
+input UpsertUserOutput {
     user: User
     success: Boolean!
     errors: [String]
@@ -112,8 +113,8 @@ type Query {
 }
 
 type Mutation {
-    # Create a user.
-    createUser(input: CreateUserInput): CreateUserOutput!
+    # Upsert a user.
+    upsertUser(input: UpsertUserInput): UpsertUserOutput!
 
     # Delete a user.
     deleteUser(input: DeleteUserInput!): DeleteUserOutput!
