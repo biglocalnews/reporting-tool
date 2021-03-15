@@ -17,14 +17,28 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   uri: '/graphql/'
 });
 
-ReactDOM.render(
-  <ApolloProvider client={client}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </ApolloProvider>,
-  document.getElementById("root")
-);
+if (process.env.NODE_ENV !== 'production') {
+  import('react-axe').then(axe => {
+    axe.default(React, ReactDOM, 1000);
+    ReactDOM.render(
+      <ApolloProvider client={client}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ApolloProvider>,
+      document.getElementById("root")
+    );
+  });
+} else {
+  ReactDOM.render(
+    <ApolloProvider client={client}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ApolloProvider>,
+    document.getElementById("root")
+  );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
