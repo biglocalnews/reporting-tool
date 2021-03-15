@@ -23,6 +23,7 @@ type User {
     id: ID!
     firstName: String!
     lastName: String!
+    role: Role!
 }
 
 type Role {
