@@ -12,6 +12,7 @@ Backend API
 Before you begin, ensure you have met the following requirements:
 
 - You have installed python3
+- You have installed postgresql
 
 ### First time running things? Look here!
 
