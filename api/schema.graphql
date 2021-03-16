@@ -106,10 +106,10 @@ type Query {
     user(userId: ID!): User!
 
     # Retrieve all users associated with a specific team.
-    teamUsers(teamId: ID!) : [Users]!
+    teamUsers(teamId: ID!) : [User]!
 
     # Retrieve all users associated with a specific program.
-    programUsers(program: ID!) : [Users]!
+    programUsers(program: ID!) : [User]!
 }
 
 type Mutation {
