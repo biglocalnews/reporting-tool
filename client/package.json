@@ -3,13 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-<<<<<<< HEAD
     "@apollo/client": "^3.3.11",
     "@apollo/react-hooks": "^4.0.0",
-=======
-    "@axe-core/react": "^4.1.1",
->>>>>>> dddd97e... Add jest-axe, axe-core, and lint plugin [ch84
-    ]
     "@testing-library/user-event": "^12.1.10",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
@@ -116,6 +111,7 @@
   },
   "devDependencies": {
     "@apollo/react-testing": "^4.0.0",
+    "@axe-core/react": "^4.1.1",
     "@babel/preset-typescript": "^7.13.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
