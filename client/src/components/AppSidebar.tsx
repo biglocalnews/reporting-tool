@@ -36,9 +36,7 @@ function AppSidebar() {
           </Menu.ItemGroup>
         </SubMenu>
         <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
-          <div style={{ padding: "20px", background: "#fff" }}>
-            Chart here
-            </div>
+          <div style={{ padding: "20px", background: "#fff" }}>Chart here</div>
         </SubMenu>
       </Menu>
     </Sider>

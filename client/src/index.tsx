@@ -9,12 +9,12 @@ import {
   ApolloClient,
   ApolloProvider,
   NormalizedCacheObject,
-  InMemoryCache
-} from '@apollo/client';
+  InMemoryCache,
+} from "@apollo/client";
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: '/graphql/'
+  uri: "/graphql/",
 });
 
 const MainApp = () => {
