@@ -84,11 +84,8 @@ input UpsertUserInput {
     role: String!
 }
 
-# TODO Confirm how graphql handles errors / successes. Explicit stating may not be required.
 type UpsertUserOutput {
     user: User
-    success: Boolean!
-    errors: [String]
 }
 
 input DeleteUserInput {
@@ -96,12 +93,10 @@ input DeleteUserInput {
 }
 
 type DeleteUserOutput {
-    success: Boolean!
-    errors: [String]
+    id: ID!
 }
 
 type Query {
-    # TODO "User Not Found" should raise an exception. Confirm this is the case.
     # Retrieve a single user.
     user(userId: ID!): User!
 
