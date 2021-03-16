@@ -1,0 +1,45 @@
+name: Typescript
+
+on:
+  push:
+    branches: [main]
+    paths: [client/**]
+  pull_request:
+    branches: [main]
+    paths: [client/**]
+
+jobs:
+  build:
+    name: Build App
+    runs-on: ubuntu-latest
+    env:
+      wd: ./client
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.head_ref}}
+
+      - name: Fetch merge base
+        if: ${{github.event_name == 'pull_request'}}
+        run: git fetch origin ${{github.base_ref}}
+        working-directory: ${{env.wd}}
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Get dependencies
+        run: yarn install --dev
+        working-directory: ${{env.wd}}
+
+      - name: Lint
+        if: ${{github.event_name == 'pull_request'}}
+        run: yarn run lint
+        working-directory: ${{env.wd}}
+
+      - name: Test
+        run: yarn test
+        working-directory: ${{env.wd}}
