@@ -98,19 +98,19 @@ type DeleteUserOutput {
 
 type Query {
     # Retrieve a single user.
-    user(userId: ID!): User!
+    user(userId: ID!) : User!
 
     # Retrieve all users associated with a specific team.
     teamUsers(teamId: ID!) : [User]!
 
     # Retrieve all users associated with a specific program.
-    programUsers(program: ID!) : [User]!
+    programUsers(programId: ID!) : [User]!
 }
 
 type Mutation {
     # Upsert a user.
-    upsertUser(input: UpsertUserInput): UpsertUserOutput!
+    upsertUser(input: UpsertUserInput) : UpsertUserOutput!
 
     # Delete a user.
-    deleteUser(input: DeleteUserInput!): DeleteUserOutput!
+    deleteUser(input: DeleteUserInput!) : DeleteUserOutput!
 }
