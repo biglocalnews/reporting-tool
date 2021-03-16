@@ -24,22 +24,16 @@ const MainApp = () => {
         <App />
       </BrowserRouter>
     </ApolloProvider>
-  )
-}
+  );
+};
 
-if (process.env.NODE_ENV !== 'production') {
-  import('react-axe').then(axe => {
+if (process.env.NODE_ENV !== "production") {
+  import("react-axe").then((axe) => {
     axe.default(React, ReactDOM, 1000);
-    ReactDOM.render(
-      <MainApp />,
-      document.getElementById("root")
-    );
+    ReactDOM.render(<MainApp />, document.getElementById("root"));
   });
 } else {
-  ReactDOM.render(
-    <MainApp />,
-    document.getElementById("root")
-  );
+  ReactDOM.render(<MainApp />, document.getElementById("root"));
 }
 
 // If you want to start measuring performance in your app, pass a function
