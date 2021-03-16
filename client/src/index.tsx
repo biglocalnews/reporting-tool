@@ -17,25 +17,27 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   uri: '/graphql/'
 });
 
+const MainApp = () => {
+  return (
+    <ApolloProvider client={client}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ApolloProvider>
+  )
+}
+
 if (process.env.NODE_ENV !== 'production') {
   import('react-axe').then(axe => {
     axe.default(React, ReactDOM, 1000);
     ReactDOM.render(
-      <ApolloProvider client={client}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ApolloProvider>,
+      <MainApp />,
       document.getElementById("root")
     );
   });
 } else {
   ReactDOM.render(
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ApolloProvider>,
+    <MainApp />,
     document.getElementById("root")
   );
 }
