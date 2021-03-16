@@ -5,16 +5,15 @@ import "./index.css";
 import "./i18n/i18next";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { cache } from './cache'
 import {
   ApolloClient,
   ApolloProvider,
   NormalizedCacheObject,
-  gql
+  InMemoryCache
 } from '@apollo/client';
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  cache,
+  cache: new InMemoryCache(),
   uri: '/graphql/'
 });
 
