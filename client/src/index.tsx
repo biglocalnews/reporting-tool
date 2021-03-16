@@ -5,11 +5,24 @@ import "./index.css";
 import "./i18n/i18next";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import {
+  ApolloClient,
+  ApolloProvider,
+  NormalizedCacheObject,
+  InMemoryCache
+} from '@apollo/client';
+
+const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  cache: new InMemoryCache(),
+  uri: '/graphql/'
+});
 
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+  <ApolloProvider client={client}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ApolloProvider>,
   document.getElementById("root")
 );
 
