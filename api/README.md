@@ -56,13 +56,11 @@ Navigate to http://localhost:8000/graphql/ to see your GraphQL Playground in act
 Type in your queries/mutations such as:
 
 ```
-query getMyUsers {
-  users {
-    users {
+query getTeamUsers {
+  programUsers (programId: 1) { 
       id
       firstName
-      lastName
-    }
+      lastName 
   }
 }
 ```
