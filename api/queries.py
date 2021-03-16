@@ -4,7 +4,6 @@ query = ObjectType("Query")
 
 @query.field("user")
 @convert_kwargs_to_snake_case
-
 def resolve_user(obj, info, user_id):
     payload = {
         'id': 1,
@@ -16,7 +15,6 @@ def resolve_user(obj, info, user_id):
 
 @query.field("teamUsers")
 @convert_kwargs_to_snake_case
-
 def resolve_teamUsers(obj, info, team_id):
     payload = [{
         'id': 3,
@@ -33,7 +31,6 @@ def resolve_teamUsers(obj, info, team_id):
 
 @query.field("programUsers")
 @convert_kwargs_to_snake_case
-
 def resolve_programUsers(obj, info, program_id):
     payload = [{
         'id': 5,
