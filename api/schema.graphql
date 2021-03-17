@@ -23,6 +23,7 @@ type User {
     id: ID!
     firstName: String!
     lastName: String!
+    email: String!
     role: Role!
 }
 
@@ -81,6 +82,7 @@ input UpsertUserInput {
     id: ID
     firstName: String!
     lastName: String!
+    email: String!
     role: String!
 }
 
