@@ -1,37 +1,108 @@
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
+}
+
+scalar Date
+
+type Organization {
+  id: ID!
+  name: String!
+  teams: [Team!]!
+}
+
+type Team {
+  id: ID!
+  name: String!
+  users: [User!]!
+  programs: [Program!]!
+  organizations: [Organization!]!
 }
 
 type User {
-    id: ID!
-    firstName: String!
-    lastName: String!
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  role: Role!
 }
 
-type UserResult {
-    success: Boolean!
-    errors: [String]
-    user: User
+type Role {
+  id: ID!
+  name: String!
+  description: String!
 }
 
-type UsersResult {
-    success: Boolean!
-    errors: [String]
-    users: [User]
+type Program {
+  id: ID!
+  description: String!
+  team: Team!
+  datasets: [Dataset!]!
+  targets: [Target!]!
+  tags: [Tag!]!
 }
 
-type DeleteUserResult {
-    success: Boolean!
-    errors: [String]
+type Tag {
+  id: ID!
+  name: String!
+  description: String!
+  tagType: String!
+  programs: [Program!]!
+  dataset: [Dataset!]!
+}
+
+type Target {
+  id: ID!
+  program: Program!
+  category: String!
+  categoryValue: String!
+  target: Float!
+}
+
+type Dataset {
+  id: ID!
+  name: String!
+  description: String!
+  program: Program!
+  records: [Record!]!
+  inputter: User!
+  tags: [Tag!]!
+}
+
+type Record {
+  id: ID!
+  dataset: Dataset!
+  publicationDate: Date
+  category: String!
+  categoryValue: String!
+  count: Int!
+}
+
+input UpsertUserInput {
+  id: ID
+  firstName: String!
+  lastName: String!
+  email: String!
+  role: String!
+}
+
+type UpsertUserOutput {
+  user: User!
+}
+
+type DeleteUserOutput {
+  id: ID!
 }
 
 type Query {
-    users: UsersResult!
-    user(userId: ID!): UserResult!
+  # Retrieve a single user.
+  user(id: ID!): User
 }
 
 type Mutation {
-    createUser(firstName: String!, lastName: String!): UserResult!
-    deleteUser(userId: ID!): DeleteUserResult!
+  # Upsert a user.
+  upsertUser(input: UpsertUserInput): UpsertUserOutput!
+
+  # Delete a user.
+  deleteUser(id: ID!): DeleteUserOutput!
 }

@@ -1,17 +1,33 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 
 mutation = ObjectType("Mutation")
-@mutation.field("createUser")
 
 @convert_kwargs_to_snake_case
-
-def resolve_create_user(obj, info, first_name, last_name):
+@mutation.field("upsertUser")
+def resolve_upsert_user(obj, info, input):
+    '''GraphQL query to upsert a user.
+        :param obj: obj is a value returned by a parent resolver
+        :param info: Has context attribute that contains ContextValue specific to the server implementation.
+        :param input: Params to be changed
+        :returns: 
+    '''
     payload = {
-        'user': {
-            "id": 1,
-            "first_name": "Straw",
-            "last_name": "Berry"
-        },
-        'success': 1    
+        "user": {
+            "id": 7  
+        }
+    }
+    return payload
+
+@convert_kwargs_to_snake_case
+@mutation.field("deleteUser")
+def resolve_delete_user(obj, info, id):
+    '''GraphQL query to upsert a user.
+        :param obj: obj is a value returned by a parent resolver
+        :param info: Has context attribute that contains ContextValue specific to the server implementation.
+        :param id: Id for the user to be deleted 
+        :returns: 
+    '''
+    payload = {
+        "id": 1001   
     }
     return payload

@@ -30,40 +30,63 @@ Do this the first time you set up the project.
 
 To play with the schema I'm just using postgres installed via homebrew on my mac. User is root with no password. You can manually run `create database bbc;`, then run `python database.py` after step (4) below to create tables.
 
-
 ### General Setup!
 
 In your terminal, navigate to the [/api] folder
 
-
 🌍 set your virtual environment
+
 ```
 source venv/bin/activate
 ```
 
+🚧 load in required packages
 
- 🚧 load in required packages
 ```
-pip install -r requirements.txt 
+pip install -r requirements.txt
 ```
-
 
 🏁 start your new shiny server
+
 ```
-uvicorn app:app --reload 
+uvicorn app:app --reload
 ```
 
 Navigate to http://localhost:8000/graphql/ to see your GraphQL Playground in action!
 Type in your queries/mutations such as:
 
 ```
-query getMyUsers {
-  users {
-    users {
-      id
+query getUser {
+  user (id: 1) {
+    id
+    firstName
+    lastName
+  }
+}
+```
+
+sample mutation using inputs:
+
+```
+mutation upsertUsers ($userInfo : UpsertUserInput) {
+  upsertUser (input: $userInfo) {
+    user {
       firstName
       lastName
     }
+  }
+}
+```
+
+in the playground's query variables section:
+
+```
+{
+  "userInfo": {
+    "firstName": "Bob",
+    "lastName": "Jeans",
+    "email": "bigelow_senior@email.com",
+    "role" : "admin"
   }
 }
 ```
