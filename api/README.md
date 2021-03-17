@@ -56,11 +56,36 @@ Navigate to http://localhost:8000/graphql/ to see your GraphQL Playground in act
 Type in your queries/mutations such as:
 
 ```
-query getTeamUsers {
-  programUsers (programId: 1) { 
+query getUser {
+  user (id: 1) {
       id
       firstName
-      lastName 
+      lastName  
   }
 }
+```
+
+sample mutation using inputs:
+
+```
+mutation upsertUsers ($userInfo : UpsertUserInput) {
+  upsertUser (input: $userInfo) {
+      user {
+        firstName
+      	lastName
+      }   
+    }
+  }
+```
+
+in the playground's query variables section:
+```
+ {
+      "userInfo": {
+        "firstName": "Bob",
+        "lastName": "Jeans",
+        "email": "bigelow_senior@email.com",
+        "role" : "admin"
+      }
+    }
 ```
