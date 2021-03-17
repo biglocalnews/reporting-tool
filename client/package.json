@@ -31,7 +31,9 @@
     "test:watch": "jest --watch",
     "eject": "react-scripts eject",
     "lint": "tslint -c tslint.json 'src/**/*{.ts,.tsx}'",
-    "lint:fix": "tslint --fix -c tslint.json 'src/**/*{.ts,.tsx}'"
+    "lint:fix": "tslint --fix -c tslint.json 'src/**/*{.ts,.tsx}'",
+    "gentypes": "apollo client:codegen --target typescript --endpoint=http://localhost:8000/graphql --excludes='node_modules/*' --outputFlat='src/__generated__' --includes='src/**/*.ts*' --useReadOnlyTypes && pretty-quick --pattern 'client/src/__generated__/**/*.ts' --branch HEAD",
+    "introspect": "apollo schema:download src/schema.json --endpoint=http://localhost:8000/graphql"
   },
   "eslintConfig": {
     "extends": [
@@ -119,6 +121,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^26.0.20",
     "@types/jest-axe": "^3.5.0",
+    "apollo": "^2.32.5",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "enzyme-to-json": "^3.6.1",
