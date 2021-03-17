@@ -98,13 +98,7 @@ type DeleteUserOutput {
 
 type Query {
     # Retrieve a single user.
-    user(userId: ID!) : User!
-
-    # Retrieve all users associated with a specific team.
-    teamUsers(teamId: ID!) : [User]!
-
-    # Retrieve all users associated with a specific program.
-    programUsers(programId: ID!) : [User]!
+    user(userId: ID!) : User
 }
 
 type Mutation {
