@@ -4,12 +4,12 @@ query = ObjectType("Query")
 
 @query.field("user")
 @convert_kwargs_to_snake_case
-def resolve_user(obj, info, user_id):
+def resolve_user(obj, info, id):
     '''GraphQL query to find a user based on user ID.
-        :param obj: Describe what obj is
-        :param info: Describe what info is
-        :param user_id: The user's ID
-        :returns: Whatever payload is
+        :param obj: obj is a value returned by a parent resolver
+        :param info: Has context attribute that contains ContextValue specific to the server implementation.
+        :param id: Id for the user to be fetched
+        :returns: 
     '''
     payload = {
         'id': 1,
