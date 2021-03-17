@@ -100,7 +100,7 @@ type DeleteUserOutput {
 
 type Query {
     # Retrieve a single user.
-    user(userId: ID!) : User
+    user(id: ID!) : User
 }
 
 type Mutation {
