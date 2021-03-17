@@ -2,8 +2,8 @@ from ariadne import convert_kwargs_to_snake_case, ObjectType
 
 mutation = ObjectType("Mutation")
 
-@mutation.field("upsertUser")
 @convert_kwargs_to_snake_case
+@mutation.field("upsertUser")
 def resolve_upsert_user(obj, info, input):
     '''GraphQL query to upsert a user.
         :param obj: obj is a value returned by a parent resolver
@@ -12,12 +12,14 @@ def resolve_upsert_user(obj, info, input):
         :returns: 
     '''
     payload = {
-        id: 7  
+        "user": {
+            "id": 7  
+        }
     }
     return payload
 
-@mutation.field("deleteUser")
 @convert_kwargs_to_snake_case
+@mutation.field("deleteUser")
 def resolve_delete_user(obj, info, id):
     '''GraphQL query to upsert a user.
         :param obj: obj is a value returned by a parent resolver
@@ -26,6 +28,6 @@ def resolve_delete_user(obj, info, id):
         :returns: 
     '''
     payload = {
-        id: 1001   
+        "id": 1001   
     }
     return payload
