@@ -8,15 +8,15 @@ scalar Date
 type Organization {
     id: ID!
     name: String!
-    teams: [Team]
+    teams: [Team!]!
 }
 
 type Team {
     id: ID!
     name: String!
-    users: [User]
-    programs: [Program]
-    organizations: [Organization]
+    users: [User!]!
+    programs: [Program!]!
+    organizations: [Organization!]!
 }
 
 type User {
@@ -36,10 +36,10 @@ type Role {
 type Program {
     id: ID!
     description: String! 
-    team: Team
-    datasets: [Dataset]
-    targets: [Target]
-    tags: [Tag]
+    team: Team!
+    datasets: [Dataset!]!
+    targets: [Target!]!
+    tags: [Tag!]!
 }
 
 type Tag {
@@ -47,8 +47,8 @@ type Tag {
     name: String!
     description: String!
     tagType: String!
-    programs: [Program]
-    dataset: [Dataset]
+    programs: [Program!]!
+    dataset: [Dataset!]!
 }
 
 type Target {
@@ -56,7 +56,7 @@ type Target {
     program: Program!
     category: String!
     categoryValue: String!
-    target: Float
+    target: Float!
 }
 
 type Dataset {
@@ -64,9 +64,9 @@ type Dataset {
     name: String!
     description: String!
     program: Program!
-    records: [Record]!
+    records: [Record!]!
     inputter: User!
-    tags: [Tag]
+    tags: [Tag!]!
 }
 
 type Record {
@@ -75,7 +75,7 @@ type Record {
     publicationDate: Date
     category: String!
     categoryValue: String!
-    count: Int
+    count: Int!
 }
 
 input UpsertUserInput {
@@ -87,11 +87,7 @@ input UpsertUserInput {
 }
 
 type UpsertUserOutput {
-    user: User
-}
-
-input DeleteUserInput {
-    id: ID!
+    user: User!
 }
 
 type DeleteUserOutput {
@@ -108,5 +104,5 @@ type Mutation {
     upsertUser(input: UpsertUserInput) : UpsertUserOutput!
 
     # Delete a user.
-    deleteUser(input: DeleteUserInput!) : DeleteUserOutput!
+    deleteUser(id: ID!) : DeleteUserOutput!
 }
