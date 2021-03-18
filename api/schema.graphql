@@ -25,6 +25,7 @@ type User {
   lastName: String!
   email: String!
   role: Role!
+  team: [Team!]!
 }
 
 type Role {
