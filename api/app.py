@@ -31,7 +31,7 @@ class UserDB(User, models.BaseUserDB):
     pass
 
 
-DATABASE_URL = "postgres:pass@localhost/bbc"
+DATABASE_URL = "postgres://postgres:pass@localhost/bbc"
 
 database = databases.Database(DATABASE_URL)
 
