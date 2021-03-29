@@ -1,7 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter } from "react-router-dom";
-import "./index.css";
 import "./i18n/i18next";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -20,9 +18,7 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
 const MainApp = () => {
   return (
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <App />
     </ApolloProvider>
   );
 };
