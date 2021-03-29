@@ -1,51 +1,61 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<Suspense
-  fallback={
-    <h1>
-      Loading profile...
-    </h1>
-  }
->
-  <Layout
-    style={
-      Object {
-        "height": "100vh",
-      }
+<BrowserRouter>
+  <Suspense
+    fallback={
+      <h1>
+        Loading...
+      </h1>
     }
   >
-    <AppHeader />
-    <Layout>
-      <AppSidebar />
-      <Layout
-        style={
-          Object {
-            "padding": "0 24px 24px",
-          }
+    <Layout
+      style={
+        Object {
+          "height": "100vh",
         }
-      >
-        <Content
-          className="site-layout-background"
+      }
+    >
+      <AppHeader />
+      <Layout>
+        <AppSidebar />
+        <Layout
           style={
             Object {
-              "marginTop": 24,
-              "minHeight": 280,
-              "padding": 24,
-            }
-          }
-        />
-        <Footer
-          style={
-            Object {
-              "textAlign": "center",
+              "padding": "0 24px 24px",
             }
           }
         >
-          Footer content
-        </Footer>
+          <Content
+            className="site-layout-background"
+            style={
+              Object {
+                "marginTop": 24,
+                "minHeight": 280,
+                "padding": 24,
+              }
+            }
+          >
+            <Switch>
+              <Route
+                component={[Function]}
+                exact={true}
+                path="/"
+              />
+            </Switch>
+          </Content>
+          <Footer
+            style={
+              Object {
+                "textAlign": "center",
+              }
+            }
+          >
+            Footer content
+          </Footer>
+        </Layout>
       </Layout>
     </Layout>
-  </Layout>
-</Suspense>
+  </Suspense>
+</BrowserRouter>
 `;
