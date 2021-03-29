@@ -1,5 +1,4 @@
 import React from "react";
-import "./DatasetsTable.css";
 import { Table } from "antd";
 
 interface TableProps {
