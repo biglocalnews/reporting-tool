@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Table, Column, Integer, Float, String, DateTime, ForeignKey
+from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -44,6 +44,9 @@ class User(Base):
     email = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
     team_id = Column(Integer, ForeignKey('team.id'), index=True)
+    is_active = Column(Boolean)
+    is_verified = Column(Boolean)
+    is_superuser = Column(Boolean)
     roles = relationship('UserRole', secondary=user_roles)
 
     created = Column(DateTime, nullable=False)
