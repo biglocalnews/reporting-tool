@@ -6,6 +6,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+### `yarn mock-server`
+
+Runs a mock GraphQL server on the client side. Open [http://localhost:4000](http://localhost:4000) to view the GQL playground in the browser.
+
 ### `yarn start`
 
 Runs the app in the development mode.\
