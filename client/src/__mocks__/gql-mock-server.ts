@@ -21,8 +21,6 @@ const mockTypes = {
 const server = new ApolloServer({
   typeDefs: schema,
   mocks: mockTypes,
-  // mocks: true,
-  // resolvers: resolvers,
   playground: true,
 });
 
