@@ -1,0 +1,33 @@
+import React from "react";
+import { AutoComplete, Input } from "antd";
+import { useTranslation } from "react-i18next";
+import { capitalizeFirstLetter } from "../utils";
+import "./SearchAutoComplete.css";
+
+interface Props {
+  dataSource: string[];
+  // onTextChange: (text: string) => void;
+}
+
+const SearchAutoComplete = ({ dataSource }: Props) => {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <AutoComplete
+      style={{ width: 300, float: "right", marginBottom: "10px" }}
+      aria-label="Search"
+      dropdownMatchSelectWidth={252}
+      dataSource={dataSource}
+      placeholder={`Search your ${t("programs")}`}
+      filterOption={(inputValue, option) =>
+        option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+      }
+      aria-expanded="false"
+      notFoundContent={`${capitalizeFirstLetter(t("program"))} not found`}
+    >
+      <Input.Search size="middle" enterButton />
+    </AutoComplete>
+  );
+};
+
+export { SearchAutoComplete };
