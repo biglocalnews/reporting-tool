@@ -5,7 +5,7 @@ import { capitalizeFirstLetter } from "../utils";
 import "./SearchAutoComplete.css";
 
 interface Props {
-  dataSource: string[];
+  dataSource: [];
   // onTextChange: (text: string) => void;
 }
 
@@ -17,7 +17,7 @@ const SearchAutoComplete = ({ dataSource }: Props) => {
       style={{ width: 300, float: "right", marginBottom: "10px" }}
       aria-label="Search"
       dropdownMatchSelectWidth={252}
-      dataSource={dataSource}
+      options={dataSource}
       placeholder={`Search your ${t("programs")}`}
       filterOption={(inputValue, option) =>
         option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
