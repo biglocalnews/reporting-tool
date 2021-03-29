@@ -120,7 +120,6 @@
     "@testing-library/react": "^11.2.5",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/faker": "^5.1.7",
     "@types/jest": "^26.0.20",
     "@types/jest-axe": "^3.5.0",
     "apollo": "^2.32.5",
