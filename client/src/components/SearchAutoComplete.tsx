@@ -17,7 +17,7 @@ const SearchAutoComplete = ({ dataSource }: Props) => {
       style={{ width: 300, float: "right", marginBottom: "10px" }}
       aria-label="Search"
       dropdownMatchSelectWidth={252}
-      options={dataSource}
+      dataSource={dataSource}
       placeholder={`Search your ${t("programs")}`}
       filterOption={(inputValue, option) =>
         option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1

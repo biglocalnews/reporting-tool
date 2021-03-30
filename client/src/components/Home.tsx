@@ -1,10 +1,8 @@
-import React, { Suspense } from "react";
-import { Layout, Tag, Button } from "antd";
+import React from "react";
+import { Tag, Button } from "antd";
 import { DatasetsTable } from "./DatasetsTable";
 import { SearchAutoComplete } from "./SearchAutoComplete";
 import { PlusOutlined } from "@ant-design/icons";
-
-const { Footer, Content } = Layout;
 
 const columns: any = [
   {
