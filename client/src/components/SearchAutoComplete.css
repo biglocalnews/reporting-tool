@@ -1,3 +1,7 @@
 .ant-select-selection-placeholder {
     color: #000;
 }
+
+.ant-select-item-empty::first-letter {
+    text-transform: capitalize;
+}

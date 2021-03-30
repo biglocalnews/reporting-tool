@@ -1,7 +1,6 @@
 import React from "react";
 import { AutoComplete, Input } from "antd";
 import { useTranslation } from "react-i18next";
-import { capitalizeFirstLetter } from "../utils";
 import "./SearchAutoComplete.css";
 
 interface Props {
@@ -23,7 +22,7 @@ const SearchAutoComplete = ({ dataSource }: Props) => {
         option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
       }
       aria-expanded="false"
-      notFoundContent={`${capitalizeFirstLetter(t("program"))} not found`}
+      notFoundContent={`${t("program")} not found`}
     >
       <Input.Search size="middle" enterButton />
     </AutoComplete>
