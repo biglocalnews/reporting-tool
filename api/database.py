@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from fastapi_users.db import SQLAlchemyBaseUserTable
+import databases
 
 from settings import settings
 

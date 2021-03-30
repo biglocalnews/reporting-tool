@@ -56,14 +56,14 @@ app.include_router(
 )
 app.include_router(
     fastapi_users.get_reset_password_router(
-        SECRET, after_forgot_password=on_after_forgot_password
+        settings.secret, after_forgot_password=on_after_forgot_password
     ),
     prefix="/auth",
     tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_verify_router(
-        SECRET, after_verification_request=after_verification_request
+        settings.secret, after_verification_request=after_verification_request
     ),
     prefix="/auth",
     tags=["auth"],
