@@ -4,9 +4,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from fastapi_users.db import SQLAlchemyBaseUserTable
 
+from settings import settings
 
-DATABASE_URL = "postgres://postgres:pass@localhost/bbc"
-database = databases.Database(DATABASE_URL)
+
+DATABASE_URL = f"{settings.db_user}:{settings.db_pw}@{settings.db_host}/{settings.db_name}"
+database = databases.Database("postgres://" + DATABASE_URL)
 
 
 Base = declarative_base()
@@ -161,7 +163,8 @@ class Record(Base):
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
+
 if __name__ == '__main__':
-    engine = create_engine('postgresql+psycopg2://postgres:pass@localhost/bbc')
+    engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
 
     Base.metadata.create_all(engine)

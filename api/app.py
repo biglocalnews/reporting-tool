@@ -15,16 +15,14 @@ from ariadne.asgi import GraphQL
 from database import database
 from queries import query
 from mutations import mutation
+from settings import settings
 import user
 
 
 app = FastAPI()
 
 
-#TODO, set secret as env var
-SECRET = "SECRET"
-jwt_authentication = JWTAuthentication(secret=SECRET, lifetime_seconds=3600, tokenUrl="/auth/jwt/login")
-
+jwt_authentication = JWTAuthentication(secret=settings.secret, lifetime_seconds=3600, tokenUrl="/auth/jwt/login")
 
 fastapi_users = FastAPIUsers(
     user.user_db,
