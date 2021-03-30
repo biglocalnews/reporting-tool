@@ -1,5 +1,8 @@
 {
-  "extends": ["tslint:recommended", "tslint-plugin-prettier"],
+  "extends": [
+    "tslint:recommended",
+    "tslint-plugin-prettier"
+  ],
   "rules": {
     "array-type": false,
     "prettier": true,
