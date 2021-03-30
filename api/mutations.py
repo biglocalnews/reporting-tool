@@ -33,8 +33,8 @@ def resolve_delete_user(obj, info, id):
     return payload
 
 @convert_kwargs_to_snake_case
-@mutation.field("addDataset")
-def resolve_add_dataset(obj, info, input):
+@mutation.field("createDataset")
+def resolve_create_dataset(obj, info, input):
     '''GraphQL query to add dataset.
         :param obj: obj is a value returned by a parent resolver
         :param info: Has context attribute that contains ContextValue specific to the server implementation.

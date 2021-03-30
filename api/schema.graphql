@@ -92,7 +92,7 @@ type UpsertUserOutput {
   user: User!
 }
 
-input AddDatasetInput {
+input CreateDatasetInput {
   name: String!
   description: String!
   programId: Int!
@@ -112,5 +112,5 @@ type Mutation {
   deleteUser(id: ID!): Int!
 
   # Add a Dataset
-  addDataset(input: AddDatasetInput): Dataset!
+  createDataset(input: CreateDatasetInput): Dataset!
 }
