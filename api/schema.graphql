@@ -99,10 +99,6 @@ input AddDatasetInput {
   tags: [Tag!]!
 }
 
-type DeleteUserOutput {
-  id: ID!
-}
-
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
@@ -113,7 +109,7 @@ type Mutation {
   upsertUser(input: UpsertUserInput): UpsertUserOutput!
 
   # Delete a user.
-  deleteUser(id: ID!): DeleteUserOutput!
+  deleteUser(id: ID!): Int!
 
   # Add a Dataset
   addDataset(input: AddDatasetInput): Dataset!
