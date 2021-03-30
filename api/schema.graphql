@@ -70,6 +70,7 @@ type Dataset {
   tags: [Tag!]!
 }
 
+# TODO checkin: shouldn't records be the ones flagged with inputter vs datasets
 type Record {
   id: ID!
   dataset: Dataset!
@@ -91,6 +92,13 @@ type UpsertUserOutput {
   user: User!
 }
 
+input AddDatasetInput {
+  name: String!
+  description: String!
+  programId: Int!
+  tags: [Tag!]!
+}
+
 type DeleteUserOutput {
   id: ID!
 }
@@ -106,4 +114,7 @@ type Mutation {
 
   # Delete a user.
   deleteUser(id: ID!): DeleteUserOutput!
+
+  # Add a Dataset
+  addDataset(input: AddDatasetInput): Dataset!
 }
