@@ -10,7 +10,7 @@ jest.mock("react-i18next", () => ({
       t: (str: string) => str,
       i18n: {
         /* tslint:disable:no-empty */
-        changeLanguage: () => new Promise(() => { }),
+        changeLanguage: () => new Promise(() => {}),
       },
     };
   },
