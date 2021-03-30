@@ -19,7 +19,7 @@ const SearchAutoComplete = ({ dataSource }: Props) => {
       dataSource={dataSource}
       placeholder={`Search your ${t("programs")}`}
       filterOption={(inputValue, option) =>
-        option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+        option?.value.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0
       }
       aria-expanded="false"
       notFoundContent={`${t("program")} not found`}
