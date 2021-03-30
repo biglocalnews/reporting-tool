@@ -2,8 +2,15 @@ from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from fastapi_users.db import SQLAlchemyBaseUserTable
+
+
+DATABASE_URL = "postgres://postgres:pass@localhost/bbc"
+database = databases.Database(DATABASE_URL)
+
 
 Base = declarative_base()
+
 
 class Organization(Base):
     __tablename__ = 'organization'
@@ -37,16 +44,10 @@ user_roles = Table('user_role', Base.metadata,
         )
 
 
-class User(Base):
+class User(Base, SQLAlchemyBaseUserTable):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), nullable=False)
-    password = Column(String(255), nullable=False)
     team_id = Column(Integer, ForeignKey('team.id'), index=True)
-    is_active = Column(Boolean)
-    is_verified = Column(Boolean)
-    is_superuser = Column(Boolean)
     roles = relationship('UserRole', secondary=user_roles)
 
     created = Column(DateTime, nullable=False)
