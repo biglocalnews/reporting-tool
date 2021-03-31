@@ -52,6 +52,12 @@ type Tag {
   dataset: [Dataset!]!
 }
 
+input TagInput {
+  name: String!
+  description: String
+  tagType: String!
+}
+
 type Target {
   id: ID!
   program: Program!
@@ -96,7 +102,7 @@ input CreateDatasetInput {
   name: String!
   description: String!
   programId: Int!
-  tags: [Tag!]!
+  tags: [TagInput!]!
 }
 
 type Query {
