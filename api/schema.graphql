@@ -46,7 +46,7 @@ type Program {
 type Tag {
   id: ID!
   name: String!
-  description: String!
+  description: String
   tagType: String!
   programs: [Program!]!
   dataset: [Dataset!]!
@@ -63,7 +63,7 @@ type Target {
 type Dataset {
   id: ID!
   name: String!
-  description: String!
+  description: String
   program: Program!
   records: [Record!]!
   inputter: User!
