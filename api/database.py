@@ -1,10 +1,12 @@
 import databases
 import uuid
-import datetime
 
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.sql import func
+from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 
@@ -24,27 +26,31 @@ class Organization(Base):
     __tablename__ = 'organization'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
     teams = relationship('Team')
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 class Team(Base):
     __tablename__ = 'team'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
     users = relationship('User')
     programs = relationship('Program')
     organization_id = Column(Integer, ForeignKey(
         'organization.id'), nullable=False, index=True)
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 user_roles = Table('user_role', Base.metadata,
@@ -58,12 +64,20 @@ user_roles = Table('user_role', Base.metadata,
 class User(Base, SQLAlchemyBaseUserTable):
     __tablename__ = 'user'
 
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
     team_id = Column(Integer, ForeignKey('team.id'), index=True)
     roles = relationship('Role', secondary=user_roles, backref='User')
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+    @classmethod
+    def get_full_name(user):
+        return f"{user.first_name} {user.last_name}"
 
 
 class Role(Base):
@@ -73,9 +87,11 @@ class Role(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 dataset_tags = Table('dataset_tag', Base.metadata,
@@ -106,9 +122,11 @@ class Program(Base):
     tags = relationship('Tag', secondary=program_tags,
                         back_populates='programs')
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 class Tag(Base):
@@ -123,9 +141,11 @@ class Tag(Base):
     datasets = relationship('Dataset', secondary=dataset_tags,
                             back_populates='tags')
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 class Target(Base):
@@ -137,9 +157,11 @@ class Target(Base):
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 class Dataset(Base):
@@ -156,9 +178,11 @@ class Dataset(Base):
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 class Record(Base):
@@ -172,9 +196,11 @@ class Record(Base):
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
 
-    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    updated = Column(DateTime)
-    deleted = Column(DateTime)
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 if __name__ == '__main__':
