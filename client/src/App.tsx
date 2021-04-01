@@ -4,6 +4,7 @@ import { Layout } from "antd";
 import AppHeader from "./components/AppHeader";
 import { AppSidebar } from "./components/AppSidebar";
 import { Home } from "./components/Home";
+import { ViewDatasetDetails } from "./components/ViewDatasetDetails";
 
 const { Footer, Content } = Layout;
 
@@ -26,6 +27,10 @@ function App() {
               >
                 <Switch>
                   <Route exact path="/" component={Home} />
+                  <Route
+                    path="/dataset-details/:datasetId"
+                    component={ViewDatasetDetails}
+                  />
                 </Switch>
               </Content>
               <Footer style={{ textAlign: "center" }}>Footer content</Footer>
