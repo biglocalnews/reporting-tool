@@ -50,23 +50,25 @@ const AppSidebar = () => {
           title={t("teamsSideBarTitle")}
           icon={<TeamOutlined />}
         >
-          {programs.map((program: { key: string; team: string; datasets: any[] }) => {
-            return (
-              <Menu.ItemGroup key={program.key} title={program.team}>
-                {program.datasets.map((dataset) => (
-                  <Menu.Item key={dataset.key}>
-                    <Link
-                      to={{
-                        pathname: `/dataset/${dataset.id}`,
-                      }}
-                    >
-                      {dataset.title}
-                    </Link>
-                  </Menu.Item>
-                ))}
-              </Menu.ItemGroup>
-            );
-          })}
+          {programs.map(
+            (program: { key: string; team: string; datasets: any[] }) => {
+              return (
+                <Menu.ItemGroup key={program.key} title={program.team}>
+                  {program.datasets.map((dataset) => (
+                    <Menu.Item key={dataset.key}>
+                      <Link
+                        to={{
+                          pathname: `/dataset/${dataset.id}`,
+                        }}
+                      >
+                        {dataset.title}
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </Menu.ItemGroup>
+              );
+            }
+          )}
         </SubMenu>
         <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
           <div style={{ padding: "20px", background: "#fff" }}>Chart here</div>

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { DatasetsTable } from "./DatasetsTable";
 
 interface RouteParams {
-  datasetId: string
+  datasetId: string;
 }
 
 const ViewDatasetDetails = ({ datasetId }: RouteParams) => {
