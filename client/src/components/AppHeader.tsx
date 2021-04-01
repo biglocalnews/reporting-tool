@@ -3,6 +3,7 @@ import "./AppHeader.css";
 import logo from "../assets/5050logo.jpg";
 import { Layout, Avatar, Col, Row } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
 const { Header } = Layout;
 
@@ -14,7 +15,9 @@ export default class AppHeader extends React.Component {
           <Row wrap={false}>
             <Col flex="none">
               <div className="header__logo">
-                <img src={logo} alt="App logo" />
+                <Link to="/">
+                  <img src={logo} alt="App logo" />
+                </Link>
               </div>
             </Col>
             <Col flex="auto">
