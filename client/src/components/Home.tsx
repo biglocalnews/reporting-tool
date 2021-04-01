@@ -1,6 +1,5 @@
 import React from "react";
-import { Tag, Button } from "antd";
-import { DatasetsTable } from "./DatasetsTable";
+import { Tag, Button, Table } from "antd";
 import { SearchAutoComplete } from "./SearchAutoComplete";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -76,7 +75,7 @@ const Home = () => {
           (i: { team: string; dataset: string }) => `${i.team} - ${i.dataset}`
         )}
       />
-      <DatasetsTable data={data} columns={columns} />
+      <Table dataSource={data} columns={columns} />
     </div>
   );
 };
