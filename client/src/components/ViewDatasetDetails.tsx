@@ -1,21 +1,36 @@
+import { Button, Col, Layout, Row } from "antd";
 import React from "react";
 import { useParams } from "react-router-dom";
-import { DatasetsTable } from "./DatasetsTable";
+import { PlusOutlined } from "@ant-design/icons";
+import { DatasetRecordsTable } from "./DatasetRecordsTable";
 
 interface RouteParams {
   datasetId: string;
 }
 
-const ViewDatasetDetails = ({ datasetId }: RouteParams) => {
+const ViewDatasetDetails = (): JSX.Element => {
   const params = useParams<RouteParams>();
+
   return (
-    <div>
-      <h2>
-        {"BBC News"} - {"Instagram"}
-        {params.datasetId}
-      </h2>
-      <DatasetsTable data={[]} columns={[]} />
-    </div>
+    <Layout className="site-layout-background">
+      <Row wrap={false} align="middle">
+        <Col flex="none">
+          <div>
+            <h2>Program</h2>
+            <h3>Dataset</h3>
+          </div>
+        </Col>
+        <Col flex="auto">
+          <div style={{ float: "right" }}>
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add Data
+            </Button>
+          </div>
+        </Col>
+      </Row>
+
+      <DatasetRecordsTable datasetId={params.datasetId} />
+    </Layout>
   );
 };
 
