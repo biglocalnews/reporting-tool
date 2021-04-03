@@ -56,7 +56,7 @@ class User(Base, SQLAlchemyBaseUserTable):
     __tablename__ = 'user'
 
     team_id = Column(Integer, ForeignKey('team.id'), index=True)
-    roles = relationship('UserRole', secondary=user_roles)
+    roles = relationship('Role', secondary=user_roles, backref='User')
 
     created = Column(DateTime, nullable=False)
     updated = Column(DateTime)
