@@ -12,7 +12,7 @@ DATABASE_URL = f"{settings.db_user}:{settings.db_pw}@{settings.db_host}/{setting
 database = databases.Database("postgres://" + DATABASE_URL)
 
 engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(bind=engine)
 
 Base = declarative_base()
 
