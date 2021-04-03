@@ -1,5 +1,8 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
+from settings import settings
+from database import SessionLocal, User
 
+session = SessionLocal()
 mutation = ObjectType("Mutation")
 
 @convert_kwargs_to_snake_case
@@ -39,11 +42,22 @@ def resolve_create_dataset(obj, info, input):
         :param obj: obj is a value returned by a parent resolver
         :param info: Has context attribute that contains ContextValue specific to the server implementation.
         :param input: Dataset to be created
-        :returns: 
-    '''
+        :returns: Created Dataset
+    # '''
+
+    # ins = session.query('dataset').insert().values(
+    #   name = 'Karan', 
+    #   description = "Jeans", 
+    #   programId = 1 
+    # )
+
+    cat = session.query(User)
+    print(f'{cat} love')
+    
     payload = {
-        "dataset": {
-            "id": 1004
-        }   
+        "id": 1004,
+        "name": "Bob",
+        "description": "Jeans",
+        "programId": 1 
     }
     return payload
