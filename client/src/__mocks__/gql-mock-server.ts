@@ -26,6 +26,9 @@ const mockTypes = {
 };
 
 const server = new ApolloServer({
+  // NOTE: "any" is used to bypass a type compatibility issue with the downloaded schema
+  // and the buildClientSchema function that should be resolved in the future.
+  // See here: https://github.com/apollographql/apollo-tooling/issues/1491
   schema: buildClientSchema(introspectedSchema as any),
   mocks: mockTypes,
   playground: true,
