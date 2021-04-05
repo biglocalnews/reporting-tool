@@ -21,8 +21,8 @@ const mockTypes = {
     name: "BBC News",
   }),
   Date: () => {
-    return fake.date()
-  }
+    return fake.date();
+  },
 };
 
 const server = new ApolloServer({
