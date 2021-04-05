@@ -94,10 +94,6 @@ input UpsertUserInput {
   role: String!
 }
 
-type UpsertUserOutput {
-  user: User!
-}
-
 input CreateDatasetInput {
   name: String!
   description: String!
@@ -113,7 +109,7 @@ type Query {
 
 type Mutation {
   # Upsert a user.
-  upsertUser(input: UpsertUserInput): UpsertUserOutput!
+  upsertUser(input: UpsertUserInput): User!
 
   # Delete a user.
   deleteUser(id: ID!): Int!
