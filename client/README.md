@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# Reporting Tool Client-Side
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -8,7 +8,9 @@ In the project directory, you can run:
 
 ### `yarn mock-server`
 
-Runs a mock GraphQL server on the client side. Open [http://localhost:4000](http://localhost:4000) to view the GQL playground in the browser.
+Downloads the GraphQL schema and mocks a GraphQL server on the client side. Open [http://localhost:4000](http://localhost:4000) to view the GQL playground in the browser.
+
+📝 **NOTE:** This script will default to using the local version of `schema.json` available in the branch if the backend GraphQL API is not running. If you'd like to use the schema from the API instead, run the server and then this script. See [API documentation here]("../../../api/README.md).
 
 ### `yarn start`
 
