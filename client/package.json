@@ -34,7 +34,7 @@
     "lint:fix": "tslint --fix -c tslint.json 'src/**/*{.ts,.tsx}'",
     "gentypes": "apollo client:codegen --target typescript --endpoint=http://localhost:8000/graphql --excludes='node_modules/*' --outputFlat='src/__generated__' --includes='src/**/*.ts*' --useReadOnlyTypes && pretty-quick --pattern 'client/src/__generated__/**/*.ts' --branch HEAD",
     "introspect": "apollo schema:download src/schema.json --endpoint=http://localhost:8000/graphql",
-    "mock-server": "ts-node-dev ./src/__mocks__/gql-mock-server.ts"
+    "mock-server": "yarn introspect && ts-node-dev ./src/__mocks__/gql-mock-server.ts"
   },
   "eslintConfig": {
     "extends": [
