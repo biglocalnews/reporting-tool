@@ -45,25 +45,25 @@ def resolve_create_dataset(obj, info, input):
         :param input: Dataset to be created
         :returns: Created Dataset
     # '''
-    #  clean_input = {
-    #     "name": input["name"],
-    #     "description": input["description"],
-    #     "program_id": input["program_id"],
-    #     "inputter_id": input["inputter_id"],
-    # }
+    clean_input = {
+        "name": input["name"],
+        "description": input["description"],
+        "program_id": input["program_id"],
+        "inputter_id": input["inputter_id"]
+    }
 
     print(f'{input} input')
-    dataset = Dataset(name=input.name, description=input.description, program_id=input.program_id, inputter_id=input.inputter_id, created_at=datetime.datetime.now())
+    dataset = Dataset(clean_input)
     session.add(dataset)
     session.commit()
 
     flushed_dataset = session.query(Dataset).filter_by(name='dummy').first()
     print(f'{flushed_dataset.name} love')
 
-    payload = {
-        "id": 1004,
-        "name": "Bob",
-        "description": "Jeans",
-        "programId": 1 
-    }
-    return payload
+    # payload = {
+    #     "id": 1004,
+    #     "name": "Bob",
+    #     "description": "Jeans",
+    #     "programId": 1 
+    # }
+    return flushed_dataset
