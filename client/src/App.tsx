@@ -4,7 +4,8 @@ import { Layout } from "antd";
 import AppHeader from "./components/AppHeader";
 import { AppSidebar } from "./components/AppSidebar";
 import { Home } from "./components/Home";
-import { ViewDatasetDetails } from "./components/ViewDatasetDetails";
+import { DatasetDetails } from "./components/DatasetDetails";
+import { DataEntry } from "./components/DataEntry";
 
 const { Footer, Content } = Layout;
 
@@ -28,8 +29,12 @@ function App() {
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route
-                    path="/dataset-details/:datasetId"
-                    component={ViewDatasetDetails}
+                    path="/dataset/:datasetId/details"
+                    component={DatasetDetails}
+                  />
+                  <Route
+                    path="/dataset/:datasetId/entry"
+                    component={DataEntry}
                   />
                 </Switch>
               </Content>

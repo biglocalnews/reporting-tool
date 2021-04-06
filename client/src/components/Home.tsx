@@ -73,7 +73,7 @@ const Home = (): JSX.Element => {
           <Space>
             <Link
               to={{
-                pathname: `/add-data/${datasetId}`,
+                pathname: `/dataset/${datasetId}/entry`,
               }}
             >
               <Button type="primary" icon={<PlusOutlined />}>
@@ -82,7 +82,7 @@ const Home = (): JSX.Element => {
             </Link>
             <Link
               to={{
-                pathname: `/dataset-details/${datasetId}`,
+                pathname: `/dataset/${datasetId}/details`,
               }}
             >
               <Button icon={<InfoCircleOutlined />}>View Details</Button>
