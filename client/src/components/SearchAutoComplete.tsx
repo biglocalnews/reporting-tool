@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import "./SearchAutoComplete.css";
 
 interface Props {
-  dataSource: string[];
+  dataSource: [];
   // onTextChange: (text: string) => void;
 }
 

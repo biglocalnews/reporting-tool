@@ -2,19 +2,9 @@ import React from "react";
 import { Tag, Button, Table, Space } from "antd";
 import { SearchAutoComplete } from "./SearchAutoComplete";
 import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
 
-interface Dataset {
-  key: string;
-  id: number;
-  team: string;
-  dataset: string;
-  lastUpdated: string;
-  tags: string[];
-}
-
-const data: Dataset[] = [
+const data: any = [
   {
     key: "1",
     id: 1,
@@ -42,7 +32,7 @@ const data: Dataset[] = [
 ];
 
 const Home = (): JSX.Element => {
-  const columns: ColumnsType<Dataset> = [
+  const columns = [
     {
       title: "Team",
       dataIndex: "team",
