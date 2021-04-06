@@ -1,10 +1,9 @@
-import { Table, Typography } from "antd";
+import { Table } from "antd";
 import React from "react";
-import { ColumnsType } from "antd/es/table";
 import "./DatasetRecordsTable.css";
+import { Link } from "react-router-dom";
 
 const { Column, ColumnGroup } = Table;
-const { Text } = Typography;
 
 interface DatasetRecordsProps {
   datasetId: string;
@@ -39,7 +38,7 @@ type Disability = {
 interface Record {
   key: string;
   id: number;
-  airdate: string;
+  publicationDate: string;
   gender: Gender;
   race?: Race;
   ethnicity?: Ethnicity;
@@ -51,7 +50,7 @@ const data: Record[] = [
   {
     key: "1",
     id: 1,
-    airdate: "12/11/2020",
+    publicationDate: "12/11/2020",
     gender: {
       men: 1,
       women: 2,
@@ -68,7 +67,7 @@ const data: Record[] = [
   {
     key: "2",
     id: 2,
-    airdate: "12/12/2020",
+    publicationDate: "12/12/2020",
     gender: {
       men: 1,
       women: 2,
@@ -84,6 +83,16 @@ const data: Record[] = [
   },
 ];
 
+const getValueGetter = <T extends { [key: string]: number }>(key: keyof T) => {
+  return (record: T | undefined) => {
+    if (!record) {
+      return 0;
+    }
+
+    return record[key] || 0;
+  };
+};
+
 const DatasetRecordsTable = ({
   datasetId,
 }: DatasetRecordsProps): JSX.Element => {
@@ -92,40 +101,29 @@ const DatasetRecordsTable = ({
       className="dataset-records-table"
       dataSource={data}
       bordered
-      size="middle"
-      scroll={{ x: 1200 }}
+      size="small"
+      scroll={{ x: 1000 }}
       sticky
-      title={() => "Totals"}
+      title={() => "Summary"}
     >
       <Column
-        title="Air Date"
-        dataIndex="airdate"
+        title="Date"
+        dataIndex="publicationDate"
         key="key"
-        responsive={["md"]}
-        width="50"
+        width="80"
         fixed="left"
       />
       <ColumnGroup title="Gender">
-        <Column
-          title="Men"
-          dataIndex="gender"
-          render={(gender: Gender) => {
-            return <Text>{gender.men}</Text>;
-          }}
-        />
+        <Column title="Men" dataIndex="gender" render={getValueGetter("men")} />
         <Column
           title="Women"
           dataIndex="gender"
-          render={(gender: Gender) => {
-            return <Text>{gender.women}</Text>;
-          }}
+          render={getValueGetter("women")}
         />
         <Column
           title="Non-Binary"
           dataIndex="gender"
-          render={(gender: Gender) => {
-            return <Text>{gender.nonBinary}</Text>;
-          }}
+          render={getValueGetter("nonBinary")}
         />
       </ColumnGroup>
 
@@ -133,75 +131,52 @@ const DatasetRecordsTable = ({
         <Column
           title="Black"
           dataIndex="race"
-          render={(race: Race) => {
-            if (typeof race && typeof race.black !== "undefined") {
-              return <Text>{race.black}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("black")}
         />
         <Column
           title="White"
           dataIndex="race"
-          render={(race: Race) => {
-            if (typeof race && typeof race.white !== "undefined") {
-              return <Text>{race.white}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("white")}
         />
         <Column
           title="Asian"
           dataIndex="race"
-          render={(race: Race) => {
-            if (typeof race && typeof race.asian !== "undefined") {
-              return <Text>{race.asian}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("asian")}
         />
       </ColumnGroup>
       <ColumnGroup title="Ethnicity">
         <Column
           title="Hispanic/Latinx"
           dataIndex="ethnicity"
-          render={(ethnicity: Ethnicity) => {
-            if (
-              typeof ethnicity &&
-              typeof ethnicity.hispanicLatinx !== "undefined"
-            ) {
-              return <Text>{ethnicity.hispanicLatinx}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("hispanicLatinx")}
         />
         <Column
           title="Western European"
           dataIndex="ethnicity"
-          render={(ethnicity: Ethnicity) => {
-            if (
-              typeof ethnicity &&
-              typeof ethnicity.westernEuropean !== "undefined"
-            ) {
-              return <Text>{ethnicity.westernEuropean}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("westernEuropean")}
         />
         <Column
           title="Eastern European"
           dataIndex="ethnicity"
-          render={(ethnicity: Ethnicity) => {
-            if (
-              typeof ethnicity &&
-              typeof ethnicity.easternEuropean !== "undefined"
-            ) {
-              return <Text>{ethnicity.easternEuropean}</Text>;
-            }
-            return 0;
-          }}
+          render={getValueGetter("easternEuropean")}
         />
       </ColumnGroup>
+      <Column
+        dataIndex="id"
+        fixed="right"
+        width="80"
+        render={(recordId: number) => {
+          return (
+            <Link
+              to={{
+                pathname: `/add-data/${recordId}`,
+              }}
+            >
+              Edit
+            </Link>
+          );
+        }}
+      ></Column>
     </Table>
   );
 };

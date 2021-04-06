@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import "./SearchAutoComplete.css";
 
 interface Props {
-  dataSource: [];
+  dataSource: string[];
   // onTextChange: (text: string) => void;
 }
 
-const SearchAutoComplete = ({ dataSource }: Props) => {
+const SearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   return (

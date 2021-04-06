@@ -1,39 +1,48 @@
 import React from "react";
-import { Tag, Button } from "antd";
-import { DatasetsTable } from "./DatasetsTable";
+import { Tag, Button, Table, Space } from "antd";
 import { SearchAutoComplete } from "./SearchAutoComplete";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
 
-const Home = () => {
-  const data: any = [
-    {
-      key: "1",
-      id: 1,
-      team: "BBC News",
-      dataset: "Instagram",
-      lastUpdated: "12/12/2020",
-      tags: ["news", "social media", "instagram"],
-    },
-    {
-      key: "2",
-      id: 2,
-      team: "BBC News",
-      dataset: "12pm-4pm",
-      lastUpdated: "12/12/2020",
-      tags: ["news", "television", "afternoon"],
-    },
-    {
-      key: "3",
-      id: 3,
-      team: "BBC News",
-      lastUpdated: "12/12/2020",
-      dataset: "Breakfast Hour",
-      tags: ["news", "breakfast"],
-    },
-  ];
+interface Dataset {
+  key: string;
+  id: number;
+  team: string;
+  dataset: string;
+  lastUpdated: string;
+  tags: string[];
+}
 
-  const columns: any = [
+const data: Dataset[] = [
+  {
+    key: "1",
+    id: 1,
+    team: "BBC News",
+    dataset: "12pm-4pm",
+    lastUpdated: "12/19/2020",
+    tags: ["news", "television", "afternoon"],
+  },
+  {
+    key: "2",
+    id: 2,
+    team: "BBC News",
+    dataset: "Instagram",
+    lastUpdated: "12/12/2020",
+    tags: ["news", "social media", "instagram"],
+  },
+  {
+    key: "3",
+    id: 3,
+    team: "BBC News",
+    dataset: "Breakfast Hour",
+    lastUpdated: "12/20/2020",
+    tags: ["news", "breakfast"],
+  },
+];
+
+const Home = (): JSX.Element => {
+  const columns: ColumnsType<Dataset> = [
     {
       title: "Team",
       dataIndex: "team",
@@ -53,6 +62,7 @@ const Home = () => {
       title: "Tags",
       key: "tags",
       dataIndex: "tags",
+      width: 250,
       render: (tags: string[]) => {
         return tags.map((tag: string) => {
           const color = "blue";
@@ -67,15 +77,27 @@ const Home = () => {
     },
     {
       dataIndex: "id",
+      width: 250,
       render: function btn(datasetId: number) {
         return (
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}`,
-            }}
-          >
-            <Button icon={<PlusOutlined />}>Add Data</Button>
-          </Link>
+          <Space>
+            <Link
+              to={{
+                pathname: `/add-data/${datasetId}`,
+              }}
+            >
+              <Button type="primary" icon={<PlusOutlined />}>
+                Add Data
+              </Button>
+            </Link>
+            <Link
+              to={{
+                pathname: `/dataset-details/${datasetId}`,
+              }}
+            >
+              <Button icon={<InfoCircleOutlined />}>View Details</Button>
+            </Link>
+          </Space>
         );
       },
     },
@@ -88,7 +110,7 @@ const Home = () => {
           (i: { team: string; dataset: string }) => `${i.team} - ${i.dataset}`
         )}
       />
-      <DatasetsTable data={data} columns={columns} />
+      <Table dataSource={data} columns={columns} />
     </div>
   );
 };
