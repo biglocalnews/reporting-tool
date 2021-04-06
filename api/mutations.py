@@ -6,12 +6,15 @@ from database import SessionLocal, User, Dataset
 session = SessionLocal()
 mutation = ObjectType("Mutation")
 
+'''GraphQL query defaults
+    :param obj: obj is a value returned by a parent resolver
+    :param info: Has context attribute that contains ContextValue specific to the server implementation.
+'''
+
 @convert_kwargs_to_snake_case
 @mutation.field("upsertUser")
 def resolve_upsert_user(obj, info, input):
     '''GraphQL query to upsert a user.
-        :param obj: obj is a value returned by a parent resolver
-        :param info: Has context attribute that contains ContextValue specific to the server implementation.
         :param input: Params to be changed
         :returns: 
     '''
@@ -25,9 +28,7 @@ def resolve_upsert_user(obj, info, input):
 @convert_kwargs_to_snake_case
 @mutation.field("deleteUser")
 def resolve_delete_user(obj, info, id):
-    '''GraphQL query to upsert a user.
-        :param obj: obj is a value returned by a parent resolver
-        :param info: Has context attribute that contains ContextValue specific to the server implementation.
+    '''GraphQL query to delete a user.
         :param id: Id for the user to be deleted 
         :returns: 
     '''
@@ -39,12 +40,10 @@ def resolve_delete_user(obj, info, id):
 @convert_kwargs_to_snake_case
 @mutation.field("createDataset")
 def resolve_create_dataset(obj, info, input):
-    '''GraphQL query to add dataset.
-        :param obj: obj is a value returned by a parent resolver
-        :param info: Has context attribute that contains ContextValue specific to the server implementation.
-        :param input: Dataset to be created
-        :returns: Created Dataset
-    # '''
+    '''GraphQL query to create a dataset.
+        :param id: Params to be changed 
+        :returns: 
+    '''
     clean_input = {
         "name": input["name"],
         "description": input["description"],
