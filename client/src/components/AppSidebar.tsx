@@ -4,11 +4,37 @@ import { Layout, Menu } from "antd";
 import { TeamOutlined, BarChartOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import i18next from "../i18n/i18next";
+import { Link } from "react-router-dom";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-function AppSidebar() {
+// TODO: add gql query for retrieving datasets a user has access to
+const programs: any = [
+  {
+    key: "1",
+    team: "BBC News",
+    datasets: [
+      {
+        key: "1",
+        id: 1,
+        title: "Instagram",
+      },
+      {
+        key: "2",
+        id: 2,
+        title: "12pm-4pm",
+      },
+      {
+        key: "3",
+        id: 3,
+        title: "Breakfast Hour",
+      },
+    ],
+  },
+];
+
+const AppSidebar = () => {
   const { t, i18n } = useTranslation();
 
   return (
@@ -16,7 +42,6 @@ function AppSidebar() {
       <Menu
         mode="inline"
         theme="light"
-        defaultSelectedKeys={["1"]}
         defaultOpenKeys={["teams", "stats"]}
         style={{ height: "100%", borderRight: 0 }}
       >
@@ -25,15 +50,25 @@ function AppSidebar() {
           title={t("teamsSideBarTitle")}
           icon={<TeamOutlined />}
         >
-          <Menu.ItemGroup title="BBC News">
-            <Menu.Item key="1">Weekday Early 0900-1300</Menu.Item>
-            <Menu.Item key="2">News At One 1300-1330</Menu.Item>
-            <Menu.Item key="3">Weekday Afternoon 1330-1700</Menu.Item>
-          </Menu.ItemGroup>
-          <Menu.ItemGroup title="BBC Radio Devon">
-            <Menu.Item key="4">Breakfast</Menu.Item>
-            <Menu.Item key="5">Afternoon</Menu.Item>
-          </Menu.ItemGroup>
+          {programs.map(
+            (program: { key: string; team: string; datasets: any[] }) => {
+              return (
+                <Menu.ItemGroup key={program.key} title={program.team}>
+                  {program.datasets.map((dataset) => (
+                    <Menu.Item key={dataset.key}>
+                      <Link
+                        to={{
+                          pathname: `/dataset/${dataset.id}`,
+                        }}
+                      >
+                        {dataset.title}
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </Menu.ItemGroup>
+              );
+            }
+          )}
         </SubMenu>
         <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
           <div style={{ padding: "20px", background: "#fff" }}>Chart here</div>
@@ -41,6 +76,6 @@ function AppSidebar() {
       </Menu>
     </Sider>
   );
-}
+};
 
 export { AppSidebar };

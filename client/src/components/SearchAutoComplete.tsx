@@ -8,7 +8,7 @@ interface Props {
   // onTextChange: (text: string) => void;
 }
 
-const SearchAutoComplete = ({ dataSource }: Props) => {
+const SearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   return (
