@@ -1,0 +1,14 @@
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0.3em 0.6em;
+}
+
+input[type="number"],
+select {
+  width: auto;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
