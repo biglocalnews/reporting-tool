@@ -7,7 +7,7 @@ const AggregateDataEntryForm = (): JSX.Element => {
     event.target.value = "";
   };
 
-  //TODO: set state for each entry
+  // TODO: set state for each entry
 
   return (
     <Card type="inner" title="Gender">
