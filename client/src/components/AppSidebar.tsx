@@ -58,7 +58,7 @@ const AppSidebar = () => {
                     <Menu.Item key={dataset.key}>
                       <Link
                         to={{
-                          pathname: `/dataset/${dataset.id}`,
+                          pathname: `/dataset/${dataset.id}/details`,
                         }}
                       >
                         {dataset.title}
