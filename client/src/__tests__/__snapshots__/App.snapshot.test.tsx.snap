@@ -28,13 +28,6 @@ exports[`renders correctly 1`] = `
         >
           <Content
             className="site-layout-background"
-            style={
-              Object {
-                "marginTop": 24,
-                "minHeight": 280,
-                "padding": 24,
-              }
-            }
           >
             <Switch>
               <Route
@@ -44,7 +37,11 @@ exports[`renders correctly 1`] = `
               />
               <Route
                 component={[Function]}
-                path="/dataset-details/:datasetId"
+                path="/dataset/:datasetId/details"
+              />
+              <Route
+                component={[Function]}
+                path="/dataset/:datasetId/entry"
               />
             </Switch>
           </Content>
