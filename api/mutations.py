@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset
@@ -44,25 +45,25 @@ def resolve_create_dataset(obj, info, input):
         :param id: Params to be changed 
         :returns: 
     '''
-    clean_input = {
-        "name": input["name"],
-        "description": input["description"],
-        "program_id": input["program_id"],
-        "inputter_id": input["inputter_id"]
-    }
+
+    #TODO need to handle incoming associated tags! 
 
     print(f'{input} input')
-    dataset = Dataset(clean_input)
+
+    dataset_input = {
+        "name": input["name"],
+        "description": input["description"],
+        "program_id": input["programId"],
+        "inputter_id": '3dd10e5f-be57-435c-b721-28f3ced5dc89',
+    }
+
+    print(f'{dataset_input} clean_input')
+    dataset = Dataset(**dataset_input)
     session.add(dataset)
     session.commit()
 
-    flushed_dataset = session.query(Dataset).filter_by(name='dummy').first()
-    print(f'{flushed_dataset.name} love')
+    flushed_dataset = session.query(Dataset).first()
 
-    # payload = {
-    #     "id": 1004,
-    #     "name": "Bob",
-    #     "description": "Jeans",
-    #     "programId": 1 
-    # }
+    print(f'{flushed_dataset} love')
+
     return flushed_dataset
