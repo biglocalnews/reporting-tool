@@ -36,6 +36,7 @@ type Role {
 
 type Program {
   id: ID!
+  name: String!
   description: String!
   team: Team!
   datasets: [Dataset!]!
@@ -98,6 +99,8 @@ type DeleteUserOutput {
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
+  # Retrieve a single dataset.
+  dataset(id: ID!): Dataset
 }
 
 type Mutation {
