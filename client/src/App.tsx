@@ -4,7 +4,9 @@ import { Layout } from "antd";
 import AppHeader from "./components/AppHeader";
 import { AppSidebar } from "./components/AppSidebar";
 import { Home } from "./components/Home";
-import { ViewDatasetDetails } from "./components/ViewDatasetDetails";
+import { DatasetDetails } from "./components/DatasetDetails";
+import { DataEntry } from "./components/DataEntry";
+import "./App.css";
 
 const { Footer, Content } = Layout;
 
@@ -17,19 +19,16 @@ function App() {
           <Layout>
             <AppSidebar />
             <Layout style={{ padding: "0 24px 24px" }}>
-              <Content
-                className="site-layout-background"
-                style={{
-                  padding: 24,
-                  marginTop: 24,
-                  minHeight: 280,
-                }}
-              >
+              <Content className="site-layout-background">
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route
-                    path="/dataset-details/:datasetId"
-                    component={ViewDatasetDetails}
+                    path="/dataset/:datasetId/details"
+                    component={DatasetDetails}
+                  />
+                  <Route
+                    path="/dataset/:datasetId/entry"
+                    component={DataEntry}
                   />
                 </Switch>
               </Content>

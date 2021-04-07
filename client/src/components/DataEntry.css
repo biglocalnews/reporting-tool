@@ -1,0 +1,24 @@
+.data-entry_record_person_type {
+  font-size: large;
+}
+
+.data-entry {
+  margin-top: 20px;
+}
+
+.data-entry_category-descr-header {
+  color: #cc4a51;
+}
+
+input[type="date"],
+select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.publication-date-field {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  grid-gap: 5px;
+}

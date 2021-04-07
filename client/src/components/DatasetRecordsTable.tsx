@@ -169,7 +169,7 @@ const DatasetRecordsTable = ({
           return (
             <Link
               to={{
-                pathname: `/add-data/${recordId}`,
+                pathname: `/dataset/${recordId}`,
               }}
             >
               Edit

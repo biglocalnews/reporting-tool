@@ -1,6 +1,6 @@
 import { Button, Col, Layout, Row } from "antd";
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import { DatasetRecordsTable } from "./DatasetRecordsTable";
 
@@ -8,11 +8,11 @@ interface RouteParams {
   datasetId: string;
 }
 
-const ViewDatasetDetails = (): JSX.Element => {
+const DatasetDetails = (): JSX.Element => {
   const params = useParams<RouteParams>();
 
   return (
-    <Layout className="site-layout-background">
+    <>
       <Row wrap={false} align="middle">
         <Col flex="none">
           <div>
@@ -22,16 +22,22 @@ const ViewDatasetDetails = (): JSX.Element => {
         </Col>
         <Col flex="auto">
           <div style={{ float: "right" }}>
-            <Button type="primary" icon={<PlusOutlined />}>
-              Add Data
-            </Button>
+            <Link
+              to={{
+                pathname: `/dataset/${params.datasetId}/entry`,
+              }}
+            >
+              <Button type="primary" icon={<PlusOutlined />}>
+                Add Data
+              </Button>
+            </Link>
           </div>
         </Col>
       </Row>
 
       <DatasetRecordsTable datasetId={params.datasetId} />
-    </Layout>
+    </>
   );
 };
 
-export { ViewDatasetDetails };
+export { DatasetDetails };
