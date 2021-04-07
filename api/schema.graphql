@@ -97,8 +97,8 @@ input UpsertUserInput {
 input CreateDatasetInput {
   name: String!
   description: String!
-  programId: Int!
-  inputterId: Int!
+  programId: ID!
+  inputterId: ID!
   tags: [TagInput!]!
 }
 
