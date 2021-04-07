@@ -5,20 +5,47 @@ import fake from "casual";
 
 fake.seed(123);
 
+
+// Mocked users
+const users = new Map([
+  ["1", {
+    id: "1",
+    firstName: "Mary",
+    lastName: "Apple",
+  }],
+]);
+
+// Mocked datasets
+const datasets = new Map([
+  ["5a8ee1d5-2b5a-49db-b466-68fe50a27cdb", {
+    id: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
+    name: "BBC News Dataset",
+  }],
+]);
+
+
 const mockTypes = {
+  Team: () => ({
+    programs: () => [{}],
+  }),
   User: () => ({
-    id: 1,
     firstName: fake.first_name,
     lastName: fake.last_name,
+    teams: () => [{}],
   }),
-  Dataset: () => ({
-    name: fake.title,
+  Query: () => ({
+    //@ts-ignore
+    dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
+    //@ts-ignore
+    user: (parent, args, ctx, info) => users.get(args.id) || {},
   }),
   Tag: () => ({
     name: fake.word,
   }),
   Program: () => ({
+    id: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
     name: "BBC News",
+    datasets: Array.from(datasets.values()),
   }),
   Date: () => {
     return fake.date();
