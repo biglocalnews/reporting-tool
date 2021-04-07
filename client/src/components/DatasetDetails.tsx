@@ -12,7 +12,7 @@ const DatasetDetails = (): JSX.Element => {
   const params = useParams<RouteParams>();
 
   return (
-    <Layout className="site-layout-background">
+    <>
       <Row wrap={false} align="middle">
         <Col flex="none">
           <div>
@@ -36,7 +36,7 @@ const DatasetDetails = (): JSX.Element => {
       </Row>
 
       <DatasetRecordsTable datasetId={params.datasetId} />
-    </Layout>
+    </>
   );
 };
 
