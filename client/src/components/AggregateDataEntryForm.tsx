@@ -4,7 +4,9 @@ import "./AggregateDataEntryForm.css";
 
 const AggregateDataEntryForm = (): JSX.Element => {
   const handleFocus = (event: { target: { value: string } }) => {
-    event.target.value = "";
+    if (event.target.value === "0") {
+      event.target.value = "";
+    }
   };
 
   // TODO: set state for each entry
