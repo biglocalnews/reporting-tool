@@ -73,10 +73,10 @@ const mockTypes = {
     teams: () => [{}],
   }),
   Query: () => ({
-    //@ts-ignore
+    // @ts-ignore
     dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
+    // @ts-ignore
     user: (parent, args, ctx, info) => users.get(args.id) || {},
   }),
   Tag: () => ({
