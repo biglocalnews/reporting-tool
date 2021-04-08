@@ -12,7 +12,10 @@ import {
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "/graphql/",
+  uri:
+    process.env.REACT_APP_ENV === "mock"
+      ? "http://localhost:4000"
+      : "/graphql/",
 });
 
 const MainApp = () => {
