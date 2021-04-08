@@ -1,42 +1,67 @@
-import { Button, Col, Layout, Row } from "antd";
+import { Button, Col, Row, Typography } from "antd";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import { DatasetRecordsTable } from "./DatasetRecordsTable";
+import { useQuery } from "@apollo/react-hooks";
+import { GetDataset, GetDatasetVariables } from "../__generated__/GetDataset";
+import { GET_DATASET } from "../queries/GetDataset.gql";
 
 interface RouteParams {
   datasetId: string;
 }
 
+const { Text, Title } = Typography;
+
 const DatasetDetails = (): JSX.Element => {
-  const params = useParams<RouteParams>();
+  const { datasetId } = useParams<RouteParams>();
+
+  const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
+    GET_DATASET,
+    {
+      variables: { id: datasetId },
+    }
+  );
 
   return (
-    <>
-      <Row wrap={false} align="middle">
-        <Col flex="none">
-          <div>
-            <h2>Program</h2>
-            <h3>Dataset</h3>
-          </div>
-        </Col>
-        <Col flex="auto">
-          <div style={{ float: "right" }}>
-            <Link
-              to={{
-                pathname: `/dataset/${params.datasetId}/entry`,
-              }}
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                Add Data
-              </Button>
-            </Link>
-          </div>
-        </Col>
-      </Row>
+    <div>
+      {loading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <div>
+          <Row wrap={false} align="middle">
+            <Col flex="none">
+              <div>
+                <Title style={{ marginBottom: "0px" }} level={2}>
+                  {data?.dataset?.program.name}
+                </Title>
+                <Text style={{ fontSize: "large", marginTop: "0px" }}>
+                  {data?.dataset?.name}
+                </Text>
+              </div>
+            </Col>
+            <Col flex="auto">
+              <div style={{ float: "right" }}>
+                <Link
+                  to={{
+                    pathname: `/dataset/${datasetId}/entry`,
+                  }}
+                >
+                  <Button type="primary" icon={<PlusOutlined />}>
+                    Add Data
+                  </Button>
+                </Link>
+              </div>
+            </Col>
+          </Row>
 
-      <DatasetRecordsTable datasetId={params.datasetId} />
-    </>
+          <DatasetRecordsTable
+            datasetId={datasetId}
+            records={data?.dataset?.records}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

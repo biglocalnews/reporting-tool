@@ -1,17 +1,9 @@
-import {
-  Col,
-  Radio,
-  Row,
-  Typography,
-  Button,
-  Space,
-  message,
-  Popconfirm,
-} from "antd";
-import React from "react";
+import { Col, Radio, Row, Typography, Button, Space } from "antd";
+import React, { useState } from "react";
 import "./DataEntry.css";
 import { PlusOutlined, DashboardOutlined } from "@ant-design/icons";
 import { AggregateDataEntryForm } from "./AggregateDataEntryForm";
+import { useParams } from "react-router-dom";
 
 const { Text, Title } = Typography;
 
@@ -21,25 +13,23 @@ const personTypeOptions = [
   { label: "Public Figures", value: "Orange" },
 ];
 
-const DataEntry = (): JSX.Element => {
-  const confirm = (e: any) => {
-    console.log(e);
-    message.success("Record has been deleted!");
-  };
+interface RouteParams {
+  datasetId: string;
+  recordId?: string;
+}
 
-  const cancel = (e: any) => {
-    console.log(e);
-    message.error("Delete cancelled");
-  };
+const DataEntry = (): JSX.Element => {
+  // TODO: use parameters to manage mutation
+  const { datasetId, recordId } = useParams<RouteParams>();
 
   return (
     <>
       <Row align="bottom">
         <Col span={12}>
-          <Title level={2}>
+          <Title style={{ marginBottom: "10px" }} level={2}>
             Add record for <a href="/">{"BBC News - 12pm-4pm"}</a>
           </Title>
-          <Text strong className="data-entry_record_person_type">
+          <Text className="data-entry_record_person_type">
             {`This record refers to `}
           </Text>
           <Radio.Group
@@ -88,17 +78,6 @@ const DataEntry = (): JSX.Element => {
                 >
                   Save and Return to Dashboard
                 </Button>
-                <Popconfirm
-                  title="Are you sure to delete this record?"
-                  onConfirm={confirm}
-                  onCancel={cancel}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button type="primary" danger>
-                    Delete Current Record
-                  </Button>
-                </Popconfirm>
               </Space>
             </Col>
           </Row>

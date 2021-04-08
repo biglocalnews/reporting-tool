@@ -11,7 +11,6 @@ const AggregateDataEntryForm = (): JSX.Element => {
 
   // TODO: set state for each entry
   const [women, setWomen] = useState(0);
-  console.log("STATE women", women)
 
   return (
     <Card type="inner" title="Gender">
@@ -23,7 +22,7 @@ const AggregateDataEntryForm = (): JSX.Element => {
             className="data-input-form_field"
             onFocus={handleFocus}
             value={women}
-            onChange={e => setWomen(+e.target.value)}
+            onChange={(e) => setWomen(+e.target.value)}
           />{" "}
           Women
         </label>
