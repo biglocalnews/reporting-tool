@@ -37,11 +37,16 @@ exports[`renders correctly 1`] = `
               />
               <Route
                 component={[Function]}
+                exact={true}
                 path="/dataset/:datasetId/details"
               />
               <Route
                 component={[Function]}
                 path="/dataset/:datasetId/entry"
+              />
+              <Route
+                component={[Function]}
+                path="/dataset/:datasetId/entry/edit/:recordId"
               />
             </Switch>
           </Content>
