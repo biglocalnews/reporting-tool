@@ -3,6 +3,7 @@ import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program
+from sqlalchemy.orm import joinedload
 
 session = SessionLocal()
 mutation = ObjectType("Mutation")
@@ -45,9 +46,9 @@ def resolve_create_dataset(obj, info, input):
         :param id: Params to be changed 
         :returns: 
     '''
-
-    #TODO figure out how to eager load associated tags with flushed_dataset and return with payload! 
+    #TODO Flush vs Commits??
     #TODO check docs- more efficient syntax to handle loading associated programs?
+    #TODO check docs- is there a fancy decorator to handle automatic snakecase mapping of inputs?
 
     print(f'{input} input')
 
@@ -79,4 +80,9 @@ def resolve_create_dataset(obj, info, input):
         session.add(tag)
         session.commit()
 
-    return dataset
+    persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
+    persisted_dataset["tags"] = map(lambda tag: tag.__dict__, persisted_dataset["tags"])
+
+    print(f'{persisted_dataset}, persisted_dataset')
+
+    return persisted_dataset
