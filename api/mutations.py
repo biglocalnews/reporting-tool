@@ -2,7 +2,7 @@ import datetime
 import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset
+from database import SessionLocal, User, Dataset, Tag, Program
 
 session = SessionLocal()
 mutation = ObjectType("Mutation")
@@ -46,7 +46,8 @@ def resolve_create_dataset(obj, info, input):
         :returns: 
     '''
 
-    #TODO need to handle incoming associated tags! 
+    #TODO figure out how to eager load associated tags with flushed_dataset and return with payload! 
+    #TODO check docs- more efficient syntax to handle loading associated programs?
 
     print(f'{input} input')
 
@@ -62,8 +63,20 @@ def resolve_create_dataset(obj, info, input):
     session.add(dataset)
     session.commit()
 
-    flushed_dataset = session.query(Dataset).first()
+    program = session.query(Program).filter(Program.id == input["programId"]).first()
 
-    print(f'{flushed_dataset} love')
+    tags = [tag for tag in input["tags"]]
+    for tag in tags:
+        tag_input = {
+            "name": tag["name"],
+            "description": tag["description"],
+            "tag_type": tag["tagType"],
+            "programs": [program],
+            "datasets": [dataset]
+        }
+        print(f'{tag_input} tag_input')
+        tag = Tag(**tag_input)
+        session.add(tag)
+        session.commit()
 
-    return flushed_dataset
+    return dataset
