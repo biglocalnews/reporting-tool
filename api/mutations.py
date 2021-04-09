@@ -78,7 +78,7 @@ def resolve_create_dataset(obj, info, input):
         print(f'{tag_input} tag_input')
         tag = Tag(**tag_input)
         session.add(tag)
-        session.commit()
+    session.commit()
 
     persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
     persisted_dataset["tags"] = map(lambda tag: tag.__dict__, persisted_dataset["tags"])
