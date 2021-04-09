@@ -5,15 +5,15 @@ import { TeamOutlined, BarChartOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import i18next from "../i18n/i18next";
 import { Link } from "react-router-dom";
-import { useQuery } from "@apollo/client";
 import { GetUser, GetUserVariables } from "../__generated__/getUser";
 import { GET_USER } from "../queries/GetUser.gql";
+import { useQuery } from "@apollo/client";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
 // TODO: add gql query for retrieving datasets a user has access to
-const programs: any = [
+const programs = [
   {
     key: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
     team: "BBC News",
@@ -32,21 +32,6 @@ const AppSidebar = () => {
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
     { variables: { id: "1" } }
-  );
-
-  const datasets = data?.user?.teams.map((team) =>
-    team.programs.map((program) => {
-      return {
-        key: program.id,
-        team: program.name,
-        datasets: program.datasets.map((d) => {
-          return {
-            id: +1,
-            title: d.name,
-          };
-        }),
-      };
-    })
   );
 
   return (

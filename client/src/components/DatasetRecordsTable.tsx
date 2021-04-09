@@ -7,10 +7,8 @@ import {
   GetDatasetVariables,
   GetDataset_dataset_records,
 } from "../__generated__/GetDataset";
-import { useQuery } from "@apollo/react-hooks";
 import { GET_DATASET } from "../queries/GetDataset.gql";
-
-const { Column, ColumnGroup } = Table;
+import { useQuery } from "@apollo/client";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -28,11 +26,11 @@ const DatasetRecordsTable = ({
     }
   );
 
-  const confirm = (e: any) => {
+  const confirm = () => {
     message.success("Confirmed!");
   };
 
-  const cancel = (e: any) => {
+  const cancel = () => {
     message.error("Delete cancelled");
   };
 

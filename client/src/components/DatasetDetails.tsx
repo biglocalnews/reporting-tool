@@ -3,9 +3,9 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import { DatasetRecordsTable } from "./DatasetRecordsTable";
-import { useQuery } from "@apollo/react-hooks";
 import { GetDataset, GetDatasetVariables } from "../__generated__/GetDataset";
 import { GET_DATASET } from "../queries/GetDataset.gql";
+import { useQuery } from "@apollo/client";
 
 interface RouteParams {
   datasetId: string;
