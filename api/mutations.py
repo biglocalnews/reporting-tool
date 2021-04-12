@@ -50,8 +50,6 @@ def resolve_create_dataset(obj, info, input):
     #TODO check docs- more efficient syntax to handle loading associated programs?
     #TODO check docs- is there a fancy decorator to handle automatic snakecase mapping of inputs?
 
-    print(f'{input} input')
-
     dataset_input = {
         "name": input["name"],
         "description": input["description"],
@@ -59,7 +57,6 @@ def resolve_create_dataset(obj, info, input):
         "inputter_id": '3dd10e5f-be57-435c-b721-28f3ced5dc89',
     }
 
-    print(f'{dataset_input} clean_input')
     dataset = Dataset(**dataset_input)
     session.add(dataset)
     session.commit()
@@ -75,14 +72,11 @@ def resolve_create_dataset(obj, info, input):
             "programs": [program],
             "datasets": [dataset]
         }
-        print(f'{tag_input} tag_input')
         tag = Tag(**tag_input)
         session.add(tag)
     session.commit()
 
     persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
     persisted_dataset["tags"] = map(lambda tag: tag.__dict__, persisted_dataset["tags"])
-
-    print(f'{persisted_dataset}, persisted_dataset')
 
     return persisted_dataset
