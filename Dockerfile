@@ -13,7 +13,7 @@ ADD client/ /client/
 RUN yarn build
 
 COPY nginx.conf /etc/nginx/
-RUN service nginx start
 
+COPY docker-init.sh .
 EXPOSE 80
-ENTRYPOINT ["yarn", "mock-server"]
+ENTRYPOINT ["./docker-init.sh"]
