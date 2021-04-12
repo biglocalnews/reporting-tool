@@ -44,7 +44,7 @@ def resolve_delete_user(obj, info, id):
 def resolve_create_dataset(obj, info, input):
     '''GraphQL query to create a dataset.
         :param id: Params to be changed 
-        :returns: 
+        :returns: Newly created Dataset dictionary with eager-loaded associated Tags
     '''
     #TODO Flush vs Commits??
     #TODO check docs- more efficient syntax to handle loading associated programs?
