@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
@@ -207,3 +208,11 @@ if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
 
     Base.metadata.create_all(engine)
+
+    init_roles = text(
+        "INSERT INTO role \
+            VALUES \
+            (1, '', 'User is a team member and has no administrative priveleges'), \
+            (2,'admin','User is an admin and has administrative priveleges');")
+
+    engine.execute(init_roles)
