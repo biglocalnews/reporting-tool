@@ -68,24 +68,22 @@ const columns = [
   },
 ];
 
-const getTableData = (queryData: any) => {
+const getTableData = (queryData: GetUser | undefined) => {
   const rowData: any = [];
 
-  queryData?.user?.teams.map((team: { programs: any[] }) => {
+  queryData?.user?.teams.map((team) => {
     return team.programs.map((program) => {
-      return program.datasets.map(
-        (dataset: { id: string; name: string; tags: any[] }) => {
-          rowData.push({
-            id: dataset.id,
-            team: "BBC News",
-            dataset: dataset.name,
-            lastUpdated: "12/20/2020",
-            tags: dataset.tags.map((t) => {
-              return t.name;
-            }),
-          });
-        }
-      );
+      program.datasets.map((dataset) => {
+        rowData.push({
+          id: dataset.id,
+          team: program.name,
+          dataset: dataset.name,
+          lastUpdated: "12/20/2020",
+          tags: dataset.tags.map((t) => {
+            return t.name;
+          }),
+        });
+      });
     });
   });
 
