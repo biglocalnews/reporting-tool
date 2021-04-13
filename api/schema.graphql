@@ -108,6 +108,28 @@ input CreateDatasetInput {
   tags: [TagInput!]!
 }
 
+input UpsertDatasetRecordInput {
+  id: ID
+  datasetId: ID!
+  publicationDate: Date
+  data: [UpsertDataInput!]!
+}
+
+input UpsertDataInput {
+  id: ID
+  category: String!
+  categoryValue: String!
+  count: Int!
+}
+
+type UpsertDatasetRecordOutput {
+  record: Record!
+}
+
+type DeleteDatasetRecordOutput {
+  id: ID!
+}
+
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
@@ -126,4 +148,10 @@ type Mutation {
 
   # Add a Dataset
   createDataset(input: CreateDatasetInput): Dataset!
+
+  # Upsert a record.
+  upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
+
+  # Delete a record.
+  deleteRecord(id: ID!): DeleteDatasetRecordOutput!
 }

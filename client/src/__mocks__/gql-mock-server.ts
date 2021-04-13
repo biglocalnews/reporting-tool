@@ -41,12 +41,7 @@ const categoryData = [
 const recordsData = [
   {
     id: "05caae8d-bb1a-416e-9dda-bb251fe474ff",
-    publicationDate: "12/20/2020",
-    data: categoryData,
-  },
-  {
-    id: "f11f6472-647f-468e-837a-1cdfa78f9cde",
-    publicationDate: "12/21/2020",
+    publicationDate: "2020-12-20",
     data: categoryData,
   },
 ];
@@ -73,11 +68,25 @@ const mockTypes = {
     teams: () => [{}],
   }),
   Query: () => ({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     user: (parent, args, ctx, info) => users.get(args.id) || {},
+  }),
+  Mutation: () => ({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    upsertRecord: (parent, args, ctx, info) => {
+      recordsData.push(args.input);
+      console.log(recordsData.flatMap((e) => e.data));
+      return {
+        record: {
+          id: args.input.id,
+        },
+      };
+    },
   }),
   Tag: () => ({
     name: fake.word,
@@ -102,6 +111,7 @@ const server = new ApolloServer({
   schema: buildClientSchema(introspectedSchema as any),
   mocks: mockTypes,
   playground: true,
+  debug: true,
 });
 
 server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
