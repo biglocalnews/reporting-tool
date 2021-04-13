@@ -5,33 +5,43 @@ import { TeamOutlined, BarChartOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import i18next from "../i18n/i18next";
 import { Link } from "react-router-dom";
-import { GetUser, GetUserVariables } from "../__generated__/getUser";
+import {
+  GetUser,
+  GetUserVariables,
+  GetUser_user_teams_programs_datasets,
+} from "../__generated__/getUser";
 import { GET_USER } from "../queries/GetUser.gql";
 import { useQuery } from "@apollo/client";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-// TODO: add gql query for retrieving datasets a user has access to
-const programs = [
-  {
-    key: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
-    team: "BBC News",
-    datasets: [
-      {
-        id: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
-        title: "Breakfast Hour",
-      },
-    ],
-  },
-];
+interface Dataset {
+  id: string;
+  title: string;
+}
 
-const AppSidebar = () => {
+const AppSidebar = (): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
     { variables: { id: "1" } }
+  );
+
+  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
+    team.programs.map((program) => {
+      return {
+        key: program.id,
+        team: program.name,
+        datasets: program.datasets.map((dataset) => {
+          return {
+            id: dataset.id,
+            title: dataset.name,
+          };
+        }),
+      };
+    })
   );
 
   return (
@@ -50,12 +60,12 @@ const AppSidebar = () => {
           {loading ? (
             <h1>Loading...</h1>
           ) : (
-            programs?.map(
-              (program: { key: string; team: string; datasets: any[] }) => {
+            sidebarPrograms?.map(
+              (program: { key: string; team: string; datasets: Dataset[] }) => {
                 return (
                   <Menu.ItemGroup key={program.key} title={program.team}>
                     {program.datasets.map((dataset) => (
-                      <Menu.Item key={dataset.key}>
+                      <Menu.Item key={dataset.id}>
                         <Link
                           to={{
                             pathname: `/dataset/${dataset.id}/details`,
@@ -72,7 +82,7 @@ const AppSidebar = () => {
           )}
         </SubMenu>
         <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
-          <div style={{ padding: "20px", background: "#fff" }}>Chart here</div>
+          <div style={{ padding: "20px", background: "#fff" }}></div>
         </SubMenu>
       </Menu>
     </Sider>
