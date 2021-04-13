@@ -36,6 +36,7 @@ type Role {
 
 type Program {
   id: ID!
+  name: String!
   description: String!
   team: Team!
   datasets: [Dataset!]!
@@ -74,6 +75,11 @@ type Record {
   id: ID!
   dataset: Dataset!
   publicationDate: Date
+  data: [Data!]!
+}
+
+type Data {
+  id: ID!
   category: String!
   categoryValue: String!
   count: Int!
@@ -98,6 +104,10 @@ type DeleteUserOutput {
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
+  # Retrieve a single dataset.
+  dataset(id: ID!): Dataset
+  # Retriever a single program.
+  program(id: ID!): Program
 }
 
 type Mutation {

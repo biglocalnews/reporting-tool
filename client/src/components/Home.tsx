@@ -3,104 +3,118 @@ import { Tag, Button, Table, Space } from "antd";
 import { SearchAutoComplete } from "./SearchAutoComplete";
 import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { GetUser, GetUserVariables } from "../__generated__/getUser";
+import { GET_USER } from "../queries/GetUser.gql";
+import { useQuery } from "@apollo/client";
 
-const data: any = [
+const columns = [
   {
-    key: "1",
-    id: 1,
-    team: "BBC News",
-    dataset: "12pm-4pm",
-    lastUpdated: "12/19/2020",
-    tags: ["news", "television", "afternoon"],
+    title: "Team",
+    dataIndex: "team",
+    key: "team",
   },
   {
-    key: "2",
-    id: 2,
-    team: "BBC News",
-    dataset: "Instagram",
-    lastUpdated: "12/12/2020",
-    tags: ["news", "social media", "instagram"],
+    title: "Dataset",
+    dataIndex: "dataset",
+    key: "dataset",
   },
   {
-    key: "3",
-    id: 3,
-    team: "BBC News",
-    dataset: "Breakfast Hour",
-    lastUpdated: "12/20/2020",
-    tags: ["news", "breakfast"],
+    title: "Last Updated",
+    dataIndex: "lastUpdated",
+    key: "lastUpdated",
+  },
+  {
+    title: "Tags",
+    key: "tags",
+    dataIndex: "tags",
+    width: 250,
+    render: (tags: string[]) => {
+      return tags.map((tag: string) => {
+        const color = "blue";
+        return (
+          // TODO: Create component to link tags to datasets with the same tags
+          <Tag color={color} key={tag}>
+            {tag.toUpperCase()}
+          </Tag>
+        );
+      });
+    },
+  },
+  {
+    dataIndex: "id",
+    width: 250,
+    render: function btn(datasetId: string) {
+      return (
+        <Space>
+          <Link
+            to={{
+              pathname: `/dataset/${datasetId}/entry`,
+            }}
+          >
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add Data
+            </Button>
+          </Link>
+          <Link
+            to={{
+              pathname: `/dataset/${datasetId}/details`,
+            }}
+          >
+            <Button icon={<InfoCircleOutlined />}>View Details</Button>
+          </Link>
+        </Space>
+      );
+    },
   },
 ];
 
-const Home = (): JSX.Element => {
-  const columns = [
-    {
-      title: "Team",
-      dataIndex: "team",
-      key: "team",
-    },
-    {
-      title: "Dataset",
-      dataIndex: "dataset",
-      key: "dataset",
-    },
-    {
-      title: "Last Updated",
-      dataIndex: "lastUpdated",
-      key: "lastUpdated",
-    },
-    {
-      title: "Tags",
-      key: "tags",
-      dataIndex: "tags",
-      width: 250,
-      render: (tags: string[]) => {
-        return tags.map((tag: string) => {
-          const color = "blue";
-          return (
-            // TODO: Create component to link tags to datasets with the same tags
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
+const getTableData = (queryData: GetUser | undefined) => {
+  const rowData: any = [];
+
+  queryData?.user?.teams.map((team) => {
+    return team.programs.map((program) => {
+      program.datasets.map((dataset) => {
+        rowData.push({
+          id: dataset.id,
+          team: program.name,
+          dataset: dataset.name,
+          lastUpdated: "12/20/2020",
+          tags: dataset.tags.map((t) => {
+            return t.name;
+          }),
         });
-      },
-    },
+      });
+    });
+  });
+
+  return rowData;
+};
+
+const Home = (): JSX.Element => {
+  const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
+    GET_USER,
     {
-      dataIndex: "id",
-      width: 250,
-      render: function btn(datasetId: number) {
-        return (
-          <Space>
-            <Link
-              to={{
-                pathname: `/dataset/${datasetId}/entry`,
-              }}
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                Add Data
-              </Button>
-            </Link>
-            <Link
-              to={{
-                pathname: `/dataset/${datasetId}/details`,
-              }}
-            >
-              <Button icon={<InfoCircleOutlined />}>View Details</Button>
-            </Link>
-          </Space>
-        );
-      },
-    },
-  ];
+      variables: { id: "1" },
+    }
+  );
+
+  const rowData = getTableData(data);
 
   return (
     <div>
-      <SearchAutoComplete
-        dataSource={data.map(
-          (i: { team: string; dataset: string }) => `${i.team} - ${i.dataset}`
-        )}
-      />
-      <Table dataSource={data} columns={columns} />
+      {loading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <div>
+          <SearchAutoComplete
+            dataSource={rowData.map(
+              (i: { team: string; dataset: string }) =>
+                `${i.team} - ${i.dataset}`
+            )}
+          />
+          <Table dataSource={rowData} columns={columns} />
+        </div>
+      )}
     </div>
   );
 };

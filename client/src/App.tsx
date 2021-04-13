@@ -23,11 +23,16 @@ function App() {
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route
+                    exact
                     path="/dataset/:datasetId/details"
                     component={DatasetDetails}
                   />
                   <Route
                     path="/dataset/:datasetId/entry"
+                    component={DataEntry}
+                  />
+                  <Route
+                    path="/dataset/:datasetId/entry/edit/:recordId"
                     component={DataEntry}
                   />
                 </Switch>

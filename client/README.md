@@ -6,11 +6,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `yarn mock-server`
+### `yarn start:mock && mock-server`
 
-Downloads the GraphQL schema and mocks a GraphQL server on the client side. Open [http://localhost:4000](http://localhost:4000) to view the GQL playground in the browser.
+`yarn mock-server` downloads the GraphQL schema and mocks a GraphQL server on the client side. Open [http://localhost:4000](http://localhost:4000) to view the GQL playground in the browser.
 
-📝 **NOTE:** This script will default to using the local version of `schema.json` available in the branch if the backend GraphQL API is not running. If you'd like to use the schema from the API instead, run the server and then this script. See [API documentation here]("../../../api/README.md).
+📝 **NOTE:** This script will default to using the local version of `schema.json` available in your branch if the backend GraphQL API is not running. If you'd like to use the schema from the API instead, run the server and then this script. See [API documentation here](../../../api/README.md).
+
+Run `yarn start:mock` to switch the host to mock server on [http://localhost:4000](http://localhost:4000) for the apollo client.
+
 
 ### `yarn start`
 

@@ -1,13 +1,12 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 import { configure } from "enzyme";
-import React16Adapter from "enzyme-adapter-react-16";
+// Replaced enzyme-adapter-react-16 with @wojtekmaj/enzyme-adapter-react-17
+// since there's no enzyme-adapter-react-17 yet.
+// See: https://github.com/enzymejs/enzyme/pull/2430
+import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import "@testing-library/jest-dom/extend-expect";
 import { toHaveNoViolations } from "jest-axe";
 
 expect.extend(toHaveNoViolations);
 
-configure({ adapter: new React16Adapter() });
+configure({ adapter: new Adapter() });

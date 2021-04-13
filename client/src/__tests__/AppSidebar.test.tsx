@@ -1,8 +1,13 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { AppSidebar } from "../components/AppSidebar";
-import { shallow } from "enzyme";
+import { mount, shallow } from "enzyme";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import SubMenu from "antd/lib/menu/SubMenu";
+import { MockedProvider } from "@apollo/client/testing";
+import { render, waitFor } from "@testing-library/react";
+import { gql } from "@apollo/client";
+import { BrowserRouter } from "react-router-dom";
 
 describe("UK English internationalization", () => {
   beforeAll(() => {
@@ -13,7 +18,6 @@ describe("UK English internationalization", () => {
       interpolation: {
         escapeValue: false,
       },
-      debug: true,
       keySeparator: false,
       resources: {
         "en-gb": {
@@ -30,7 +34,13 @@ describe("UK English internationalization", () => {
   });
 
   test("translates sidebar title text to UK English", () => {
-    const sidebar = shallow(<AppSidebar />);
+    const sidebar = mount(
+      <MockedProvider>
+        <BrowserRouter>
+          <AppSidebar />
+        </BrowserRouter>
+      </MockedProvider>
+    );
     expect(sidebar.find(SubMenu).first().prop("title")).toBe("My Programmes");
   });
 });
