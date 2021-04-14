@@ -54,7 +54,7 @@ def resolve_create_dataset(obj, info, input):
         "name": input["name"],
         "description": input["description"],
         "program_id": input["programId"],
-        "inputter_id": '3dd10e5f-be57-435c-b721-28f3ced5dc89',
+        "inputter_id": input["inputterId"],
     }
 
     dataset = Dataset(**dataset_input)
