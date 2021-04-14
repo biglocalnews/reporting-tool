@@ -46,7 +46,6 @@ def resolve_create_dataset(obj, info, input):
         :param id: Params to be changed 
         :returns: Newly created Dataset dictionary with eager-loaded associated Tags
     '''
-    #TODO Flush vs Commits??
     #TODO check docs- more efficient syntax to handle loading associated programs?
     #TODO check docs- is there a fancy decorator to handle automatic snakecase mapping of inputs?
 
@@ -77,6 +76,5 @@ def resolve_create_dataset(obj, info, input):
     session.commit()
 
     persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
-    persisted_dataset["tags"] = map(lambda tag: tag.__dict__, persisted_dataset["tags"])
-
+    persisted_dataset["tags"] = [tag.__dict__ for tag in persisted_dataset['tags']]
     return persisted_dataset
