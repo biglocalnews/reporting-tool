@@ -1,10 +1,12 @@
+import databases
+import uuid
+import datetime
+
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
-import databases
 
 from settings import settings
 
@@ -12,6 +14,8 @@ from settings import settings
 DATABASE_URL = f"{settings.db_user}:{settings.db_pw}@{settings.db_host}/{settings.db_name}"
 database = databases.Database("postgres://" + DATABASE_URL)
 
+engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
@@ -23,7 +27,7 @@ class Organization(Base):
     name = Column(String(255))
     teams = relationship('Team')
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -38,7 +42,7 @@ class Team(Base):
     organization_id = Column(Integer, ForeignKey(
         'organization.id'), nullable=False, index=True)
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -55,9 +59,9 @@ class User(Base, SQLAlchemyBaseUserTable):
     __tablename__ = 'user'
 
     team_id = Column(Integer, ForeignKey('team.id'), index=True)
-    roles = relationship('UserRole', secondary=user_roles)
+    roles = relationship('Role', secondary=user_roles, backref='User')
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -69,13 +73,13 @@ class Role(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
 
 dataset_tags = Table('dataset_tag', Base.metadata,
-                     Column('dataset_id', Integer, ForeignKey(
+                     Column('dataset_id', GUID, ForeignKey(
                          'dataset.id'), index=True),
                      Column('tag_id', Integer, ForeignKey(
                          'tag.id'), index=True),
@@ -102,7 +106,7 @@ class Program(Base):
     tags = relationship('Tag', secondary=program_tags,
                         back_populates='programs')
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -119,7 +123,7 @@ class Tag(Base):
     datasets = relationship('Dataset', secondary=dataset_tags,
                             back_populates='tags')
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -133,7 +137,7 @@ class Target(Base):
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -141,7 +145,7 @@ class Target(Base):
 class Dataset(Base):
     __tablename__ = 'dataset'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     program_id = Column(Integer, ForeignKey('program.id'), index=True)
@@ -152,7 +156,7 @@ class Dataset(Base):
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 
@@ -161,14 +165,14 @@ class Record(Base):
     __tablename__ = 'record'
 
     id = Column(Integer, primary_key=True)
-    dataset_id = Column(Integer, ForeignKey(
+    dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
 
-    created = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     updated = Column(DateTime)
     deleted = Column(DateTime)
 

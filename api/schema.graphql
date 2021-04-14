@@ -47,10 +47,16 @@ type Program {
 type Tag {
   id: ID!
   name: String!
-  description: String!
+  description: String
   tagType: String!
   programs: [Program!]!
-  dataset: [Dataset!]!
+  datasets: [Dataset!]!
+}
+
+input TagInput {
+  name: String!
+  description: String
+  tagType: String!
 }
 
 type Target {
@@ -64,13 +70,14 @@ type Target {
 type Dataset {
   id: ID!
   name: String!
-  description: String!
+  description: String
   program: Program!
   records: [Record!]!
   inputter: User!
   tags: [Tag!]!
 }
 
+# TODO checkin: shouldn't records be the ones flagged with inputter vs datasets
 type Record {
   id: ID!
   dataset: Dataset!
@@ -93,12 +100,12 @@ input UpsertUserInput {
   role: String!
 }
 
-type UpsertUserOutput {
-  user: User!
-}
-
-type DeleteUserOutput {
-  id: ID!
+input CreateDatasetInput {
+  name: String!
+  description: String!
+  programId: ID!
+  inputterId: ID!
+  tags: [TagInput!]!
 }
 
 type Query {
@@ -112,8 +119,11 @@ type Query {
 
 type Mutation {
   # Upsert a user.
-  upsertUser(input: UpsertUserInput): UpsertUserOutput!
+  upsertUser(input: UpsertUserInput): User!
 
   # Delete a user.
-  deleteUser(id: ID!): DeleteUserOutput!
+  deleteUser(id: ID!): Int!
+
+  # Add a Dataset
+  createDataset(input: CreateDatasetInput): Dataset!
 }
