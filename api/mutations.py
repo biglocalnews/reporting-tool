@@ -5,7 +5,6 @@ from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program
 from sqlalchemy.orm import joinedload
 
-session = SessionLocal()
 mutation = ObjectType("Mutation")
 
 '''GraphQL query defaults
@@ -46,8 +45,7 @@ def resolve_create_dataset(obj, info, input):
         :param id: Params to be changed 
         :returns: Newly created Dataset dictionary with eager-loaded associated Tags
     '''
-    #TODO check docs- more efficient syntax to handle loading associated programs?
-    #TODO check docs- is there a fancy decorator to handle automatic snakecase mapping of inputs?
+    session = SessionLocal()
 
     dataset_input = {
         "name": input["name"],
@@ -58,7 +56,6 @@ def resolve_create_dataset(obj, info, input):
 
     dataset = Dataset(**dataset_input)
     session.add(dataset)
-    session.commit()
 
     program = session.query(Program).filter(Program.id == input["programId"]).first()
 
@@ -77,4 +74,6 @@ def resolve_create_dataset(obj, info, input):
 
     persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
     persisted_dataset["tags"] = [tag.__dict__ for tag in persisted_dataset['tags']]
+    session.close()
+
     return persisted_dataset
