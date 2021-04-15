@@ -120,7 +120,7 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
     const rec = {
       input: {
         datasetId: props.datasetId,
-        publicationDate: publicationDate,
+        publicationDate,
         data: values?.data.map((d) => ({
           count: d.count,
           category: d.category,
