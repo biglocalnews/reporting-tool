@@ -80,7 +80,6 @@ const mockTypes = {
     // @ts-ignore
     upsertRecord: (parent, args, ctx, info) => {
       recordsData.push(args.input);
-      console.log(recordsData.flatMap((e) => e.data));
       return {
         record: {
           id: args.input.id,
