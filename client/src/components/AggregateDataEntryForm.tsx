@@ -85,7 +85,7 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
     onError(error) {
       props.formSubmitted(false); // TODO: pass error to parent
     },
-    awaitRefetchQueries: true, //TODO: update cache instead of refetch
+    awaitRefetchQueries: true, // TODO: update cache instead of refetch
     refetchQueries: [
       {
         query: GET_DATASET,
@@ -121,7 +121,7 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
       input: {
         id: "record-uuid", // TODO: placeholder for backend mutation
         datasetId: props.datasetId,
-        publicationDate: publicationDate,
+        publicationDate: { publicationDate },
         data: values?.data.map((d) => ({
           id: d.id,
           count: d.count,
