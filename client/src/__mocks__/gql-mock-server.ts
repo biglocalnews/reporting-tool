@@ -79,6 +79,10 @@ const mockTypes = {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     upsertRecord: (parent, args, ctx, info) => {
+      args.input.id = fake.uuid;
+      args.input.data.forEach((element: { id: string }) => {
+        element.id = fake.uuid;
+      });
       recordsData.push(args.input);
       return {
         record: {
@@ -98,9 +102,6 @@ const mockTypes = {
   Date: () => {
     return fake.date();
   },
-  Record: () => ({
-    data: recordsData,
-  }),
 };
 
 const server = new ApolloServer({

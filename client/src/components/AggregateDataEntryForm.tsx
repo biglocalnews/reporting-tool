@@ -119,11 +119,9 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
     // TODO: add data/update data
     const rec = {
       input: {
-        id: "record-uuid", // TODO: placeholder for backend mutation
         datasetId: props.datasetId,
-        publicationDate: { publicationDate },
+        publicationDate: publicationDate,
         data: values?.data.map((d) => ({
-          id: d.id,
           count: d.count,
           category: d.category,
           categoryValue: d.categoryValue,
@@ -133,14 +131,6 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
     UpsertRecord({
       variables: rec,
-      update: (proxy, { data = {} }) => {
-        proxy.writeQuery({
-          query: GET_DATASET,
-          variables: { id: props.datasetId },
-          data: rec,
-        });
-      },
-      optimisticResponse: rec,
     });
   };
 
