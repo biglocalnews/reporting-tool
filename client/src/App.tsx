@@ -28,10 +28,14 @@ function App() {
                     component={DatasetDetails}
                   />
                   <Route
+                    key="add-entry"
+                    exact
                     path="/dataset/:datasetId/entry"
                     component={DataEntry}
                   />
                   <Route
+                    key="edit-entry"
+                    exact
                     path="/dataset/:datasetId/entry/edit/:recordId"
                     component={DataEntry}
                   />
