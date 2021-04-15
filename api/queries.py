@@ -33,13 +33,10 @@ def resolve_dataset(obj, info, id):
     '''
     session = SessionLocal()
 
-    print(f'{id} checking id here')
     retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).options(joinedload("tags"), joinedload("records")).first().__dict__
     retrieved_dataset["records"] = [record.__dict__ for record in retrieved_dataset['records']]
     retrieved_dataset["tags"] = [tag.__dict__ for tag in retrieved_dataset['tags']]
 
     session.close()
-
-    print(f'{retrieved_dataset} retrieved_dataset')
 
     return retrieved_dataset
