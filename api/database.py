@@ -212,7 +212,7 @@ if __name__ == '__main__':
     init_roles = text(
         "INSERT INTO role \
             VALUES \
-            (1, '', 'User is a team member and has no administrative priveleges'), \
-            (2,'admin','User is an admin and has administrative priveleges');")
+            (1, '', 'User is a team member and has no administrative privileges'), \
+            (2,'admin','User is an admin and has administrative privileges');")
 
     engine.execute(init_roles)
