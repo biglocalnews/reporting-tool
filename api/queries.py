@@ -1,4 +1,5 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
+from database import SessionLocal, Dataset, Tag
 
 query = ObjectType("Query")
 
@@ -29,6 +30,7 @@ def resolve_dataset(obj, info, id):
         :param id: Id for the dataset to be fetched
         :returns: Dataset dictionary with eager-loaded associated Tags and Records
     '''
+    session = SessionLocal()
 
     payload = {
         
