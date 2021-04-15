@@ -1,7 +1,6 @@
 import { Button, message, Popconfirm, Space, Table } from "antd";
 import React from "react";
 import "./DatasetRecordsTable.css";
-import { Link } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
@@ -15,9 +14,74 @@ interface DatasetRecordsTableProps {
   records: readonly GetDataset_dataset_records[] | undefined;
 }
 
+const confirm = () => {
+  message.success("Confirmation received");
+};
+
+const cancel = () => {
+  message.error("Delete cancelled");
+};
+
+const columns = [
+  {
+    title: "Date",
+    dataIndex: "publicationDate",
+    key: "id",
+  },
+  {
+    title: "Men",
+    dataIndex: "men",
+    key: "id",
+  },
+  {
+    title: "Women",
+    dataIndex: "women",
+    key: "id",
+  },
+  {
+    title: "Transgender",
+    dataIndex: "transgender",
+  },
+  {
+    title: "Gender Non-Conforming",
+    dataIndex: "gender non-conforming",
+  },
+  {
+    title: "Cisgender",
+    dataIndex: "cisgender",
+  },
+  {
+    title: "Non-Binary",
+    dataIndex: "non-binary",
+  },
+  {
+    dataIndex: "id",
+    render: function edit(recordId: number) {
+      return (
+        <Space>
+          <Button type="link" size="small" disabled>
+            Edit
+          </Button>
+
+          <Popconfirm
+            title="Delete this record?"
+            onConfirm={confirm}
+            onCancel={cancel}
+            okText="Delete"
+            cancelText="Cancel"
+          >
+            <Button danger size="small" type="link">
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      );
+    },
+  },
+];
+
 const DatasetRecordsTable = ({
   datasetId,
-  records,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
     GET_DATASET,
@@ -26,80 +90,15 @@ const DatasetRecordsTable = ({
     }
   );
 
-  const confirm = () => {
-    message.success("Confirmed!");
-  };
-
-  const cancel = () => {
-    message.error("Delete cancelled");
-  };
-
-  const columns = [
-    {
-      title: "Date",
-      dataIndex: "publicationDate",
-      key: "id",
-    },
-    {
-      title: "Men",
-      dataIndex: "men",
-    },
-    {
-      title: "Women",
-      dataIndex: "women",
-    },
-    {
-      title: "Transgender",
-      dataIndex: "transgender",
-    },
-    {
-      title: "Gender Non-Conforming",
-      dataIndex: "gender non-conforming",
-    },
-    {
-      title: "Cisgender",
-      dataIndex: "cisgender",
-    },
-    {
-      title: "Non-Binary",
-      dataIndex: "non-binary",
-    },
-    {
-      dataIndex: "id",
-      render: function edit(recordId: number) {
-        return (
-          <Space>
-            <Link
-              to={{
-                pathname: `/dataset/${datasetId}/entry/edit/${recordId}`,
-              }}
-            >
-              Edit
-            </Link>
-
-            <Popconfirm
-              title="Are you sure to delete this record?"
-              onConfirm={confirm}
-              onCancel={cancel}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text">
-                Delete
-              </Button>
-            </Popconfirm>
-          </Space>
-        );
-      },
-    },
-  ];
-
-  const dataSource = records?.map((record) => {
+  const dataSource = data?.dataset?.records?.map((record) => {
     return record.data.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
       { id: record.id, publicationDate: record.publicationDate }
     );
   });
+
+  // TODO: update for error and loading components
+  if (error) return <div>{`Error: ${error.message}`}</div>;
 
   return (
     <Table
@@ -110,7 +109,9 @@ const DatasetRecordsTable = ({
       size="small"
       scroll={{ x: 1000 }}
       sticky
-      title={() => "Summary"}
+      title={() => "Records"}
+      pagination={{ pageSize: 6 }}
+      loading={loading}
     />
   );
 };
