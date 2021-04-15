@@ -4,8 +4,8 @@ from database import SessionLocal, Dataset, Tag
 query = ObjectType("Query")
 
 '''GraphQL query to find a user based on user ID.
-        :param obj: obj is a value returned by a parent resolver
-        :param info: Has context attribute that contains ContextValue specific to the server implementation.
+    :param obj: obj is a value returned by a parent resolver
+    :param info: Has context attribute that contains ContextValue specific to the server implementation.
 '''
 
 @query.field("user")
