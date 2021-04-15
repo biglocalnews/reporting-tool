@@ -1,5 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from database import SessionLocal, Dataset, Tag
+from sqlalchemy.orm import joinedload
 
 query = ObjectType("Query")
 
@@ -32,8 +33,13 @@ def resolve_dataset(obj, info, id):
     '''
     session = SessionLocal()
 
-    payload = {
-        
-    }
+    print(f'{id} checking id here')
+    retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).options(joinedload("tags"), joinedload("records")).first().__dict__
+    retrieved_dataset["records"] = [record.__dict__ for record in retrieved_dataset['records']]
+    retrieved_dataset["tags"] = [tag.__dict__ for tag in retrieved_dataset['tags']]
 
-    return payload
+    session.close()
+
+    print(f'{retrieved_dataset} retrieved_dataset')
+
+    return retrieved_dataset
