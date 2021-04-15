@@ -111,8 +111,10 @@ input CreateDatasetInput {
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
+
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset
+
   # Retriever a single program.
   program(id: ID!): Program
 }
