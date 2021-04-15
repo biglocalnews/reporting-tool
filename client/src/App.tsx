@@ -1,12 +1,12 @@
 import React, { Suspense } from "react";
-import { Switch, Route, BrowserRouter } from "react-router-dom";
+import { Switch, Route, BrowserRouter, Redirect } from "react-router-dom";
 import { Layout } from "antd";
 import AppHeader from "./components/AppHeader";
 import { AppSidebar } from "./components/AppSidebar";
 import { Home } from "./components/Home";
 import { DatasetDetails } from "./components/DatasetDetails";
-import { DataEntry } from "./components/DataEntry";
 import "./App.css";
+import { DataEntry } from "./components/DataEntry";
 
 const { Footer, Content } = Layout;
 
@@ -38,6 +38,11 @@ function App() {
                     exact
                     path="/dataset/:datasetId/entry/edit/:recordId"
                     component={DataEntry}
+                  />
+                  <Redirect
+                    exact
+                    from="/dataset/:datasetId/entry/reload"
+                    to="/dataset/:datasetId/entry"
                   />
                 </Switch>
               </Content>
