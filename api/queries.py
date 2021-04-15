@@ -18,3 +18,17 @@ def resolve_user(obj, info, id):
     }
 
     return payload
+
+@query.field("dataset")
+@convert_kwargs_to_snake_case
+def resolve_dataset(obj, info, id):
+    '''GraphQL query to find a dataset based on dataset ID.
+        :param id: Id for the dataset to be fetched
+        :returns: Dataset dictionary with eager-loaded associated Tags and Records
+    '''
+
+    payload = {
+        
+    }
+
+    return payload
