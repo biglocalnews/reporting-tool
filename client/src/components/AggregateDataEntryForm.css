@@ -1,7 +1,12 @@
-form {
+.data-entry-form_input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 0.3em 0.6em;
+  grid-gap: 0.7em 0.3em;
+}
+
+.data-entry-form_buttons {
+  text-align: center;
+  margin-top: 10px;
 }
 
 input[type="number"],
@@ -11,8 +16,10 @@ select {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+  font-size: 16px;
+  height: 32px;
 }
 
-label {
+.data-entry-form_label {
   text-transform: capitalize;
 }
