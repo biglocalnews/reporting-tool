@@ -67,7 +67,6 @@ class User(Base, SQLAlchemyBaseUserTable):
 
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    team_id = Column(Integer, ForeignKey('team.id'), index=True)
     roles = relationship('Role', secondary=user_roles, backref='User')
 
     created = Column(TIMESTAMP,
@@ -84,7 +83,7 @@ class User(Base, SQLAlchemyBaseUserTable):
 class Role(Base):
     __tablename__ = 'role'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
 
