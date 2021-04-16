@@ -14,15 +14,19 @@ query = ObjectType("Query")
 def resolve_user(obj, info, id):
     '''GraphQL query to find a user based on user ID.
         :param id: Id for the user to be fetched
-        :returns: User dictionary
+        :returns: User dictionary with eager-loaded Role(s) and associated Team(s)
     '''
-    payload = {
-        'id': 1,
-        'first_name': 'Cat',
-        'last_name': 'Berry',
-    }
+    #TODO Clarify- will users belong to many teams or just one?
+    session = SessionLocal()
 
-    return payload
+    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles")).first().__dict__
+    retrieved_user_teams = session.query(Team).filter(Team.id == retrieved_user["team_id"]).all()
+    retrieved_user["teams"] = [team.__dict__ for team in retrieved_user_teams]
+    retrieved_user["roles"] = [role.__dict__ for role in retrieved_user["roles"]]
+
+    session.close()
+
+    return retrieved_user
 
 @query.field("dataset")
 @convert_kwargs_to_snake_case
