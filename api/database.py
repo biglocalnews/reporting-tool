@@ -26,7 +26,7 @@ Base = declarative_base()
 class Organization(Base):
     __tablename__ = 'organization'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
     teams = relationship('Team')
 
@@ -40,11 +40,11 @@ class Organization(Base):
 class Team(Base):
     __tablename__ = 'team'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
     users = relationship('User')
     programs = relationship('Program')
-    organization_id = Column(Integer, ForeignKey(
+    organization_id = Column(GUID, ForeignKey(
         'organization.id'), nullable=False, index=True)
 
     created = Column(TIMESTAMP,
@@ -88,10 +88,10 @@ class Role(Base):
 class Program(Base):
     __tablename__ = 'program'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
-    team_id = Column(Integer, ForeignKey('team.id'), index=True)
+    team_id = Column(GUID, ForeignKey('team.id'), index=True)
     datasets = relationship('Dataset')
     targets = relationship('Target')
     tags = relationship('Tag', secondary=program_tags,
@@ -107,7 +107,7 @@ class Program(Base):
 class Tag(Base):
     __tablename__ = 'tag'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     tag_type = Column(String(255), nullable=False)
@@ -126,8 +126,8 @@ class Tag(Base):
 class Target(Base):
     __tablename__ = 'target'
 
-    id = Column(Integer, primary_key=True)
-    program_id = Column(Integer, ForeignKey('program.id'), index=True)
+    id = Column(GUID, primary_key=True)
+    program_id = Column(GUID, ForeignKey('program.id'), index=True)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     target = Column(Float, nullable=False)
@@ -145,7 +145,7 @@ class Dataset(Base):
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
-    program_id = Column(Integer, ForeignKey('program.id'), index=True)
+    program_id = Column(GUID, ForeignKey('program.id'), index=True)
     records = relationship('Record')
     inputter = relationship('User')
     inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
