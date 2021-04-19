@@ -19,10 +19,15 @@ def resolve_user(obj, info, id):
     session = SessionLocal()
 
     retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles"), joinedload("teams")).first().__dict__
+
     print(f'{retrieved_user}, checking user')
+
     # retrieved_user_teams = session.query(Team).filter(Team.id == retrieved_user["team_id"]).all()
-    # retrieved_user["teams"] = [team.__dict__ for team in retrieved_user_teams]
+    retrieved_user["teams"] = [team.__dict__ for team in retrieved_user["teams"]]
     retrieved_user["roles"] = [role.__dict__ for role in retrieved_user["roles"]]
+
+    print(f'{retrieved_user}, checking user after dict"ing')
+
 
     session.close()
 
