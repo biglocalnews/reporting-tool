@@ -54,14 +54,6 @@ class Team(Base):
     deleted = Column(TIMESTAMP)
 
 
-user_roles = Table('user_role', Base.metadata,
-                   Column('user_id', GUID, ForeignKey(
-                       'user.id'), index=True),
-                   Column('role_id', Integer, ForeignKey(
-                       'role.id'), index=True),
-                   )
-
-
 class User(Base, SQLAlchemyBaseUserTable):
     __tablename__ = 'user'
 
@@ -92,23 +84,6 @@ class Role(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
-
-
-dataset_tags = Table('dataset_tag', Base.metadata,
-                     Column('dataset_id', GUID, ForeignKey(
-                         'dataset.id'), index=True),
-                     Column('tag_id', Integer, ForeignKey(
-                         'tag.id'), index=True),
-                     )
-
-
-program_tags = Table('program_tag', Base.metadata,
-                     Column('program_id', Integer, ForeignKey(
-                         'program.id'), index=True),
-                     Column('tag_id', Integer, ForeignKey(
-                         'tag.id'), index=True),
-                     )
-
 
 class Program(Base):
     __tablename__ = 'program'
@@ -202,6 +177,27 @@ class Record(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+# Handling Many-to-Many Relationships
+user_roles = Table('user_role', Base.metadata,
+                   Column('user_id', GUID, ForeignKey(
+                       'user.id'), index=True),
+                   Column('role_id', GUID, ForeignKey(
+                       'role.id'), index=True),
+                   )
+
+dataset_tags = Table('dataset_tag', Base.metadata,
+                     Column('dataset_id', GUID, ForeignKey(
+                         'dataset.id'), index=True),
+                     Column('tag_id', GUID, ForeignKey(
+                         'tag.id'), index=True),
+                     )
+
+program_tags = Table('program_tag', Base.metadata,
+                     Column('program_id', GUID, ForeignKey(
+                         'program.id'), index=True),
+                     Column('tag_id', GUID, ForeignKey(
+                         'tag.id'), index=True),
+                     )
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
