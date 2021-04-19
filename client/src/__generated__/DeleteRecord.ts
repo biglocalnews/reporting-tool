@@ -17,5 +17,5 @@ export interface DeleteRecord {
 }
 
 export interface DeleteRecordVariables {
-  readonly input: string;
+  readonly id: string;
 }
