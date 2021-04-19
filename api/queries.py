@@ -18,7 +18,7 @@ def resolve_user(obj, info, id):
     '''
     session = SessionLocal()
 
-    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles"), joinedload("teams")).first().__dict__
+    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles"), joinedload("teams").joinedload("programs").joinedload("datasets")).first().__dict__
 
     print(f'{retrieved_user}, checking user')
 
