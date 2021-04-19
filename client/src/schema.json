@@ -613,13 +613,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -931,13 +927,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -983,7 +975,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dataset",
+            "name": "datasets",
             "description": null,
             "args": [],
             "type": {
@@ -1211,7 +1203,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "UpsertUserOutput",
+                "name": "User",
                 "ofType": null
               }
             },
@@ -1243,8 +1235,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "DeleteUserOutput",
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               }
             },
@@ -1252,7 +1244,7 @@
             "deprecationReason": null
           },
           {
-            "name": "upsertRecord",
+            "name": "createDataset",
             "description": null,
             "args": [
               {
@@ -1260,7 +1252,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "UpsertDatasetRecordInput",
+                  "name": "CreateDatasetInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -1273,7 +1265,36 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "UpsertDatasetRecordOutput",
+                "name": "Dataset",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insertRecord",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "InsertDatasetRecordInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "InsertDatasetRecordOutput",
                 "ofType": null
               }
             },
@@ -1408,43 +1429,47 @@
         "possibleTypes": null
       },
       {
-        "kind": "OBJECT",
-        "name": "UpsertUserOutput",
+        "kind": "INPUT_OBJECT",
+        "name": "CreateDatasetInput",
         "description": null,
         "specifiedByUrl": null,
-        "fields": [
+        "fields": null,
+        "inputFields": [
           {
-            "name": "user",
+            "name": "name",
             "description": null,
-            "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "User",
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },
+            "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "DeleteUserOutput",
-        "description": null,
-        "specifiedByUrl": null,
-        "fields": [
+          },
           {
-            "name": "id",
+            "name": "description",
             "description": null,
-            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "programId",
+            "description": null,
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -1454,18 +1479,114 @@
                 "ofType": null
               }
             },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "inputterId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tags",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "TagInput",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
           }
         ],
-        "inputFields": null,
-        "interfaces": [],
+        "interfaces": null,
         "enumValues": null,
         "possibleTypes": null
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpsertDatasetRecordInput",
+        "name": "TagInput",
+        "description": null,
+        "specifiedByUrl": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "name",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "description",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tagType",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "InsertDatasetRecordInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -1613,7 +1734,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "UpsertDatasetRecordOutput",
+        "name": "InsertDatasetRecordOutput",
         "description": null,
         "specifiedByUrl": null,
         "fields": [
