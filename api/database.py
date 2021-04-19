@@ -22,7 +22,35 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+# Handling Many-to-Many Relationships
+user_teams = Table('user_team', Base.metadata,
+                   Column('user_id', GUID, ForeignKey(
+                       'user.id'), index=True),
+                   Column('team_id', GUID, ForeignKey(
+                       'team.id'), index=True),
+                   )
 
+user_roles = Table('user_role', Base.metadata,
+                   Column('user_id', GUID, ForeignKey(
+                       'user.id'), index=True),
+                   Column('role_id', GUID, ForeignKey(
+                       'role.id'), index=True),
+                   )
+
+dataset_tags = Table('dataset_tag', Base.metadata,
+                     Column('dataset_id', GUID, ForeignKey(
+                         'dataset.id'), index=True),
+                     Column('tag_id', GUID, ForeignKey(
+                         'tag.id'), index=True),
+                     )
+
+program_tags = Table('program_tag', Base.metadata,
+                     Column('program_id', GUID, ForeignKey(
+                         'program.id'), index=True),
+                     Column('tag_id', GUID, ForeignKey(
+                         'tag.id'), index=True),
+                     )
+                     
 class Organization(Base):
     __tablename__ = 'organization'
 
@@ -176,35 +204,6 @@ class Record(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
-
-# Handling Many-to-Many Relationships
-user_teams = Table('user_team', Base.metadata,
-                   Column('user_id', GUID, ForeignKey(
-                       'user.id'), index=True),
-                   Column('team_id', GUID, ForeignKey(
-                       'team.id'), index=True),
-                   )
-
-user_roles = Table('user_role', Base.metadata,
-                   Column('user_id', GUID, ForeignKey(
-                       'user.id'), index=True),
-                   Column('role_id', GUID, ForeignKey(
-                       'role.id'), index=True),
-                   )
-
-dataset_tags = Table('dataset_tag', Base.metadata,
-                     Column('dataset_id', GUID, ForeignKey(
-                         'dataset.id'), index=True),
-                     Column('tag_id', GUID, ForeignKey(
-                         'tag.id'), index=True),
-                     )
-
-program_tags = Table('program_tag', Base.metadata,
-                     Column('program_id', GUID, ForeignKey(
-                         'program.id'), index=True),
-                     Column('tag_id', GUID, ForeignKey(
-                         'tag.id'), index=True),
-                     )
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
