@@ -50,7 +50,7 @@ program_tags = Table('program_tag', Base.metadata,
                      Column('tag_id', GUID, ForeignKey(
                          'tag.id'), index=True),
                      )
-                     
+
 class Organization(Base):
     __tablename__ = 'organization'
 
@@ -70,7 +70,7 @@ class Team(Base):
 
     id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
-    users = relationship('User')
+    users = relationship('User', secondary=user_teams, backref='Team')
     programs = relationship('Program')
     organization_id = Column(GUID, ForeignKey(
         'organization.id'), nullable=False, index=True)
@@ -88,6 +88,7 @@ class User(Base, SQLAlchemyBaseUserTable):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     roles = relationship('Role', secondary=user_roles, backref='User')
+    teams = relationship('Team', secondary=user_teams, backref='User')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
