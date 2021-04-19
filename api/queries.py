@@ -1,5 +1,5 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
-from database import SessionLocal, Dataset, Tag
+from database import SessionLocal, Dataset, Tag, User
 from sqlalchemy.orm import joinedload
 
 query = ObjectType("Query")
@@ -16,12 +16,12 @@ def resolve_user(obj, info, id):
         :param id: Id for the user to be fetched
         :returns: User dictionary with eager-loaded Role(s) and associated Team(s)
     '''
-    #TODO Clarify- will users belong to many teams or just one?
     session = SessionLocal()
 
-    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles")).first().__dict__
-    retrieved_user_teams = session.query(Team).filter(Team.id == retrieved_user["team_id"]).all()
-    retrieved_user["teams"] = [team.__dict__ for team in retrieved_user_teams]
+    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles"), joinedload("teams")).first().__dict__
+    print(f'{retrieved_user}, checking user')
+    # retrieved_user_teams = session.query(Team).filter(Team.id == retrieved_user["team_id"]).all()
+    # retrieved_user["teams"] = [team.__dict__ for team in retrieved_user_teams]
     retrieved_user["roles"] = [role.__dict__ for role in retrieved_user["roles"]]
 
     session.close()
