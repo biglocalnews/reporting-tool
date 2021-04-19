@@ -164,7 +164,7 @@ class Dataset(Base):
 class Record(Base):
     __tablename__ = 'record'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(GUID, primary_key=True)
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime)
