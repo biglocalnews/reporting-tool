@@ -108,6 +108,7 @@ input CreateDatasetInput {
   tags: [TagInput!]!
 }
 
+<<<<<<< HEAD
 input UpdateDatasetInput {
   id: ID!
   name: String
@@ -118,6 +119,9 @@ input UpdateDatasetInput {
 }
 
 input UpsertDatasetRecordInput {
+=======
+input InsertDatasetRecordInput {
+>>>>>>> 9a000a7... refactor(ch168): rename upsert to insert for record in schema
   id: ID
   datasetId: ID!
   publicationDate: Date
@@ -131,7 +135,7 @@ input UpsertDataInput {
   count: Int!
 }
 
-type UpsertDatasetRecordOutput {
+type InsertDatasetRecordOutput {
   record: Record!
 }
 
@@ -165,8 +169,8 @@ type Mutation {
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Upsert a record.
-  upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
+  # Insert a record.
+  insertRecord(input: InsertDatasetRecordInput): InsertDatasetRecordOutput!
 
   # Delete a record.
   deleteRecord(id: ID!): DeleteDatasetRecordOutput!
