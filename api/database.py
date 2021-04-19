@@ -178,6 +178,13 @@ class Record(Base):
     deleted = Column(TIMESTAMP)
 
 # Handling Many-to-Many Relationships
+user_teams = Table('user_team', Base.metadata,
+                   Column('user_id', GUID, ForeignKey(
+                       'user.id'), index=True),
+                   Column('team_id', GUID, ForeignKey(
+                       'team.id'), index=True),
+                   )
+
 user_roles = Table('user_role', Base.metadata,
                    Column('user_id', GUID, ForeignKey(
                        'user.id'), index=True),
