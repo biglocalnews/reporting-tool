@@ -1,4 +1,11 @@
 {
   "teamsSideBarTitle": "My Programmes",
-  "program": "programme"
+  "program": "programme",
+  "aboutAttribute": "About {{attribute}}",
+  "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
+  "datasetRecordsTableTitle": "{{title}}",
+  "saveRecord": "Save Record",
+  "goToDataset": "Go to Dataset",
+  "addMoreData": "Add More Data",
+  "addData": "Add Data"
 }

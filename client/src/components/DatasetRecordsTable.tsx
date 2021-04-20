@@ -8,6 +8,7 @@ import {
 } from "../__generated__/GetDataset";
 import { GET_DATASET } from "../queries/GetDataset.gql";
 import { useQuery } from "@apollo/client";
+import { useTranslation } from "react-i18next";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -83,6 +84,8 @@ const columns = [
 const DatasetRecordsTable = ({
   datasetId,
 }: DatasetRecordsTableProps): JSX.Element => {
+  const { t } = useTranslation();
+
   const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
     GET_DATASET,
     {
@@ -109,7 +112,7 @@ const DatasetRecordsTable = ({
       size="small"
       scroll={{ x: 1000 }}
       sticky
-      title={() => "Records"}
+      title={() => t("datasetRecordsTableTitle", { title: "Records" })}
       pagination={{ pageSize: 6 }}
       loading={loading}
     />

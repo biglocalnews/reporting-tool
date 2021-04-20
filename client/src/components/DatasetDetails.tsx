@@ -6,6 +6,7 @@ import { DatasetRecordsTable } from "./DatasetRecordsTable";
 import { GetDataset, GetDatasetVariables } from "../__generated__/GetDataset";
 import { GET_DATASET } from "../queries/GetDataset.gql";
 import { useQuery } from "@apollo/client";
+import { useTranslation } from "react-i18next";
 
 interface RouteParams {
   datasetId: string;
@@ -16,6 +17,7 @@ const { Text, Title } = Typography;
 const DatasetDetails = (): JSX.Element => {
   const { datasetId } = useParams<RouteParams>();
   const history = useHistory();
+  const { t } = useTranslation();
 
   const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
     GET_DATASET,
@@ -52,7 +54,7 @@ const DatasetDetails = (): JSX.Element => {
                 })
               }
             >
-              Add Data
+              {t("addData")}
             </Button>
           </div>
         </Col>

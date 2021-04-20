@@ -7,6 +7,7 @@ import { GET_DATASET } from "../queries/GetDataset.gql";
 import { UPSERT_RECORD } from "../queries/UpsertRecord.gql";
 import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -77,6 +78,8 @@ const tempRecord = {
 };
 
 const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
+  const { t } = useTranslation();
+
   // TODO: query for get_dataset to EDIT a record
   const [UpsertRecord] = useMutation(UPSERT_RECORD, {
     onCompleted() {
@@ -150,7 +153,9 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
       </div>
       <Row gutter={[16, 16]} className="data-entry">
         <Col span={8}>
-          <h3 className="data-entry_category-descr-header">About gender</h3>
+          <h3 className="data-entry_category-descr-header">
+            {t("aboutAttribute", { attribute: "Gender" })}
+          </h3>
           <Text>{`Gender identity expresses one's innermost concept of self as male,
         female, a blend of both or neither - how individuals perceive
         themselves and what they call themselves. Someone's gender identity
@@ -188,14 +193,14 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
               >
-                Save Record
+                {t("saveRecord")}
               </Button>
               <Button
                 onClick={() => history.push("/")}
                 icon={<CloseSquareFilled />}
                 style={{ whiteSpace: "normal", height: "auto" }}
               >
-                Cancel and Return To Dashboard
+                {t("cancelAndReturnToDashBoard")}
               </Button>
             </Space>
           </div>
