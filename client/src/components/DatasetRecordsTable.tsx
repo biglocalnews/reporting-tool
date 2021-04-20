@@ -42,18 +42,22 @@ const columns = [
   {
     title: "Transgender",
     dataIndex: "transgender",
+    key: "id",
   },
   {
     title: "Gender Non-Conforming",
     dataIndex: "gender non-conforming",
+    key: "id",
   },
   {
     title: "Cisgender",
     dataIndex: "cisgender",
+    key: "id",
   },
   {
     title: "Non-Binary",
     dataIndex: "non-binary",
+    key: "id",
   },
   {
     dataIndex: "id",
@@ -115,6 +119,7 @@ const DatasetRecordsTable = ({
       title={() => t("datasetRecordsTableTitle", { title: "Records" })}
       pagination={{ pageSize: 6 }}
       loading={loading}
+      rowKey={(record) => record.id}
     />
   );
 };
