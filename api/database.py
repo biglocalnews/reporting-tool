@@ -121,10 +121,10 @@ class Program(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     team_id = Column(GUID, ForeignKey('team.id'), index=True)
-    datasets = relationship('Dataset')
-    targets = relationship('Target')
+    datasets = relationship('Dataset', lazy='subquery')
+    targets = relationship('Target', lazy='subquery')
     tags = relationship('Tag', secondary=program_tags,
-                        back_populates='programs')
+                        back_populates='programs', lazy='subquery')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -141,9 +141,9 @@ class Tag(Base):
     description = Column(String(255), nullable=False)
     tag_type = Column(String(255), nullable=False)
     programs = relationship('Program', secondary=program_tags,
-                            back_populates='tags')
+                            back_populates='tags', lazy='subquery')
     datasets = relationship('Dataset', secondary=dataset_tags,
-                            back_populates='tags')
+                            back_populates='tags', lazy='subquery')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -175,12 +175,12 @@ class Dataset(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
-    records = relationship('Record')
-    inputter = relationship('User')
+    records = relationship('Record', lazy='subquery')
+    inputter = relationship('User', lazy='subquery')
     inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
 
     tags = relationship('Tag', secondary=dataset_tags,
-                        back_populates='datasets')
+                        back_populates='datasets', lazy='subquery')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
