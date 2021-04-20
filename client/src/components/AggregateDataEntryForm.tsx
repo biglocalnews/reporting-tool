@@ -119,7 +119,6 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    // TODO: add data/update data
     const rec = {
       input: {
         datasetId: props.datasetId,
