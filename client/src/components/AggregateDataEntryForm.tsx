@@ -13,7 +13,7 @@ const { Text } = Typography;
 interface FormProps {
   datasetId: string;
   recordId?: string;
-  formSubmitted: any;
+  onFormSubmitted: any;
 }
 
 interface Record {
@@ -80,10 +80,10 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
   // TODO: query for get_dataset to EDIT a record
   const [UpsertRecord] = useMutation(UPSERT_RECORD, {
     onCompleted() {
-      props.formSubmitted(true);
+      props.onFormSubmitted(true);
     },
-    onError(error) {
-      props.formSubmitted(false); // TODO: pass error to parent
+    onError() {
+      props.onFormSubmitted(false); // TODO: pass error to parent
     },
     awaitRefetchQueries: true, // TODO: update cache instead of refetch
     refetchQueries: [

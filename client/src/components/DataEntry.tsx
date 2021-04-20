@@ -62,7 +62,7 @@ const DataEntry = (): JSX.Element => {
       <AggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
-        formSubmitted={setSubmitted}
+        onFormSubmitted={setSubmitted}
       />
     </>
   );
