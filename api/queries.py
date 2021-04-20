@@ -81,7 +81,7 @@ def resolve_user(obj, info, id):
             print(f'{type(prop).__bases__}, checking prop bases in else')
 
             try:
-                return prop.__dict__
+                return dictionarify_nested(prop.__dict__)
             except:
                 return prop
 
