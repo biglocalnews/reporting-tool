@@ -18,93 +18,10 @@ def resolve_user(obj, info, id):
     '''
     session = SessionLocal()
 
-    retrieved_user = session.query(User).filter(User.id == id).options(joinedload("roles"), joinedload("teams").joinedload("programs").joinedload("datasets").joinedload("records")).first().__dict__
-
-    print(f'{retrieved_user}, checking user')
-
-    # retrieved_user["roles"] = [role.__dict__ for role in retrieved_user["roles"]]
-
-    # TODO Abstract out into a map for clarity and to handle iterating over each team and subsequent program
-    # retrieved_user["teams"] = [team.__dict__ for team in retrieved_user["teams"]]
-
-    # this below will not work bc ["teams"] is an array
-    # retrieved_user["teams"]["programs"] = [program.__dict__ for program in retrieved_user["teams"]["programs"]]
-
-    def dictionarify_nested(prop):
-        print(f'{type(prop)}, checking prop general')
-
-        if issubclass(type(prop), list):
-            print(f'{prop}, checking prop in list')
-
-            return [dictionarify_nested(item) for item in prop]
-
-        # if dict, assign 
-        elif type(prop) is dict:
-            print(f'{prop}, checking prop in is dict and not sa')
-
-            for key in prop.keys():
-                print(f'{key}, checking key in dict')
-
-                if key is not "_sa_instance_state":
-                    prop[key] = dictionarify_nested(prop[key])
-            return prop
-
-        # # if its a string, return the string
-        # elif type(prop) is str:
-        #     print(type(prop))
-        #     return prop
-
-        # #if integer, return the integer
-        # elif type(prop) is int:
-        #     print(type(prop))
-        #     return prop
-
-        # #if bool, return the bool
-        # elif type(prop) is bool:
-        #     print(type(prop))
-        #     return prop
-
-        # elif prop is None:
-        #     print(type(prop))
-        #     return prop    
-
-        # elif type(prop) is datetime.datetime:
-        #     print(type(prop))
-        #     return prop   
-
-        # elif type(prop) is UUID:
-        #     print(type(prop))
-        #     return prop       
-
-        # at end have else (assuming its an object that needs to be dicted- return object.dicted)
-        else:
-            print(f'{type(prop).__bases__}, checking prop bases in else')
-
-            try:
-                return dictionarify_nested(prop.__dict__)
-            except:
-                return prop
-
-    full_dictionary = dictionarify_nested(retrieved_user)
-
+    retrieved_user = session.query(User).filter(User.id == id).first()
     session.close()
 
-            # print(f'{prop}, checking prop in else')
-
-    return full_dictionary
-
-
-
-        # for key in dict.keys():
-        #     if type(dict[key]) is list:
-        #         [item.__dict__ for item in dict[key]]
-        # return list
-
-    
-
-    # retrieved_user["teams"]["programs"]
-        # result = map(lambda item: list.item, list)
-
+    return retrieved_user
 
 @query.field("dataset")
 @convert_kwargs_to_snake_case
