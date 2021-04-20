@@ -85,14 +85,13 @@ def resolve_user(obj, info, id):
             except:
                 return prop
 
-    dicted = dictionarify_nested(retrieved_user)
-    print(f'{dicted}, checking user after dict"ing')
+    full_dictionary = dictionarify_nested(retrieved_user)
 
     session.close()
 
             # print(f'{prop}, checking prop in else')
 
-    return dicted
+    return full_dictionary
 
 
 
