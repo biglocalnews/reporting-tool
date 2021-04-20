@@ -1,5 +1,5 @@
 import { Button, Result, Typography } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import "./DataEntry.css";
 import { AggregateDataEntryForm } from "./AggregateDataEntryForm";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -17,10 +17,10 @@ interface RouteParams {
 const DataEntry = (): JSX.Element => {
   // TODO: use parameters to manage mutation
   const { datasetId, recordId } = useParams<RouteParams>();
-  const { push } = useHistory();
+  const location = useHistory();
   const { t } = useTranslation();
 
-  const [submitted, setSubmitted] = React.useState<boolean>();
+  const [submitted, setSubmitted] = useState<boolean>();
 
   if (submitted)
     return (
@@ -33,14 +33,14 @@ const DataEntry = (): JSX.Element => {
             type="primary"
             key="addMoreData"
             icon={<PlusCircleTwoTone />}
-            onClick={() => push(`/dataset/${datasetId}/entry/reload`)}
+            onClick={() => location.push(`/dataset/${datasetId}/entry/reload`)}
           >
             {t("addMoreData")}
           </Button>,
           <Button
             key="goToDataset"
             icon={<DashboardTwoTone />}
-            onClick={() => push("/")}
+            onClick={() => location.push(`/dataset/${datasetId}/details`)}
           >
             {t("goToDataset")}
           </Button>,
