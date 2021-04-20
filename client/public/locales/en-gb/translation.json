@@ -7,5 +7,6 @@
   "saveRecord": "Save Record",
   "goToDataset": "Go to Dataset",
   "addMoreData": "Add More Data",
-  "addData": "Add Data"
+  "addData": "Add Data",
+  "backToDashboard": "Back To Dashboard"
 }

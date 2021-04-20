@@ -6,6 +6,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { PersonTypesInput } from "./PersonTypesInput";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { ApolloError } from "@apollo/client";
 
 const { Title } = Typography;
 
@@ -14,15 +15,36 @@ interface RouteParams {
   recordId?: string;
 }
 
+export interface FormState {
+  submitSuccess: boolean | undefined;
+  errors?: ApolloError | undefined;
+}
+
 const DataEntry = (): JSX.Element => {
   // TODO: use parameters to manage mutation
   const { datasetId, recordId } = useParams<RouteParams>();
   const location = useHistory();
   const { t } = useTranslation();
 
-  const [submitted, setSubmitted] = useState<boolean>();
+  const [formState, setFormState] = useState<FormState>();
 
-  if (submitted)
+  console.log("submitted", formState?.submitSuccess);
+
+  if (!formState?.submitSuccess && formState?.errors) {
+    return (
+      <Result
+        title="Oh, no!"
+        subTitle={`Sorry, something went wrong. ${formState?.errors?.message}`}
+        extra={
+          <Button type="primary" onClick={() => location.push("/")}>
+            {t("backToDashboard")}
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (formState?.submitSuccess)
     return (
       <Result
         status="success"
@@ -64,7 +86,7 @@ const DataEntry = (): JSX.Element => {
       <AggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
-        onFormSubmitted={setSubmitted}
+        onFormSubmitted={setFormState}
       />
     </>
   );

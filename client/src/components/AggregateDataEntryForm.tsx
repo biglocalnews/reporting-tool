@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useState } from "react";
+import React, {
+  ChangeEvent,
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useState,
+} from "react";
 import { Button, Card, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./AggregateDataEntryForm.css";
@@ -8,13 +14,14 @@ import { UPSERT_RECORD } from "../queries/UpsertRecord.gql";
 import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { FormState } from "./DataEntry";
 
 const { Text } = Typography;
 
 interface FormProps {
   datasetId: string;
   recordId?: string;
-  onFormSubmitted: any;
+  onFormSubmitted: Dispatch<SetStateAction<FormState | undefined>>;
 }
 
 interface Record {
@@ -81,14 +88,14 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
 
   // TODO: query for get_dataset to EDIT a record
-  const [UpsertRecord] = useMutation(UPSERT_RECORD, {
+  const [UpsertRecord, { error: mutationError }] = useMutation(UPSERT_RECORD, {
     onCompleted() {
-      props.onFormSubmitted(true);
+      props.onFormSubmitted({ submitSuccess: true });
     },
     onError() {
-      props.onFormSubmitted(false); // TODO: pass error to parent
+      props.onFormSubmitted({ submitSuccess: false, errors: mutationError });
     },
-    awaitRefetchQueries: true, // TODO: update cache instead of refetch
+    awaitRefetchQueries: true,
     refetchQueries: [
       {
         query: GET_DATASET,
@@ -96,7 +103,7 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
       },
     ],
   });
-  const [values, setValues] = useState(tempRecord);
+  const [values, setValues] = useState<Record>(tempRecord || {});
 
   // TODO: default will come from graphql query if a record exists
   const [publicationDate, setPublicationDate] = useState<string>(
@@ -117,7 +124,7 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
     setValues(tempValues);
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const rec = {
       input: {
