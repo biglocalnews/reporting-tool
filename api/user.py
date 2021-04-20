@@ -1,24 +1,28 @@
 from fastapi_users import models
-from fastapi_users.db import SQLAlchemyUserDatabase
-
+from fastapi_users.db import (SQLAlchemyUserDatabase)
+from typing import Optional
 import database
 
 
 class User(models.BaseUser):
-    pass
+    first_name: str
+    last_name: str
 
 
 class UserCreate(models.BaseUserCreate):
-    pass
+    first_name: str
+    last_name: str
 
 
 class UserUpdate(User, models.BaseUserUpdate):
-    pass
+    first_name: Optional[str]
+    last_name: Optional[str]
 
 
 class UserDB(User, models.BaseUserDB):
-    pass
+    first_name: str
+    last_name: str
 
 
-
-user_db = SQLAlchemyUserDatabase(UserDB, database.database, database.User.__table__)
+user_db = SQLAlchemyUserDatabase(
+    UserDB, database.database, database.User.__table__)
