@@ -81,7 +81,10 @@ def resolve_create_dataset(obj, info, input):
 @convert_kwargs_to_snake_case
 @mutation.field("deleteDataset")
 def resolve_delete_dataset(obj, info, id):
-
+    '''GraphQL query to delete a dataset.
+        :param id: UUID of Dataset to be deleted
+        :returns: UUID of deleted Dataset
+    '''
     session = info.context['dbsession']
     session.query(Dataset).filter(Dataset.id == id).delete()
     session.commit()
