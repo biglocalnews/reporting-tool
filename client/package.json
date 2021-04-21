@@ -11,6 +11,7 @@
     "@types/react-router-dom": "^5.1.7",
     "antd": "^4.12.3",
     "apollo": "^2.32.5",
+    "dayjs": "^1.10.4",
     "graphql": "^15.5.0",
     "i18next": "^19.9.1",
     "i18next-browser-languagedetector": "^6.0.1",

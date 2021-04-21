@@ -42,11 +42,20 @@ exports[`renders correctly 1`] = `
               />
               <Route
                 component={[Function]}
+                exact={true}
+                key="add-entry"
                 path="/dataset/:datasetId/entry"
               />
               <Route
                 component={[Function]}
+                exact={true}
+                key="edit-entry"
                 path="/dataset/:datasetId/entry/edit/:recordId"
+              />
+              <Redirect
+                exact={true}
+                from="/dataset/:datasetId/entry/reload"
+                to="/dataset/:datasetId/entry"
               />
             </Switch>
           </Content>

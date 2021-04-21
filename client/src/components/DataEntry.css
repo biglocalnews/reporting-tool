@@ -2,6 +2,10 @@
   font-size: large;
 }
 
+.data-entry_publication-date-field > label {
+  font-size: medium;
+}
+
 .data-entry {
   margin-top: 20px;
 }
@@ -13,11 +17,12 @@
 input[type="date"],
 select {
   border: 1px solid #ccc;
-  border-radius: 4px;
   box-sizing: border-box;
+  padding: 2px;
 }
 
-.publication-date-field {
+.data-entry_publication-date-field {
+  margin-top: 10px;
   display: grid;
   grid-template-columns: max-content max-content;
   grid-gap: 5px;
