@@ -1,6 +1,6 @@
-import { shallow } from "enzyme";
+import React from "react";
 import { render } from "@testing-library/react";
-import { DatasetsTable } from "../components/DatasetsTable";
+import { HomeDatasetsListTable } from "../components/Home/HomeDatasetsListTable";
 import { axe } from "jest-axe";
 
 describe("accessibility", () => {
@@ -18,7 +18,9 @@ describe("accessibility", () => {
         dispatchEvent: jest.fn(),
       })),
     });
-    const { container } = render(<DatasetsTable data={[]} columns={[]} />);
+    const { container } = render(
+      <HomeDatasetsListTable data={[]} columns={[]} />
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

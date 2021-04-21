@@ -1,6 +1,7 @@
 import { Button, message, Popconfirm, Space, Table } from "antd";
 import React from "react";
-import "./DatasetRecordsTable.css";
+import "./DatasetDetailsRecordsTable.css";
+import { Link } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
@@ -85,7 +86,7 @@ const columns = [
   },
 ];
 
-const DatasetRecordsTable = ({
+const DatasetDetailsRecordsTable = ({
   datasetId,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { t } = useTranslation();
@@ -124,4 +125,4 @@ const DatasetRecordsTable = ({
   );
 };
 
-export { DatasetRecordsTable };
+export { DatasetDetailsRecordsTable };

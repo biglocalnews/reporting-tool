@@ -2,7 +2,7 @@ import { Button, Col, Row, Typography } from "antd";
 import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
-import { DatasetRecordsTable } from "./DatasetRecordsTable";
+import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import {
   GetDataset,
   GetDatasetVariables,
@@ -62,11 +62,11 @@ const DatasetDetails = (): JSX.Element => {
           </div>
         </Col>
       </Row>
-
-      <DatasetRecordsTable
+      <DatasetDetailsRecordsTable
         datasetId={datasetId}
         records={data?.dataset?.records}
       />
+      )
     </div>
   );
 };

@@ -1,14 +1,14 @@
 import React from "react";
 import { AutoComplete, Input } from "antd";
 import { useTranslation } from "react-i18next";
-import "./SearchAutoComplete.css";
+import "./HomeSearchAutoComplete.css";
 
 interface Props {
   dataSource: [];
   // onTextChange: (text: string) => void;
 }
 
-const SearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
+const HomeSearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   return (
@@ -29,4 +29,4 @@ const SearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
   );
 };
 
-export { SearchAutoComplete };
+export { HomeSearchAutoComplete };
