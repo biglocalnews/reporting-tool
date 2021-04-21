@@ -26,14 +26,9 @@ def resolve_user(obj, info, id):
 def resolve_dataset(obj, info, id):
     '''GraphQL query to find a dataset based on dataset ID.
         :param id: Id for the dataset to be fetched
-        :returns: Dataset dictionary with eager-loaded associated Tags and Records
+        :returns: Dataset dictionary
     '''
-    session = SessionLocal()
-
-    retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).options(joinedload("tags"), joinedload("records")).first().__dict__
-    retrieved_dataset["records"] = [record.__dict__ for record in retrieved_dataset['records']]
-    retrieved_dataset["tags"] = [tag.__dict__ for tag in retrieved_dataset['tags']]
-
-    session.close()
+    session = info.context['dbsession']
+    retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).first()
 
     return retrieved_dataset
