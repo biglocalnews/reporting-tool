@@ -1,6 +1,5 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
-from database import SessionLocal, Dataset, Tag, User
-from sqlalchemy.orm import joinedload
+from database import Dataset, User
 
 query = ObjectType("Query")
 
