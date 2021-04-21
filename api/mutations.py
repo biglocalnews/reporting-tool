@@ -77,3 +77,13 @@ def resolve_create_dataset(obj, info, input):
     session.close()
 
     return persisted_dataset
+
+@convert_kwargs_to_snake_case
+@mutation.field("deleteDataset")
+def resolve_delete_dataset(obj, info, id):
+
+    session = info.context['dbsession']
+    session.query(Dataset).filter(Dataset.id == id).delete()
+    session.commit()
+
+    return id
