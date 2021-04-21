@@ -1,12 +1,13 @@
 import { Button, message, Popconfirm, Space, Table } from "antd";
 import React from "react";
-import "./DatasetRecordsTable.css";
+import "./DatasetDetailsRecordsTable.css";
+import { Link } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
   GetDataset_dataset_records,
-} from "../__generated__/GetDataset";
-import { GET_DATASET } from "../queries/GetDataset.gql";
+} from "../../__generated__/GetDataset";
+import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 
@@ -85,7 +86,7 @@ const columns = [
   },
 ];
 
-const DatasetRecordsTable = ({
+const DatasetDetailsRecordsTable = ({
   datasetId,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { t } = useTranslation();
@@ -124,4 +125,4 @@ const DatasetRecordsTable = ({
   );
 };
 
-export { DatasetRecordsTable };
+export { DatasetDetailsRecordsTable };

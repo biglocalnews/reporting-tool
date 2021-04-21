@@ -7,10 +7,10 @@ import React, {
 } from "react";
 import { Button, Card, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
-import "./AggregateDataEntryForm.css";
+import "./DataEntryAggregateDataEntryForm.css";
 import { useMutation } from "@apollo/client";
-import { GET_DATASET } from "../queries/GetDataset.gql";
-import { UPSERT_RECORD } from "../queries/UpsertRecord.gql";
+import { GET_DATASET } from "../../__queries__/GetDataset.gql";
+import { UPSERT_RECORD } from "../../__queries__/UpsertRecord.gql";
 import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -84,7 +84,7 @@ const tempRecord = {
   ],
 };
 
-const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
+const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
 
   // TODO: query for get_dataset to EDIT a record
@@ -216,4 +216,4 @@ const AggregateDataEntryForm = (props: FormProps): JSX.Element => {
   );
 };
 
-export { AggregateDataEntryForm };
+export { DataEntryAggregateDataEntryForm };

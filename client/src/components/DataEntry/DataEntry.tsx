@@ -1,7 +1,7 @@
 import { Button, Result, Typography } from "antd";
 import React, { useState } from "react";
 import "./DataEntry.css";
-import { AggregateDataEntryForm } from "./AggregateDataEntryForm";
+import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { PersonTypesInput } from "./PersonTypesInput";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
@@ -83,7 +83,7 @@ const DataEntry = (): JSX.Element => {
         </Link>
       </Title>
       <PersonTypesInput />
-      <AggregateDataEntryForm
+      <DataEntryAggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
         onFormSubmitted={setFormState}

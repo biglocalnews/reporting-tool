@@ -1,5 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { AppSidebar } from "../components/AppSidebar";
+import { AppSidebar } from "../layout/AppSidebar";
 import { mount, shallow } from "enzyme";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -8,7 +8,7 @@ import { MockedProvider } from "@apollo/client/testing";
 import { act, render, wait, waitFor } from "@testing-library/react";
 import { gql } from "@apollo/client";
 import { BrowserRouter } from "react-router-dom";
-import { GET_USER } from "../queries/GetUser.gql";
+import { GET_USER } from "../__queries__/GetUser.gql";
 
 describe("UK English internationalization", () => {
   beforeAll(() => {
