@@ -12,7 +12,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType
 from ariadne.asgi import GraphQL
 
-from database import database
+from database import database, SessionLocal
 from queries import query
 from mutations import mutation
 from settings import settings
@@ -76,8 +76,26 @@ type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
     type_defs, query, mutation, snake_case_fallback_resolvers
 )
+
+@app.middleware("http")
+async def add_db_session(request: Request, call_next):
+    session = SessionLocal()
+    request.scope["dbsession"] = session
+
+    response = await call_next(request)
+
+    session.close()
+
+    return response
+
+def get_context(request: Request):
+    return {
+            "dbsession": request.scope['dbsession'],
+            "request": request,
+            }
+
 # Mount ariadne to fastapi
-app.mount("/graphql", GraphQL(schema, debug=True))
+app.mount("/graphql", GraphQL(schema, debug=True, context_value=get_context))
 
 @app.on_event("startup")
 async def startup():
