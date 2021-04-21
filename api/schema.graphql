@@ -108,6 +108,15 @@ input CreateDatasetInput {
   tags: [TagInput!]!
 }
 
+input UpdateDatasetInput {
+  id: ID!
+  name: String
+  description: String
+  programId: ID
+  inputterId: ID
+  tags: [TagInput!]
+}
+
 input UpsertDatasetRecordInput {
   id: ID
   datasetId: ID!
@@ -153,6 +162,8 @@ type Mutation {
 
   # Delete a Dataset
   deleteDataset(id: ID!): String!
+  # Update a Dataset
+  updateDataset(input: UpdateDatasetInput): Dataset!
 
   # Upsert a record.
   upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
