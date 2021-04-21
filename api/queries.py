@@ -14,7 +14,7 @@ query = ObjectType("Query")
 def resolve_user(obj, info, id):
     '''GraphQL query to find a user based on user ID.
         :param id: Id for the user to be fetched
-        :returns: User dictionary with eager-loaded Role(s) and associated Team(s)
+        :returns: User dictionary
     '''
     session = info.context['dbsession']
     retrieved_user = session.query(User).filter(User.id == id).first()
