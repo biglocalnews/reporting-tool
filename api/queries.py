@@ -16,10 +16,8 @@ def resolve_user(obj, info, id):
         :param id: Id for the user to be fetched
         :returns: User dictionary with eager-loaded Role(s) and associated Team(s)
     '''
-    session = SessionLocal()
-
+    session = info.context['dbsession']
     retrieved_user = session.query(User).filter(User.id == id).first()
-    session.close()
 
     return retrieved_user
 
