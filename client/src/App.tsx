@@ -7,7 +7,6 @@ import { Home } from "./components/Home/Home";
 import { DatasetDetails } from "./components/DatasetDetails/DatasetDetails";
 import { DataEntry } from "./components/DataEntry/DataEntry";
 import "./App.css";
-import { DataEntry } from "./components/DataEntry";
 
 const { Footer, Content } = Layout;
 

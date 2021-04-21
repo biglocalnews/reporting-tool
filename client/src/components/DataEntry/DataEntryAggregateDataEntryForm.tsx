@@ -15,7 +15,6 @@ import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormState } from "./DataEntry";
-import { PlusOutlined, DashboardOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 

@@ -66,7 +66,6 @@ const DatasetDetails = (): JSX.Element => {
         datasetId={datasetId}
         records={data?.dataset?.records}
       />
-      )
     </div>
   );
 };
