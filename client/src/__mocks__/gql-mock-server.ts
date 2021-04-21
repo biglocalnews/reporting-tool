@@ -97,7 +97,7 @@ const mockTypes = {
         .map((item) => item.id)
         .indexOf(args.id);
 
-      if (recordToRemove == -1)
+      if (recordToRemove === -1)
         throw new UserInputError("Record with provided ID does not exist", {
           invalidArgs: args.id,
         });
