@@ -1,4 +1,4 @@
-import { Button, message, Popconfirm, Space, Table } from "antd";
+import { Button, message, Popconfirm, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
 import { Link } from "react-router-dom";
@@ -10,108 +10,130 @@ import {
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@apollo/client";
+import { DELETE_RECORD } from "../__queries__/DeleteRecord.gql";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
   records: readonly GetDataset_dataset_records[] | undefined;
+  isLoading: boolean;
 }
 
-const confirm = () => {
-  message.success("Confirmation received");
-};
-
-const cancel = () => {
-  message.error("Delete cancelled");
-};
-
-const columns = [
-  {
-    title: "Date",
-    dataIndex: "publicationDate",
-    key: "id",
-  },
-  {
-    title: "Men",
-    dataIndex: "men",
-    key: "id",
-  },
-  {
-    title: "Women",
-    dataIndex: "women",
-    key: "id",
-  },
-  {
-    title: "Transgender",
-    dataIndex: "transgender",
-    key: "id",
-  },
-  {
-    title: "Gender Non-Conforming",
-    dataIndex: "gender non-conforming",
-    key: "id",
-  },
-  {
-    title: "Cisgender",
-    dataIndex: "cisgender",
-    key: "id",
-  },
-  {
-    title: "Non-Binary",
-    dataIndex: "non-binary",
-    key: "id",
-  },
-  {
-    dataIndex: "id",
-    render: function edit(recordId: number) {
-      return (
-        <Space>
-          <Button type="link" size="small" disabled>
-            Edit
-          </Button>
-
-          <Popconfirm
-            title="Delete this record?"
-            onConfirm={confirm}
-            onCancel={cancel}
-            okText="Delete"
-            cancelText="Cancel"
-          >
-            <Button danger size="small" type="link">
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      );
-    },
-  },
-];
+interface TableData {
+  id: string;
+  key: string;
+  publicationDate: string;
+  [key: string]: string;
+}
 
 const DatasetDetailsRecordsTable = ({
   datasetId,
+  records,
+  isLoading,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
-    GET_DATASET,
-    {
-      variables: { id: datasetId },
-    }
-  );
-
-  const dataSource = data?.dataset?.records?.map((record) => {
+  const tableData = records?.map((record) => {
     return record.data.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
-      { id: record.id, publicationDate: record.publicationDate }
+      {
+        id: record.id,
+        key: record.id,
+        publicationDate: record.publicationDate,
+      }
     );
+  }) as TableData[];
+
+  const [
+    deleteRecord,
+    { loading: deleteRecordLoader, error: deleteRecordError },
+  ] = useMutation(DELETE_RECORD, {
+    refetchQueries: [
+      {
+        query: GET_DATASET,
+        variables: { id: datasetId },
+      },
+    ],
   });
 
-  // TODO: update for error and loading components
-  if (error) return <div>{`Error: ${error.message}`}</div>;
+  const confirmDelete = async (recordId: string) => {
+    await deleteRecord({ variables: { id: recordId } })
+      .then(() =>
+        deleteRecordLoader
+          ? message.loading("Deleting record...")
+          : message.success("Succesfully deleted record!")
+      )
+      .catch((error) =>
+        message.error(`${error.message}. Please try again later.`)
+      );
+  };
+
+  const cancelDelete = () => {
+    message.info("Delete cancelled");
+  };
+
+  const columns = [
+    {
+      title: "Date",
+      dataIndex: "publicationDate",
+      key: "id",
+    },
+    {
+      title: "Men",
+      dataIndex: "men",
+      key: "id",
+    },
+    {
+      title: "Women",
+      dataIndex: "women",
+      key: "id",
+    },
+    {
+      title: "Transgender",
+      dataIndex: "transgender",
+      key: "id",
+    },
+    {
+      title: "Gender Non-Conforming",
+      dataIndex: "gender non-conforming",
+      key: "id",
+    },
+    {
+      title: "Cisgender",
+      dataIndex: "cisgender",
+      key: "id",
+    },
+    {
+      title: "Non-Binary",
+      dataIndex: "non-binary",
+      key: "id",
+    },
+    {
+      dataIndex: "id",
+      key: "id",
+      render: function edit(recordId: string) {
+        return (
+          <Popconfirm
+            title="Permanently delete this record?"
+            onConfirm={() => confirmDelete(recordId)}
+            onCancel={cancelDelete}
+            okText="Yes, delete"
+            okType="danger"
+            cancelText="No, cancel"
+          >
+            <Button id="delete-record" danger size="small" type="link">
+              Delete
+            </Button>
+          </Popconfirm>
+        );
+      },
+    },
+  ];
 
   return (
     <Table
       className="dataset-records-table"
-      dataSource={dataSource}
+      dataSource={tableData}
       columns={columns}
       bordered
       size="small"
@@ -119,7 +141,7 @@ const DatasetDetailsRecordsTable = ({
       sticky
       title={() => t("datasetRecordsTableTitle", { title: "Records" })}
       pagination={{ pageSize: 6, hideOnSinglePage: true }}
-      loading={loading}
+      loading={isLoading}
       rowKey={(record) => record.id}
     />
   );
