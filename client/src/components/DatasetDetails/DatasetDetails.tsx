@@ -3,8 +3,11 @@ import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import { DatasetRecordsTable } from "./DatasetRecordsTable";
-import { GetDataset, GetDatasetVariables } from "../__generated__/GetDataset";
-import { GET_DATASET } from "../queries/GetDataset.gql";
+import {
+  GetDataset,
+  GetDatasetVariables,
+} from "../../__generated__/GetDataset";
+import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 

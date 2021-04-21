@@ -1,5 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { AppSidebar } from "../components/AppSidebar";
+import { AppSidebar } from "../layout/AppSidebar";
 import { mount, shallow } from "enzyme";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";

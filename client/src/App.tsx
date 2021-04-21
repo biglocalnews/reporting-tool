@@ -1,10 +1,11 @@
 import React, { Suspense } from "react";
 import { Switch, Route, BrowserRouter, Redirect } from "react-router-dom";
 import { Layout } from "antd";
-import AppHeader from "./components/AppHeader";
-import { AppSidebar } from "./components/AppSidebar";
-import { Home } from "./components/Home";
-import { DatasetDetails } from "./components/DatasetDetails";
+import AppHeader from "./layout/AppHeader";
+import { AppSidebar } from "./layout/AppSidebar";
+import { Home } from "./components/Home/Home";
+import { DatasetDetails } from "./components/DatasetDetails/DatasetDetails";
+import { DataEntry } from "./components/DataEntry/DataEntry";
 import "./App.css";
 import { DataEntry } from "./components/DataEntry";
 

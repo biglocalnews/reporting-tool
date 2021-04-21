@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { SearchAutoComplete } from "../components/SearchAutoComplete";
+import { SearchAutoComplete } from "../components/Home/SearchAutoComplete";
 import { axe } from "jest-axe";
 
 jest.mock("react-i18next", () => ({

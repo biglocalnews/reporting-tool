@@ -5,8 +5,8 @@ import {
   GetDataset,
   GetDatasetVariables,
   GetDataset_dataset_records,
-} from "../__generated__/GetDataset";
-import { GET_DATASET } from "../queries/GetDataset.gql";
+} from "../../__generated__/GetDataset";
+import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 
