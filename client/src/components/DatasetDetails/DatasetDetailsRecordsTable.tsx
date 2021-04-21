@@ -1,17 +1,11 @@
 import { Button, message, Popconfirm, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
-import { Link } from "react-router-dom";
-import {
-  GetDataset,
-  GetDatasetVariables,
-  GetDataset_dataset_records,
-} from "../../__generated__/GetDataset";
+import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
-import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { DELETE_RECORD } from "../__queries__/DeleteRecord.gql";
+import { DELETE_RECORD } from "../../__queries__/DeleteRecord.gql";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
