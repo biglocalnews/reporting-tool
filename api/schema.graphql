@@ -148,8 +148,11 @@ type Mutation {
   # Delete a user.
   deleteUser(id: ID!): Int!
 
-  # Add a Dataset
+  # Create a Dataset
   createDataset(input: CreateDatasetInput): Dataset!
+
+  # Delete a Dataset
+  deleteDataset(id: ID!): String!
 
   # Upsert a record.
   upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
