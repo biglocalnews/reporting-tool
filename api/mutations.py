@@ -90,3 +90,25 @@ def resolve_delete_dataset(obj, info, id):
     session.commit()
 
     return id
+
+@convert_kwargs_to_snake_case
+@mutation.field("updateDataset")
+def resolve_update_dataset(obj, info, input):
+    '''GraphQL mutation to update a Dataset.
+        :param input: Params to be changed
+        :returns: Updated Dataset
+    '''
+
+    print(f'{input}, checking my inputs!')        
+
+    session = info.context['dbsession']
+
+    # TODO - check if updated_dataset query is needed- am wondering if there is a flag to have .update hand back the thing that was updated
+    requested_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).update(input)
+    session.commit()
+
+    updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
+
+    print(f'{updated_dataset}, updated_ds')        
+
+    return updated_dataset 
