@@ -102,8 +102,6 @@ def resolve_update_dataset(obj, info, input):
     print(f'{input}, checking my inputs!')        
 
     session = info.context['dbsession']
-
-    # TODO - check if updated_dataset query is needed- am wondering if there is a flag to have .update hand back the thing that was updated
     requested_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).update(input)
     session.commit()
 
