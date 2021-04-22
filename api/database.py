@@ -226,6 +226,7 @@ def run(tables: bool, dummy_data: bool):
     session = SessionLocal()
 
     if tables:
+        print("🍽  Creating tables ...")
         Base.metadata.create_all(engine)
 
         session.add(Role(
@@ -235,6 +236,7 @@ def run(tables: bool, dummy_data: bool):
         session.commit()
 
     if dummy_data:
+        print("👩🏽‍💻 Adding dummy data ...")
         org = Organization(name='BBC')
 
         team = Team(name='News Team')
@@ -263,6 +265,8 @@ def run(tables: bool, dummy_data: bool):
 
         session.add(org)
         session.commit()
+
+    print("✅ done!")
 
 
 if __name__ == '__main__':
