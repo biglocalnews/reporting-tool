@@ -1,6 +1,7 @@
 import databases
 import uuid
 
+import click
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -56,7 +57,7 @@ class Organization(Base):
 
     id = Column(GUID, primary_key=True)
     name = Column(String(255), nullable=False)
-    teams = relationship('Team')
+    teams = relationship('Team', back_populates='organization')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -193,6 +194,7 @@ class Record(Base):
     __tablename__ = 'record'
 
     id = Column(GUID, primary_key=True)
+    dataset = relationship('Dataset', back_populates='records')
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime)
@@ -206,12 +208,52 @@ class Record(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-if __name__ == '__main__':
+
+@click.command()
+@click.option("--tables/--no-tables", default=True)
+@click.option("--dummy-data/--no-dummy-data", default=False)
+def run(tables: bool, dummy_data: bool):
     engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
-
-    Base.metadata.create_all(engine)
-
     session = SessionLocal()
-    session.add(Role(
-        name="admin", description="User is an admin and has administrative privileges"))
-    session.commit()
+
+    if tables:
+        Base.metadata.create_all(engine)
+
+        session.add(Role(
+            name="admin",
+            description="User is an admin and has administrative privileges"))
+        session.commit()
+
+    if dummy_data:
+        org = Organization(name='BBC')
+
+        team = Team(name='News Team')
+        org.teams.append(team)
+
+        user = User(id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                email='tester@notrealemail.info',
+                hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+                first_name='Cat', last_name='Berry')
+        team.users.append(user)
+
+        program = Program(name='BBC News',
+                description='All BBC news programming')
+        team.programs.append(program)
+
+        ds1 = Dataset(name='Breakfast Hour',
+                description='breakfast hour programming')
+        ds2 = Dataset(name='12PM - 4PM', description='afternoon programming')
+        program.datasets.append(ds1)
+
+        tag = Tag(name='news', description='tag for all news programming',
+                tag_type='news')
+        tag.programs.append(program)
+        tag.datasets.append(ds1)
+        tag.datasets.append(ds2)
+
+        session.add(org)
+        session.commit()
+
+
+if __name__ == '__main__':
+    run()
