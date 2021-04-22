@@ -41,7 +41,7 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
   // 3) Apply mock resolvers to executable schema
   const resolvers = [mockResolvers, customResolvers] ?? [mockResolvers];
   const mocks = mergeResolvers(resolvers);
-  addMockFunctionsToSchema({ schema, mocks: mocks });
+  addMockFunctionsToSchema({ schema, mocks });
 
   // 4) Define errors
   const errorLink = new ApolloLink((operation) => {

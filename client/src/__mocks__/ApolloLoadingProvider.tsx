@@ -13,7 +13,7 @@ type Props = {
 
 const ApolloLoadingProvider = ({ children }: Props) => {
   const link = new ApolloLink((operation) => {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    /* tslint:disable:no-empty */
     return new Observable(() => {});
   });
 
