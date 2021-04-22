@@ -98,15 +98,10 @@ def resolve_update_dataset(obj, info, input):
         :param input: Params to be changed
         :returns: Updated Dataset
     '''
-
-    print(f'{input}, checking my inputs!')        
-
     session = info.context['dbsession']
-    requested_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).update(input)
+    session.query(Dataset).filter(Dataset.id == input["id"]).update(input)
     session.commit()
 
     updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
-
-    print(f'{updated_dataset}, updated_ds')        
 
     return updated_dataset 
