@@ -119,13 +119,11 @@ def resolve_update_dataset(obj, info, input):
             new_tag = Tag(**tag_input)
             dataset.tags.append(new_tag)
 
-    dataset.id = input["id"]
-    dataset.name = input["name"]
-    dataset.description = input["description"]
-    dataset.program_id: input["programId"]
-    dataset.inputter_id: input["inputterId"]
+    # Iterate through remaining input params and update atributes on Dataset 
+    for param in input:
+        setattr(dataset, param, input[param])
 
-    session.add(dataset) # vs session.update()
+    session.add(dataset)
     session.commit()
 
     updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
