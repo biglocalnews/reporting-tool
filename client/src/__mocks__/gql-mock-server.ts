@@ -1,4 +1,4 @@
-import { ApolloServer, UserInputError } from "apollo-server";
+import { ApolloServer } from "apollo-server";
 import { buildClientSchema } from "graphql";
 import introspectedSchema from "../schema.json";
 import fake from "casual";
@@ -88,23 +88,6 @@ const mockTypes = {
         record: {
           id: args.input.id,
         },
-      };
-    },
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    deleteRecord: (parent, args, ctx, info) => {
-      const recordToRemove = recordsData
-        .map((item) => item.id)
-        .indexOf(args.id);
-
-      if (recordToRemove === -1)
-        throw new UserInputError("Record with provided ID does not exist", {
-          invalidArgs: args.id,
-        });
-      recordsData.splice(recordToRemove, 1);
-
-      return {
-        id: args.id,
       };
     },
   }),
