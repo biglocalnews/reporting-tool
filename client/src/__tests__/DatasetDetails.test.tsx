@@ -6,8 +6,9 @@ import { Router } from "react-router-dom";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
-import { AutoMockedProvider } from "../__mocks__/AutoMockProvider";
+import { autoMockedClient } from "../__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
+import { ApolloClient, ApolloProvider } from "@apollo/client";
 
 const history = createMemoryHistory();
 
@@ -53,12 +54,14 @@ test("should return error to ui if dataset query fails", async () => {
     }),
   };
 
+  const client = autoMockedClient(resolvers);
+
   render(
-    <AutoMockedProvider customResolvers={resolvers}>
+    <ApolloProvider client={client}>
       <Router history={history}>
         <DatasetDetails />
       </Router>
-    </AutoMockedProvider>
+    </ApolloProvider>
   );
 
   await wait();
@@ -67,12 +70,14 @@ test("should return error to ui if dataset query fails", async () => {
 });
 
 test("should get dataset records when component is mounted and displays them in a table", async () => {
+  const client = autoMockedClient();
+
   render(
-    <AutoMockedProvider>
+    <ApolloProvider client={client}>
       <Router history={history}>
         <DatasetDetails />
       </Router>
-    </AutoMockedProvider>
+    </ApolloProvider>
   );
 
   expect(screen).toBeTruthy();
@@ -87,12 +92,14 @@ test("should get dataset records when component is mounted and displays them in 
 });
 
 test("clicking on the add data button should route to the data entry page", async () => {
+  const client = autoMockedClient();
+
   render(
-    <AutoMockedProvider>
+    <ApolloProvider client={client}>
       <Router history={history}>
         <DatasetDetails />
       </Router>
-    </AutoMockedProvider>
+    </ApolloProvider>
   );
 
   await wait();
@@ -112,12 +119,14 @@ test("should return error to user on delete if delete fails", async () => {
     }),
   };
 
+  const client = autoMockedClient(mock);
+
   const { container } = render(
-    <AutoMockedProvider customResolvers={mock}>
+    <ApolloProvider client={client}>
       <Router history={history}>
         <DatasetDetails />
       </Router>
-    </AutoMockedProvider>
+    </ApolloProvider>
   );
 
   await wait();
@@ -148,12 +157,14 @@ test("should return error to user on delete if delete fails", async () => {
 });
 
 test("should delete record from table when delete button is clicked", async () => {
+  const client = autoMockedClient();
+
   const { container } = render(
-    <AutoMockedProvider>
+    <ApolloProvider client={client}>
       <Router history={history}>
         <DatasetDetails />
       </Router>
-    </AutoMockedProvider>
+    </ApolloProvider>
   );
 
   await wait();

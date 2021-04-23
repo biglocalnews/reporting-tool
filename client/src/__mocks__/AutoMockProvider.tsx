@@ -15,18 +15,15 @@ import { SchemaLink } from "@apollo/client/link/schema";
 import { addMockFunctionsToSchema } from "apollo-server";
 import { mockResolvers } from "./MockResolvers";
 
-type Props = {
-  children: JSX.Element;
-  customResolvers?: IMocks;
-  graphQLError?: GraphQLError[];
-};
-
 /**
  * mocks data automatically using introspection schema
  * @see https://www.youtube.com/watch?v=FKA5iNYpd_8&t=43s
  */
 
-const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
+const autoMockedClient = (
+  customResolvers?: any,
+  graphQLError?: GraphQLError[] | undefined
+) => {
   // Convert JSON schema into Schema Definition Language
   const schemaSDL = printSchema(buildClientSchema(introspectionResult as any));
 
@@ -47,9 +44,7 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
   const errorLink = new ApolloLink((operation) => {
     return new Observable((observer) => {
       observer.next({
-        errors: errors || [
-          { message: "Unspecified error from ErrorProvider." },
-        ],
+        errors: graphQLError,
       });
       observer.complete();
     });
@@ -57,7 +52,7 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
 
   // Define links
   const schemaLink = new SchemaLink({ schema });
-  const splitLink = split(() => !!errors, errorLink, schemaLink);
+  const splitLink = split(() => !!graphQLError, errorLink, schemaLink);
 
   // Define ApolloClient (client variable used below)
   const client = new ApolloClient({
@@ -65,7 +60,7 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
     cache: new InMemoryCache(),
   });
 
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return client;
 };
 
-export { AutoMockedProvider };
+export { autoMockedClient };

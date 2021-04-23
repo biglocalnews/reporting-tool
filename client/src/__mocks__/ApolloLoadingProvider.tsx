@@ -1,17 +1,11 @@
 import {
   ApolloClient,
   ApolloLink,
-  ApolloProvider,
   InMemoryCache,
   Observable,
 } from "@apollo/client";
-import React from "react";
 
-type Props = {
-  children: JSX.Element;
-};
-
-const ApolloLoadingProvider = ({ children }: Props) => {
+const mockedLoadingClient = () => {
   const link = new ApolloLink((operation) => {
     /* tslint:disable:no-empty */
     return new Observable(() => {});
@@ -22,7 +16,7 @@ const ApolloLoadingProvider = ({ children }: Props) => {
     cache: new InMemoryCache(),
   });
 
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return client;
 };
 
-export { ApolloLoadingProvider };
+export { mockedLoadingClient };
