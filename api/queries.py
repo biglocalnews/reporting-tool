@@ -31,3 +31,4 @@ def resolve_dataset(obj, info, id):
     retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).first()
 
     return retrieved_dataset
+

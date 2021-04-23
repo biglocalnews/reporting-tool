@@ -205,10 +205,26 @@ class Record(Base):
     dataset = relationship('Dataset', back_populates='records')
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
-    publication_date = Column(DateTime)
+    publication_date = Column(DateTime, index=True, unique=True)
+    data = relationship('RecordData')
+
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+
+class RecordData(Base):
+    __tablename__ = 'record_data'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
+    record = relationship('Record', back_populates='data')
+    record_id = Column(GUID, ForeignKey('record.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -256,6 +272,7 @@ def run(tables: bool, dummy_data: bool):
                 description='breakfast hour programming')
         ds2 = Dataset(name='12PM - 4PM', description='afternoon programming')
         program.datasets.append(ds1)
+        program.datasets.append(ds2)
 
         tag = Tag(name='news', description='tag for all news programming',
                 tag_type='news')
