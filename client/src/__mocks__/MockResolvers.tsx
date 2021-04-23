@@ -1,9 +1,5 @@
-import { ApolloServer, UserInputError } from "apollo-server";
-import { buildClientSchema } from "graphql";
-import introspectedSchema from "../schema.json";
+import { UserInputError } from "apollo-server";
 import fake from "casual";
-
-fake.seed(123);
 
 // Mocked users
 const users = new Map([
@@ -58,13 +54,11 @@ const datasets = new Map([
   ],
 ]);
 
-const mockTypes = {
+export const mockResolvers = {
   Team: () => ({
     programs: () => [{}],
   }),
   User: () => ({
-    firstName: fake.first_name,
-    lastName: fake.last_name,
     teams: () => [{}],
   }),
   Query: () => ({
@@ -73,23 +67,9 @@ const mockTypes = {
     dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    user: (parent, args, ctx, info) => users.get(args.id) || {},
+    user: () => users.get(args.id) || {},
   }),
   Mutation: () => ({
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    upsertRecord: (parent, args, ctx, info) => {
-      args.input.id = fake.uuid;
-      args.input.data.forEach((element: { id: string }) => {
-        element.id = fake.uuid;
-      });
-      recordsData.push(args.input);
-      return {
-        record: {
-          id: args.input.id,
-        },
-      };
-    },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     deleteRecord: (parent, args, ctx, info) => {
@@ -109,7 +89,7 @@ const mockTypes = {
     },
   }),
   Tag: () => ({
-    name: fake.word,
+    name: "tagName",
   }),
   Program: () => ({
     id: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
@@ -117,20 +97,6 @@ const mockTypes = {
     datasets: Array.from(datasets.values()),
   }),
   Date: () => {
-    return fake.date();
+    return "12/20/2020";
   },
 };
-
-const server = new ApolloServer({
-  // NOTE: "any" is used to bypass a type compatibility issue with the downloaded schema
-  // and the buildClientSchema function that should be resolved in the future.
-  // See here: https://github.com/apollographql/apollo-tooling/issues/1491
-  schema: buildClientSchema(introspectedSchema as any),
-  mocks: mockTypes,
-  playground: true,
-  debug: true,
-});
-
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
-});

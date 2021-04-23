@@ -22,16 +22,17 @@ const DatasetDetails = (): JSX.Element => {
   const history = useHistory();
   const { t } = useTranslation();
 
-  const { data, loading, error } = useQuery<GetDataset, GetDatasetVariables>(
-    GET_DATASET,
-    {
-      variables: { id: datasetId },
-    }
-  );
+  const {
+    data: queryData,
+    loading: queryLoading,
+    error: queryError,
+  } = useQuery<GetDataset, GetDatasetVariables>(GET_DATASET, {
+    variables: { id: datasetId },
+  });
 
   // TODO: update for error and loading components
-  if (loading) return <h1>Loading</h1>;
-  if (error) return <div>{`Error: ${error.message}`}</div>;
+  if (queryLoading) return <h1>Loading</h1>;
+  if (queryError) return <div>{`Error: ${queryError.message}`}</div>;
 
   return (
     <div className="dataset-details_container">
@@ -39,10 +40,10 @@ const DatasetDetails = (): JSX.Element => {
         <Col flex="none">
           <div>
             <Title style={{ marginBottom: "0px" }} level={2}>
-              {data?.dataset?.program.name}
+              {queryData?.dataset?.program.name}
             </Title>
             <Text style={{ fontSize: "large", marginTop: "0px" }}>
-              {data?.dataset?.name}
+              {queryData?.dataset?.name}
             </Text>
           </div>
         </Col>
@@ -64,7 +65,8 @@ const DatasetDetails = (): JSX.Element => {
       </Row>
       <DatasetDetailsRecordsTable
         datasetId={datasetId}
-        records={data?.dataset?.records}
+        records={queryData?.dataset?.records}
+        isLoading={queryLoading}
       />
     </div>
   );
