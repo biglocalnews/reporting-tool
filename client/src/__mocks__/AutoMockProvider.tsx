@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import {
   ApolloClient,
   ApolloLink,
@@ -7,12 +7,7 @@ import {
   Observable,
   split,
 } from "@apollo/client";
-import {
-  makeExecutableSchema,
-  addMocksToSchema,
-  IMocks,
-  mergeResolvers,
-} from "graphql-tools";
+import { makeExecutableSchema, IMocks, mergeResolvers } from "graphql-tools";
 import { printSchema, buildClientSchema } from "graphql/utilities";
 import introspectionResult from "../schema.json";
 import { GraphQLError } from "graphql";
@@ -23,14 +18,19 @@ import { mockResolvers } from "./MockResolvers";
 type Props = {
   children: JSX.Element;
   customResolvers?: IMocks;
-  errors?: GraphQLError[];
+  graphQLError?: GraphQLError[];
 };
 
+/**
+ * mocks data automatically using introspection schema
+ * @see https://www.youtube.com/watch?v=FKA5iNYpd_8&t=43s
+ */
+
 const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
-  // 1) Convert JSON schema into Schema Definition Language
+  // Convert JSON schema into Schema Definition Language
   const schemaSDL = printSchema(buildClientSchema(introspectionResult as any));
 
-  // 2) Make schema "executable"
+  // Make schema "executable"
   const schema = makeExecutableSchema({
     typeDefs: schemaSDL,
     resolverValidationOptions: {
@@ -38,12 +38,12 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
     },
   });
 
-  // 3) Apply mock resolvers to executable schema
+  // Apply global mock and custom passed resolvers to executable schema
   const resolvers = [mockResolvers, customResolvers] ?? [mockResolvers];
   const mocks = mergeResolvers(resolvers);
   addMockFunctionsToSchema({ schema, mocks });
 
-  // 4) Define errors
+  // Define errors
   const errorLink = new ApolloLink((operation) => {
     return new Observable((observer) => {
       observer.next({
@@ -54,11 +54,12 @@ const AutoMockedProvider = ({ children, customResolvers, errors }: any) => {
       observer.complete();
     });
   });
-  const schemaLink = new SchemaLink({ schema });
 
+  // Define links
+  const schemaLink = new SchemaLink({ schema });
   const splitLink = split(() => !!errors, errorLink, schemaLink);
 
-  // 5) Define ApolloClient (client variable used below)
+  // Define ApolloClient (client variable used below)
   const client = new ApolloClient({
     link: splitLink,
     cache: new InMemoryCache(),
