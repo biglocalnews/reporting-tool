@@ -81,7 +81,7 @@ type Dataset {
 type Record {
   id: ID!
   dataset: Dataset!
-  publicationDate: Date
+  publicationDate: Date!
   data: [Data!]!
 }
 
