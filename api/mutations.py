@@ -101,15 +101,23 @@ def resolve_update_dataset(obj, info, input):
     session = info.context['dbsession']
     dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
 
-# TODO query each tag by name and only create if they exist
-    for tag in input["tags"]:
-        tag_input = {
-            "name": tag["name"],
-            "description": tag["description"],
-            "tag_type": tag["tagType"],
-        }
-        new_tag = Tag(**tag_input)
-        dataset.tags.append(new_tag)
+    # removing tags from input, and returning the contents of tags OR an empty array if tags was not found.
+    tags = input.pop('tags', [])
+
+    # iterating over tags to check if the included tag exists or should be created.
+    for tag in tags:
+        # TODO Add check to compare existing_tag's case bc ( Name !== name != nAmE )
+        existing_tag = session.query(Tag).filter_by(Tag.name == tag["name"]).one_or_none()
+        if  existing_tag:
+            dataset.tags.append(existing_tag)
+        else: 
+            tag_input = {
+                "name": tag["name"],
+                "description": tag["description"],
+                "tag_type": tag["tagType"],
+            }
+            new_tag = Tag(**tag_input)
+            dataset.tags.append(new_tag)
 
     dataset.id = input["id"]
     dataset.name = input["name"]
