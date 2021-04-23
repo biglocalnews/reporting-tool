@@ -136,7 +136,7 @@ class Program(Base):
 class Tag(Base):
     __tablename__ = 'tag'
 
-    id = Column(GUID, primary_key=True)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     tag_type = Column(String(255), nullable=False)
