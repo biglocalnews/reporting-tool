@@ -101,6 +101,16 @@ def resolve_update_dataset(obj, info, input):
     session = info.context['dbsession']
     dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
 
+# TODO query each tag by name and only create if they exist
+    for tag in input["tags"]:
+        tag_input = {
+            "name": tag["name"],
+            "description": tag["description"],
+            "tag_type": tag["tagType"],
+        }
+        new_tag = Tag(**tag_input)
+        dataset.tags.append(new_tag)
+
     dataset.id = input["id"]
     dataset.name = input["name"]
     dataset.description = input["description"]
