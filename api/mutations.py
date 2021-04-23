@@ -99,7 +99,15 @@ def resolve_update_dataset(obj, info, input):
         :returns: Updated Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == input["id"]).update(input)
+    dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
+
+    dataset.id = input["id"]
+    dataset.name = input["name"]
+    dataset.description = input["description"]
+    dataset.program_id: input["programId"]
+    dataset.inputter_id: input["inputterId"]
+
+    session.add(dataset) # vs session.update()
     session.commit()
 
     updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
