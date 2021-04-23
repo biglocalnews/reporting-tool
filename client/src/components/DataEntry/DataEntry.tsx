@@ -28,6 +28,8 @@ const DataEntry = (): JSX.Element => {
 
   const [formState, setFormState] = useState<FormState>();
 
+  console.log("submitted", formState?.submitSuccess);
+
   if (!formState?.submitSuccess && formState?.errors) {
     return (
       <Result
