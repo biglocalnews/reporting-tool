@@ -1,4 +1,3 @@
-import { MockedProvider } from "@apollo/client/testing";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
 import { DatasetDetails } from "../components/DatasetDetails/DatasetDetails";
@@ -8,6 +7,7 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
 import { AutoMockedProvider } from "../__mocks__/AutoMockProvider";
+import { GraphQLError } from "graphql";
 
 const history = createMemoryHistory();
 
@@ -46,7 +46,27 @@ async function wait(ms = 0) {
   });
 }
 
-test("gets dataset records when component is mounted and displays them in a table", async () => {
+test("should return error to ui if dataset query fails", async () => {
+  const resolvers = {
+    Query: () => ({
+      dataset: () => new GraphQLError("something bad happened"),
+    }),
+  };
+
+  render(
+    <AutoMockedProvider customResolvers={resolvers}>
+      <Router history={history}>
+        <DatasetDetails />
+      </Router>
+    </AutoMockedProvider>
+  );
+
+  await wait();
+
+  expect(screen.getByText("Error: something bad happened")).toBeInTheDocument();
+});
+
+test("should get dataset records when component is mounted and displays them in a table", async () => {
   render(
     <AutoMockedProvider>
       <Router history={history}>
@@ -66,7 +86,7 @@ test("gets dataset records when component is mounted and displays them in a tabl
   expect(screen.getAllByRole("row")).toHaveLength(1);
 });
 
-test("clicking on the add data button routes to the data entry page", async () => {
+test("clicking on the add data button should route to the data entry page", async () => {
   render(
     <AutoMockedProvider>
       <Router history={history}>
@@ -85,7 +105,49 @@ test("clicking on the add data button routes to the data entry page", async () =
   );
 });
 
-test("should delete table from record when delete button is clicked", async () => {
+test("should return error to user on delete if delete fails", async () => {
+  const mock = {
+    Mutation: () => ({
+      deleteRecord: () => new Error("An error occurred"),
+    }),
+  };
+
+  const { container } = render(
+    <AutoMockedProvider customResolvers={mock}>
+      <Router history={history}>
+        <DatasetDetails />
+      </Router>
+    </AutoMockedProvider>
+  );
+
+  await wait();
+
+  await act(async () => {
+    const recordToDelete = container.querySelector(
+      "tr[data-row-key='05caae8d-bb1a-416e-9dda-bb251fe474ff']"
+    ) as HTMLElement;
+
+    const deleteButtonforRecord = within(recordToDelete).getByRole("button", {
+      name: "Delete",
+    });
+    userEvent.click(deleteButtonforRecord);
+
+    await wait();
+
+    const popConfirmDeleteAction = screen.getByRole("tooltip");
+    fireEvent.click(
+      within(popConfirmDeleteAction).getByRole("button", {
+        name: "Yes, delete",
+      })
+    );
+  });
+
+  expect(
+    screen.getByText("An error occurred. Please try again later.")
+  ).toBeInTheDocument();
+});
+
+test("should delete record from table when delete button is clicked", async () => {
   const { container } = render(
     <AutoMockedProvider>
       <Router history={history}>
