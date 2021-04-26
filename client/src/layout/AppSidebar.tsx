@@ -7,8 +7,7 @@ import { Link } from "react-router-dom";
 import {
   GetUser,
   GetUserVariables,
-  GetUser_user_teams_programs_datasets,
-} from "../__generated__/getUser";
+} from "../__generated__/GetUser";
 import { GET_USER } from "../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 
