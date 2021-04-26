@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -151,6 +151,10 @@ class Tag(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+@event.listens_for(Tag, 'before_insert')
+def capitalize_tag_name(mapper, connect, target):
+    # target is an instance of Table
+    target.name = target.name.capitalize().strip()
 
 class Target(Base):
     __tablename__ = 'target'
