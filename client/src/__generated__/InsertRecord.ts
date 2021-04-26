@@ -9,14 +9,9 @@ import { InsertDatasetRecordInput } from "./globalTypes";
 // GraphQL mutation operation: InsertRecord
 // ====================================================
 
-export interface InsertRecord_insertRecord_record {
-  readonly __typename: "Record";
-  readonly id: string;
-}
-
 export interface InsertRecord_insertRecord {
   readonly __typename: "InsertDatasetRecordOutput";
-  readonly record: InsertRecord_insertRecord_record;
+  readonly id: string;
 }
 
 export interface InsertRecord {

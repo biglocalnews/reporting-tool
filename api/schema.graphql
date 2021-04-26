@@ -125,10 +125,10 @@ input InsertDatasetRecordInput {
   id: ID
   datasetId: ID!
   publicationDate: Date
-  data: [UpsertDataInput!]!
+  data: [InsertDataInput!]!
 }
 
-input UpsertDataInput {
+input InsertDataInput {
   id: ID
   category: String!
   categoryValue: String!
@@ -136,7 +136,7 @@ input UpsertDataInput {
 }
 
 type InsertDatasetRecordOutput {
-  record: Record!
+  id: ID!
 }
 
 type DeleteDatasetRecordOutput {
@@ -148,7 +148,7 @@ type Query {
   user(id: ID!): User
 
   # Retrieve a single dataset.
-  dataset(id: ID!): Dataset
+  dataset(id: ID!): Dataset!
 
   # Retriever a single program.
   program(id: ID!): Program

@@ -10,11 +10,11 @@ import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./DataEntryAggregateDataEntryForm.css";
 import { useMutation } from "@apollo/client";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
-import { UPSERT_RECORD } from "../../__queries__/UpsertRecord.gql";
 import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormState } from "./DataEntry";
+import { INSERT_RECORD } from "../../__queries__/InsertRecord.gql";
 
 const { Text } = Typography;
 
@@ -88,7 +88,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
 
   // TODO: query for get_dataset to EDIT a record
-  const [UpsertRecord, { error: mutationError }] = useMutation(UPSERT_RECORD, {
+  const [InsertRecord, { error: mutationError }] = useMutation(INSERT_RECORD, {
     onCompleted() {
       props.onFormSubmitted({ submitSuccess: true });
     },
@@ -138,7 +138,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       },
     };
 
-    UpsertRecord({
+    InsertRecord({
       variables: rec,
     });
   };
