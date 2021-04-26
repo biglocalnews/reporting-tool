@@ -66,9 +66,13 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "Dataset",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Dataset",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -190,16 +194,24 @@
             "deprecationReason": null
           },
           {
-            "name": "role",
+            "name": "roles",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Role",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Role",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": false,
@@ -749,9 +761,13 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "SCALAR",
-              "name": "Date",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Date",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -1273,6 +1289,39 @@
             "deprecationReason": null
           },
           {
+            "name": "deleteDataset",
+            "description": null,
+            "args": [
+              {
+                "name": "id",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "insertRecord",
             "description": null,
             "args": [
@@ -1645,7 +1694,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpsertDataInput",
+                    "name": "InsertDataInput",
                     "ofType": null
                   }
                 }
@@ -1662,7 +1711,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpsertDataInput",
+        "name": "InsertDataInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -1739,15 +1788,15 @@
         "specifiedByUrl": null,
         "fields": [
           {
-            "name": "record",
+            "name": "id",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Record",
+                "kind": "SCALAR",
+                "name": "ID",
                 "ofType": null
               }
             },

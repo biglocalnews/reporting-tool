@@ -10,7 +10,7 @@
 export interface GetUser_user_teams_programs_datasets_records {
   readonly __typename: "Record";
   readonly id: string;
-  readonly publicationDate: any | null;
+  readonly publicationDate: any;
 }
 
 export interface GetUser_user_teams_programs_datasets_tags {
