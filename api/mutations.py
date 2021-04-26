@@ -103,13 +103,12 @@ def resolve_update_dataset(obj, info, input):
 
     # removing tags from input, and returning the contents of tags OR an empty array if tags was not found.
     tags = input.pop('tags', [])
-    print('f{tags}, checking tags')
 
     # iterating over tags to check if the included tag exists or should be created.
     for tag in tags:
-        # TODO Add check to compare existing_tag's case bc ( Name !== name != nAmE )
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"]).one_or_none()
-        if  existing_tag:
+        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).one_or_none()
+        
+        if existing_tag:
             dataset.tags.append(existing_tag)
         else: 
             tag_input = {
