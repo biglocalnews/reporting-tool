@@ -4,10 +4,7 @@ import { TeamOutlined, BarChartOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import i18next from "../services/i18next";
 import { Link } from "react-router-dom";
-import {
-  GetUser,
-  GetUserVariables,
-} from "../__generated__/GetUser";
+import { GetUser, GetUserVariables } from "../__generated__/GetUser";
 import { GET_USER } from "../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 
