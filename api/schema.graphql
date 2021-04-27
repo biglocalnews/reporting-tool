@@ -152,17 +152,12 @@ type Query {
 }
 
 type Mutation {
-  # Upsert a user.
-  upsertUser(input: UpsertUserInput): User!
-
-  # Delete a user.
-  deleteUser(id: ID!): Int!
-
   # Create a Dataset
   createDataset(input: CreateDatasetInput): Dataset!
 
   # Delete a Dataset
-  deleteDataset(id: ID!): String!
+  deleteDataset(id: ID!): ID!
+
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
