@@ -170,5 +170,5 @@ type Mutation {
   createRecord(input: CreateRecordInput): Record!
 
   # Delete a record.
-  deleteRecord(id: ID!): DeleteDatasetRecordOutput!
+  deleteRecord(id: ID!): ID!
 }

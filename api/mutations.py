@@ -156,3 +156,16 @@ def resolve_delete_dataset(obj, info, input):
     persisted_record = session.query(Record).filter(Record.id == record.id).first()
 
     return persisted_record
+
+@convert_kwargs_to_snake_case
+@mutation.field("deleteRecord")
+def resolve_delete_dataset(obj, info, id):
+    '''GraphQL mutation to delete a Record.
+        :param id: UUID of Record to be deleted
+        :returns: UUID of deleted Record
+    '''
+    session = info.context['dbsession']
+    session.query(Record).filter(Record.id == id).delete()
+    session.commit()
+
+    return id
