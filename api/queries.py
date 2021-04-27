@@ -1,5 +1,5 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
-from database import Dataset, User
+from database import Dataset, User, Record
 
 query = ObjectType("Query")
 
@@ -31,4 +31,16 @@ def resolve_dataset(obj, info, id):
     retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).first()
 
     return retrieved_dataset
+
+@query.field("record")
+@convert_kwargs_to_snake_case
+def resolve_record(obj, info, id):
+    '''GraphQL query to find a Record based on Record ID.
+        :param id: Id for the Record to be fetched
+        :returns: Record dictionary
+    '''
+    session = info.context['dbsession']
+    retrieved_record = session.query(Record).filter(Record.id == id).first()
+
+    return retrieved_record
 
