@@ -2,7 +2,7 @@ import datetime
 import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program
+from database import SessionLocal, User, Dataset, Tag, Program, Record
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -129,3 +129,30 @@ def resolve_update_dataset(obj, info, input):
     updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
 
     return updated_dataset 
+
+@convert_kwargs_to_snake_case
+@mutation.field("createRecord")
+def resolve_delete_dataset(obj, info, input):
+    '''GraphQL mutation to create a Record.
+        :param input: params for new Record
+        :returns: Record dictionary
+    '''
+
+    print(f'{input}, checking my input here')
+
+    session = info.context['dbsession']
+
+    record_input = {
+        "dataset_id": input["datasetId"],
+        "publication_date": input["publicationDate"]
+    }
+
+    # TODO Add handling for associated DataInputs 
+    record = Record(**record_input)
+    session.add(record)
+
+    session.commit()
+
+    persisted_record = session.query(Record).filter(Record.id == record.id).first()
+
+    return persisted_record

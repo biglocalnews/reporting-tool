@@ -116,15 +116,13 @@ input UpdateDatasetInput {
   inputterId: ID
   tags: [TagInput!]
 }
-
-input UpsertDatasetRecordInput {
-  id: ID
+input CreateRecordInput {
   datasetId: ID!
-  publicationDate: Date
-  data: [UpsertDataInput!]!
+  publicationDate: Date!
+  data: [DataInput!]
 }
 
-input UpsertDataInput {
+input DataInput {
   id: ID
   category: String!
   categoryValue: String!
@@ -168,8 +166,8 @@ type Mutation {
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Upsert a record.
-  upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
+  # Create a record.
+  createRecord(input: CreateRecordInput): Record!
 
   # Delete a record.
   deleteRecord(id: ID!): DeleteDatasetRecordOutput!
