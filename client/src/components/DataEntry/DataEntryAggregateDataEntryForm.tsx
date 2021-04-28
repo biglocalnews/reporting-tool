@@ -11,7 +11,7 @@ import "./DataEntryAggregateDataEntryForm.css";
 import { useMutation } from "@apollo/client";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import dayjs from "dayjs";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormState } from "./DataEntry";
 import { INSERT_RECORD } from "../../__mutations__/InsertRecord.gql";
@@ -86,6 +86,14 @@ const tempRecord = {
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
+  const history = useHistory();
+
+  const [values, setValues] = useState<Record>(tempRecord || {});
+
+  // TODO: default will come from graphql query if a record exists
+  const [publicationDate, setPublicationDate] = useState<string>(
+    dayjs().format("YYYY-MM-DD")
+  );
 
   // TODO: query for get_dataset to EDIT a record
   const [InsertRecord, { error: mutationError }] = useMutation(INSERT_RECORD, {
@@ -103,14 +111,6 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       },
     ],
   });
-  const [values, setValues] = useState<Record>(tempRecord || {});
-
-  // TODO: default will come from graphql query if a record exists
-  const [publicationDate, setPublicationDate] = useState<string>(
-    dayjs().format("YYYY-MM-DD")
-  );
-
-  const history = useHistory();
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -162,11 +162,15 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           <h3 className="data-entry_category-descr-header">
             {t("aboutAttribute", { attribute: "Gender" })}
           </h3>
-          <Text>{`Gender identity expresses one's innermost concept of self as male,
+          <Text>
+            {t("attributeDescription", {
+              description: `Gender identity expresses one's innermost concept of self as male,
         female, a blend of both or neither - how individuals perceive
         themselves and what they call themselves. Someone's gender identity
         can be the same (cisgender) or different (transgender) from their
-        sex assigned at birth.`}</Text>
+        sex assigned at birth.`,
+            })}
+          </Text>
         </Col>
         <Col span={16}>
           <Card type="inner" title="Gender">

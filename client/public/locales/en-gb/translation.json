@@ -2,6 +2,7 @@
   "teamsSideBarTitle": "My Programmes",
   "program": "programme",
   "aboutAttribute": "About {{attribute}}",
+  "attributeDescription": "{{description}}",
   "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
   "datasetRecordsTableTitle": "{{title}}",
   "saveRecord": "Save Record",
