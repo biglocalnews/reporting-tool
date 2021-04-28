@@ -20,7 +20,7 @@ def resolve_create_dataset(obj, info, input):
         :param id: Params to be changed 
         :returns: Newly created Dataset dictionary with eager-loaded associated Tags
     '''
-    session = SessionLocal()
+    session = info.context['dbsession']
 
     dataset_input = {
         "name": input["name"],
@@ -47,9 +47,7 @@ def resolve_create_dataset(obj, info, input):
         session.add(tag)
     session.commit()
 
-    persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).options(joinedload("tags")).first().__dict__
-    persisted_dataset["tags"] = [tag.__dict__ for tag in persisted_dataset['tags']]
-    session.close()
+    persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).first()
 
     return persisted_dataset
 
