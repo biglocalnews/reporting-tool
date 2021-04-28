@@ -23,7 +23,7 @@ export interface GetDataset_dataset_records_data {
 export interface GetDataset_dataset_records {
   readonly __typename: "Record";
   readonly id: string;
-  readonly publicationDate: any | null;
+  readonly publicationDate: any;
   readonly data: ReadonlyArray<GetDataset_dataset_records_data>;
 }
 
@@ -36,7 +36,7 @@ export interface GetDataset_dataset {
 }
 
 export interface GetDataset {
-  readonly dataset: GetDataset_dataset | null;
+  readonly dataset: GetDataset_dataset;
 }
 
 export interface GetDatasetVariables {

@@ -117,22 +117,22 @@ input UpdateDatasetInput {
   tags: [TagInput!]
 }
 
-input UpsertDatasetRecordInput {
+input InsertDatasetRecordInput {
   id: ID
   datasetId: ID!
   publicationDate: Date
-  data: [UpsertDataInput!]!
+  data: [InsertDataInput!]!
 }
 
-input UpsertDataInput {
+input InsertDataInput {
   id: ID
   category: String!
   categoryValue: String!
   count: Int!
 }
 
-type UpsertDatasetRecordOutput {
-  record: Record!
+type InsertDatasetRecordOutput {
+  id: ID!
 }
 
 type DeleteDatasetRecordOutput {
@@ -144,7 +144,7 @@ type Query {
   user(id: ID!): User
 
   # Retrieve a single dataset.
-  dataset(id: ID!): Dataset
+  dataset(id: ID!): Dataset!
 
   # Retriever a single program.
   program(id: ID!): Program
@@ -165,8 +165,8 @@ type Mutation {
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Upsert a record.
-  upsertRecord(input: UpsertDatasetRecordInput): UpsertDatasetRecordOutput!
+  # Insert a record.
+  insertRecord(input: InsertDatasetRecordInput): InsertDatasetRecordOutput!
 
   # Delete a record.
   deleteRecord(id: ID!): DeleteDatasetRecordOutput!

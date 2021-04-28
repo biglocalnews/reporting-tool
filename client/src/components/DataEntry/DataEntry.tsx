@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { PersonTypesInput } from "./PersonTypesInput";
+import { DataEntryPersonTypesInput } from "./DataEntryPersonTypesInput";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { ApolloError } from "@apollo/client";
@@ -80,7 +80,7 @@ const DataEntry = (): JSX.Element => {
           {"BBC News - Breakfast Hour"}
         </Link>
       </Title>
-      <PersonTypesInput />
+      <DataEntryPersonTypesInput />
       <DataEntryAggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
