@@ -169,12 +169,12 @@ type Mutation {
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Create a record.
+  # Create a Record
   createRecord(input: CreateRecordInput): Record!
 
   # Update a Record
   updateRecord(input: UpdateRecordInput): Record!
 
-  # Delete a record.
+  # Delete a Record
   deleteRecord(id: ID!): ID!
 }
