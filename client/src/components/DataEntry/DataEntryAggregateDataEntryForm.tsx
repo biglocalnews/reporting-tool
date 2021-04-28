@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormState } from "./DataEntry";
-import { INSERT_RECORD } from "../../__queries__/InsertRecord.gql";
+import { INSERT_RECORD } from "../../__mutations__/InsertRecord.gql";
 
 const { Text } = Typography;
 

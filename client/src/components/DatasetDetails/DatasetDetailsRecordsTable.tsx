@@ -5,7 +5,7 @@ import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { DELETE_RECORD } from "../../__queries__/DeleteRecord.gql";
+import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
 import { useHistory } from "react-router-dom";
 
 interface DatasetRecordsTableProps {
@@ -120,18 +120,18 @@ const DatasetDetailsRecordsTable = ({
             >
               {t("editData")}
             </Button>
-          <Popconfirm
-            title="Permanently delete this record?"
-            onConfirm={() => confirmDelete(recordId)}
-            onCancel={cancelDelete}
-            okText="Yes, delete"
-            okType="danger"
-            cancelText="No, cancel"
-          >
-            <Button id="delete-record" danger size="small" type="link">
-              Delete
-            </Button>
-          </Popconfirm>
+            <Popconfirm
+              title="Permanently delete this record?"
+              onConfirm={() => confirmDelete(recordId)}
+              onCancel={cancelDelete}
+              okText="Yes, delete"
+              okType="danger"
+              cancelText="No, cancel"
+            >
+              <Button id="delete-record" danger size="small" type="link">
+                Delete
+              </Button>
+            </Popconfirm>
           </Space>
         );
       },
