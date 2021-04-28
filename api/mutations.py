@@ -105,7 +105,7 @@ def resolve_update_dataset(obj, info, input):
 
 @convert_kwargs_to_snake_case
 @mutation.field("createRecord")
-def resolve_delete_dataset(obj, info, input):
+def resolve_create_record(obj, info, input):
     '''GraphQL mutation to create a Record.
         :param input: params for new Record
         :returns: Record dictionary
@@ -121,14 +121,14 @@ def resolve_delete_dataset(obj, info, input):
     record = Record(**record_input)
     session.add(record)
 
-    for data in input["data"]:
-        data_input = {
-            "category": data["category"],
-            "category_value": data["categoryValue"],
-            "count": data["count"]
+    for entry in input["entry"]:
+        entry_input = {
+            "category": entry["category"],
+            "category_value": entry["categoryValue"],
+            "count": entry["count"]
         }
-        data = Entry(**data_input)
-        session.add(data)
+        entry = Entry(**entry_input)
+        session.add(entry)
     session.commit()
 
     persisted_record = session.query(Record).filter(Record.id == record.id).first()
@@ -137,7 +137,7 @@ def resolve_delete_dataset(obj, info, input):
 
 @convert_kwargs_to_snake_case
 @mutation.field("updateRecord")
-def resolve_delete_dataset(obj, info, input):
+def resolve_update_record(obj, info, input):
     '''GraphQL mutation to update a Record.
         :param input: params to update Record
         :returns: Record dictionary
@@ -146,15 +146,15 @@ def resolve_delete_dataset(obj, info, input):
     session = info.context['dbsession']
     record = session.query(Record).filter(Record.id == input["id"]).first()
 
-    all_data = input.pop('data', [])
-    for data in all_data:
-        data_input = {
-            "category": data["category"],
-            "category_value": data["categoryValue"],
-            "count": data["count"]
+    all_entries = input.pop('entry', [])
+    for entry in all_entries:
+        entry_input = {
+            "category": entry["category"],
+            "category_value": entry["categoryValue"],
+            "count": entry["count"]
         }
-        new_data = Entry(**data_input)
-        record.entry.append(new_data)
+        new_entry = Entry(**entry_input)
+        record.entry.append(entry_input)
 
     for param in input:
         # snake_case mapping 

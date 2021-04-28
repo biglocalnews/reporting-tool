@@ -121,16 +121,16 @@ input UpdateRecordInput {
   id: ID!
   datasetId: ID
   publicationDate: Date
-  data: [DataInput!]
+  entry: [EntryInput!]
 }
 
 input CreateRecordInput {
   datasetId: ID!
   publicationDate: Date!
-  data: [DataInput!]
+  entry: [EntryInput!]
 }
 
-input DataInput {
+input EntryInput {
   id: ID
   category: String!
   categoryValue: String!
