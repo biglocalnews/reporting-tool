@@ -3,7 +3,7 @@ import { Tag, Button, Table, Space } from "antd";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import { GetUser, GetUserVariables } from "../../__generated__/GetUser";
+import { GetUser, GetUserVariables } from "../../__generated__/getUser";
 import { GET_USER } from "../../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 
