@@ -2,7 +2,7 @@ import datetime
 import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record
+from database import SessionLocal, User, Dataset, Tag, Program, Record, RecordData
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -112,8 +112,6 @@ def resolve_delete_dataset(obj, info, input):
         :returns: Record dictionary
     '''
 
-    print(f'{input}, checking my input here')
-
     session = info.context['dbsession']
 
     record_input = {
@@ -121,10 +119,17 @@ def resolve_delete_dataset(obj, info, input):
         "publication_date": input["publicationDate"]
     }
 
-    # TODO Add handling for associated DataInputs 
     record = Record(**record_input)
     session.add(record)
 
+    for data in input["data"]:
+        data_input = {
+            "category": data["category"],
+            "category_value": data["categoryValue"],
+            "count": data["count"]
+        }
+        data = RecordData(**data_input)
+        session.add(data)
     session.commit()
 
     persisted_record = session.query(Record).filter(Record.id == record.id).first()
