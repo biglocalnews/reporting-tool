@@ -210,7 +210,7 @@ class Record(Base):
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime, index=True, unique=True)
-    data = relationship('RecordData')
+    entry = relationship('Entry')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -219,15 +219,15 @@ class Record(Base):
     deleted = Column(TIMESTAMP)
 
 
-class RecordData(Base):
-    __tablename__ = 'record_data'
+class Entry(Base):
+    __tablename__ = 'entry'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
 
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
-    record = relationship('Record', back_populates='data')
+    record = relationship('Record', back_populates='entry')
     record_id = Column(GUID, ForeignKey('record.id'), index=True)
 
     created = Column(TIMESTAMP,

@@ -2,7 +2,7 @@ import datetime
 import uuid
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, RecordData
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -128,7 +128,7 @@ def resolve_delete_dataset(obj, info, input):
             "category_value": data["categoryValue"],
             "count": data["count"]
         }
-        data = RecordData(**data_input)
+        data = Entry(**data_input)
         session.add(data)
     session.commit()
 
