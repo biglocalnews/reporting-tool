@@ -1,4 +1,4 @@
-import { Button, message, Popconfirm, Table } from "antd";
+import { Button, message, Popconfirm, Space, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
 import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
@@ -6,6 +6,7 @@ import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { DELETE_RECORD } from "../../__queries__/DeleteRecord.gql";
+import { useHistory } from "react-router-dom";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -26,6 +27,7 @@ const DatasetDetailsRecordsTable = ({
   isLoading,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { t } = useTranslation();
+  const history = useHistory();
 
   const tableData = records?.map((record) => {
     return record.data.reduce(
@@ -107,6 +109,17 @@ const DatasetDetailsRecordsTable = ({
       key: "id",
       render: function edit(recordId: string) {
         return (
+          <Space>
+            <Button
+              type="link"
+              onClick={() =>
+                history.push(`/dataset/${datasetId}/entry/edit/${recordId}`, {
+                  isEditing: true,
+                })
+              }
+            >
+              {t("editData")}
+            </Button>
           <Popconfirm
             title="Permanently delete this record?"
             onConfirm={() => confirmDelete(recordId)}
@@ -119,6 +132,7 @@ const DatasetDetailsRecordsTable = ({
               Delete
             </Button>
           </Popconfirm>
+          </Space>
         );
       },
     },
