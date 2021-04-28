@@ -8,7 +8,7 @@ import { MockedProvider } from "@apollo/client/testing";
 import { act, render, wait, waitFor } from "@testing-library/react";
 import { gql } from "@apollo/client";
 import { BrowserRouter } from "react-router-dom";
-import { GET_USER } from "../__queries__/getUser.gql";
+import { GET_USER } from "../__queries__/GetUser.gql";
 
 describe("UK English internationalization", () => {
   beforeAll(() => {
