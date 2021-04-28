@@ -116,6 +116,14 @@ input UpdateDatasetInput {
   inputterId: ID
   tags: [TagInput!]
 }
+
+input UpdateRecordInput {
+  id: ID!
+  datasetId: ID
+  publicationDate: Date
+  data: [DataInput!]
+}
+
 input CreateRecordInput {
   datasetId: ID!
   publicationDate: Date!
@@ -163,6 +171,9 @@ type Mutation {
 
   # Create a record.
   createRecord(input: CreateRecordInput): Record!
+
+  # Update a Record
+  updateRecord(input: UpdateRecordInput): Record!
 
   # Delete a record.
   deleteRecord(id: ID!): ID!

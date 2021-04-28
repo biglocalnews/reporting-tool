@@ -1,5 +1,6 @@
 import datetime
 import uuid
+import re
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry
@@ -135,6 +136,40 @@ def resolve_delete_dataset(obj, info, input):
     persisted_record = session.query(Record).filter(Record.id == record.id).first()
 
     return persisted_record
+
+@convert_kwargs_to_snake_case
+@mutation.field("updateRecord")
+def resolve_delete_dataset(obj, info, input):
+    '''GraphQL mutation to update a Record.
+        :param input: params to update Record
+        :returns: Record dictionary
+    '''
+
+    session = info.context['dbsession']
+    record = session.query(Record).filter(Record.id == input["id"]).first()
+
+    all_data = input.pop('data', [])
+    for data in all_data:
+        data_input = {
+            "category": data["category"],
+            "category_value": data["categoryValue"],
+            "count": data["count"]
+        }
+        new_data = Entry(**data_input)
+        record.entry.append(new_data)
+
+    for param in input:
+        # snake_case mapping 
+        under_scored = re.sub(r'(?<!^)(?=[A-Z])', '_', param).lower()
+        setattr(record, under_scored, input[param])
+
+    session.add(record)
+    session.commit()
+
+    updated_record = session.query(Record).filter(Record.id == input["id"]).first()
+
+    return updated_record 
+
 
 @convert_kwargs_to_snake_case
 @mutation.field("deleteRecord")
