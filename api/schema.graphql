@@ -77,15 +77,14 @@ type Dataset {
   tags: [Tag!]!
 }
 
-# TODO checkin: shouldn't records be the ones flagged with inputter vs datasets
 type Record {
   id: ID!
   dataset: Dataset!
   publicationDate: Date!
-  data: [Data!]!
+  entry: [Entry!]!
 }
 
-type Data {
+type Entry {
   id: ID!
   category: String!
   categoryValue: String!
