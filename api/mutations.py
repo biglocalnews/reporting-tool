@@ -125,7 +125,8 @@ def resolve_create_record(obj, info, input):
         entry_input = {
             "category": entry["category"],
             "category_value": entry["categoryValue"],
-            "count": entry["count"]
+            "count": entry["count"],
+            "record": record
         }
         entry = Entry(**entry_input)
         session.add(entry)
