@@ -33,7 +33,6 @@ def resolve_dataset(obj, info, id):
     return retrieved_dataset
 
 @query.field("record")
-@convert_kwargs_to_snake_case
 def resolve_record(obj, info, id):
     '''GraphQL query to find a Record based on Record ID.
         :param id: Id for the Record to be fetched
