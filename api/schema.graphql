@@ -81,7 +81,7 @@ type Record {
   id: ID!
   dataset: Dataset!
   publicationDate: Date!
-  entry: [Entry!]!
+  entries: [Entry!]!
 }
 
 type Entry {
@@ -120,13 +120,13 @@ input UpdateRecordInput {
   id: ID!
   datasetId: ID
   publicationDate: Date
-  entry: [EntryInput!]
+  entries: [EntryInput!]
 }
 
 input CreateRecordInput {
   datasetId: ID!
   publicationDate: Date!
-  entry: [EntryInput!]
+  entries: [EntryInput!]
 }
 
 input EntryInput {

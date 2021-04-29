@@ -121,7 +121,7 @@ def resolve_create_record(obj, info, input):
     record = Record(**record_input)
     session.add(record)
 
-    for entry in input["entry"]:
+    for entry in input["entries"]:
         entry_input = {
             "category": entry["category"],
             "category_value": entry["categoryValue"],
@@ -147,7 +147,7 @@ def resolve_update_record(obj, info, input):
     session = info.context['dbsession']
     record = session.query(Record).filter(Record.id == input["id"]).first()
 
-    all_entries = input.pop('entry', [])
+    all_entries = input.pop('entries', [])
     for entry in all_entries:
         entry_input = {
             "category": entry["category"],
