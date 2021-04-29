@@ -168,9 +168,8 @@ def resolve_update_record(obj, info, input):
     return updated_record 
 
 
-@convert_kwargs_to_snake_case
 @mutation.field("deleteRecord")
-def resolve_delete_dataset(obj, info, id):
+def resolve_delete_record(obj, info, id):
     '''GraphQL mutation to delete a Record.
         :param id: UUID of Record to be deleted
         :returns: UUID of deleted Record
