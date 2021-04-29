@@ -2,13 +2,17 @@ import { Button, Result, Typography } from "antd";
 import React, { useState } from "react";
 import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import { DataEntryPersonTypesInput } from "./DataEntryPersonTypesInput";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { ApolloError } from "@apollo/client";
 
 const { Title } = Typography;
+
+interface LocationProps {
+  isEditing: boolean;
+}
 
 interface RouteParams {
   datasetId: string;
@@ -21,10 +25,15 @@ export interface FormState {
 }
 
 const DataEntry = (): JSX.Element => {
+  const { t } = useTranslation();
+
   // TODO: use parameters to manage mutation
   const { datasetId, recordId } = useParams<RouteParams>();
-  const location = useHistory();
-  const { t } = useTranslation();
+  const history = useHistory();
+
+  const isEditing = useLocation<LocationProps>().state.isEditing;
+  const pageTitle = isEditing ? "Edit" : "Add";
+  const buttonTitle = isEditing ? "Update" : "Save New";
 
   const [formState, setFormState] = useState<FormState>();
 
@@ -34,7 +43,7 @@ const DataEntry = (): JSX.Element => {
         title="Oh, no!"
         subTitle={`Sorry, something went wrong. ${formState?.errors?.message}`}
         extra={
-          <Button type="primary" onClick={() => location.push("/")}>
+          <Button type="primary" onClick={() => history.push("/")}>
             {t("backToDashboard")}
           </Button>
         }
@@ -53,14 +62,14 @@ const DataEntry = (): JSX.Element => {
             type="primary"
             key="addMoreData"
             icon={<PlusCircleTwoTone />}
-            onClick={() => location.push(`/dataset/${datasetId}/entry/reload`)}
+            onClick={() => history.push(`/dataset/${datasetId}/entry/reload`)}
           >
             {t("addMoreData")}
           </Button>,
           <Button
             key="goToDataset"
             icon={<DashboardTwoTone />}
-            onClick={() => location.push(`/dataset/${datasetId}/details`)}
+            onClick={() => history.push(`/dataset/${datasetId}/details`)}
           >
             {t("goToDataset")}
           </Button>,
@@ -71,7 +80,7 @@ const DataEntry = (): JSX.Element => {
   return (
     <>
       <Title style={{ marginBottom: "10px" }} level={2}>
-        Add record for{" "}
+        {pageTitle} record for{" "}
         <Link
           to={{
             pathname: `/dataset/${datasetId}/details`,
@@ -84,6 +93,7 @@ const DataEntry = (): JSX.Element => {
       <DataEntryAggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
+        saveButtonTitle={buttonTitle}
         onFormSubmitted={setFormState}
       />
     </>

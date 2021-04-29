@@ -8,25 +8,32 @@ import React, {
 import { Button, Card, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./DataEntryAggregateDataEntryForm.css";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import dayjs from "dayjs";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormState } from "./DataEntry";
 import { INSERT_RECORD } from "../../__mutations__/InsertRecord.gql";
+import { GetRecord, GetRecordVariables } from "../../__generated__/GetRecord";
+import { GET_RECORD } from "../../__queries__/GetRecord.gql";
 
 const { Text } = Typography;
 
 interface FormProps {
   datasetId: string;
+  saveButtonTitle: string;
   recordId?: string;
   onFormSubmitted: Dispatch<SetStateAction<FormState | undefined>>;
 }
 
+interface LocationProps {
+  isEditing: boolean;
+}
+
 interface Record {
   id: string;
-  datasetId: string;
+  // datasetId: string;
   publicationDate: string;
   data: RecordData[];
 }
@@ -203,7 +210,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
               >
-                {t("saveRecord")}
+                {t("saveRecord", { buttonTitle: props.saveButtonTitle })}
               </Button>
               <Button
                 onClick={() => history.push("/")}
