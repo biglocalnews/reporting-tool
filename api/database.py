@@ -210,7 +210,7 @@ class Record(Base):
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime, index=True, unique=True)
-    entry = relationship('Entry')
+    entries = relationship('Entry')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -227,8 +227,8 @@ class Entry(Base):
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
-    record = relationship('Record', back_populates='entry')
-    record_id = Column(GUID, ForeignKey('record.id'), index=True)
+    record = relationship('Record', back_populates='entries')
+    record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
