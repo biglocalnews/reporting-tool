@@ -136,8 +136,8 @@ def resolve_create_record(obj, info, input):
 
     return persisted_record
 
-@convert_kwargs_to_snake_case
 @mutation.field("updateRecord")
+@convert_kwargs_to_snake_case
 def resolve_update_record(obj, info, input):
     '''GraphQL mutation to update a Record.
         :param input: params to update Record
@@ -158,9 +158,7 @@ def resolve_update_record(obj, info, input):
         record.entry.append(entry_input)
 
     for param in input:
-        # snake_case mapping 
-        under_scored = re.sub(r'(?<!^)(?=[A-Z])', '_', param).lower()
-        setattr(record, under_scored, input[param])
+        setattr(record, param, input[param])
 
     session.add(record)
     session.commit()
