@@ -149,21 +149,10 @@ def resolve_update_record(obj, info, input):
 
     all_entries = input.pop('entries', [])
     for single_entry in all_entries:
-        existing_entry = session.query(Entry).filter(Entry.id == single_entry["id"]).first()
-                
-        if existing_entry:
-            for param in single_entry:
-                setattr(existing_entry, param, single_entry[param])
-            session.add(existing_entry)
-
-        else:  
-            entry_input = {
-                "category": entry["category"],
-                "category_value": entry["categoryValue"],
-                "count": entry["count"]
-            }
-            new_entry = Entry(**entry_input)
-            session.add(new_entry)
+        n_entry = Entry()
+        for param in single_entry:
+           setattr(n_entry, param, single_entry[param])
+        merged_object = session.merge(n_entry)
 
     for param in input:
         setattr(record, param, input[param])
@@ -174,7 +163,6 @@ def resolve_update_record(obj, info, input):
     updated_record = session.query(Record).filter(Record.id == input["id"]).first()
 
     return updated_record 
-
 
 @mutation.field("deleteRecord")
 def resolve_delete_record(obj, info, id):
