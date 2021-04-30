@@ -148,14 +148,22 @@ def resolve_update_record(obj, info, input):
     record = session.query(Record).filter(Record.id == input["id"]).first()
 
     all_entries = input.pop('entries', [])
-    for entry in all_entries:
-        entry_input = {
-            "category": entry["category"],
-            "category_value": entry["categoryValue"],
-            "count": entry["count"]
-        }
-        new_entry = Entry(**entry_input)
-        record.entry.append(entry_input)
+    for single_entry in all_entries:
+        existing_entry = session.query(Entry).filter(Entry.id == single_entry["id"]).first()
+                
+        if existing_entry:
+            for param in single_entry:
+                setattr(existing_entry, param, single_entry[param])
+            session.add(existing_entry)
+
+        else:  
+            entry_input = {
+                "category": entry["category"],
+                "category_value": entry["categoryValue"],
+                "count": entry["count"]
+            }
+            new_entry = Entry(**entry_input)
+            session.add(new_entry)
 
     for param in input:
         setattr(record, param, input[param])
