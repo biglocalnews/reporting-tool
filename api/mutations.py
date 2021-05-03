@@ -139,12 +139,12 @@ def resolve_update_record(obj, info, input):
 
 @mutation.field("deleteRecord")
 def resolve_delete_record(obj, info, id):
-    '''GraphQL mutation to delete a Record.
-        :param id: UUID of Record to be deleted
-        :returns: UUID of deleted Record
+    '''GraphQL mutation to soft delete a Record.
+        :param id: UUID of Record to be soft deleted
+        :returns: UUID of soft deleted Record
     '''
     session = info.context['dbsession']
-    session.query(Record).filter(Record.id == id).delete()
+    session.query(Record).filter(Record.id == id).update({'deleted':datetime.datetime.now()})
     session.commit()
 
     return id
