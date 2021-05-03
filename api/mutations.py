@@ -112,28 +112,18 @@ def resolve_create_record(obj, info, input):
 
     session = info.context['dbsession']
 
-    record_input = {
-        "dataset_id": input["dataset_id"],
-        "publication_date": input["publication_date"]
-    }
+    entries = []
+    all_entries = input.pop('entries', [])
 
-    record = Record(**record_input)
+    for entry in all_entries:
+        new_entry = Entry(**entry)
+        entries.append(new_entry)
+
+    record = Record(entries=entries, **input)
     session.add(record)
     session.commit()
 
-    all_entries = input.get('entries', [])
-    for entry in all_entries:
-        n_entry = Entry()
-        for param in entry:
-            setattr(n_entry, param, entry[param])
-        n_entry.record = record
-        merged_object = session.merge(n_entry)
-
-    session.commit()
-
-    persisted_record = session.query(Record).filter(Record.id == record.id).first()
-
-    return persisted_record
+    return record
 
 @mutation.field("updateRecord")
 @convert_kwargs_to_snake_case
