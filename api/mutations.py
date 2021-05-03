@@ -121,7 +121,7 @@ def resolve_create_record(obj, info, input):
     session.add(record)
     session.commit()
 
-    all_entries = input.pop('entries', [])
+    all_entries = input.get('entries', [])
     for entry in all_entries:
         n_entry = Entry()
         for param in entry:
