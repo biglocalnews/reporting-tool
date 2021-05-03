@@ -121,7 +121,9 @@ def resolve_create_record(obj, info, input):
     record = Record(**record_input)
     session.add(record)
 
-    for entry in input["entries"]:
+    all_entries = input.pop('entries', [])
+
+    for entry in all_entries:
         entry_input = {
             "category": entry["category"],
             "category_value": entry["categoryValue"],
