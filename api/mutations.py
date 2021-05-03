@@ -13,43 +13,29 @@ mutation = ObjectType("Mutation")
     :param info: Has context attribute that contains ContextValue specific to the server implementation.
 '''
 
-@convert_kwargs_to_snake_case
 @mutation.field("createDataset")
+@convert_kwargs_to_snake_case
 def resolve_create_dataset(obj, info, input):
-    '''GraphQL query to create a dataset.
-        :param id: Params to be changed 
-        :returns: Newly created Dataset dictionary with eager-loaded associated Tags
+    '''GraphQL query to create a Dataset.
+        :param input: Params to be changed 
+        :returns: Dataset dictionary
     '''
     session = info.context['dbsession']
 
-    dataset_input = {
-        "name": input["name"],
-        "description": input["description"],
-        "program_id": input["programId"],
-        "inputter_id": input["inputterId"],
-    }
+    program = session.query(Program).get(input['program_id'])
 
-    dataset = Dataset(**dataset_input)
+    tags = []
+    all_tags = input.pop('tags', [])
+
+    for tag in all_tags:
+        new_tag = Tag(**tag)
+        tags.append(new_tag)
+
+    dataset = Dataset(tags=tags, **input)
     session.add(dataset)
-
-    program = session.query(Program).filter(Program.id == input["programId"]).first()
-
-    tags = [tag for tag in input["tags"]]
-    for tag in tags:
-        tag_input = {
-            "name": tag["name"],
-            "description": tag["description"],
-            "tag_type": tag["tagType"],
-            "programs": [program],
-            "datasets": [dataset]
-        }
-        tag = Tag(**tag_input)
-        session.add(tag)
     session.commit()
 
-    persisted_dataset = session.query(Dataset).filter(Dataset.id == dataset.id).first()
-
-    return persisted_dataset
+    return dataset
 
 @mutation.field("deleteDataset")
 def resolve_delete_dataset(obj, info, id):
