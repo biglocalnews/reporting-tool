@@ -1,6 +1,4 @@
 import datetime
-import uuid
-import re
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry
@@ -39,12 +37,12 @@ def resolve_create_dataset(obj, info, input):
 
 @mutation.field("deleteDataset")
 def resolve_delete_dataset(obj, info, id):
-    '''GraphQL mutation to delete a dataset.
-        :param id: UUID of Dataset to be deleted
-        :returns: UUID of deleted Dataset
+    '''GraphQL mutation to soft delete a Dataset.
+        :param id: UUID of Dataset to be soft deleted
+        :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == id).delete()
+    session.query(Dataset).filter(Dataset.id == id).update({'deleted':datetime.datetime.now()})
     session.commit()
 
     return id
