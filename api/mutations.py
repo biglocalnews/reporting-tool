@@ -103,8 +103,8 @@ def resolve_update_dataset(obj, info, input):
 
     return updated_dataset 
 
-@convert_kwargs_to_snake_case
 @mutation.field("createRecord")
+@convert_kwargs_to_snake_case
 def resolve_create_record(obj, info, input):
     '''GraphQL mutation to create a Record.
         :param input: params for new Record
@@ -114,24 +114,22 @@ def resolve_create_record(obj, info, input):
     session = info.context['dbsession']
 
     record_input = {
-        "dataset_id": input["datasetId"],
-        "publication_date": input["publicationDate"]
+        "dataset_id": input["dataset_id"],
+        "publication_date": input["publication_date"]
     }
 
     record = Record(**record_input)
     session.add(record)
+    session.commit()
 
     all_entries = input.pop('entries', [])
-
     for entry in all_entries:
-        entry_input = {
-            "category": entry["category"],
-            "category_value": entry["categoryValue"],
-            "count": entry["count"],
-            "record": record
-        }
-        entry = Entry(**entry_input)
-        session.add(entry)
+        n_entry = Entry()
+        for param in entry:
+            setattr(n_entry, param, entry[param])
+        n_entry.record = record
+        merged_object = session.merge(n_entry)
+
     session.commit()
 
     persisted_record = session.query(Record).filter(Record.id == record.id).first()
