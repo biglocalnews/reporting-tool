@@ -118,14 +118,15 @@ def resolve_update_record(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    record = session.query(Record).filter(Record.id == input["id"]).first()
+    record = session.query(Record).get(input['id'])
 
+    entries = []
     all_entries = input.pop('entries', [])
-    for single_entry in all_entries:
-        n_entry = Entry()
-        for param in single_entry:
-           setattr(n_entry, param, single_entry[param])
-        merged_object = session.merge(n_entry)
+
+    for entry in all_entries:        
+        incoming_entry = Entry(**entry)
+        entries.append(incoming_entry)
+        merged_object = session.merge(incoming_entry)
 
     for param in input:
         setattr(record, param, input[param])
@@ -133,9 +134,7 @@ def resolve_update_record(obj, info, input):
     session.add(record)
     session.commit()
 
-    updated_record = session.query(Record).filter(Record.id == input["id"]).first()
-
-    return updated_record 
+    return record 
 
 @mutation.field("deleteRecord")
 def resolve_delete_record(obj, info, id):
