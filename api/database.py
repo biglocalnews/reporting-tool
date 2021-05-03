@@ -10,7 +10,7 @@ import databases
 import uuid
 
 import click
-from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey
+from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
@@ -209,8 +209,10 @@ class Record(Base):
     dataset = relationship('Dataset', back_populates='records')
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
-    publication_date = Column(DateTime, index=True, unique=True)
-    entries = relationship('Entry')
+    publication_date = Column(DateTime, index=True)
+    entries = relationship('Entry', back_populates='record')
+    __table_args__ = (UniqueConstraint('dataset_id', 'publication_date', name='uix_dataset_id_publication_date'),
+                     )
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
