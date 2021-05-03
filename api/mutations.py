@@ -51,7 +51,6 @@ def resolve_create_dataset(obj, info, input):
 
     return persisted_dataset
 
-@convert_kwargs_to_snake_case
 @mutation.field("deleteDataset")
 def resolve_delete_dataset(obj, info, id):
     '''GraphQL mutation to delete a dataset.
