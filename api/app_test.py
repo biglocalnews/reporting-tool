@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import Mock
-import json
 
 from ariadne import graphql_sync
 from sqlalchemy import create_engine
