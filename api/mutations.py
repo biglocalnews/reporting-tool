@@ -43,6 +43,11 @@ def resolve_delete_dataset(obj, info, id):
     '''
     session = info.context['dbsession']
     session.query(Dataset).filter(Dataset.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Record).filter(Record.dataset_id == id).update({'deleted':datetime.datetime.now()})
+
+    related_records = session.query(Record).filter(Record.dataset_id == id).all()
+    for record in related_records:
+        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':datetime.datetime.now()})
     session.commit()
 
     return id
