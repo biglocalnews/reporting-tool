@@ -13,10 +13,10 @@ query = ObjectType("Query")
 def resolve_user(obj, info, id):
     '''GraphQL query to find a user based on user ID.
         :param id: Id for the user to be fetched
-        :returns: User dictionary
+        :returns: User dictionary OR None if User was soft-deleted
     '''
     session = info.context['dbsession']
-    retrieved_user = session.query(User).filter(User.id == id).first()
+    retrieved_user = session.query(User).filter(User.id == id, "deleted" == None).first()
 
     return retrieved_user
 
@@ -25,12 +25,12 @@ def resolve_user(obj, info, id):
 def resolve_dataset(obj, info, id):
     '''GraphQL query to find a dataset based on dataset ID.
         :param id: Id for the dataset to be fetched
-        :returns: Dataset dictionary
+        :returns: Dataset dictionary OR None if Dataset was soft-deleted
     '''
     session = info.context['dbsession']
-    retrieved_dataset = session.query(Dataset).filter(Dataset.id == id).first()
+    dataset = session.query(Dataset).filter(Dataset.id == id, "deleted" == None).first()
 
-    return retrieved_dataset
+    return dataset
 
 @query.field("record")
 def resolve_record(obj, info, id):
