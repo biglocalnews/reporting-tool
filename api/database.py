@@ -230,7 +230,7 @@ class Entry(Base):
     category_value = Column(String(255), nullable=False)
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
-    record_id = Column(GUID, ForeignKey('record.id'), index=True)
+    record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)

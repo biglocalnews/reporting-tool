@@ -148,9 +148,7 @@ def resolve_delete_record(obj, info, id):
         :returns: UUID of soft deleted Record
     '''
     session = info.context['dbsession']
-    session.query(Record).filter(Record.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Entry).filter(Entry.record_id == id).update({'deleted':datetime.datetime.now()})
-
+    session.query(Record).filter(Record.id == id).delete()
     session.commit()
 
     return id
