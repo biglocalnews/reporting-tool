@@ -1,0 +1,72 @@
+services:
+  # Python API service
+  api:
+    build: api
+    expose:
+      - 8000
+    networks:
+      - private
+      - frontend
+    environment:
+      - db_name=rt
+      - db_pw=pass
+      - db_host=db
+    depends_on:
+      - db
+      - api_init
+
+  api_init:
+    build: api
+    networks:
+      - private
+    environment:
+      - db_name=rt
+      - db_pw=pass
+      - db_host=db
+      - RT_DUMMY_DATA=1
+    depends_on:
+      - db
+    restart: "no"
+    entrypoint: [ "./docker-api-init.sh" ]
+
+  # Typescript assets
+  static:
+    restart: always
+    build: client
+    volumes:
+      - staticFiles:/www
+
+  # nginx reverse-proxy
+  nginx:
+    image: nginx:1.20
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - staticFiles:/www:ro
+    ports:
+      - 80:80
+    networks:
+      - frontend
+    depends_on:
+      - static
+      - api
+
+  # Postgres database
+  db:
+    image: postgres:13.2
+    restart: always
+    environment:
+      - POSTGRES_DB=rt
+      - POSTGRES_PASSWORD=pass
+    expose:
+      - 5432
+    networks:
+      - private
+
+volumes:
+  # Volume to share static assets from TS container to nginx
+  staticFiles:
+
+networks:
+  private:
+  frontend:
