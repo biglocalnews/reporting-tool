@@ -47,44 +47,31 @@ def resolve_delete_dataset(obj, info, id):
 
     return id
 
-@convert_kwargs_to_snake_case
 @mutation.field("updateDataset")
+@convert_kwargs_to_snake_case
 def resolve_update_dataset(obj, info, input):
     '''GraphQL mutation to update a Dataset.
         :param input: Params to be changed
         :returns: Updated Dataset
     '''
     session = info.context['dbsession']
-    dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
+    dataset = session.query(Dataset).get(input['id'])
 
-    # removing tags from input, and returning the contents of tags OR an empty array if tags was not found.
-    tags = input.pop('tags', [])
+    tags = []
+    all_tags = input.pop('tags', [])
 
-    # iterating over tags to check if the included tag exists or should be created.
-    for tag in tags:
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).one_or_none()
+    for tag in all_tags:
+        incoming_tag = Tag(**tag)
+        tags.append(incoming_tag)
+        merged_tag = session.merge(incoming_tag)
         
-        if existing_tag:
-            dataset.tags.append(existing_tag)
-        else: 
-            tag_input = {
-                "name": tag["name"],
-                "description": tag["description"],
-                "tag_type": tag["tagType"],
-            }
-            new_tag = Tag(**tag_input)
-            dataset.tags.append(new_tag)
-
-    # Iterate through remaining input params and update atributes on Dataset 
     for param in input:
         setattr(dataset, param, input[param])
 
     session.add(dataset)
     session.commit()
 
-    updated_dataset = session.query(Dataset).filter(Dataset.id == input["id"]).first()
-
-    return updated_dataset 
+    return dataset 
 
 @mutation.field("createRecord")
 @convert_kwargs_to_snake_case
