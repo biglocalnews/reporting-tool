@@ -68,6 +68,7 @@ def resolve_update_dataset(obj, info, input):
     for param in input:
         setattr(dataset, param, input[param])
 
+    Dataset.tags = tags
     session.add(dataset)
     session.commit()
 
@@ -119,6 +120,7 @@ def resolve_update_record(obj, info, input):
     for param in input:
         setattr(record, param, input[param])
 
+    Record.entries = entries
     session.add(record)
     session.commit()
 
