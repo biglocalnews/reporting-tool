@@ -35,11 +35,9 @@ def resolve_dataset(obj, info, id):
 @query.field("record")
 def resolve_record(obj, info, id):
     '''GraphQL query to find a Record based on Record ID.
-        :param id: Id for the Record to be fetched
-        :returns: Record dictionary
+        :param id: Id for the Record to be fetched 
+        :returns: Record dictionary OR None if Record was soft-deleted
     '''
     session = info.context['dbsession']
-    retrieved_record = session.query(Record).filter(Record.id == id).first()
-
-    return retrieved_record
-
+    record = session.query(Record).filter(Record.id == id, "deleted" == None).first()
+    return record
