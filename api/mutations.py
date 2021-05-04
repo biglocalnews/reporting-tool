@@ -104,7 +104,6 @@ def resolve_update_record(obj, info, input):
         :param input: params to update Record
         :returns: Record dictionary
     '''
-
 # Handle create or update for associated Entries
     session = info.context['dbsession']
     record = session.query(Record).get(input['id'])
@@ -150,6 +149,8 @@ def resolve_delete_record(obj, info, id):
     '''
     session = info.context['dbsession']
     session.query(Record).filter(Record.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Entry).filter(Entry.record_id == id).update({'deleted':datetime.datetime.now()})
+
     session.commit()
 
     return id
