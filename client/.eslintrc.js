@@ -17,9 +17,11 @@ module.exports = {
     "plugin:@typescript-eslint/recommended", // Uses the recommended rules from @typescript-eslint/eslint-plugin
     "plugin:jsx-a11y/recommended"
   ],
-  plugins: ["jsx-a11y"],
+  plugins: ["jsx-a11y", "react-hooks"],
   rules: {
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
 };
