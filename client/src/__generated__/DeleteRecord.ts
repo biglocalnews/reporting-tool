@@ -7,13 +7,8 @@
 // GraphQL mutation operation: DeleteRecord
 // ====================================================
 
-export interface DeleteRecord_deleteRecord {
-  readonly __typename: "DeleteDatasetRecordOutput";
-  readonly id: string;
-}
-
 export interface DeleteRecord {
-  readonly deleteRecord: DeleteRecord_deleteRecord;
+  readonly deleteRecord: string;
 }
 
 export interface DeleteRecordVariables {

@@ -82,10 +82,10 @@ type Record {
   id: ID!
   dataset: Dataset!
   publicationDate: Date!
-  data: [Data!]!
+  entries: [Entry!]!
 }
 
-type Data {
+type Entry {
   id: ID!
   category: String!
   categoryValue: String!
@@ -117,26 +117,32 @@ input UpdateDatasetInput {
   tags: [TagInput!]
 }
 
-input InsertDatasetRecordInput {
+input CreateRecordInput {
   id: ID
   datasetId: ID!
-  publicationDate: Date
-  data: [InsertDataInput!]!
+  publicationDate: Date!
+  entries: [EntryInput!]!
 }
 
-input InsertDataInput {
+input EntryInput {
   id: ID
   category: String!
   categoryValue: String!
   count: Int!
 }
 
-type InsertDatasetRecordOutput {
+input UpdateRecordInput {
   id: ID!
+  datasetId: ID!
+  publicationDate: Date!
+  entries: [UpdateEntryInput!]!
 }
 
-type DeleteDatasetRecordOutput {
+input UpdateEntryInput {
   id: ID!
+  category: String!
+  categoryValue: String!
+  count: Int!
 }
 
 type Query {
@@ -148,6 +154,9 @@ type Query {
 
   # Retriever a single program.
   program(id: ID!): Program
+
+  # Retriever a record
+  record(id: ID!): Record
 }
 
 type Mutation {
@@ -162,12 +171,16 @@ type Mutation {
 
   # Delete a Dataset
   deleteDataset(id: ID!): String!
+
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Insert a record.
-  insertRecord(input: InsertDatasetRecordInput): InsertDatasetRecordOutput!
+  # Create a record
+  createRecord(input: CreateRecordInput!): Record!
 
-  # Delete a record.
-  deleteRecord(id: ID!): DeleteDatasetRecordOutput!
+  # Update a Record
+  updateRecord(input: UpdateRecordInput!): Record!
+
+  # Delete a record
+  deleteRecord(id: ID!): ID!
 }

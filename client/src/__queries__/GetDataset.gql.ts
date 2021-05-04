@@ -11,7 +11,7 @@ export const GET_DATASET = gql`
       records {
         id
         publicationDate
-        data {
+        entries {
           id
           category
           categoryValue
