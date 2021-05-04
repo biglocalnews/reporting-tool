@@ -30,7 +30,7 @@ const DatasetDetailsRecordsTable = ({
   const history = useHistory();
 
   const tableData = records?.map((record) => {
-    return record.data.reduce(
+    return record.entries.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
       {
         id: record.id,
@@ -113,9 +113,7 @@ const DatasetDetailsRecordsTable = ({
             <Button
               type="link"
               onClick={() =>
-                history.push(`/dataset/${datasetId}/entry/edit/${recordId}`, {
-                  isEditing: true,
-                })
+                history.push(`/dataset/${datasetId}/entry/edit/${recordId}`)
               }
             >
               {t("editData")}
