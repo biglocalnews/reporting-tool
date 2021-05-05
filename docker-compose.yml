@@ -4,7 +4,7 @@ services:
   # Python API service
   api:
     build: api
-    image: scpl/rt-api:latest
+    image: ${RT_API_IMAGE}:${RT_API_VERSION}
     networks:
       - private
       - frontend
@@ -27,7 +27,7 @@ services:
   # Python first-time API init script
   api_init:
     build: api
-    image: scpl/rt-api:latest
+    image: ${RT_API_IMAGE}:${RT_API_VERSION}
     networks:
       - private
     environment:
@@ -50,7 +50,7 @@ services:
   static:
     restart: always
     build: client
-    image: scpl/rt-client:latest
+    image: ${RT_CLIENT_IMAGE}:${RT_CLIENT_VERSION}
     volumes:
       - staticFiles:/www
 
