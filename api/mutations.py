@@ -22,12 +22,9 @@ def resolve_create_dataset(obj, info, input):
 
     program = session.query(Program).get(input['program_id'])
 
-    tags = []
     all_tags = input.pop('tags', [])
 
-    for tag in all_tags:
-        new_tag = Tag(**tag)
-        tags.append(new_tag)
+    tags = [Tag(**tag) for tag in all_tags]
 
     dataset = Dataset(tags=tags, **input)
     session.add(dataset)
@@ -68,7 +65,7 @@ def resolve_update_dataset(obj, info, input):
     for tag in all_tags:
         incoming_tag = Tag(**tag)
         tags.append(incoming_tag)
-        merged_tag = session.merge(incoming_tag)
+        session.merge(incoming_tag)
         
     for param in input:
         setattr(dataset, param, input[param])
@@ -89,12 +86,9 @@ def resolve_create_record(obj, info, input):
 
     session = info.context['dbsession']
 
-    entries = []
     all_entries = input.pop('entries', [])
 
-    for entry in all_entries:
-        new_entry = Entry(**entry)
-        entries.append(new_entry)
+    entries = [Entry(**entry) for entry in all_entries]
 
     record = Record(entries=entries, **input)
     session.add(record)

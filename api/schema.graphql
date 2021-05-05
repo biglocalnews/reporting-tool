@@ -54,6 +54,7 @@ type Tag {
 }
 
 input TagInput {
+  id: ID
   name: String!
   description: String
   tagType: String!
