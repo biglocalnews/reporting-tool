@@ -137,8 +137,8 @@ input EntryInput {
   count: Int!
 }
 
-type UpsertDatasetRecordOutput {
-  record: Record!
+type InsertDatasetRecordOutput {
+  id: ID!
 }
 
 type DeleteDatasetRecordOutput {
@@ -150,7 +150,7 @@ type Query {
   user(id: ID!): User
 
   # Retrieve a single dataset.
-  dataset(id: ID!): Dataset
+  dataset(id: ID!): Dataset!
 
   # Retrieve a single Record.
   record(id: ID!): Record

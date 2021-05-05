@@ -7,18 +7,18 @@
 // START Enums and Input Objects
 //==============================================================
 
-export interface UpsertDataInput {
+export interface InsertDataInput {
   readonly id?: string | null;
   readonly category: string;
   readonly categoryValue: string;
   readonly count: number;
 }
 
-export interface UpsertDatasetRecordInput {
+export interface InsertDatasetRecordInput {
   readonly id?: string | null;
   readonly datasetId: string;
   readonly publicationDate?: any | null;
-  readonly data: ReadonlyArray<UpsertDataInput>;
+  readonly data: ReadonlyArray<InsertDataInput>;
 }
 
 //==============================================================
