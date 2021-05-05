@@ -63,14 +63,18 @@ def resolve_update_dataset(obj, info, input):
     all_tags = input.pop('tags', [])
 
     for tag in all_tags:
-        incoming_tag = Tag(**tag)
-        tags.append(incoming_tag)
-        session.merge(incoming_tag)
-        
+        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
+
+        if existing_tag:
+            dataset.tags.append(existing_tag)
+        else: 
+            new_tag = Tag(**tag)
+            dataset.tags.append(new_tag)
+            session.add(new_tag)
+   
     for param in input:
         setattr(dataset, param, input[param])
 
-    Dataset.tags = tags
     session.add(dataset)
     session.commit()
 
