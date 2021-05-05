@@ -14,13 +14,6 @@
   color: #cc4a51;
 }
 
-input[type="date"],
-select {
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  padding: 2px;
-}
-
 .data-entry_publication-date-field {
   margin-top: 10px;
   display: grid;
