@@ -24,7 +24,17 @@ def resolve_create_dataset(obj, info, input):
 
     all_tags = input.pop('tags', [])
 
-    tags = [Tag(**tag) for tag in all_tags]
+    tags = []
+
+    for tag in all_tags:
+        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
+
+        if existing_tag:
+            tags.append(existing_tag)
+        else: 
+            new_tag = Tag(**tag)
+            tags.append(new_tag)
+            session.add(new_tag)
 
     dataset = Dataset(tags=tags, **input)
     session.add(dataset)
