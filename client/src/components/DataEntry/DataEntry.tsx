@@ -2,71 +2,76 @@ import { Button, Result, Typography } from "antd";
 import React, { useState } from "react";
 import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
-import { Link, useHistory, useLocation, useParams } from "react-router-dom";
-import { DataEntryPersonTypesInput } from "./DataEntryPersonTypesInput";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { ApolloError } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { GetRecord, GetRecordVariables } from "../../__generated__/GetRecord";
+import { GET_RECORD } from "../../__queries__/GetRecord.gql";
+import {
+  GetDataset,
+  GetDatasetVariables,
+} from "../../__generated__/GetDataset";
+import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 
 const { Title } = Typography;
-
-interface LocationProps {
-  isEditing: boolean;
-}
 
 interface RouteParams {
   datasetId: string;
   recordId?: string;
 }
 
-export interface FormState {
-  submitSuccess: boolean | undefined;
-  errors?: ApolloError | undefined;
-}
-
 const DataEntry = (): JSX.Element => {
   const { t } = useTranslation();
 
-  // TODO: use parameters to manage mutation
   const { datasetId, recordId } = useParams<RouteParams>();
   const history = useHistory();
 
-  const isEditing = useLocation<LocationProps>().state.isEditing;
-  const pageTitle = isEditing ? "Edit" : "Add";
-  const buttonTitle = isEditing ? "Update" : "Save New";
+  const isEditMode = recordId ? true : false;
+  const pageTitle = isEditMode ? "Edit" : "Add";
 
-  const [formState, setFormState] = useState<FormState>();
+  const {
+    data: datasetData,
+    loading: datasetLoading,
+    error: datasetError,
+  } = useQuery<GetDataset, GetDatasetVariables>(GET_DATASET, {
+    variables: { id: datasetId },
+  });
 
-  if (!formState?.submitSuccess && formState?.errors) {
-    return (
-      <Result
-        title="Oh, no!"
-        subTitle={`Sorry, something went wrong. ${formState?.errors?.message}`}
-        extra={
-          <Button type="primary" onClick={() => history.push("/")}>
-            {t("backToDashboard")}
-          </Button>
-        }
-      />
-    );
-  }
+  const programAndDataset = `${datasetData?.dataset.program.name} | ${datasetData?.dataset.name}`;
 
-  if (formState?.submitSuccess)
+  /* Retrieve a record to populate the data entry form if editing */
+  const {
+    data: existingRecord,
+    called: existingRecordCalled,
+    loading: existingRecordLoading,
+    error: existingRecordError,
+  } = useQuery<GetRecord, GetRecordVariables>(GET_RECORD, {
+    variables: { id: recordId! },
+    skip: !isEditMode,
+  });
+
+  const [formSuccess, setFormSuccess] = useState<boolean>(false);
+
+  if (formSuccess)
     return (
       <Result
         status="success"
-        title="Success!" // TODO: Render dynamically
-        subTitle="Data saved for BBC News - Breakfast Hour"
+        title="Success!"
+        subTitle={`Data has been saved succesfully for ${programAndDataset}`}
         extra={[
+          !isEditMode && (
+            <Button
+              type="primary"
+              key="addMoreData"
+              icon={<PlusCircleTwoTone />}
+              onClick={() => history.push(`/dataset/${datasetId}/entry/reload`)}
+            >
+              {t("addMoreData")}
+            </Button>
+          ),
           <Button
-            type="primary"
-            key="addMoreData"
-            icon={<PlusCircleTwoTone />}
-            onClick={() => history.push(`/dataset/${datasetId}/entry/reload`)}
-          >
-            {t("addMoreData")}
-          </Button>,
-          <Button
+            type={isEditMode ? "primary" : undefined}
             key="goToDataset"
             icon={<DashboardTwoTone />}
             onClick={() => history.push(`/dataset/${datasetId}/details`)}
@@ -77,6 +82,11 @@ const DataEntry = (): JSX.Element => {
       />
     );
 
+  if (datasetLoading || (existingRecordCalled && existingRecordLoading))
+    return <h1>Loading data...</h1>;
+  if (datasetError || (existingRecordCalled && existingRecordError))
+    return <h1>Error loading data. Please refresh and try again.</h1>;
+
   return (
     <>
       <Title style={{ marginBottom: "10px" }} level={2}>
@@ -86,15 +96,14 @@ const DataEntry = (): JSX.Element => {
             pathname: `/dataset/${datasetId}/details`,
           }}
         >
-          {"BBC News - Breakfast Hour"}
+          {` ${programAndDataset}`}
         </Link>
       </Title>
-      <DataEntryPersonTypesInput />
       <DataEntryAggregateDataEntryForm
         datasetId={datasetId}
         recordId={recordId}
-        saveButtonTitle={buttonTitle}
-        onFormSubmitted={setFormState}
+        onFormSubmitted={setFormSuccess}
+        existingRecord={existingRecordCalled && existingRecord}
       />
     </>
   );

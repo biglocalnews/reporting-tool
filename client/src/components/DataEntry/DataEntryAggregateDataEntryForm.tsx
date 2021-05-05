@@ -132,8 +132,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       error: updateError,
     },
   ] = useMutation(UPDATE_RECORD, {
-    onCompleted: (updateRecord) => {
-      if (updateRecord) props.onFormSubmitted(true);
+    onCompleted: (data) => {
+      if (data) props.onFormSubmitted(true);
     },
     awaitRefetchQueries: true,
     refetchQueries: [
