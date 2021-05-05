@@ -54,6 +54,7 @@ type Tag {
 }
 
 input TagInput {
+  id: ID
   name: String!
   description: String
   tagType: String!
@@ -77,15 +78,14 @@ type Dataset {
   tags: [Tag!]!
 }
 
-# TODO checkin: shouldn't records be the ones flagged with inputter vs datasets
 type Record {
   id: ID!
   dataset: Dataset!
   publicationDate: Date!
-  data: [Data!]!
+  entries: [Entry!]!
 }
 
-type Data {
+type Entry {
   id: ID!
   category: String!
   categoryValue: String!
@@ -117,14 +117,20 @@ input UpdateDatasetInput {
   tags: [TagInput!]
 }
 
-input InsertDatasetRecordInput {
-  id: ID
-  datasetId: ID!
+input UpdateRecordInput {
+  id: ID!
+  datasetId: ID
   publicationDate: Date
-  data: [InsertDataInput!]!
+  entries: [EntryInput!]
 }
 
-input InsertDataInput {
+input CreateRecordInput {
+  datasetId: ID!
+  publicationDate: Date!
+  entries: [EntryInput!]
+}
+
+input EntryInput {
   id: ID
   category: String!
   categoryValue: String!
@@ -146,28 +152,29 @@ type Query {
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset!
 
+  # Retrieve a single Record.
+  record(id: ID!): Record
+
   # Retriever a single program.
-  program(id: ID!): Program
+  program(id: ID!): Program!
 }
 
 type Mutation {
-  # Upsert a user.
-  upsertUser(input: UpsertUserInput): User!
-
-  # Delete a user.
-  deleteUser(id: ID!): Int!
-
   # Create a Dataset
   createDataset(input: CreateDatasetInput): Dataset!
 
   # Delete a Dataset
-  deleteDataset(id: ID!): String!
+  deleteDataset(id: ID!): ID!
+
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
 
-  # Insert a record.
-  insertRecord(input: InsertDatasetRecordInput): InsertDatasetRecordOutput!
+  # Create a Record
+  createRecord(input: CreateRecordInput): Record!
 
-  # Delete a record.
-  deleteRecord(id: ID!): DeleteDatasetRecordOutput!
+  # Update a Record
+  updateRecord(input: UpdateRecordInput): Record!
+
+  # Delete a Record
+  deleteRecord(id: ID!): ID!
 }
