@@ -2,7 +2,6 @@
 set -x
 
 # Create the passfile in the format `host:port:database:user:password`
-pw=$(cat /run/secrets/db_pw)
 echo "$db_host:5432:$db_name:postgres" > .pgpass.tmp
 # Avoid echoing the password to the screen here
 paste -d':' .pgpass.tmp /run/secrets/db_pw > .pgpass
