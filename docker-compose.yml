@@ -5,6 +5,7 @@ services:
   api:
     build: api
     image: ${RT_API_IMAGE}:${RT_API_VERSION}
+    restart: always
     networks:
       - private
       - frontend
