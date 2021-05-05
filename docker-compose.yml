@@ -1,29 +1,44 @@
+version: "3.9"
+
 services:
   # Python API service
   api:
     build: api
-    expose:
-      - 8000
     networks:
       - private
       - frontend
     environment:
       - db_name=rt
-      - db_pw=pass
       - db_host=db
+    secrets:
+      - source: db-password
+        target: /run/secrets/db_pw
+        mode: 0400
+      - source: app-secret
+        target: /run/secrets/secret
+        mode: 0400
     depends_on:
       - db
       - api_init
+    volumes:
+      - sock:/sock
 
+  # Python first-time API init script
   api_init:
     build: api
     networks:
       - private
     environment:
       - db_name=rt
-      - db_pw=pass
       - db_host=db
       - RT_DUMMY_DATA=1
+    secrets:
+      - source: db-password
+        target: /run/secrets/db_pw
+        mode: 0400
+      - source: app-secret
+        target: /run/secrets/secret
+        mode: 0400
     depends_on:
       - db
     restart: "no"
@@ -43,6 +58,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - staticFiles:/www:ro
+      - sock:/sock
     ports:
       - 80:80
     networks:
@@ -57,7 +73,9 @@ services:
     restart: always
     environment:
       - POSTGRES_DB=rt
-      - POSTGRES_PASSWORD=pass
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    secrets:
+      - db-password
     expose:
       - 5432
     networks:
@@ -66,6 +84,16 @@ services:
 volumes:
   # Volume to share static assets from TS container to nginx
   staticFiles:
+  # Sockets to communicate between containers
+  sock:
+
+secrets:
+  # Database password
+  db-password:
+    file: ./secrets/db-password.dev
+  # FastAPI app secret
+  app-secret:
+    file: ./secrets/app-secret.dev
 
 networks:
   private:

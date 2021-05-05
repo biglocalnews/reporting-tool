@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -x
 
-until PGPASSWORD=$db_pw psql -h "$db_host" -U "postgres" -c '\q' "$db_name"; do
+# Create the passfile in the format `host:port:database:user:password`
+pw=$(cat /run/secrets/db_pw)
+echo "$db_host:5432:$db_name:postgres" > .pgpass.tmp
+# Avoid echoing the password to the screen here
+paste -d':' .pgpass.tmp /run/secrets/db_pw > .pgpass
+chmod 600 .pgpass
+rm .pgpass.tmp
+
+until PGPASSFILE=.pgpass psql -h "$db_host" -U "postgres" -c '\q' "$db_name"; do
     >&2 echo "Postgres database is unavailable, sleeping ..."
     sleep 1
 done
@@ -9,7 +17,7 @@ done
 >&2 echo "Postgres is up!"
 
 # Run a smoke test to see if the db needs initialization
-PGPASSWORD=$db_pw psql -h "$db_host" -U "postgres" -c 'select * from organization;' "$db_name"
+PGPASSFILE=.pgpass psql -h "$db_host" -U "postgres" -c 'select * from organization;' "$db_name"
 st=$?
 if [ $st -eq 0 ]; then
     >&2 echo "Database already initialized"
