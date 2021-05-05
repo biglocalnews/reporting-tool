@@ -109,7 +109,6 @@ def resolve_update_record(obj, info, input):
         :param input: params to update Record
         :returns: Record dictionary
     '''
-# Handle create or update for associated Entries
     session = info.context['dbsession']
     record = session.query(Record).get(input['id'])
 
@@ -129,22 +128,6 @@ def resolve_update_record(obj, info, input):
     session.commit()
 
     return record 
-
-# Handle Update exclusively 
-    # session = info.context['dbsession']
-    
-    # entries = []
-    # all_entries = input.pop('entries', [])
-
-    # for entry in all_entries:    
-    #     session.query(Entry).filter(Entry.id == entry["id"]).update(entry)
-
-    # update_record = session.query(Record).filter(Record.id == input["id"]).update(input)
-    # session.commit()
-
-    # record = session.query(Record).get(input['id'])
-
-    # return record
 
 @mutation.field("deleteRecord")
 def resolve_delete_record(obj, info, id):
