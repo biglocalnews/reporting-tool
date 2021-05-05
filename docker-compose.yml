@@ -11,7 +11,7 @@ services:
     expose:
       - 8000
     environment:
-      - db_name=rt
+      - db_name=${RT_DB_NAME}
       - db_host=db
     secrets:
       - source: db-password
@@ -31,9 +31,9 @@ services:
     networks:
       - private
     environment:
-      - db_name=rt
+      - db_name=${RT_DB_NAME}
       - db_host=db
-      - RT_DUMMY_DATA=1
+      - RT_DUMMY_DATA=${RT_DUMMY_DATA}
     secrets:
       - source: db-password
         target: /run/secrets/db_pw
@@ -74,7 +74,7 @@ services:
     image: postgres:13.2
     restart: always
     environment:
-      - POSTGRES_DB=rt
+      - POSTGRES_DB=${RT_DB_NAME}
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     secrets:
       - db-password
@@ -90,10 +90,10 @@ volumes:
 secrets:
   # Database password
   db-password:
-    file: ./secrets/db-password.dev
+    file: ${RT_DB_PW_FILE}
   # FastAPI app secret
   app-secret:
-    file: ./secrets/app-secret.dev
+    file: ${RT_APP_SECRET_FILE}
 
 networks:
   private:

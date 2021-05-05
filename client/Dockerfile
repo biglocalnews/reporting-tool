@@ -13,5 +13,7 @@ FROM alpine:latest
 VOLUME /www
 COPY --from=builder /client/build/ /www/
 
-# No point to the entry, just a command that'll run forever
-ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+# This container is only meant to provide a static data volume. This entrypoint
+# will sleep effectively forever, unless an interrupt is given (at which point
+# it will exit quietly).
+ENTRYPOINT [ "/bin/sh", "-c", "trap : TERM INT; sleep 9999999999d & wait" ]
