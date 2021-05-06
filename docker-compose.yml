@@ -45,6 +45,12 @@ services:
     depends_on:
       - db
     restart: "no"
+    deploy:
+      # TODO: ReplicatedJob mode is the best fit for this script, but not
+      # currently supported in the compose spec:
+      # https://github.com/moby/moby/issues/41895
+      # mode: replicated-job
+      replicas: 1
     entrypoint: [ "./docker-api-init.sh" ]
 
   # Typescript assets
@@ -54,6 +60,8 @@ services:
     image: ${RT_CLIENT_IMAGE}:${RT_CLIENT_VERSION}
     volumes:
       - staticFiles:/www
+    deploy:
+      mode: global
 
   # nginx reverse-proxy
   nginx:
@@ -69,11 +77,16 @@ services:
     depends_on:
       - static
       - api
+    deploy:
+      mode: global
+
 
   # Postgres database
   db:
     image: postgres:13.2
     restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${RT_DB_NAME}
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
@@ -83,18 +96,40 @@ services:
       - 5432
     networks:
       - private
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${RT_DB_NAME}" ]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    deploy:
+      # NOTE: Postgres is not set up for replication in this compose file.
+      # You will have problems if you try to scale this db service. This
+      # config will have to be expanded to set up a high-availability
+      # database cluster.
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
 
 volumes:
   # Volume to share static assets from TS container to nginx
-  staticFiles:
+  staticFiles: {}
+  # Volume to contain postgres data.
+  # NOTE: By default this is a docker-managed volume. You should provide an
+  # override with a persistent volume set up in production.
+  pgdata:
+    driver_opts: {}
 
 secrets:
-  # Database password
+  # File containing secret database password. The default here is checked into
+  # the repo and not secure; override it for production.
+  #
+  # Note that the postgres user is `postgres`; this is not configurable.
   db-password:
-    file: ${RT_DB_PW_FILE}
-  # FastAPI app secret
+    file: ./secrets/db-password.dev
+  # File containing application secret used for signing cookies. The default
+  # is checked into the repo and not secure; replace in production.
   app-secret:
-    file: ${RT_APP_SECRET_FILE}
+    file: ./secrets/app-secret.dev
 
 networks:
   private:

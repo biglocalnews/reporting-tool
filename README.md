@@ -1,11 +1,12 @@
-# BBC 5050 Reporting Tool
+# Reporting Tool [RT]
 
 ### Built With
 
-- React using Typescript
-- Python3
+- Typescript: React, Apollo, AntD
+- Python3: FastAPI, Ariadne (GraphQL), SQLAlchemy
+- Postgres
 
-## Getting Started
+## More info
 
 Frontend
 [/client](https://github.com/stanford-policylab/bbc-50-50/tree/main/client)
@@ -13,7 +14,7 @@ Frontend
 Backend API
 [/api](https://github.com/stanford-policylab/bbc-50-50/tree/main/api)
 
-### Docker compose
+## Deployment
 
 The entire app (including database) can be started with docker-compose:
 
@@ -30,18 +31,45 @@ quick demo.
 The secrets used for development are in `./secrets/`; these should be replaced
 in production.
 
-### Docker Swarm
+### Production
 
 You can deploy in production using docker swarm:
 
 ```
 set -a && source .env && set +a
-docker deploy stack -c docker-compose.yml rt
+docker deploy stack -c docker-compose.yml -c docker-compose.prod.yml rt
 ```
 
-This will deploy the service based on the `.env` file. The `.env` file in the
-repo is a good starting place, but you should override some of those values
-with secure secrets for production.
+This will deploy the service based on the `.env` file, the `docker-compose.yml`,
+and any overrides you have in a custom `docker-compose.prod.yml` file.
+
+#### Overrides
+
+The `.env` and `docker-compose.yml` provide a config that works well for a demo
+or test deployment, but you should add some overrides for production. A minimal
+`docker-compose.prod.yml` might look like:
+
+```yml
+version: "3.9"
+
+# Use a persistent local volume for postgres data
+volumes:
+  pgdata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /path/to/my/db/data/
+
+# Use strong secrets
+secrets:
+  db-password:
+    file: ./secrets/db-password.prod
+  app-secret:
+    file: ./secrets/app-secret.prod
+```
+
+#### Scaling
 
 The `api` and `nginx` services are both scalable if you need to add more
 replicas. (You never need to scale the `client` service as it is just static
@@ -49,4 +77,4 @@ assets that are served by `nginx`.)
 
 NOTE: Currently you are not able to replicate postgres with this configuration.
 You should **not** try to increase the replicas, as it will not behave as you
-hope. We will add support for this over time.
+hope. We will add support for high-availability eventually.
