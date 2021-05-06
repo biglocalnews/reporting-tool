@@ -36,7 +36,7 @@ def resolve_create_dataset(obj, info, input):
             tags.append(new_tag)
             session.add(new_tag)
 
-    dataset = Dataset(tags=tags, **input)
+    dataset = Dataset(tags=tags, program=program, **input)
     session.add(dataset)
     session.commit()
 

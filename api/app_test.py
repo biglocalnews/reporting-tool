@@ -113,6 +113,46 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })
+    def test_create_dataset(self):
+        success, result = self.run_graphql_query({
+            "operationName": "CreateDataset",
+            "query": """
+                mutation CreateDataset($input: CreateDatasetInput) {
+                   createDataset(input: $input) {
+                        name
+                        description
+                        program {
+                            name
+                        }
+                        tags {
+                            name
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "name": "Happy Hour",
+                    "description": "A very happy time",
+                    "programId": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                    "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                    "tags": [{"name": "Europe", "description": "i am europe", "tagType": "location"}]
+                } 
+            },
+        })
+
+        self.assertTrue(success)
+        print(result, "result")
+        self.assertEqual(result, {
+            "data": {
+                "createDataset": {
+                    "name": "Happy Hour",
+                    "description": "A very happy time",
+                    "program": {"name": "BBC News"},
+                    "tags": [{"name": "Europe"}]
+                },
+            },
+        })    
 
 if __name__ == '__main__':
     unittest.main()
