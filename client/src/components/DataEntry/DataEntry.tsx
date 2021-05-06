@@ -90,7 +90,7 @@ const DataEntry = (): JSX.Element => {
   return (
     <>
       <Title style={{ marginBottom: "10px" }} level={2}>
-        {pageTitle} record for{" "}
+        {`${pageTitle} record for `}
         <Link
           to={{
             pathname: `/dataset/${datasetId}/details`,
