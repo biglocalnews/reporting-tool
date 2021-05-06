@@ -7,18 +7,24 @@
 // START Enums and Input Objects
 //==============================================================
 
-export interface InsertDataInput {
+export interface CreateRecordInput {
+  readonly datasetId: string;
+  readonly publicationDate: any;
+  readonly entries?: ReadonlyArray<EntryInput> | null;
+}
+
+export interface EntryInput {
   readonly id?: string | null;
   readonly category: string;
   readonly categoryValue: string;
   readonly count: number;
 }
 
-export interface InsertDatasetRecordInput {
-  readonly id?: string | null;
-  readonly datasetId: string;
+export interface UpdateRecordInput {
+  readonly id: string;
+  readonly datasetId?: string | null;
   readonly publicationDate?: any | null;
-  readonly data: ReadonlyArray<InsertDataInput>;
+  readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
 //==============================================================

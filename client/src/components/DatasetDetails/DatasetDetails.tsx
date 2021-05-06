@@ -52,11 +52,7 @@ const DatasetDetails = (): JSX.Element => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() =>
-                history.push(`/dataset/${datasetId}/entry`, {
-                  isEditing: false,
-                })
-              }
+              onClick={() => history.push(`/dataset/${datasetId}/entry`)}
             >
               {t("addData")}
             </Button>

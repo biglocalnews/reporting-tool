@@ -9,7 +9,7 @@
   margin-top: 10px;
 }
 
-input[type="number"],
+input[type="text"],
 select {
   width: auto;
   margin: 0;
@@ -22,4 +22,16 @@ select {
 
 .data-entry-form_label {
   text-transform: capitalize;
+}
+
+.data-entry-form_required-field {
+  color: red;
+}
+
+input[type="date"],
+select {
+  border: 1px solid #f0f0f0;
+  box-sizing: border-box;
+  padding: 2px 2px 2px 5px;
+  background-color: #fff;
 }

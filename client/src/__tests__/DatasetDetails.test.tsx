@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import React from "react";
 import { DatasetDetails } from "../components/DatasetDetails/DatasetDetails";
 import { createMemoryHistory } from "history";
@@ -8,7 +15,7 @@ import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
 import { autoMockedClient } from "../__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
-import { ApolloClient, ApolloProvider } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client";
 
 const history = createMemoryHistory();
 
@@ -154,6 +161,36 @@ test("should return error to user on delete if delete fails", async () => {
   expect(
     screen.getByText("An error occurred. Please try again later.")
   ).toBeInTheDocument();
+});
+
+test("should go to data entry page when edit button for a record is clicked", async () => {
+  const client = autoMockedClient();
+
+  const { container } = render(
+    <ApolloProvider client={client}>
+      <Router history={history}>
+        <DatasetDetails />
+      </Router>
+    </ApolloProvider>
+  );
+
+  await wait();
+
+  await act(async () => {
+    const edit = container.querySelector(
+      "tr[data-row-key='05caae8d-bb1a-416e-9dda-bb251fe474ff']"
+    ) as HTMLElement;
+
+    const editButton = within(edit).getByRole("button", {
+      name: "editData",
+    });
+
+    await waitFor(() => userEvent.click(editButton));
+  });
+
+  expect(history.location.pathname).toBe(
+    "/dataset/5a8ee1d5-2b5a-49db-b466-68fe50a27cdb/entry/edit/05caae8d-bb1a-416e-9dda-bb251fe474ff"
+  );
 });
 
 test("should delete record from table when delete button is clicked", async () => {

@@ -38,7 +38,7 @@ const recordsData = [
   {
     id: "05caae8d-bb1a-416e-9dda-bb251fe474ff",
     publicationDate: "2020-12-20",
-    data: categoryData,
+    entries: categoryData,
   },
 ];
 
@@ -83,9 +83,14 @@ export const mockResolvers = {
         });
       recordsData.splice(recordToRemove, 1);
 
-      return {
-        id: args.id,
-      };
+      return args.id;
+    },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    updateRecord: (parent, args, ctx, info) => {
+      const recordToUpdate = recordsData[0];
+
+      return { input: recordToUpdate };
     },
   }),
   Tag: () => ({

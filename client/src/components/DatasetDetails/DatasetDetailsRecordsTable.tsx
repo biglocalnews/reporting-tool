@@ -1,11 +1,12 @@
-import { Button, message, Popconfirm, Table } from "antd";
+import { Button, message, Popconfirm, Space, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
 import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { DELETE_RECORD } from "../../__queries__/DeleteRecord.gql";
+import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
+import { useHistory } from "react-router-dom";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -26,9 +27,10 @@ const DatasetDetailsRecordsTable = ({
   isLoading,
 }: DatasetRecordsTableProps): JSX.Element => {
   const { t } = useTranslation();
+  const history = useHistory();
 
   const tableData = records?.map((record) => {
-    return record.data.reduce(
+    return record.entries.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
       {
         id: record.id,
@@ -107,18 +109,28 @@ const DatasetDetailsRecordsTable = ({
       key: "id",
       render: function edit(recordId: string) {
         return (
-          <Popconfirm
-            title="Permanently delete this record?"
-            onConfirm={() => confirmDelete(recordId)}
-            onCancel={cancelDelete}
-            okText="Yes, delete"
-            okType="danger"
-            cancelText="No, cancel"
-          >
-            <Button id="delete-record" danger size="small" type="link">
-              Delete
+          <Space>
+            <Button
+              type="link"
+              onClick={() =>
+                history.push(`/dataset/${datasetId}/entry/edit/${recordId}`)
+              }
+            >
+              {t("editData")}
             </Button>
-          </Popconfirm>
+            <Popconfirm
+              title="Permanently delete this record?"
+              onConfirm={() => confirmDelete(recordId)}
+              onCancel={cancelDelete}
+              okText="Yes, delete"
+              okType="danger"
+              cancelText="No, cancel"
+            >
+              <Button id="delete-record" danger size="small" type="link">
+                Delete
+              </Button>
+            </Popconfirm>
+          </Space>
         );
       },
     },

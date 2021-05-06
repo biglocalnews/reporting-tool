@@ -137,14 +137,6 @@ input EntryInput {
   count: Int!
 }
 
-type InsertDatasetRecordOutput {
-  id: ID!
-}
-
-type DeleteDatasetRecordOutput {
-  id: ID!
-}
-
 type Query {
   # Retrieve a single user.
   user(id: ID!): User
@@ -170,10 +162,10 @@ type Mutation {
   updateDataset(input: UpdateDatasetInput): Dataset!
 
   # Create a Record
-  createRecord(input: CreateRecordInput): Record!
+  createRecord(input: CreateRecordInput!): Record!
 
   # Update a Record
-  updateRecord(input: UpdateRecordInput): Record!
+  updateRecord(input: UpdateRecordInput!): Record!
 
   # Delete a Record
   deleteRecord(id: ID!): ID!

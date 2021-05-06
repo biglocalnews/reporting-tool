@@ -30,8 +30,22 @@ const httpLink = new HttpLink({
       : "/graphql/",
 });
 
+const cache = new InMemoryCache({
+  typePolicies: {
+    Dataset: {
+      fields: {
+        records: {
+          merge(existing = [], incoming: any[]) {
+            return [...incoming];
+          },
+        },
+      },
+    },
+  },
+});
+
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache,
   link: from([errorLink, httpLink]),
 });
 

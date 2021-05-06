@@ -12,8 +12,8 @@ export interface GetDataset_dataset_program {
   readonly name: string;
 }
 
-export interface GetDataset_dataset_records_data {
-  readonly __typename: "Data";
+export interface GetDataset_dataset_records_entries {
+  readonly __typename: "Entry";
   readonly id: string;
   readonly category: string;
   readonly categoryValue: string;
@@ -24,7 +24,7 @@ export interface GetDataset_dataset_records {
   readonly __typename: "Record";
   readonly id: string;
   readonly publicationDate: any;
-  readonly data: ReadonlyArray<GetDataset_dataset_records_data>;
+  readonly entries: ReadonlyArray<GetDataset_dataset_records_entries>;
 }
 
 export interface GetDataset_dataset {
