@@ -120,18 +120,20 @@ def resolve_update_record(obj, info, input):
     session = info.context['dbsession']
     record = session.query(Record).get(input['id'])
 
-    entries = []
     all_entries = input.pop('entries', [])
 
-    for entry in all_entries:        
-        incoming_entry = Entry(**entry)
-        entries.append(incoming_entry)
-        merged_object = session.merge(incoming_entry)
+    for entry in all_entries:  
+        existing_entry = session.query(Entry).get(entry.get('id'))
+
+        if existing_entry:
+            n_entry = Entry(**entry)
+            session.merge(n_entry)
+        else:
+            incoming_entry = Entry(record=record, **entry)
 
     for param in input:
         setattr(record, param, input[param])
 
-    Record.entries = entries
     session.add(record)
     session.commit()
 
