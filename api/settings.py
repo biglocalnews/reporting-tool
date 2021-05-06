@@ -9,5 +9,8 @@ class Settings(BaseSettings):
 
     secret: str = 'shhhhhh its a secret'
 
+    class Config:
+        secrets_dir = '/run/secrets'
+
 
 settings = Settings()
