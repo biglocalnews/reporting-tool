@@ -21,7 +21,9 @@ const AppSidebar = (): JSX.Element => {
 
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
-    { variables: { id: "1" } }
+    {
+      variables: { id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77" }, // TODO: Replace after user auth implementation
+    }
   );
 
   const sidebarPrograms = data?.user?.teams.flatMap((team) =>
