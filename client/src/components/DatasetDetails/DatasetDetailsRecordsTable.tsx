@@ -81,6 +81,7 @@ const DatasetDetailsRecordsTable = ({
         dayjs(dateB.publicationDate).unix(),
       fixed: true,
       width: 100,
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
     },
     {
       title: "Men",
