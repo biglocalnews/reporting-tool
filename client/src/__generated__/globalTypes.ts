@@ -8,10 +8,9 @@
 //==============================================================
 
 export interface CreateRecordInput {
-  readonly id?: string | null;
   readonly datasetId: string;
   readonly publicationDate: any;
-  readonly entries: ReadonlyArray<EntryInput>;
+  readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
 export interface EntryInput {
@@ -21,18 +20,11 @@ export interface EntryInput {
   readonly count: number;
 }
 
-export interface UpdateEntryInput {
-  readonly id: string;
-  readonly category: string;
-  readonly categoryValue: string;
-  readonly count: number;
-}
-
 export interface UpdateRecordInput {
   readonly id: string;
-  readonly datasetId: string;
-  readonly publicationDate: any;
-  readonly entries: ReadonlyArray<UpdateEntryInput>;
+  readonly datasetId?: string | null;
+  readonly publicationDate?: any | null;
+  readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
 //==============================================================
