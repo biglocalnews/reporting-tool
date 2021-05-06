@@ -187,6 +187,7 @@ class Dataset(Base):
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
+    program = relationship('Program', back_populates='datasets')
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     records = relationship('Record')
     inputter = relationship('User')
@@ -263,7 +264,7 @@ def create_dummy_data(session):
             first_name='Cat', last_name='Berry')
     team.users.append(user)
 
-    program = Program(name='BBC News',
+    program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming')
     team.programs.append(program)
 
