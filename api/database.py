@@ -267,9 +267,9 @@ def create_dummy_data(session):
             description='All BBC news programming')
     team.programs.append(program)
 
-    ds1 = Dataset(name='Breakfast Hour',
+    ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
             description='breakfast hour programming')
-    ds2 = Dataset(name='12PM - 4PM', description='afternoon programming')
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
 

@@ -86,6 +86,33 @@ class TestGraphQL(unittest.TestCase):
             },
         })
 
+    def test_query_dataset(self):
+        success, result = self.run_graphql_query({
+            "operationName": "QueryDataset",
+            "query": """
+                query QueryDataset($id: ID!) {
+                   dataset(id: $id) {
+                        id
+                        name
+                        description
+                   }
+                }
+            """,
+            "variables": {
+                "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "dataset": {
+                    "id" : "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+                    "name": "Breakfast Hour",
+                    "description": "breakfast hour programming",
+                },
+            },
+        })
 
 if __name__ == '__main__':
     unittest.main()
