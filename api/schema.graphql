@@ -142,13 +142,13 @@ type Query {
   user(id: ID!): User
 
   # Retrieve a single dataset.
-  dataset(id: ID!): Dataset!
+  dataset(id: ID!): Dataset
 
   # Retrieve a single Record.
   record(id: ID!): Record
 
   # Retriever a single program.
-  program(id: ID!): Program!
+  program(id: ID!): Program
 }
 
 type Mutation {
