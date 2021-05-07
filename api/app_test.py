@@ -211,7 +211,6 @@ class TestGraphQL(unittest.TestCase):
                 "deleteDataset": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
             },
         })         
-
     def test_query_record(self):
         success, result = self.run_graphql_query({
             "operationName": "QueryRecord",
@@ -241,7 +240,6 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })
-
     def test_create_record(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateRecord",
@@ -280,5 +278,45 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })
+
+    def test_update_record(self):
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateRecord",
+            "query": """
+                mutation UpdateRecord($input: UpdateRecordInput) {
+                    updateRecord(input: $input) {
+                        publicationDate
+                        dataset {
+                            id
+                            name
+                        }
+                        entries {
+                            categoryValue
+                            count
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
+                    "publicationDate": datetime.strptime('2020-12-25 00:00:00', '%Y-%m-%d %H:%M:%S'),
+                    "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798"
+                } 
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "updateRecord": {
+                    "publicationDate": "2020-12-25 00:00:00",
+                    "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
+                    "entries": []
+                },
+            },
+        })   
+
 if __name__ == '__main__':
     unittest.main()
