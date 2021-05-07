@@ -318,5 +318,25 @@ class TestGraphQL(unittest.TestCase):
             },
         })   
 
+    def test_delete_record(self):
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteRecord",
+            "query": """
+                mutation DeleteRecord($id: ID!) {
+                   deleteRecord(id: $id)
+                }
+            """,
+            "variables": {
+                "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "deleteRecord": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+            },
+        })  
+
 if __name__ == '__main__':
     unittest.main()
