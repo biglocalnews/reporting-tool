@@ -211,5 +211,35 @@ class TestGraphQL(unittest.TestCase):
             },
         })         
 
+    def test_query_record(self):
+        success, result = self.run_graphql_query({
+            "operationName": "QueryRecord",
+            "query": """
+                query QueryRecord($id: ID!) {
+                   record(id: $id) {
+                        id
+                        publicationDate
+                        dataset {
+                            id
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "record": {
+                    "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                    "publicationDate": "2020-12-21 00:00:00",
+                    "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"}
+                },
+            },
+        })
+
 if __name__ == '__main__':
     unittest.main()

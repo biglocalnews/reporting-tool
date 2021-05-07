@@ -13,7 +13,7 @@ from ariadne import load_schema_from_path, make_executable_schema, snake_case_fa
 from ariadne.asgi import GraphQL
 
 from database import database, SessionLocal
-from queries import query
+from queries import query, record
 from mutations import mutation
 from settings import settings
 import user
@@ -74,7 +74,7 @@ app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["use
 # Adds graphql schema and mounts schema + resolvers to fastapi app
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    type_defs, query, mutation, snake_case_fallback_resolvers
+    type_defs, query, mutation, record, snake_case_fallback_resolvers
 )
 
 @app.middleware("http")

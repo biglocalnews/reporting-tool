@@ -10,6 +10,7 @@ import databases
 import uuid
 
 import click
+from datetime import datetime
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -273,6 +274,10 @@ def create_dummy_data(session):
     ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
+
+    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
+    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
+    ds1.records.append(record)
 
     tag = Tag(name='news', description='tag for all news programming',
             tag_type='news')
