@@ -43,6 +43,7 @@ def resolve_record(obj, info, id):
     record = session.query(Record).filter(Record.id == id, Record.deleted == None).first()
     return record
 
+# This handles converting publicationDate to string- Ariadne is not converting automatically and json does not have DateTime data type
 @record.field("publicationDate")
 def resolve_publication_date(obj, *_):
     return obj.publication_date.strftime("%Y-%m-%d %H:%M:%S")
