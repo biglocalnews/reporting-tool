@@ -153,6 +153,44 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })    
+    def test_update_dataset(self):
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateDataset",
+            "query": """
+                mutation UpdateDataset($input: UpdateDatasetInput) {
+                   updateDataset(input: $input) {
+                        name
+                        description
+                        program {
+                            name
+                        }
+                        tags {
+                            name
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+                    "name": "Tea Time",
+                    "description": "Tea time programming"
+                } 
+            },
+        })
+
+        self.assertTrue(success)
+        print(result, "result")
+        self.assertEqual(result, {
+            "data": {
+                "updateDataset": {
+                    "name": "Tea Time",
+                    "description": "Tea time programming",
+                    "program": {"name": "BBC News"},
+                    "tags": [{"name": "News"}]
+                },
+            },
+        })    
 
 if __name__ == '__main__':
     unittest.main()
