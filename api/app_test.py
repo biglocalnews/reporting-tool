@@ -193,5 +193,26 @@ class TestGraphQL(unittest.TestCase):
             },
         })    
 
+    def test_delete_dataset(self):
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteDataset",
+            "query": """
+                mutation DeleteDataset($id: ID!) {
+                   deleteDataset(id: $id)
+                }
+            """,
+            "variables": {
+                "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+            },
+        })
+
+        self.assertTrue(success)
+        print(result, " delete result")
+        self.assertEqual(result, {
+            "data": {
+                "deleteDataset": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+            },
+        })         
+
 if __name__ == '__main__':
     unittest.main()
