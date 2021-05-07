@@ -279,6 +279,9 @@ def create_dummy_data(session):
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
     ds1.records.append(record)
 
+    entry = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category='gender', category_value="female", count=8, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    record.entries.append(entry)
+
     tag = Tag(name='news', description='tag for all news programming',
             tag_type='news')
     tag.programs.append(program)

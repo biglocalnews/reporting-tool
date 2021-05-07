@@ -302,7 +302,8 @@ class TestGraphQL(unittest.TestCase):
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
                     "publicationDate": datetime.strptime('2020-12-25 00:00:00', '%Y-%m-%d %H:%M:%S'),
-                    "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798"
+                    "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
+                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
                 } 
             },
         })
@@ -313,7 +314,7 @@ class TestGraphQL(unittest.TestCase):
                 "updateRecord": {
                     "publicationDate": "2020-12-25 00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
-                    "entries": []
+                    "entries": [{"categoryValue": "trans", "count": 10}]
                 },
             },
         })   
