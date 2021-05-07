@@ -20,10 +20,7 @@ def resolve_create_dataset(obj, info, input):
     '''
     session = info.context['dbsession']
 
-    program = session.query(Program).get(input['program_id'])
-
     all_tags = input.pop('tags', [])
-
     tags = []
 
     for tag in all_tags:
@@ -36,7 +33,7 @@ def resolve_create_dataset(obj, info, input):
             tags.append(new_tag)
             session.add(new_tag)
 
-    dataset = Dataset(tags=tags, program=program, **input)
+    dataset = Dataset(tags=tags, **input)
     session.add(dataset)
     session.commit()
 
