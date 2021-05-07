@@ -142,7 +142,6 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
-        print(result, "result")
         self.assertEqual(result, {
             "data": {
                 "createDataset": {
@@ -181,7 +180,6 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
-        print(result, "result")
         self.assertEqual(result, {
             "data": {
                 "updateDataset": {
@@ -207,7 +205,6 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
-        print(result, " delete result")
         self.assertEqual(result, {
             "data": {
                 "deleteDataset": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
