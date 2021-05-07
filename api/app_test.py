@@ -244,7 +244,7 @@ class TestGraphQL(unittest.TestCase):
         success, result = self.run_graphql_query({
             "operationName": "CreateRecord",
             "query": """
-                mutation CreateRecord($input: CreateRecordInput) {
+                mutation CreateRecord($input: CreateRecordInput!) {
                    createRecord(input: $input) {
                         publicationDate
                         dataset {
@@ -283,7 +283,7 @@ class TestGraphQL(unittest.TestCase):
         success, result = self.run_graphql_query({
             "operationName": "UpdateRecord",
             "query": """
-                mutation UpdateRecord($input: UpdateRecordInput) {
+                mutation UpdateRecord($input: UpdateRecordInput!) {
                     updateRecord(input: $input) {
                         publicationDate
                         dataset {
