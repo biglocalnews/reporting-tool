@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app import schema
 from database import create_tables, create_dummy_data
+from datetime import datetime
 
 
 class TestGraphQL(unittest.TestCase):
@@ -241,5 +242,43 @@ class TestGraphQL(unittest.TestCase):
             },
         })
 
+    def test_create_record(self):
+        success, result = self.run_graphql_query({
+            "operationName": "CreateRecord",
+            "query": """
+                mutation CreateRecord($input: CreateRecordInput) {
+                   createRecord(input: $input) {
+                        publicationDate
+                        dataset {
+                            id
+                            name
+                        }
+                        entries {
+                            categoryValue
+                            count
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+                    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
+                    "publicationDate": datetime.strptime('2020-12-22 00:00:00', '%Y-%m-%d %H:%M:%S'),
+                    "entries":[{"category": "gender", "categoryValue": "transgender", "count": 4}, {"category": "gender", "categoryValue": "female", "count": 4}]
+                }
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "createRecord": {
+                    "publicationDate": "2020-12-22 00:00:00",
+                    "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
+                    "entries": [{"categoryValue": "transgender", "count": 4}, {"categoryValue": "female", "count": 4}]
+                },
+            },
+        })
 if __name__ == '__main__':
     unittest.main()
