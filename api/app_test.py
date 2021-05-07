@@ -174,7 +174,8 @@ class TestGraphQL(unittest.TestCase):
                 "input": {
                     "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "name": "Tea Time",
-                    "description": "Tea time programming"
+                    "description": "Tea time programming",
+                    "tags": [{"name": "Asia", "description": "i am asia", "tagType": "location"}]
                 } 
             },
         })
@@ -187,7 +188,7 @@ class TestGraphQL(unittest.TestCase):
                     "name": "Tea Time",
                     "description": "Tea time programming",
                     "program": {"name": "BBC News"},
-                    "tags": [{"name": "News"}]
+                    "tags": [{"name": "News"}, {"name": "Asia"}]
                 },
             },
         })    
