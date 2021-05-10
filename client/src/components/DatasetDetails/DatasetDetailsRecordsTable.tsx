@@ -9,7 +9,7 @@ import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { messageError, messageInfo, messageSuccess } from "../Message";
 import dayjs from "dayjs";
-import { SortOrder } from "antd/lib/table/interface";
+import { ColumnsType } from "antd/lib/table/interface";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -70,12 +70,12 @@ const DatasetDetailsRecordsTable = ({
   };
 
   // TODO: render columns dynamically by dataset category types
-  const columns = [
+  const columns: ColumnsType<TableData> = [
     {
       title: "Date",
       dataIndex: "publicationDate",
       key: "id",
-      defaultSortOrder: "descend" as SortOrder,
+      defaultSortOrder: "descend",
       sorter: (dateA: any, dateB: any) =>
         dayjs(dateA.publicationDate).unix() -
         dayjs(dateB.publicationDate).unix(),
