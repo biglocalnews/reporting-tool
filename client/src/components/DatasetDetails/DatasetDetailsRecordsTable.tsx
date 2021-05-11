@@ -32,12 +32,17 @@ const DatasetDetailsRecordsTable = ({
   const { t } = useTranslation();
   const history = useHistory();
 
+  /*
+   * Takes all the entries from a record and sets the
+   * category value (e.g. gender) of the entry as a key
+   * and its count as the corresponding value to create an
+   * array of flat objects.
+   */
   const tableData = records?.map((record) => {
     return record.entries.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
       {
         id: record.id,
-        key: record.id,
         publicationDate: record.publicationDate,
       }
     );
