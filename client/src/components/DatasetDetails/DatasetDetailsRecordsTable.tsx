@@ -1,12 +1,15 @@
-import { Button, message, Popconfirm, Space, Table } from "antd";
+import { Button, Popconfirm, Space, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
 import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
+import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
 import { useHistory } from "react-router-dom";
+import { messageError, messageInfo, messageSuccess } from "../Message";
+import dayjs from "dayjs";
+import { ColumnsType } from "antd/lib/table/interface";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -29,12 +32,17 @@ const DatasetDetailsRecordsTable = ({
   const { t } = useTranslation();
   const history = useHistory();
 
+  /*
+   * Takes all the entries from a record and sets the
+   * category value (e.g. gender) of the entry as a key
+   * and its count as the corresponding value to create an
+   * array of flat objects.
+   */
   const tableData = records?.map((record) => {
     return record.entries.reduce(
       (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
       {
         id: record.id,
-        key: record.id,
         publicationDate: record.publicationDate,
       }
     );
@@ -44,6 +52,12 @@ const DatasetDetailsRecordsTable = ({
     deleteRecord,
     { loading: deleteRecordLoader, error: deleteRecordError },
   ] = useMutation(DELETE_RECORD, {
+    onError: (error) => {
+      messageError(`${error.message}. Please try again later.`);
+    },
+    onCompleted: (deleted) => {
+      if (deleted) messageSuccess("Succesfully deleted record!");
+    }, // TODO: update cache instead of refetching
     refetchQueries: [
       {
         query: GET_DATASET,
@@ -52,27 +66,27 @@ const DatasetDetailsRecordsTable = ({
     ],
   });
 
-  const confirmDelete = async (recordId: string) => {
-    await deleteRecord({ variables: { id: recordId } })
-      .then(() =>
-        deleteRecordLoader
-          ? message.loading("Deleting record...")
-          : message.success("Succesfully deleted record!")
-      )
-      .catch((error) =>
-        message.error(`${error.message}. Please try again later.`)
-      );
+  const confirmDelete = (recordId: string) => {
+    deleteRecord({ variables: { id: recordId } });
   };
 
   const cancelDelete = () => {
-    message.info("Delete cancelled");
+    messageInfo("Delete cancelled");
   };
 
-  const columns = [
+  // TODO: render columns dynamically by dataset category types
+  const columns: ColumnsType<TableData> = [
     {
       title: "Date",
       dataIndex: "publicationDate",
       key: "id",
+      defaultSortOrder: "descend",
+      sorter: (dateA: any, dateB: any) =>
+        dayjs(dateA.publicationDate).unix() -
+        dayjs(dateB.publicationDate).unix(),
+      fixed: true,
+      width: 100,
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
     },
     {
       title: "Men",
@@ -146,7 +160,7 @@ const DatasetDetailsRecordsTable = ({
       scroll={{ x: 1000 }}
       sticky
       title={() => t("datasetRecordsTableTitle", { title: "Records" })}
-      pagination={{ pageSize: 6, hideOnSinglePage: true }}
+      pagination={{ hideOnSinglePage: true }}
       loading={isLoading}
       rowKey={(record) => record.id}
     />
