@@ -9,11 +9,11 @@ from fastapi_users.authentication import JWTAuthentication
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 
-from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType
+from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType, ScalarType
 from ariadne.asgi import GraphQL
 
 from database import database, SessionLocal
-from queries import query, record
+from queries import query
 from mutations import mutation
 from settings import settings
 import user
@@ -70,11 +70,17 @@ app.include_router(
 )
 app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["users"])
 
+# General Graphql Field Resolvers
+
+datetime_scalar = ScalarType("DateTime")
+@datetime_scalar.serializer
+def serialize_datetime(value):
+    return value.isoformat()
 
 # Adds graphql schema and mounts schema + resolvers to fastapi app
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    type_defs, query, mutation, record, snake_case_fallback_resolvers
+    type_defs, query, mutation, datetime_scalar, snake_case_fallback_resolvers
 )
 
 @app.middleware("http")

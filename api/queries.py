@@ -2,7 +2,6 @@ from ariadne import convert_kwargs_to_snake_case, ObjectType
 from database import Dataset, User, Record
 
 query = ObjectType("Query")
-record = ObjectType("Record")
 
 '''GraphQL query to find a user based on user ID.
     :param obj: obj is a value returned by a parent resolver
@@ -43,7 +42,4 @@ def resolve_record(obj, info, id):
     record = session.query(Record).filter(Record.id == id, Record.deleted == None).first()
     return record
 
-# This handles converting publicationDate to string- Ariadne is not converting automatically and json does not have DateTime data type
-@record.field("publicationDate")
-def resolve_publication_date(obj, *_):
-    return obj.publication_date.strftime("%Y-%m-%d %H:%M:%S")
+
