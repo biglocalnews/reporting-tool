@@ -344,6 +344,7 @@ class TestGraphQL(unittest.TestCase):
             "query": """
                 mutation CreateRecord($input: CreateRecordInput!) {
                    createRecord(input: $input) {
+                        id
                         publicationDate
                         dataset {
                             id
@@ -367,9 +368,11 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["createRecord"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "createRecord": {
+                    "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
                     "entries": [{"categoryValue": "transgender", "count": 4}, {"categoryValue": "female", "count": 4}]
