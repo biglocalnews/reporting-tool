@@ -134,6 +134,10 @@ class TestGraphQL(unittest.TestCase):
                         records {
                             id
                             publicationDate
+                            entries {
+                                id
+                                categoryValue
+                            }
                         }
                         inputter {
                             id
@@ -167,7 +171,11 @@ class TestGraphQL(unittest.TestCase):
                     },
                     "records": [{
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
-                        "publicationDate": "2020-12-21T00:00:00"
+                        "publicationDate": "2020-12-21T00:00:00",
+                        "entries": [{
+                            "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
+                            "categoryValue": "female"
+                        }]
                     }],
                     "inputter": {
                         "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", 
