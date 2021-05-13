@@ -270,8 +270,8 @@ def create_dummy_data(session):
     team.programs.append(program)
 
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
-            description='breakfast hour programming')
-    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
+            description='breakfast hour programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
 
@@ -282,7 +282,7 @@ def create_dummy_data(session):
     entry = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category='gender', category_value="female", count=8, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
     record.entries.append(entry)
 
-    tag = Tag(name='news', description='tag for all news programming',
+    tag = Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news')
     tag.programs.append(program)
     tag.datasets.append(ds1)

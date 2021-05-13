@@ -96,6 +96,25 @@ class TestGraphQL(unittest.TestCase):
                         id
                         name
                         description
+                        program {
+                            id
+                            name
+                            tags {
+                                name
+                            }
+                        }
+                        records {
+                            id
+                            publicationDate
+                        }
+                        inputter {
+                            id
+                            firstName
+                        }
+                        tags {
+                            id
+                            name
+                        }
                    }
                 }
             """,
@@ -108,9 +127,28 @@ class TestGraphQL(unittest.TestCase):
         self.assertEqual(result, {
             "data": {
                 "dataset": {
-                    "id" : "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+                    "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "name": "Breakfast Hour",
                     "description": "breakfast hour programming",
+                    "program": {
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "BBC News",
+                        "tags": [{
+                            "name": "News"
+                        }]
+                    },
+                    "records": [{
+                        "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
+                        "publicationDate": "2020-12-21T00:00:00"
+                    }],
+                    "inputter": {
+                        "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", 
+                        "firstName": "Cat"
+                    },
+                    "tags": [{
+                        "id": "4a2142c0-5416-431d-b62f-0dbfe7574688",
+                        "name": "News"
+                    }]
                 },
             },
         })
@@ -235,7 +273,7 @@ class TestGraphQL(unittest.TestCase):
             "data": {
                 "record": {
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    "publicationDate": "2020-12-21 00:00:00",
+                    "publicationDate": "2020-12-21T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"}
                 },
             },
@@ -262,7 +300,7 @@ class TestGraphQL(unittest.TestCase):
                 "input": {
                     "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
-                    "publicationDate": datetime.strptime('2020-12-22 00:00:00', '%Y-%m-%d %H:%M:%S'),
+                    "publicationDate": datetime.strptime('2020-12-22T00:00:00', '%Y-%m-%dT%H:%M:%S'),
                     "entries":[{"category": "gender", "categoryValue": "transgender", "count": 4}, {"category": "gender", "categoryValue": "female", "count": 4}]
                 }
             },
@@ -272,7 +310,7 @@ class TestGraphQL(unittest.TestCase):
         self.assertEqual(result, {
             "data": {
                 "createRecord": {
-                    "publicationDate": "2020-12-22 00:00:00",
+                    "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
                     "entries": [{"categoryValue": "transgender", "count": 4}, {"categoryValue": "female", "count": 4}]
                 },
@@ -301,7 +339,7 @@ class TestGraphQL(unittest.TestCase):
                 "input": {
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
-                    "publicationDate": datetime.strptime('2020-12-25 00:00:00', '%Y-%m-%d %H:%M:%S'),
+                    "publicationDate": datetime.strptime('2020-12-25T00:00:00', '%Y-%m-%dT%H:%M:%S'),
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
                 } 
@@ -312,7 +350,7 @@ class TestGraphQL(unittest.TestCase):
         self.assertEqual(result, {
             "data": {
                 "updateRecord": {
-                    "publicationDate": "2020-12-25 00:00:00",
+                    "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [{"categoryValue": "trans", "count": 10}]
                 },
