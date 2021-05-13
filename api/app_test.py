@@ -424,6 +424,7 @@ class TestGraphQL(unittest.TestCase):
         })   
 
     def test_delete_record(self):
+        record_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
         success, result = self.run_graphql_query({
             "operationName": "DeleteRecord",
             "query": """
@@ -432,14 +433,18 @@ class TestGraphQL(unittest.TestCase):
                 }
             """,
             "variables": {
-                "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+                "id": record_id
             },
         })
 
         self.assertTrue(success)
+        # Query for all associated Entries
+        associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id)
+        # Count of non-deleted entries should be zero
+        self.assertEqual(associated_entries.count(), 0)
         self.assertEqual(result, {
             "data": {
-                "deleteRecord": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+                "deleteRecord": record_id
             },
         })  
 
