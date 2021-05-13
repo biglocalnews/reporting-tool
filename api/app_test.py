@@ -310,6 +310,8 @@ class TestGraphQL(unittest.TestCase):
         # Count of non-deleted records, and entries should be zero
         self.assertEqual(existing_entries.count(), 0)
         self.assertEqual(existing_records.count(), 0)
+        self.assertTrue(self.is_valid_uuid(dataset_id), "Invalid UUID")
+
         self.assertEqual(result, {
             "data": {
                 "deleteDataset": dataset_id
