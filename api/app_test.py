@@ -74,6 +74,7 @@ class TestGraphQL(unittest.TestCase):
             "query": """
                 query QueryUser($id: ID!) {
                    user(id: $id) {
+                      id
                       firstName
                       lastName
                       teams {
@@ -99,9 +100,11 @@ class TestGraphQL(unittest.TestCase):
 
         # Make sure result is what we expected
         self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["user"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "user": {
+                    "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                     "firstName": "Cat",
                     "lastName": "Berry",
                     "teams": [{
