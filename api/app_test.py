@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from app import schema
 from database import create_tables, create_dummy_data
 from datetime import datetime
+from uuid import UUID
 
 
 class TestGraphQL(unittest.TestCase):
@@ -39,6 +40,33 @@ class TestGraphQL(unittest.TestCase):
                     'request': Mock(),
                     },
                 debug=True)
+
+    def is_valid_uuid(self, uuid_to_test, version=4):
+        """
+        Check if uuid_to_test is a valid UUID.
+        
+        Parameters
+        ----------
+        uuid_to_test : str
+        version : {1, 2, 3, 4}
+        
+        Returns
+        -------
+        `True` if uuid_to_test is a valid UUID, otherwise `False`.
+        
+        Examples
+        --------
+        >>> is_valid_uuid('c9bf9e57-1685-4c89-bafb-ff5af830be8a')
+        True
+        >>> is_valid_uuid('c9bf9e58')
+        False
+        """
+        
+        try:
+            uuid_obj = UUID(uuid_to_test, version=version)
+        except ValueError:
+            return False
+        return str(uuid_obj) == uuid_to_test
 
     def test_query_user(self):
         success, result = self.run_graphql_query({
@@ -158,6 +186,7 @@ class TestGraphQL(unittest.TestCase):
             "query": """
                 mutation CreateDataset($input: CreateDatasetInput) {
                    createDataset(input: $input) {
+                        id
                         name
                         description
                         program {
@@ -181,9 +210,11 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["createDataset"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "createDataset": {
+                    "id": result["data"]["createDataset"]["id"],
                     "name": "Happy Hour",
                     "description": "A very happy time",
                     "program": {"name": "BBC News"},
