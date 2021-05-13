@@ -26,8 +26,8 @@ type JointContent = ConfigContent | ArgsProps;
 
 const createMessage = (type: Message) => (
   content: JointContent,
-  duration?: number | (() => void) | undefined,
-  onClose?: ConfigOnClose | undefined
+  duration?: number | (() => void),
+  onClose?: ConfigOnClose
 ) => {
   /* cast content to object */
   const contentPropObject = content as Record<string, unknown>;
