@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data
+from database import create_tables, create_dummy_data, Record, Entry
 from datetime import datetime
 from uuid import UUID
 
@@ -265,6 +265,7 @@ class TestGraphQL(unittest.TestCase):
         })    
 
     def test_delete_dataset(self):
+        dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
         success, result = self.run_graphql_query({
             "operationName": "DeleteDataset",
             "query": """
@@ -273,16 +274,28 @@ class TestGraphQL(unittest.TestCase):
                 }
             """,
             "variables": {
-                "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+                "id": dataset_id
             },
         })
 
         self.assertTrue(success)
+        # Query for all associated Records
+        associated_records = self.session.query(Record).filter(Record.dataset_id == dataset_id)
+        # Compile list of associated Record IDs
+        associated_record_ids = [record.id for record in associated_records]
+        # Query for non-deleted Entries associated with each Record id
+        existing_entries = self.session.query(Entry).filter(Entry.record_id.contains(associated_record_ids), Entry.deleted is None)
+        # Querying for non-deleted associated Records
+        existing_records = associated_records.filter(Record.deleted is None)
+        # Count of non-deleted records, and entries should be zero
+        self.assertEqual(existing_entries.count(), 0)
+        self.assertEqual(existing_records.count(), 0)
         self.assertEqual(result, {
             "data": {
-                "deleteDataset": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+                "deleteDataset": dataset_id
             },
-        })         
+        })       
+
     def test_query_record(self):
         success, result = self.run_graphql_query({
             "operationName": "QueryRecord",
