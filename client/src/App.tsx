@@ -1,12 +1,12 @@
 import React, { Suspense } from "react";
-import { Switch, Route, BrowserRouter, Redirect } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { Layout } from "antd";
 import AppHeader from "./layout/AppHeader";
 import { AppSidebar } from "./layout/AppSidebar";
-import { Home } from "./components/Home/Home";
-import { DatasetDetails } from "./components/DatasetDetails/DatasetDetails";
-import { DataEntry } from "./components/DataEntry/DataEntry";
 import "./App.css";
+import ROUTES from "./router/routes";
+import BreadCrumb from "./components/Breadcrumb/Breadcrumbs";
+import { RenderRoutes } from "./router/Router";
 
 const { Footer, Content } = Layout;
 
@@ -20,31 +20,8 @@ function App() {
             <AppSidebar />
             <Layout style={{ padding: "0 24px 24px" }}>
               <Content className="site-layout-background">
-                <Switch>
-                  <Route exact path="/" component={Home} />
-                  <Route
-                    exact
-                    path="/dataset/:datasetId/details"
-                    component={DatasetDetails}
-                  />
-                  <Route
-                    key="add-entry"
-                    exact
-                    path="/dataset/:datasetId/entry"
-                    component={DataEntry}
-                  />
-                  <Route
-                    key="edit-entry"
-                    exact
-                    path="/dataset/:datasetId/entry/edit/:recordId"
-                    component={DataEntry}
-                  />
-                  <Redirect
-                    exact
-                    from="/dataset/:datasetId/entry/reload"
-                    to="/dataset/:datasetId/entry"
-                  />
-                </Switch>
+                <BreadCrumb />
+                <RenderRoutes routes={ROUTES} />
               </Content>
               <Footer style={{ textAlign: "center" }}>Footer content</Footer>
             </Layout>
