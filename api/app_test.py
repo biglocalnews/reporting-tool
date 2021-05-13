@@ -383,6 +383,7 @@ class TestGraphQL(unittest.TestCase):
             "query": """
                 mutation UpdateRecord($input: UpdateRecordInput!) {
                     updateRecord(input: $input) {
+                        id
                         publicationDate
                         dataset {
                             id
@@ -407,9 +408,11 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "updateRecord": {
+                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [{"categoryValue": "trans", "count": 10}]
