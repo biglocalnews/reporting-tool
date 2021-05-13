@@ -251,6 +251,7 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateDataset"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "updateDataset": {
