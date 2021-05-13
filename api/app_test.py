@@ -82,6 +82,10 @@ class TestGraphQL(unittest.TestCase):
                           name
                           datasets {
                             name
+                            records {
+                                id
+                                publicationDate
+                            }
                           }
                         }
                       }
@@ -106,8 +110,13 @@ class TestGraphQL(unittest.TestCase):
                             "name": "BBC News",
                             "datasets": [{
                                 "name": "Breakfast Hour",
+                                "records": [{
+                                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                    "publicationDate": "2020-12-21T00:00:00"
+                                }]
                             }, {
                                 "name": "12PM - 4PM",
+                                "records": []
                             }],
                         }],
                     }],
