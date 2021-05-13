@@ -454,6 +454,7 @@ class TestGraphQL(unittest.TestCase):
         associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id)
         # Count of non-deleted entries should be zero
         self.assertEqual(associated_entries.count(), 0)
+        self.assertTrue(self.is_valid_uuid(record_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "deleteRecord": record_id
