@@ -438,7 +438,10 @@ class TestGraphQL(unittest.TestCase):
         })   
 
     def test_delete_record(self):
-        record_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+        record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
+        existing_record = self.session.query(Record).filter(Record.id == record_id)
+        # Count of non-deleted entries should be zero
+        self.assertEqual(existing_record.count(), 1)
         success, result = self.run_graphql_query({
             "operationName": "DeleteRecord",
             "query": """
@@ -452,9 +455,13 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        # Query for Record 
+        record = self.session.query(Record).filter(Record.id == record_id)
+        # Record count should be zero
+        self.assertEqual(record.count(), 0)
         # Query for all associated Entries
         associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id)
-        # Count of non-deleted entries should be zero
+        # Entries count should be zero
         self.assertEqual(associated_entries.count(), 0)
         self.assertTrue(self.is_valid_uuid(record_id), "Invalid UUID")
         self.assertEqual(result, {
@@ -462,6 +469,5 @@ class TestGraphQL(unittest.TestCase):
                 "deleteRecord": record_id
             },
         })  
-
 if __name__ == '__main__':
     unittest.main()
