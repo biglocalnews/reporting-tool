@@ -228,6 +228,7 @@ class TestGraphQL(unittest.TestCase):
             "query": """
                 mutation UpdateDataset($input: UpdateDatasetInput) {
                    updateDataset(input: $input) {
+                        id
                         name
                         description
                         program {
@@ -253,6 +254,7 @@ class TestGraphQL(unittest.TestCase):
         self.assertEqual(result, {
             "data": {
                 "updateDataset": {
+                    "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "name": "Tea Time",
                     "description": "Tea time programming",
                     "program": {"name": "BBC News"},
