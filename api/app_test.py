@@ -315,6 +315,10 @@ class TestGraphQL(unittest.TestCase):
                         dataset {
                             id
                         }
+                        entries {
+                            id
+                            categoryValue
+                        }
                    }
                 }
             """,
@@ -329,7 +333,8 @@ class TestGraphQL(unittest.TestCase):
                 "record": {
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-21T00:00:00",
-                    "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"}
+                    "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
+                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "categoryValue": "female"}]
                 },
             },
         })
