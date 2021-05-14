@@ -24,22 +24,24 @@ type Message = "info" | "success" | "error" | "warning" | "loading";
 type ConfigContent = ReactNode | string;
 type JointContent = ConfigContent | ArgsProps;
 
-const createMessage = (type: Message) => (
-  content: JointContent,
-  duration?: number | (() => void),
-  onClose?: ConfigOnClose
-) => {
-  /* cast content to object */
-  const contentPropObject = content as Record<string, unknown>;
-  /* check if value passed is a string and set the content for the message
-   */
-  const newContent =
-    typeof content === "string"
-      ? { style, content }
-      : { style, ...contentPropObject };
+const createMessage =
+  (type: Message) =>
+  (
+    content: JointContent,
+    duration?: number | (() => void),
+    onClose?: ConfigOnClose
+  ) => {
+    /* cast content to object */
+    const contentPropObject = content as Record<string, unknown>;
+    /* check if value passed is a string and set the content for the message
+     */
+    const newContent =
+      typeof content === "string"
+        ? { style, content }
+        : { style, ...contentPropObject };
 
-  return message[type](newContent, duration, onClose);
-};
+    return message[type](newContent, duration, onClose);
+  };
 
 const messageInfo = createMessage("info");
 const messageLoading = createMessage("loading");
