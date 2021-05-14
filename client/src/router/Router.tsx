@@ -1,10 +1,11 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
+import { IRoute } from "./routes";
 
 /**
  * Flatten routes to render components for a subroute
  */
-function flattenRoutes(route: any, agg: any = []) {
+function flattenRoutes(route: IRoute, agg: any = []) {
   agg.push(
     <Route
       exact
@@ -15,7 +16,7 @@ function flattenRoutes(route: any, agg: any = []) {
   );
 
   if (route.routes) {
-    route.routes.forEach((r: any) => flattenRoutes(r, agg));
+    route.routes.forEach((r: IRoute) => flattenRoutes(r, agg));
   }
 
   return agg;
@@ -29,7 +30,7 @@ export function RenderRoutes({ routes }: any) {
   return (
     <Switch>
       {routes &&
-        routes.map((route: any) => {
+        routes.map((route: IRoute) => {
           return flattenRoutes(route);
         })}
       <Route component={() => <h1>Not Found!</h1>} />

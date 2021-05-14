@@ -1,10 +1,20 @@
 import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
+import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
 import { DataEntry } from "../components/DataEntry/DataEntry";
 import { DatasetDetails } from "../components/DatasetDetails/DatasetDetails";
 import { Home } from "../components/Home/Home";
 
-const ROUTES = [
+interface SubRoute extends BreadcrumbsRoute {
+  key?: string;
+  exact?: boolean;
+  component?: any;
+}
+export interface IRoute extends SubRoute {
+  routes?: SubRoute[];
+}
+
+const ROUTES: IRoute[] = [
   {
     path: "/dataset/:datasetId/entry/reload",
     exact: true,
