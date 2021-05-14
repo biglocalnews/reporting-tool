@@ -285,6 +285,7 @@ class TestGraphQL(unittest.TestCase):
         })    
 
     def test_delete_dataset(self):
+        # Confirm Dataset exists, then that it does not.
         dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
         existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id)
         self.assertEqual(existing_dataset.count(), 1)
@@ -440,6 +441,7 @@ class TestGraphQL(unittest.TestCase):
         })   
 
     def test_delete_record(self):
+        # Confirm Record exists, then that it does not.
         record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
         existing_record = self.session.query(Record).filter(Record.id == record_id)
         # Count of non-deleted entries should be zero
