@@ -49,6 +49,11 @@ const datasets = new Map([
     {
       id: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
       name: "Breakfast Hour",
+      tags: [
+        {
+          name: "News",
+        },
+      ],
       records: recordsData,
     },
   ],
@@ -67,7 +72,7 @@ export const mockResolvers = {
     dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    user: () => users.get(args.id) || {},
+    user: () => users.get("1"),
   }),
   Mutation: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -92,9 +97,6 @@ export const mockResolvers = {
 
       return { input: recordToUpdate };
     },
-  }),
-  Tag: () => ({
-    name: "tagName",
   }),
   Program: () => ({
     id: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
