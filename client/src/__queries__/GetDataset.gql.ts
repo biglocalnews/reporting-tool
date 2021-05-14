@@ -5,6 +5,7 @@ export const GET_DATASET = gql`
     dataset(id: $id) {
       id
       name
+      lastUpdated
       program {
         name
       }

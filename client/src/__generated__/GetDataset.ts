@@ -31,6 +31,7 @@ export interface GetDataset_dataset {
   readonly __typename: "Dataset";
   readonly id: string;
   readonly name: string;
+  readonly lastUpdated: any | null;
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
 }
