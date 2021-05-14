@@ -72,6 +72,7 @@ type Dataset {
   id: ID!
   name: String!
   description: String
+  lastUpdated: Date
   program: Program!
   records: [Record!]!
   inputter: User!
