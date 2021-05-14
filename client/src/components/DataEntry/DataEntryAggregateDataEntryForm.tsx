@@ -85,8 +85,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const [values, setValues] = useState<Entry[]>(entries);
 
   const [formPublicationDate, setFormPublicationDate] = useState<string>(
-    dayjs(props.existingRecord?.record?.publicationDate).format("YYYY-MM-DD") ||
-      dayjs().format("YYYY-MM-DD")
+    dayjs(props.existingRecord?.record?.publicationDate).format("YYYY-MM-DD")
   );
 
   const [error, setError] = useState<Error>();
