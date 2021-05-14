@@ -12,7 +12,7 @@ import uuid
 import click
 from datetime import datetime
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
@@ -161,10 +161,9 @@ class Tag(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-@event.listens_for(Tag, 'before_insert')
-def capitalize_tag_name(mapper, connect, target):
-    # target is an instance of Table
-    target.name = target.name.capitalize().strip()
+    @validates('name')
+    def capitalize_tag_name(self, key, name):
+        return name.capitalize().strip()
 
 class Target(Base):
     __tablename__ = 'target'
