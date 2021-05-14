@@ -7,6 +7,9 @@ import { GetUser, GetUserVariables } from "../../__generated__/getUser";
 import { GET_USER } from "../../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(localizedFormat);
 
 const columns = [
   {
@@ -79,7 +82,7 @@ const getTableData = (queryData: GetUser | undefined) => {
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
-          lastUpdated: dayjs(dataset.lastUpdated).format("YYYY-MM-DD"),
+          lastUpdated: dayjs(dataset.lastUpdated).format("ll"),
           tags: dataset.tags.map((t) => {
             return t.name;
           }),
