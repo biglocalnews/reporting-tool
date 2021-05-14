@@ -60,5 +60,5 @@ test("should render home page datasets and formatted 'last updated' date", async
 
   const row = screen.getAllByRole("row")[1];
   expect(row).toHaveTextContent(/breakfast hour/i);
-  expect(within(row).getAllByRole("cell")[2].textContent).toBe("2021-05-10");
+  expect(within(row).getAllByRole("cell")[2].textContent).toBe("May 10, 2021");
 });
