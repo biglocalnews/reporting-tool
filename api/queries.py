@@ -38,7 +38,7 @@ def resolve_dataset(obj, info, id):
 
 @dataset.field("lastUpdated")
 @convert_kwargs_to_snake_case
-def resolve_dataset_last_updated(dataset, info, *_):
+def resolve_dataset_last_updated(dataset, info):
     '''GraphQL query to find the date a dataset was last updated.
         :param dataset: Dataset object to filter by its ID
         :returns: Datetime scalar
