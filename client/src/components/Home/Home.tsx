@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { GetUser, GetUserVariables } from "../../__generated__/getUser";
 import { GET_USER } from "../../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
+import dayjs from "dayjs";
 
 const columns = [
   {
@@ -78,7 +79,7 @@ const getTableData = (queryData: GetUser | undefined) => {
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
-          lastUpdated: "12/20/2020",
+          lastUpdated: dayjs(dataset.lastUpdated).format("YYYY-MM-DD"),
           tags: dataset.tags.map((t) => {
             return t.name;
           }),
