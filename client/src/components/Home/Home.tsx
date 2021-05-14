@@ -113,7 +113,11 @@ const Home = (): JSX.Element => {
                 `${i.team} - ${i.dataset}`
             )}
           />
-          <Table dataSource={rowData} columns={columns} />
+          <Table
+            dataSource={rowData}
+            columns={columns}
+            rowKey={(dataset) => dataset.id}
+          />
         </div>
       )}
     </div>
