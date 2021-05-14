@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry
+from database import create_tables, create_dummy_data, Record, Entry, Dataset
 from datetime import datetime
 from uuid import UUID
 
@@ -286,6 +286,8 @@ class TestGraphQL(unittest.TestCase):
 
     def test_delete_dataset(self):
         dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
+        existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id)
+        self.assertEqual(existing_dataset.count(), 1)
         success, result = self.run_graphql_query({
             "operationName": "DeleteDataset",
             "query": """
