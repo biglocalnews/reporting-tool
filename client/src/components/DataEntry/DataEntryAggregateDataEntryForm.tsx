@@ -246,17 +246,17 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       <div className="data-entry_publication-date-field">
         <label htmlFor="publicationDate">
           <Text>Released on: </Text>
+          <input
+            type="date"
+            id="publicationDate"
+            name="publicationDate"
+            aria-label="publicationDate"
+            value={formPublicationDate}
+            aria-required="true"
+            required
+            onChange={(e) => setFormPublicationDate(e.target.value)}
+          />
         </label>
-        <input
-          type="date"
-          id="publicationDate"
-          name="publicationDate"
-          aria-label="publicationDate"
-          value={formPublicationDate}
-          aria-required="true"
-          required
-          onChange={(e) => setFormPublicationDate(e.target.value)}
-        />
       </div>
       <Row gutter={[16, 16]} className="data-entry">
         <Col span={8}>
