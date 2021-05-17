@@ -3,7 +3,7 @@ schema {
   mutation: Mutation
 }
 
-scalar Date
+scalar DateTime
 
 type Organization {
   id: ID!
@@ -81,7 +81,7 @@ type Dataset {
 type Record {
   id: ID!
   dataset: Dataset!
-  publicationDate: Date!
+  publicationDate: DateTime!
   entries: [Entry!]!
 }
 
@@ -120,13 +120,13 @@ input UpdateDatasetInput {
 input UpdateRecordInput {
   id: ID!
   datasetId: ID
-  publicationDate: Date
+  publicationDate: DateTime
   entries: [EntryInput!]
 }
 
 input CreateRecordInput {
   datasetId: ID!
-  publicationDate: Date!
+  publicationDate: DateTime!
   entries: [EntryInput!]
 }
 
@@ -139,13 +139,13 @@ input EntryInput {
 
 type Query {
   # Retrieve a single user.
-  user(id: ID!): User
+  user(id: ID!): User!
 
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset!
 
   # Retrieve a single Record.
-  record(id: ID!): Record
+  record(id: ID!): Record!
 
   # Retriever a single program.
   program(id: ID!): Program!

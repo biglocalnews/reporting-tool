@@ -10,8 +10,9 @@ import databases
 import uuid
 
 import click
+from datetime import datetime
 from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
@@ -160,10 +161,9 @@ class Tag(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-@event.listens_for(Tag, 'before_insert')
-def capitalize_tag_name(mapper, connect, target):
-    # target is an instance of Table
-    target.name = target.name.capitalize().strip()
+    @validates('name')
+    def capitalize_tag_name(self, key, name):
+        return name.capitalize().strip()
 
 class Target(Base):
     __tablename__ = 'target'
@@ -187,6 +187,7 @@ class Dataset(Base):
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
+    program = relationship('Program', back_populates='datasets')
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     records = relationship('Record')
     inputter = relationship('User')
@@ -263,17 +264,24 @@ def create_dummy_data(session):
             first_name='Cat', last_name='Berry')
     team.users.append(user)
 
-    program = Program(name='BBC News',
+    program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming')
     team.programs.append(program)
 
-    ds1 = Dataset(name='Breakfast Hour',
-            description='breakfast hour programming')
-    ds2 = Dataset(name='12PM - 4PM', description='afternoon programming')
+    ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
+            description='breakfast hour programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
 
-    tag = Tag(name='news', description='tag for all news programming',
+    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
+    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
+    ds1.records.append(record)
+
+    entry = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category='gender', category_value="female", count=8, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    record.entries.append(entry)
+
+    tag = Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news')
     tag.programs.append(program)
     tag.datasets.append(ds1)

@@ -41,3 +41,5 @@ def resolve_record(obj, info, id):
     session = info.context['dbsession']
     record = session.query(Record).filter(Record.id == id, Record.deleted == None).first()
     return record
+
+
