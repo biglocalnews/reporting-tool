@@ -29,35 +29,47 @@ exports[`renders correctly 1`] = `
           <Content
             className="site-layout-background"
           >
-            <Switch>
-              <Route
-                component={[Function]}
-                exact={true}
-                path="/"
-              />
-              <Route
-                component={[Function]}
-                exact={true}
-                path="/dataset/:datasetId/details"
-              />
-              <Route
-                component={[Function]}
-                exact={true}
-                key="add-entry"
-                path="/dataset/:datasetId/entry"
-              />
-              <Route
-                component={[Function]}
-                exact={true}
-                key="edit-entry"
-                path="/dataset/:datasetId/entry/edit/:recordId"
-              />
-              <Redirect
-                exact={true}
-                from="/dataset/:datasetId/entry/reload"
-                to="/dataset/:datasetId/entry"
-              />
-            </Switch>
+            <BreadCrumb />
+            <RenderRoutes
+              routes={
+                Array [
+                  Object {
+                    "component": [Function],
+                    "exact": true,
+                    "path": "/dataset/:datasetId/entry/reload",
+                  },
+                  Object {
+                    "breadcrumb": "Home",
+                    "component": [Function],
+                    "exact": true,
+                    "key": "home",
+                    "path": "/",
+                  },
+                  Object {
+                    "breadcrumb": "Dataset Details",
+                    "component": [Function],
+                    "key": "dataset-details",
+                    "path": "/dataset/:datasetId/details",
+                    "routes": Array [
+                      Object {
+                        "breadcrumb": "Add Entry",
+                        "component": [Function],
+                        "exact": true,
+                        "key": "add-entry",
+                        "path": "/dataset/:datasetId/entry",
+                      },
+                      Object {
+                        "breadcrumb": "Edit Entry",
+                        "component": [Function],
+                        "exact": true,
+                        "key": "edit-entry",
+                        "path": "/dataset/:datasetId/entry/edit/:recordId",
+                      },
+                    ],
+                  },
+                ]
+              }
+            />
           </Content>
           <Footer
             style={
