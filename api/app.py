@@ -1,6 +1,7 @@
 import uvicorn
 import databases
 import sqlalchemy
+import datetime
 
 from fastapi import FastAPI, Request
 # from fastapi_sqlalchemy import DBSessionMiddleware  # middleware helper
@@ -8,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi_users.authentication import JWTAuthentication
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+import dateutil.parser
 
 from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType, ScalarType
 from ariadne.asgi import GraphQL
@@ -70,12 +72,19 @@ app.include_router(
 )
 app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["users"])
 
+
 # General Graphql Field Resolvers
 
 datetime_scalar = ScalarType("DateTime")
+
 @datetime_scalar.serializer
-def serialize_datetime(value):
+def serialize_datetime(value: datetime.datetime) -> str:
     return value.isoformat()
+
+@datetime_scalar.value_parser
+def parse_datetime(value: str) -> datetime.datetime:
+    return dateutil.parser.parse(value)
+
 
 # Adds graphql schema and mounts schema + resolvers to fastapi app
 type_defs = load_schema_from_path("schema.graphql")

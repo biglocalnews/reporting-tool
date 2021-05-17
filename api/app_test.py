@@ -7,7 +7,6 @@ from sqlalchemy.orm import sessionmaker
 
 from app import schema
 from database import create_tables, create_dummy_data, Record, Entry, Dataset
-from datetime import datetime
 from uuid import UUID
 
 
@@ -380,8 +379,7 @@ class TestGraphQL(unittest.TestCase):
             "variables": {
                 "input": {
                     "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
-                    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
-                    "publicationDate": datetime.strptime('2020-12-22T00:00:00', '%Y-%m-%dT%H:%M:%S'),
+                    "publicationDate": '2020-12-22T00:00:00.000Z',
                     "entries":[{"category": "gender", "categoryValue": "transgender", "count": 4}, {"category": "gender", "categoryValue": "female", "count": 4}]
                 }
             },
@@ -422,8 +420,7 @@ class TestGraphQL(unittest.TestCase):
             "variables": {
                 "input": {
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation-
-                    "publicationDate": datetime.strptime('2020-12-25T00:00:00', '%Y-%m-%dT%H:%M:%S'),
+                    "publicationDate": '2020-12-25T00:00:00.000Z',
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
                 } 
