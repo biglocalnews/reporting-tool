@@ -29,6 +29,8 @@ function isArgsProps(obj: any): obj is ArgsProps {
   if (!obj) {
     return false;
   }
+  // because this is an object with a hard-coded key ->
+  // eslint-disable-next-line no-prototype-builtins
   return obj.hasOwnProperty("content");
 }
 
