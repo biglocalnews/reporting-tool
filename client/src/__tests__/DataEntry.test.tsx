@@ -10,6 +10,7 @@ import { autoMockedClient } from "../__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
 import { DataEntry } from "../components/DataEntry/DataEntry";
+import MockDate from "mockdate";
 
 const history = createMemoryHistory();
 
@@ -82,10 +83,14 @@ test("should load and return error if dataset query fails", async () => {
   ).toBeInTheDocument();
 });
 
-test("should render add entry form when a record id does not exist in route params", async () => {
+test("should render add entry form with today's date when a record id does not exist in route params", async () => {
   (useParams as jest.Mock).mockReturnValue({
     datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
   });
+
+  // Sets a fixed date of Sunday, 14 June 2015 22:12:05.275
+  // (2015-06-14)
+  MockDate.set(1434319925275);
 
   const client = autoMockedClient();
 
@@ -106,7 +111,11 @@ test("should render add entry form when a record id does not exist in route para
   );
 
   expect(screen.getByRole("form"));
-  screen.getByLabelText("publicationDate");
+  expect(
+    screen.getByLabelText("publicationDate", {
+      selector: "input",
+    })
+  ).toHaveValue("2015-06-14");
 
   expect(screen.getAllByRole("textbox")).toHaveLength(6);
 
@@ -121,9 +130,12 @@ test("should render add entry form when a record id does not exist in route para
   screen.getByRole("button", {
     name: /Cancel and Return To Dashboard/i,
   });
+
+  // Reset fixed date
+  MockDate.reset();
 });
 
-test("should render edit entry form when a record id exists in route params", async () => {
+test("should render edit entry form with record's date when a record id exists in route params", async () => {
   (useParams as jest.Mock).mockReturnValue({
     datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
     recordId: "05caae8d-bb1a-416e-9dda-bb251fe474ff",
@@ -148,7 +160,12 @@ test("should render edit entry form when a record id exists in route params", as
   );
 
   expect(screen.getByRole("form"));
-  expect(screen.getByLabelText("publicationDate"));
+  expect(
+    screen.getByLabelText("publicationDate", {
+      selector: "input",
+    })
+  ).toHaveValue("2020-12-20");
+
   expect(screen.getAllByRole("textbox")).toHaveLength(6);
 
   screen.getByRole("button", { name: /Update Record/i });
