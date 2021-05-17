@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, isValidElement, ReactNode } from "react";
 import { message } from "antd";
 import { ArgsProps } from "antd/lib/message";
 import { ConfigOnClose } from "antd/lib/message";
@@ -24,6 +24,14 @@ type Message = "info" | "success" | "error" | "warning" | "loading";
 type ConfigContent = ReactNode | string;
 type JointContent = ConfigContent | ArgsProps;
 
+// Type guard for ArgsProps content
+function isArgsProps(obj: any): obj is ArgsProps {
+  if (!obj) {
+    return false;
+  }
+  return obj.hasOwnProperty("content");
+}
+
 const createMessage =
   (type: Message) =>
   (
@@ -31,14 +39,9 @@ const createMessage =
     duration?: number | (() => void),
     onClose?: ConfigOnClose
   ) => {
-    /* cast content to object */
-    const contentPropObject = content as Record<string, unknown>;
-    /* check if value passed is a string and set the content for the message
-     */
-    const newContent =
-      typeof content === "string"
-        ? { style, content }
-        : { style, ...contentPropObject };
+    const newContent = isArgsProps(content)
+      ? { style, ...content }
+      : { style, content };
 
     return message[type](newContent, duration, onClose);
   };
