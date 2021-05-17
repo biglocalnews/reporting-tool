@@ -16,6 +16,9 @@ class TestGraphQL(unittest.TestCase):
     def setUp(self):
         # Create in-memory sqlite database
         self.engine = create_engine('sqlite://')
+        # Turn on foreign keys to emulate Postgres better (without this things
+        # like cascading deletes won't work)
+        self.engine.execute('PRAGMA foreign_keys = ON')
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
