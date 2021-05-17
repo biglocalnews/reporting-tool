@@ -42,4 +42,4 @@ jobs:
 
       - name: Test
         working-directory: ${{env.wd}}
-        run: python -m unittest -v *_.test.py
+        run: python -m unittest -v *_test.py
