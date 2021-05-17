@@ -1,7 +1,11 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
+from sqlalchemy.sql.expression import func
 from database import Dataset, User, Record
 
 query = ObjectType("Query")
+dataset = ObjectType("Dataset")
+
+queries = [query, dataset]
 
 '''GraphQL query to find a user based on user ID.
     :param obj: obj is a value returned by a parent resolver
@@ -31,6 +35,20 @@ def resolve_dataset(obj, info, id):
     dataset = session.query(Dataset).filter(Dataset.id == id, Dataset.deleted == None).first()
 
     return dataset
+
+@dataset.field("lastUpdated")
+@convert_kwargs_to_snake_case
+def resolve_dataset_last_updated(dataset, info):
+    '''GraphQL query to find the date a dataset was last updated.
+        :param dataset: Dataset object to filter by its ID
+        :returns: Datetime scalar
+    '''
+    session = info.context['dbsession']
+
+    return session.query(func.max(Record.updated)).\
+            filter(Record.dataset_id == dataset.id, Record.deleted == None).\
+                scalar()
+
 
 @query.field("record")
 def resolve_record(obj, info, id):
