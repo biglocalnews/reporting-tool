@@ -6,8 +6,8 @@ import {
 } from "@apollo/client";
 
 const mockedLoadingClient = () => {
-  const link = new ApolloLink((operation) => {
-    /* tslint:disable:no-empty */
+  const link = new ApolloLink(() => {
+    /* eslint-disable no-empty, @typescript-eslint/no-empty-function */
     return new Observable(() => {});
   });
 
