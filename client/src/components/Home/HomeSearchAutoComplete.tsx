@@ -17,7 +17,7 @@ const HomeSearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
       aria-label="Search"
       dropdownMatchSelectWidth={252}
       dataSource={dataSource}
-      placeholder={`Search your ${t("programs")}`}
+      placeholder={`Search your ${t("program")}s`}
       filterOption={(inputValue, option) =>
         option?.value.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0
       }
