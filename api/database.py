@@ -170,9 +170,26 @@ class Target(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
+    target_date = Column(DateTime, nullable=False)
+    target = Column(Float, nullable=False)
+    category_id = Column(GUID, ForeignKey('category.id'), index=True)
+    category = relationship('Category', back_populates='targets')
+
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+class Category(Base):
+    __tablename__ = 'category'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    description = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
-    target = Column(Float, nullable=False)
+
+    targets = relationship('Target')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -286,6 +303,26 @@ def create_dummy_data(session):
     tag.programs.append(program)
     tag.datasets.append(ds1)
     tag.datasets.append(ds2)
+
+    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='51349e29-290e-4398-a401-5bf7d04af75e', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.33))
+    target_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.33))
+    target_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.33))
+
+
+    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description='Non-binary gender',
+                                    category='gender', category_value='non-binary')
+    category_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', description='Women gender',
+                                    category='gender', category_value='women')
+    category_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b', description='Men gender',
+                                    category='gender', category_value='men')
+    category_non_binary.targets.append(target_non_binary)
+    category_women.targets.append(target_women)
+    category_men.targets.append(target_men)
+
+    session.add(category_non_binary)
+    session.add(category_women)
+    session.add(category_men)
+    
 
     session.add(org)
     session.commit()
