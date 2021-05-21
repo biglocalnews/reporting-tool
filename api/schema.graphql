@@ -62,10 +62,17 @@ input TagInput {
 
 type Target {
   id: ID!
+  # Assumption: all datasets in a program have the same targets
   program: Program!
+  category: Category!
+  target: Float!
+}
+
+type Category {
+  id: ID!
   category: String!
   categoryValue: String!
-  target: Float!
+  description: String
 }
 
 type Dataset {
