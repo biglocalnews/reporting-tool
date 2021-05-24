@@ -244,8 +244,8 @@ class Entry(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
 
-    category = Column(String(255), nullable=False)
-    category_value = Column(String(255), nullable=False)
+    category_id = Column(GUID, ForeignKey('category.id'), index=True)
+    category = relationship('Category')
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
@@ -290,13 +290,6 @@ def create_dummy_data(session):
     ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
-
-    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
-    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
-    ds1.records.append(record)
-
-    entry = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category='gender', category_value="female", count=8, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    record.entries.append(entry)
 
     tag = Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news')
