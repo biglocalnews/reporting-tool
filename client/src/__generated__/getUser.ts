@@ -1,3 +1,4 @@
+/* tslint:disable */
 /* eslint-disable */
 // @generated
 // This file was automatically generated and should not be edited.
@@ -47,7 +48,7 @@ export interface GetUser_user {
 }
 
 export interface GetUser {
-  readonly user: GetUser_user | null;
+  readonly user: GetUser_user;
 }
 
 export interface GetUserVariables {

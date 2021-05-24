@@ -1,3 +1,4 @@
+/* tslint:disable */
 /* eslint-disable */
 // @generated
 // This file was automatically generated and should not be edited.
@@ -13,11 +14,17 @@ export interface UpdateRecord_updateRecord_dataset {
   readonly name: string;
 }
 
-export interface UpdateRecord_updateRecord_entries {
-  readonly __typename: "Entry";
+export interface UpdateRecord_updateRecord_entries_category {
+  readonly __typename: "Category";
   readonly id: string;
   readonly category: string;
   readonly categoryValue: string;
+}
+
+export interface UpdateRecord_updateRecord_entries {
+  readonly __typename: "Entry";
+  readonly id: string;
+  readonly category: UpdateRecord_updateRecord_entries_category;
   readonly count: number;
 }
 
