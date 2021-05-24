@@ -1,7 +1,10 @@
 import { Button, Popconfirm, Space, Table } from "antd";
 import React from "react";
 import "./DatasetDetailsRecordsTable.css";
-import { GetDataset_dataset_records } from "../../__generated__/GetDataset";
+import {
+  GetDataset,
+  GetDataset_dataset_records,
+} from "../../__generated__/GetDataset";
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
 import { useTranslation } from "react-i18next";
@@ -9,10 +12,10 @@ import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { messageError, messageInfo, messageSuccess } from "../Message";
 import dayjs from "dayjs";
-import { ColumnsType } from "antd/lib/table/interface";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
+  datasetData: GetDataset | undefined;
   records: readonly GetDataset_dataset_records[] | undefined;
   isLoading: boolean;
 }
@@ -26,6 +29,7 @@ interface TableData {
 
 const DatasetDetailsRecordsTable = ({
   datasetId,
+  datasetData,
   records,
   isLoading,
 }: DatasetRecordsTableProps): JSX.Element => {
@@ -40,7 +44,7 @@ const DatasetDetailsRecordsTable = ({
    */
   const tableData = records?.map((record) => {
     return record.entries.reduce(
-      (acc, cur) => ({ ...acc, [cur.categoryValue]: cur.count }),
+      (acc, cur) => ({ ...acc, [cur.category.categoryValue]: cur.count }),
       {
         id: record.id,
         publicationDate: record.publicationDate,
@@ -74,87 +78,10 @@ const DatasetDetailsRecordsTable = ({
     messageInfo("Delete cancelled");
   };
 
-  // TODO: render columns dynamically by dataset category types
-  const columns: ColumnsType<TableData> = [
-    {
-      title: "Date",
-      dataIndex: "publicationDate",
-      key: "id",
-      defaultSortOrder: "descend",
-      sorter: (dateA: any, dateB: any) =>
-        dayjs(dateA.publicationDate).unix() -
-        dayjs(dateB.publicationDate).unix(),
-      fixed: true,
-      width: 100,
-      render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
-    },
-    {
-      title: "Men",
-      dataIndex: "men",
-      key: "id",
-    },
-    {
-      title: "Women",
-      dataIndex: "women",
-      key: "id",
-    },
-    {
-      title: "Transgender",
-      dataIndex: "transgender",
-      key: "id",
-    },
-    {
-      title: "Gender Non-Conforming",
-      dataIndex: "gender non-conforming",
-      key: "id",
-    },
-    {
-      title: "Cisgender",
-      dataIndex: "cisgender",
-      key: "id",
-    },
-    {
-      title: "Non-Binary",
-      dataIndex: "non-binary",
-      key: "id",
-    },
-    {
-      dataIndex: "id",
-      key: "id",
-      render: function edit(recordId: string) {
-        return (
-          <Space>
-            <Button
-              type="link"
-              onClick={() =>
-                history.push(`/dataset/${datasetId}/entry/edit/${recordId}`)
-              }
-            >
-              {t("editData")}
-            </Button>
-            <Popconfirm
-              title="Permanently delete this record?"
-              onConfirm={() => confirmDelete(recordId)}
-              onCancel={cancelDelete}
-              okText="Yes, delete"
-              okType="danger"
-              cancelText="No, cancel"
-            >
-              <Button id="delete-record" danger size="small" type="link">
-                Delete
-              </Button>
-            </Popconfirm>
-          </Space>
-        );
-      },
-    },
-  ];
-
   return (
     <Table
       className="dataset-records-table"
       dataSource={tableData}
-      columns={columns}
       bordered
       size="small"
       scroll={{ x: 1000 }}
@@ -163,7 +90,59 @@ const DatasetDetailsRecordsTable = ({
       pagination={{ hideOnSinglePage: true }}
       loading={isLoading}
       rowKey={(record) => record.id}
-    />
+    >
+      <Table.Column<TableData>
+        title="Date"
+        dataIndex="publicationDate"
+        key="id"
+        defaultSortOrder="descend"
+        sorter={(dateA: any, dateB: any) =>
+          dayjs(dateA.publicationDate).unix() -
+          dayjs(dateB.publicationDate).unix()
+        }
+        fixed={true}
+        width={120}
+        render={(date: string) => dayjs(date).format("YYYY-MM-DD")}
+      />
+      {datasetData?.dataset.program.targets.map((target) => (
+        <Table.Column<TableData>
+          title={target.category.categoryValue}
+          dataIndex={target.category.categoryValue}
+          key="id"
+        />
+      ))}
+      <Table.Column<TableData>
+        dataIndex="id"
+        key="id"
+        width={150}
+        render={(recordId: string) => {
+          return (
+            <Space>
+              <Button
+                type="link"
+                onClick={() =>
+                  history.push(`/dataset/${datasetId}/entry/edit/${recordId}`)
+                }
+              >
+                {t("editData")}
+              </Button>
+              <Popconfirm
+                title="Permanently delete this record?"
+                onConfirm={() => confirmDelete(recordId)}
+                onCancel={cancelDelete}
+                okText="Yes, delete"
+                okType="danger"
+                cancelText="No, cancel"
+              >
+                <Button id="delete-record" danger size="small" type="link">
+                  Delete
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }}
+      />
+    </Table>
   );
 };
 
