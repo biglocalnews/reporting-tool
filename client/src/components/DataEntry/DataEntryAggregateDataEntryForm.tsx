@@ -17,10 +17,12 @@ import { CREATE_RECORD } from "../../__mutations__/CreateRecord";
 import { GetRecord } from "../../__generated__/GetRecord";
 import { UPDATE_RECORD } from "../../__mutations__/UpdateRecord.gql";
 import { formMessageHandler } from "./DataEntryMessageHandler";
+import { GetDataset } from "../../__generated__/GetDataset";
 
 const { Text } = Typography;
 
 interface FormProps {
+  datasetData: GetDataset | undefined;
   datasetId: string;
   recordId?: string;
   existingRecord?: GetRecord | undefined;
@@ -29,50 +31,36 @@ interface FormProps {
 
 interface Entry {
   id?: string;
+  categoryId: string;
   category: string;
   categoryValue: string;
   count: number | any;
 }
 
-interface Category {
-  categoryType: string;
-  categoryAttributes: string[];
-}
+const renderForm = (
+  metadata: GetDataset | undefined,
+  existingRecord: GetRecord | undefined
+) => {
+  let form: Entry[];
 
-const categories: Category = {
-  categoryType: "gender",
-  categoryAttributes: [
-    "men",
-    "women",
-    "non-binary",
-    "transgender",
-    "cisgender",
-    "gender non-conforming",
-  ],
-};
+  if (existingRecord) {
+    form = existingRecord?.record?.entries.map((record) => ({
+      id: record.id,
+      categoryId: record.category.id,
+      category: record.category.category,
+      categoryValue: record.category.categoryValue,
+      count: record.count,
+    }));
+  } else {
+    form = metadata?.dataset.program.targets.map((target) => ({
+      categoryId: target.category.id,
+      category: target.category.category,
+      categoryValue: target.category.categoryValue,
+      count: 0,
+    })) as Entry[];
+  }
 
-// Temporary function to render an initial form (pending category addition to schema)
-const createFormFields = (existingRecord: GetRecord | undefined) => {
-  const initialForm = categories.categoryAttributes.flatMap((attribute) => ({
-    category: categories.categoryType,
-    categoryValue: attribute,
-    count: 0,
-  }));
-
-  const existingEntries = existingRecord?.record?.entries.map((obj) => ({
-    ...obj,
-  })) as Entry[];
-
-  return existingEntries
-    ? initialForm.map((initial) => ({
-        ...initial,
-        ...existingEntries.find(
-          (entry) =>
-            entry.categoryValue.toLowerCase() ===
-            initial.categoryValue.toLowerCase()
-        ),
-      }))
-    : initialForm;
+  return form;
 };
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
@@ -81,7 +69,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   const isEditMode = props.recordId ? true : false;
 
-  const entries = createFormFields(props.existingRecord);
+  const entries = renderForm(props.datasetData, props.existingRecord);
   const [values, setValues] = useState<Entry[]>(entries);
 
   const [formPublicationDate, setFormPublicationDate] = useState<string>(
@@ -112,9 +100,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         datasetId: props.datasetId,
         publicationDate: formPublicationDate,
         entries: values?.map((d) => ({
+          categoryId: d.categoryId,
           count: d.count,
-          category: d.category,
-          categoryValue: d.categoryValue,
         })),
       },
     };
@@ -151,9 +138,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         publicationDate: formPublicationDate,
         entries: values?.map((d) => ({
           id: d.id,
+          categoryId: d.categoryId,
           count: d.count,
-          category: d.category,
-          categoryValue: d.categoryValue,
         })),
       },
     };
@@ -294,8 +280,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                     placeholder="0"
                     value={item.count}
                     onChange={(e) => handleChange(e, index)}
-                  />{" "}
-                  {item.categoryValue}{" "}
+                  />
+                  {` ${item.categoryValue} `}
                   <span
                     className="data-entry-form_required-field"
                     aria-labelledby={item.categoryValue}
