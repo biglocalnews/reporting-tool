@@ -170,9 +170,26 @@ class Target(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
+    target_date = Column(DateTime, nullable=False)
+    target = Column(Float, nullable=False)
+    category_id = Column(GUID, ForeignKey('category.id'), index=True)
+    category = relationship('Category', back_populates='targets')
+
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+class Category(Base):
+    __tablename__ = 'category'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    description = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
-    target = Column(Float, nullable=False)
+
+    targets = relationship('Target')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -286,6 +303,40 @@ def create_dummy_data(session):
     tag.programs.append(program)
     tag.datasets.append(ds1)
     tag.datasets.append(ds2)
+
+    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description='Non-binary gender',
+                                    category='gender', category_value='non-binary')
+    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', description='Cisgender women gender',
+                                    category='gender', category_value='cisgender women')
+    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b', description='Cisgender men gender',
+                                    category='gender', category_value='cisgender men')
+    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b', description='Transgender women gender',
+                                    category='gender', category_value='trans women')   
+    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', description='Transgender men gender',
+                                    category='gender', category_value='trans men')   
+    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', description='Gender non-conforming gender',
+                                    category='gender', category_value='gender non-conforming')
+
+    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='51349e29-290e-4398-a401-5bf7d04af75e', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='662557e5-aca8-4cec-ad72-119ad9cda81b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='1525cce8-7db3-4e73-b5b0-d2bd14777534', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+          
+    category_non_binary.targets.append(target_non_binary)
+    category_cis_women.targets.append(target_cis_women)
+    category_cis_men.targets.append(target_cis_men)
+    category_trans_women.targets.append(target_trans_women)
+    category_trans_men.targets.append(target_trans_men)
+    category_gender_non_conforming.targets.append(target_gender_non_conforming)
+
+    session.add(category_non_binary)
+    session.add(category_cis_women)
+    session.add(category_cis_men)
+    session.add(category_trans_women)
+    session.add(category_trans_men)
+    session.add(category_gender_non_conforming)
 
     session.add(org)
     session.commit()
