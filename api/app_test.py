@@ -469,6 +469,13 @@ class TestGraphQL(unittest.TestCase):
                             id
                             name
                         }
+                        entries {
+                            count
+                            category {
+                                id
+                                categoryValue
+                            }
+                        }
                    }
                 }
             """,
@@ -477,11 +484,20 @@ class TestGraphQL(unittest.TestCase):
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": '2020-12-25T00:00:00.000Z',
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
-                    #"entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
+                    "entries": [{
+                        "category": 
+                            {"id": "51349e29-290e-4398-a401-5bf7d04af75e", 
+                             "category": "race", 
+                             "categoryValue": "asian",
+                             "description": "i am a new description"
+                            },
+                        "count": 19
+                        }
+                    ]  
                 } 
             },
         })
-
+        
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
