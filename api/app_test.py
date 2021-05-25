@@ -149,10 +149,12 @@ class TestGraphQL(unittest.TestCase):
                             id
                             publicationDate
                             entries {
-                                id
-                                categoryValue
-                            }
-                        }
+                                category {
+                                    id
+                                    categoryValue
+                                }
+                            } 
+                        }       
                         inputter {
                             id
                             firstName
@@ -186,10 +188,20 @@ class TestGraphQL(unittest.TestCase):
                     "records": [{
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
                         "publicationDate": "2020-12-21T00:00:00",
-                        "entries": [{
-                            "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                            "categoryValue": "female"
-                        }]
+                        "entries": [
+                            {"category": {
+                            "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                            "categoryValue": "non-binary"
+                            }}, 
+                            {"category": {
+                                "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                                "categoryValue": "women"
+                            }},
+                            {"category": {
+                                "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                "categoryValue": "men"
+                            }}
+                        ]
                     }],
                     "inputter": {
                         "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", 
@@ -335,8 +347,10 @@ class TestGraphQL(unittest.TestCase):
                             id
                         }
                         entries {
-                            id
-                            categoryValue
+                            category {
+                                id
+                                categoryValue
+                            }
                         }
                    }
                 }
@@ -353,7 +367,20 @@ class TestGraphQL(unittest.TestCase):
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-21T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
-                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "categoryValue": "female"}]
+                    "entries": [
+                        {"category": {
+                            "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                            "categoryValue": "non-binary"
+                        }}, 
+                        {"category": {
+                            "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                            "categoryValue": "women"
+                        }},
+                        {"category": {
+                            "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                            "categoryValue": "men"
+                        }}
+                    ]
                 },
             },
         })
@@ -369,10 +396,6 @@ class TestGraphQL(unittest.TestCase):
                             id
                             name
                         }
-                        entries {
-                            categoryValue
-                            count
-                        }
                    }
                 }
             """,
@@ -380,7 +403,6 @@ class TestGraphQL(unittest.TestCase):
                 "input": {
                     "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "publicationDate": '2020-12-22T00:00:00.000Z',
-                    "entries":[{"category": "gender", "categoryValue": "transgender", "count": 4}, {"category": "gender", "categoryValue": "female", "count": 4}]
                 }
             },
         })
@@ -393,7 +415,6 @@ class TestGraphQL(unittest.TestCase):
                     "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                    "entries": [{"categoryValue": "transgender", "count": 4}, {"categoryValue": "female", "count": 4}]
                 },
             },
         })
@@ -410,10 +431,6 @@ class TestGraphQL(unittest.TestCase):
                             id
                             name
                         }
-                        entries {
-                            categoryValue
-                            count
-                        }
                    }
                 }
             """,
@@ -422,7 +439,7 @@ class TestGraphQL(unittest.TestCase):
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": '2020-12-25T00:00:00.000Z',
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
-                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
+                    #"entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
                 } 
             },
         })
@@ -435,7 +452,7 @@ class TestGraphQL(unittest.TestCase):
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
-                    "entries": [{"categoryValue": "trans", "count": 10}]
+                    # "entries": [{"categoryValue": "trans", "count": 10}]
                 },
             },
         })   
