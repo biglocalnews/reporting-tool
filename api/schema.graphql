@@ -139,8 +139,14 @@ input CreateRecordInput {
 
 input EntryInput {
   id: ID
-  categoryId: ID!
+  category: CategoryInput!
   count: Int!
+}
+
+input CategoryInput {
+  category: String!
+  categoryValue: String!
+  description: String
 }
 
 type Query {
