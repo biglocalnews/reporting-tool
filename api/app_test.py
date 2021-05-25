@@ -195,11 +195,23 @@ class TestGraphQL(unittest.TestCase):
                             }}, 
                             {"category": {
                                 "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                                "categoryValue": "women"
+                                "categoryValue": "cisgender women"
                             }},
                             {"category": {
                                 "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                "categoryValue": "men"
+                                "categoryValue": "cisgender men"
+                            }},
+                            {'category': {
+                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                                "categoryValue": "trans women"
+                            }},
+                            {'category': {
+                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                                "categoryValue": "trans men"
+                            }},
+                            {'category': {
+                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                                "categoryValue": "gender non-conforming"
                             }}
                         ]
                     }],
@@ -213,7 +225,7 @@ class TestGraphQL(unittest.TestCase):
                     }]
                 },
             },
-        })
+        })       
     def test_create_dataset(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateDataset",
@@ -369,16 +381,28 @@ class TestGraphQL(unittest.TestCase):
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
                     "entries": [
                         {"category": {
-                            "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-                            "categoryValue": "non-binary"
+                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "categoryValue": "non-binary"
                         }}, 
                         {"category": {
                             "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                            "categoryValue": "women"
+                            "categoryValue": "cisgender women"
                         }},
                         {"category": {
                             "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                            "categoryValue": "men"
+                            "categoryValue": "cisgender men"
+                        }},
+                        {'category': {
+                            "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                            "categoryValue": "trans women"
+                        }},
+                        {'category': {
+                            "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                            "categoryValue": "trans men"
+                        }},
+                        {'category': {
+                            "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                            "categoryValue": "gender non-conforming"
                         }}
                     ]
                 },
