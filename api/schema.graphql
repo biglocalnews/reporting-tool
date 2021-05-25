@@ -146,7 +146,7 @@ input EntryInput {
 input CategoryInput {
   category: String!
   categoryValue: String!
-  description: String
+  description: String!
 }
 
 type Query {
