@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -98,10 +98,14 @@ def resolve_create_record(obj, info, input):
     session = info.context['dbsession']
 
     all_entries = input.pop('entries', [])
+    n_entries = []
 
-    entries = [Entry(**entry) for entry in all_entries]
+    for entry in all_entries:  
+        category = entry.pop("category")
+        n_category = Category(**category)
+        n_entries.append(Entry(category=n_category, **entry))
 
-    record = Record(entries=entries, **input)
+    record = Record(entries=n_entries, **input)
     session.add(record)
     session.commit()
 
