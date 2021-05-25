@@ -331,6 +331,24 @@ def create_dummy_data(session):
     session.add(category_trans_men)
     session.add(category_gender_non_conforming)
 
+    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
+    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
+    ds1.records.append(record)
+
+    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category_id='51349e29-290e-4398-a401-5bf7d04af75e', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', category_id='662557e5-aca8-4cec-ad72-119ad9cda81b', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', category_id='1525cce8-7db3-4e73-b5b0-d2bd14777534', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+
+    record.entries.append(entry1)
+    record.entries.append(entry2)
+    record.entries.append(entry3)
+    record.entries.append(entry4)
+    record.entries.append(entry5)
+    record.entries.append(entry6)
+
     session.add(org)
     session.commit()
 
