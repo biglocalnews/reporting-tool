@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry, Dataset
+from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category
 from uuid import UUID
 
 
@@ -485,13 +485,22 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": '2020-12-25T00:00:00.000Z',
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{
+                        "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
                         "category": 
                             {"id": "51349e29-290e-4398-a401-5bf7d04af75e", 
                              "category": "race", 
-                             "categoryValue": "asian",
+                             "categoryValue": "asien",
                              "description": "i am a new description"
                             },
                         "count": 19
+                        },
+                        {
+                        "category": {
+                            "category": "taste", 
+                            "categoryValue": "sour",
+                            "description": "i am a new description"
+                        },
+                        "count": 22
                         }
                     ]  
                 } 
@@ -500,13 +509,24 @@ class TestGraphQL(unittest.TestCase):
         
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
+
+        new_category = self.session.query(Category).filter(Category.category_value == "sour").first()
+
         self.assertEqual(result, {
             "data": {
                 "updateRecord": {
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
-                    # "entries": [{"categoryValue": "trans", "count": 10}]
+                    "entries": [
+                        {"count":19, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "asien"}}, 
+                        {"count": 1, "category": {'id': "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": 'cisgender women'}},
+                        {"count": 1, "category": {'id': "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": 'cisgender men'}},
+                        {"count": 1, "category": {'id': "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": 'trans women'}},
+                        {"count": 1, "category": {'id': "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": 'trans men'}},
+                        {"count": 1, "category": {'id': "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": 'gender non-conforming'}},
+                        {"count": 22, "category": {"id": f'{new_category.id}', "categoryValue": "sour"}}
+                    ]
                 },
             },
         })   

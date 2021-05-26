@@ -127,10 +127,15 @@ def resolve_update_record(obj, info, input):
         existing_entry = session.query(Entry).get(entry.get('id'))
 
         if existing_entry:
-            n_entry = Entry(**entry)
-            session.merge(n_entry)
+            category = entry.pop('category')
+            n_category = Category(**category)
+            session.merge(n_category)
+            session.merge(Entry(category=n_category, **entry))
+
         else:
-            incoming_entry = Entry(record=record, **entry)
+            category = entry.pop('category')
+            n_category = Category(**category)
+            Entry(record=record, category=n_category, **entry)
 
     for param in input:
         setattr(record, param, input[param])
