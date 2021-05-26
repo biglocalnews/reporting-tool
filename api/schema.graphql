@@ -144,6 +144,7 @@ input EntryInput {
 }
 
 input CategoryInput {
+  id: ID
   category: String!
   categoryValue: String!
   description: String!
