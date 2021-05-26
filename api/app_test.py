@@ -489,7 +489,7 @@ class TestGraphQL(unittest.TestCase):
                         "category": 
                             {"id": "51349e29-290e-4398-a401-5bf7d04af75e", 
                              "category": "race", 
-                             "categoryValue": "asien",
+                             "categoryValue": "white",
                              "description": "i am a new description"
                             },
                         "count": 19
@@ -519,7 +519,7 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [
-                        {"count":19, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "asien"}}, 
+                        {"count":19, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "white"}}, 
                         {"count": 1, "category": {'id': "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": 'cisgender women'}},
                         {"count": 1, "category": {'id': "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": 'cisgender men'}},
                         {"count": 1, "category": {'id': "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": 'trans women'}},
