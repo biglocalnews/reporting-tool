@@ -72,7 +72,7 @@ type Category {
   id: ID!
   category: String!
   categoryValue: String!
-  description: String
+  description: String!
 }
 
 type Dataset {
@@ -137,6 +137,12 @@ input CreateRecordInput {
   entries: [EntryInput!]
 }
 
+input CreateCategoryInput {
+  category: String!
+  categoryValue: String!
+  description: String!
+}
+
 input EntryInput {
   id: ID
   categoryId: ID!
@@ -182,4 +188,7 @@ type Mutation {
 
   # Delete a Record
   deleteRecord(id: ID!): ID!
+
+  # Create a Category
+  createCategory(input: CreateCategoryInput): Category!
 }

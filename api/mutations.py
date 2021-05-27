@@ -150,3 +150,18 @@ def resolve_delete_record(obj, info, id):
     session.commit()
 
     return id
+
+@mutation.field("createCategory")
+@convert_kwargs_to_snake_case
+def resolve_create_category(obj, info, input):
+    '''GraphQL mutation to create a Category.
+        :param input: params for new Category
+        :returns: Category dictionary
+    '''
+
+    session = info.context['dbsession']
+    category = Category(**input)
+    session.add(category)
+    session.commit()
+    
+    return category
