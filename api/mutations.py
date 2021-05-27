@@ -165,3 +165,31 @@ def resolve_create_category(obj, info, input):
     session.commit()
     
     return category
+
+@mutation.field("updateCategory")
+@convert_kwargs_to_snake_case
+def resolve_update_category(obj, info, input):
+    '''GraphQL mutation to update a Category
+        :param input: Params to be changed
+        :returns: Updated Category
+    '''
+
+    session = info.context['dbsession']
+    
+    # id = input.pop("id")
+    # session.query(Category).filter(Category.id == id).update(input)
+    # category = session.query(Category).get(id)
+    # session.commit()
+    
+    category = session.query(Category).get(input['id'])
+
+    for param in input:
+        setattr(category, param, input[param])
+
+    session.add(category)
+    session.commit()
+    
+    return category
+
+
+# TODO standarize format when Categories are inserted into DB

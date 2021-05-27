@@ -143,6 +143,13 @@ input CreateCategoryInput {
   description: String!
 }
 
+input UpdateCategoryInput {
+  id: ID!
+  category: String
+  categoryValue: String
+  description: String
+}
+
 input EntryInput {
   id: ID
   categoryId: ID!
@@ -191,4 +198,7 @@ type Mutation {
 
   # Create a Category
   createCategory(input: CreateCategoryInput): Category!
+
+  # Update a Category
+  updateCategory(input: UpdateCategoryInput): Category!
 }
