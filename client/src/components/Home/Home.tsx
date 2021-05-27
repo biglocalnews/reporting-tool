@@ -8,6 +8,7 @@ import { GET_USER } from "../../__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { TFunction, useTranslation } from "react-i18next";
 
 dayjs.extend(localizedFormat);
 
@@ -72,7 +73,10 @@ const columns = [
   },
 ];
 
-const getTableData = (queryData: GetUser | undefined) => {
+const getTableData = (
+  queryData: GetUser | undefined,
+  t: TFunction<"translation">
+) => {
   const rowData: any = [];
 
   queryData?.user?.teams.map((team) => {
@@ -82,7 +86,9 @@ const getTableData = (queryData: GetUser | undefined) => {
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
-          lastUpdated: dayjs(dataset.lastUpdated).format("ll"),
+          lastUpdated: dataset.lastUpdated
+            ? dayjs(dataset.lastUpdated).format("ll")
+            : t("noDataAvailable"),
           tags: dataset.tags.map((t) => {
             return t.name;
           }),
@@ -95,6 +101,8 @@ const getTableData = (queryData: GetUser | undefined) => {
 };
 
 const Home = (): JSX.Element => {
+  const { t } = useTranslation();
+
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
     {
@@ -102,7 +110,7 @@ const Home = (): JSX.Element => {
     }
   );
 
-  const rowData = getTableData(data);
+  const rowData = getTableData(data, t);
 
   return (
     <div>
