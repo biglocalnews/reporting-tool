@@ -421,9 +421,11 @@ class TestGraphQL(unittest.TestCase):
                             name
                         }
                         entries {
+                            count
                             category {
+                                id
                                 categoryValue
-                            }       
+                            }
                         }
                    }
                 }
@@ -433,13 +435,8 @@ class TestGraphQL(unittest.TestCase):
                     "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "publicationDate": '2020-12-22T00:00:00.000Z',
                     "entries": [{
-                        "category": 
-                            {
-                            "category": "race",
-                            "categoryValue": "asian",
-                            "description": "i am a description"
-                            },   
-                            "count":  7  
+                        "count":  7,
+                        "categoryId": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
                     }],
                 }
             },
@@ -452,7 +449,7 @@ class TestGraphQL(unittest.TestCase):
                     "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                    "entries": [{"category": {"categoryValue": "asian"}}]
+                    'entries': [{'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "cisgender women"}, 'count': 7}],
                 },
             },
         })
@@ -486,21 +483,8 @@ class TestGraphQL(unittest.TestCase):
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{
                         "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                        "category": 
-                            {"id": "51349e29-290e-4398-a401-5bf7d04af75e", 
-                             "category": "race", 
-                             "categoryValue": "white",
-                             "description": "i am a new description"
-                            },
-                        "count": 19
-                        },
-                        {
-                        "category": {
-                            "category": "taste", 
-                            "categoryValue": "sour",
-                            "description": "i am a new description"
-                        },
-                        "count": 22
+                        "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e", 
+                        "count": 0
                         }
                     ]  
                 } 
@@ -519,18 +503,17 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [
-                        {"count":19, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "white"}}, 
-                        {"count": 1, "category": {'id': "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": 'cisgender women'}},
-                        {"count": 1, "category": {'id': "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": 'cisgender men'}},
-                        {"count": 1, "category": {'id': "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": 'trans women'}},
-                        {"count": 1, "category": {'id': "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": 'trans men'}},
-                        {"count": 1, "category": {'id': "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": 'gender non-conforming'}},
-                        {"count": 22, "category": {"id": f'{new_category.id}', "categoryValue": "sour"}}
+                        {"count": 0, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "non-binary"}},
+                        {"count": 1, "category": {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "cisgender women"}},
+                        {"count": 1, "category": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": "cisgender men"}},
+                        {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "trans women"}},
+                        {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "trans men"}},
+                        {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "gender non-conforming"}},
                     ]
                 },
             },
         })   
-
+        
     def test_delete_record(self):
         # Confirm Record exists, then that it does not.
         record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"

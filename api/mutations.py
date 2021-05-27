@@ -101,9 +101,8 @@ def resolve_create_record(obj, info, input):
     n_entries = []
 
     for entry in all_entries:  
-        category = entry.pop("category")
-        n_category = Category(**category)
-        n_entries.append(Entry(category=n_category, **entry))
+        category = session.query(Category).get(entry['category_id'])
+        n_entries.append(Entry(category=category, **entry))
 
     record = Record(entries=n_entries, **input)
     session.add(record)
@@ -127,15 +126,10 @@ def resolve_update_record(obj, info, input):
         existing_entry = session.query(Entry).get(entry.get('id'))
 
         if existing_entry:
-            category = entry.pop('category')
-            n_category = Category(**category)
-            session.merge(n_category)
-            session.merge(Entry(category=n_category, **entry))
+            session.merge(Entry(**entry))
 
         else:
-            category = entry.pop('category')
-            n_category = Category(**category)
-            Entry(record=record, category=n_category, **entry)
+            Entry(record=record, **entry)
 
     for param in input:
         setattr(record, param, input[param])

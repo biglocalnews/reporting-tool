@@ -139,7 +139,7 @@ input CreateRecordInput {
 
 input EntryInput {
   id: ID
-  category: CategoryInput!
+  categoryId: ID!
   count: Int!
 }
 
