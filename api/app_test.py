@@ -149,6 +149,8 @@ class TestGraphQL(unittest.TestCase):
                             id
                             publicationDate
                             entries {
+                                id
+                                count
                                 category {
                                     id
                                     categoryValue
@@ -189,30 +191,53 @@ class TestGraphQL(unittest.TestCase):
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
                         "publicationDate": "2020-12-21T00:00:00",
                         "entries": [
-                            {"category": {
-                            "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-                            "categoryValue": "non-binary"
-                            }}, 
-                            {"category": {
-                                "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                                "categoryValue": "cisgender women"
-                            }},
-                            {"category": {
-                                "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                "categoryValue": "cisgender men"
-                            }},
-                            {'category': {
-                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
-                                "categoryValue": "trans women"
-                            }},
-                            {'category': {
-                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
-                                "categoryValue": "trans men"
-                            }},
-                            {'category': {
-                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
-                                "categoryValue": "gender non-conforming"
-                            }}
+                            {   
+                                'id': '64677dc1-a1cd-4cd3-965d-6565832d307a', 
+                                'count': 1, 
+                                "category": {
+                                    "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                    "categoryValue": "non-binary"
+                                }
+                            }, 
+                            {
+                                'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409', 
+                                'count': 1,
+                                "category": {
+                                    "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                                    "categoryValue": "cisgender women"
+                                }
+                            },
+                            {
+                                'id': '423dc42f-4628-40e4-b9cd-4e6e9e384d61', 'count': 1, 
+                                "category": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "categoryValue": "cisgender men"
+                                }
+                            },
+                            {
+                                'id': '407f24d0-c5eb-4297-9495-90e325a00a1d',
+                                'count': 1, 
+                                'category': {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                                    "categoryValue": "trans women"
+                                }
+                            },
+                            {
+                                'id': '4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', 
+                                'count': 1, 
+                                'category': {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                                    "categoryValue": "trans men"
+                                }
+                            },
+                            {
+                                'id': '1c49c64f-51e6-48fe-af10-69aaeeddc55f', 
+                                'count': 1, 
+                                'category': {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                                    "categoryValue": "gender non-conforming"
+                                }
+                            }
                         ]
                     }],
                     "inputter": {
