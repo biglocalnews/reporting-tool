@@ -196,7 +196,7 @@ class TestGraphQL(unittest.TestCase):
                                 'count': 1, 
                                 "category": {
                                     "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-                                    "categoryValue": "non-binary"
+                                    "categoryValue": "Non-binary"
                                 }
                             }, 
                             {
@@ -204,14 +204,14 @@ class TestGraphQL(unittest.TestCase):
                                 'count': 1,
                                 "category": {
                                     "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                                    "categoryValue": "cisgender women"
+                                    "categoryValue": "Cisgender women"
                                 }
                             },
                             {
                                 'id': '423dc42f-4628-40e4-b9cd-4e6e9e384d61', 'count': 1, 
                                 "category": {
                                     "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                    "categoryValue": "cisgender men"
+                                    "categoryValue": "Cisgender men"
                                 }
                             },
                             {
@@ -219,7 +219,7 @@ class TestGraphQL(unittest.TestCase):
                                 'count': 1, 
                                 'category': {
                                     "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
-                                    "categoryValue": "trans women"
+                                    "categoryValue": "Trans women"
                                 }
                             },
                             {
@@ -227,7 +227,7 @@ class TestGraphQL(unittest.TestCase):
                                 'count': 1, 
                                 'category': {
                                     "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
-                                    "categoryValue": "trans men"
+                                    "categoryValue": "Trans men"
                                 }
                             },
                             {
@@ -235,7 +235,7 @@ class TestGraphQL(unittest.TestCase):
                                 'count': 1, 
                                 'category': {
                                     "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
-                                    "categoryValue": "gender non-conforming"
+                                    "categoryValue": "Gender non-conforming"
                                 }
                             }
                         ]
@@ -407,27 +407,27 @@ class TestGraphQL(unittest.TestCase):
                     "entries": [
                         {"category": {
                         "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-                        "categoryValue": "non-binary"
+                        "categoryValue": "Non-binary"
                         }}, 
                         {"category": {
                             "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                            "categoryValue": "cisgender women"
+                            "categoryValue": "Cisgender women"
                         }},
                         {"category": {
                             "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                            "categoryValue": "cisgender men"
+                            "categoryValue": "Cisgender men"
                         }},
                         {'category': {
                             "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
-                            "categoryValue": "trans women"
+                            "categoryValue": "Trans women"
                         }},
                         {'category': {
                             "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
-                            "categoryValue": "trans men"
+                            "categoryValue": "Trans men"
                         }},
                         {'category': {
                             "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
-                            "categoryValue": "gender non-conforming"
+                            "categoryValue": "Gender non-conforming"
                         }}
                     ]
                 },
@@ -474,7 +474,7 @@ class TestGraphQL(unittest.TestCase):
                     "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                    'entries': [{'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "cisgender women"}, 'count': 7}],
+                    'entries': [{'count': 7, 'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}}],
                 },
             },
         })
@@ -528,12 +528,12 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [
-                        {"count": 0, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "non-binary"}},
-                        {"count": 1, "category": {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "cisgender women"}},
-                        {"count": 1, "category": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": "cisgender men"}},
-                        {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "trans women"}},
-                        {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "trans men"}},
-                        {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "gender non-conforming"}},
+                        {"count": 0, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "Non-binary"}},
+                        {"count": 1, "category": {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}},
+                        {"count": 1, "category": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": "Cisgender men"}},
+                        {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "Trans women"}},
+                        {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "Trans men"}},
+                        {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "Gender non-conforming"}},
                     ]
                 },
             },
