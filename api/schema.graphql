@@ -201,4 +201,7 @@ type Mutation {
 
   # Update a Category
   updateCategory(input: UpdateCategoryInput): Category!
+
+  # Delete a Category
+  deleteCategory(id: ID!): ID!
 }

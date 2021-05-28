@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -193,3 +193,19 @@ def resolve_update_category(obj, info, input):
 
 
 # TODO standarize format when Categories are inserted into DB
+
+@mutation.field("deleteCategory")
+def resolve_delete_category(obj, info, id):
+    '''GraphQL mutation to soft delete a Category.
+        :param id: UUID of Category to be soft deleted
+        :returns: UUID of soft deleted Category
+    '''
+    session = info.context['dbsession']
+
+    session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Entry).filter(Entry.category_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Target).filter(Target.category_id == id).update({'deleted':datetime.datetime.now()})
+
+    session.commit()
+
+    return id
