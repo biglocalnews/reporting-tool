@@ -189,14 +189,15 @@ class Category(Base):
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
 
-    targets = relationship('Target')
-
+    targets = relationship('Target', back_populates='category')
+    entries = relationship('Entry', back_populates='category')
+    
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
-
+    
 
 class Dataset(Base):
     __tablename__ = 'dataset'
@@ -219,7 +220,6 @@ class Dataset(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-
 class Record(Base):
     __tablename__ = 'record'
 
@@ -238,14 +238,13 @@ class Record(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-
 class Entry(Base):
     __tablename__ = 'entry'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
 
     category_id = Column(GUID, ForeignKey('category.id'), index=True)
-    category = relationship('Category')
+    category = relationship('Category', back_populates='entries')
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
@@ -335,12 +334,19 @@ def create_dummy_data(session):
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
     ds1.records.append(record)
 
-    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', category_id='51349e29-290e-4398-a401-5bf7d04af75e', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', category_id='662557e5-aca8-4cec-ad72-119ad9cda81b', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', category_id='1525cce8-7db3-4e73-b5b0-d2bd14777534', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
-    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', count=1, record_id='742b5971-eeb6-4f7a-8275-6111f2342bb4') 
+    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1) 
+    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1) 
+    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1) 
+    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1) 
+    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1) 
+    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1) 
+    
+    category_non_binary.entries.append(entry1)
+    category_cis_women.entries.append(entry2)
+    category_cis_men.entries.append(entry3)
+    category_trans_women.entries.append(entry4)
+    category_trans_men.entries.append(entry5)
+    category_gender_non_conforming.entries.append(entry6)
 
     record.entries.append(entry1)
     record.entries.append(entry2)
