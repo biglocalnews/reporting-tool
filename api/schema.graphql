@@ -175,6 +175,9 @@ type Query {
 
   # Retriever a single program.
   program(id: ID!): Program!
+
+  # Retrieve a single category.
+  category(id: ID!): Category!
 }
 
 type Mutation {
