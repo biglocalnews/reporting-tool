@@ -198,6 +198,13 @@ class Category(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
     
+    @validates('category')
+    def capitalize_category(self, key, category):
+        return category.capitalize().strip()
+    
+    @validates('category_value')
+    def capitalize_category_value(self, key, category_value):
+        return category_value.capitalize().strip()
 
 class Dataset(Base):
     __tablename__ = 'dataset'
