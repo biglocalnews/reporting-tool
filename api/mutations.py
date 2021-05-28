@@ -175,12 +175,6 @@ def resolve_update_category(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    
-    # id = input.pop("id")
-    # session.query(Category).filter(Category.id == id).update(input)
-    # category = session.query(Category).get(id)
-    # session.commit()
-    
     category = session.query(Category).get(input['id'])
 
     for param in input:
@@ -190,9 +184,6 @@ def resolve_update_category(obj, info, input):
     session.commit()
     
     return category
-
-
-# TODO standarize format when Categories are inserted into DB
 
 @mutation.field("deleteCategory")
 def resolve_delete_category(obj, info, id):
