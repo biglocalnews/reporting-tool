@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry, Dataset
+from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category
 from uuid import UUID
 
 
@@ -150,9 +150,13 @@ class TestGraphQL(unittest.TestCase):
                             publicationDate
                             entries {
                                 id
-                                categoryValue
-                            }
-                        }
+                                count
+                                category {
+                                    id
+                                    categoryValue
+                                }
+                            } 
+                        }       
                         inputter {
                             id
                             firstName
@@ -186,10 +190,55 @@ class TestGraphQL(unittest.TestCase):
                     "records": [{
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
                         "publicationDate": "2020-12-21T00:00:00",
-                        "entries": [{
-                            "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                            "categoryValue": "female"
-                        }]
+                        "entries": [
+                            {   
+                                'id': '64677dc1-a1cd-4cd3-965d-6565832d307a', 
+                                'count': 1, 
+                                "category": {
+                                    "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                    "categoryValue": "Non-binary"
+                                }
+                            }, 
+                            {
+                                'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409', 
+                                'count': 1,
+                                "category": {
+                                    "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                                    "categoryValue": "Cisgender women"
+                                }
+                            },
+                            {
+                                'id': '423dc42f-4628-40e4-b9cd-4e6e9e384d61', 'count': 1, 
+                                "category": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "categoryValue": "Cisgender men"
+                                }
+                            },
+                            {
+                                'id': '407f24d0-c5eb-4297-9495-90e325a00a1d',
+                                'count': 1, 
+                                'category': {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                                    "categoryValue": "Trans women"
+                                }
+                            },
+                            {
+                                'id': '4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', 
+                                'count': 1, 
+                                'category': {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                                    "categoryValue": "Trans men"
+                                }
+                            },
+                            {
+                                'id': '1c49c64f-51e6-48fe-af10-69aaeeddc55f', 
+                                'count': 1, 
+                                'category': {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                                    "categoryValue": "Gender non-conforming"
+                                }
+                            }
+                        ]
                     }],
                     "inputter": {
                         "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", 
@@ -201,7 +250,7 @@ class TestGraphQL(unittest.TestCase):
                     }]
                 },
             },
-        })
+        })       
     def test_create_dataset(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateDataset",
@@ -335,8 +384,10 @@ class TestGraphQL(unittest.TestCase):
                             id
                         }
                         entries {
-                            id
-                            categoryValue
+                            category {
+                                id
+                                categoryValue
+                            }
                         }
                    }
                 }
@@ -353,7 +404,32 @@ class TestGraphQL(unittest.TestCase):
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-21T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
-                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "categoryValue": "female"}]
+                    "entries": [
+                        {"category": {
+                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "categoryValue": "Non-binary"
+                        }}, 
+                        {"category": {
+                            "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                            "categoryValue": "Cisgender women"
+                        }},
+                        {"category": {
+                            "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                            "categoryValue": "Cisgender men"
+                        }},
+                        {'category': {
+                            "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                            "categoryValue": "Trans women"
+                        }},
+                        {'category': {
+                            "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                            "categoryValue": "Trans men"
+                        }},
+                        {'category': {
+                            "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                            "categoryValue": "Gender non-conforming"
+                        }}
+                    ]
                 },
             },
         })
@@ -370,8 +446,11 @@ class TestGraphQL(unittest.TestCase):
                             name
                         }
                         entries {
-                            categoryValue
                             count
+                            category {
+                                id
+                                categoryValue
+                            }
                         }
                    }
                 }
@@ -380,11 +459,13 @@ class TestGraphQL(unittest.TestCase):
                 "input": {
                     "datasetId": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
                     "publicationDate": '2020-12-22T00:00:00.000Z',
-                    "entries":[{"category": "gender", "categoryValue": "transgender", "count": 4}, {"category": "gender", "categoryValue": "female", "count": 4}]
+                    "entries": [{
+                        "count":  7,
+                        "categoryId": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                    }],
                 }
             },
         })
-
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["createRecord"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -393,7 +474,7 @@ class TestGraphQL(unittest.TestCase):
                     "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                    "entries": [{"categoryValue": "transgender", "count": 4}, {"categoryValue": "female", "count": 4}]
+                    'entries': [{'count': 7, 'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}}],
                 },
             },
         })
@@ -411,8 +492,11 @@ class TestGraphQL(unittest.TestCase):
                             name
                         }
                         entries {
-                            categoryValue
                             count
+                            category {
+                                id
+                                categoryValue
+                            }
                         }
                    }
                 }
@@ -422,24 +506,39 @@ class TestGraphQL(unittest.TestCase):
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": '2020-12-25T00:00:00.000Z',
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
-                    "entries": [{"id": "64677dc1-a1cd-4cd3-965d-6565832d307a", "category": "gender", "categoryValue": "trans", "count": 10}, ]
+                    "entries": [{
+                        "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
+                        "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e", 
+                        "count": 0
+                        }
+                    ]  
                 } 
             },
         })
-
+        
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
+
+        new_category = self.session.query(Category).filter(Category.category_value == "sour").first()
+
         self.assertEqual(result, {
             "data": {
                 "updateRecord": {
                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
-                    "entries": [{"categoryValue": "trans", "count": 10}]
+                    "entries": [
+                        {"count": 0, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "Non-binary"}},
+                        {"count": 1, "category": {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}},
+                        {"count": 1, "category": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": "Cisgender men"}},
+                        {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "Trans women"}},
+                        {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "Trans men"}},
+                        {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "Gender non-conforming"}},
+                    ]
                 },
             },
         })   
-
+        
     def test_delete_record(self):
         # Confirm Record exists, then that it does not.
         record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"

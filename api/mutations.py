@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -98,10 +98,13 @@ def resolve_create_record(obj, info, input):
     session = info.context['dbsession']
 
     all_entries = input.pop('entries', [])
+    n_entries = []
 
-    entries = [Entry(**entry) for entry in all_entries]
+    for entry in all_entries:  
+        category = session.query(Category).get(entry['category_id'])
+        n_entries.append(Entry(category=category, **entry))
 
-    record = Record(entries=entries, **input)
+    record = Record(entries=n_entries, **input)
     session.add(record)
     session.commit()
 
@@ -123,10 +126,10 @@ def resolve_update_record(obj, info, input):
         existing_entry = session.query(Entry).get(entry.get('id'))
 
         if existing_entry:
-            n_entry = Entry(**entry)
-            session.merge(n_entry)
+            session.merge(Entry(**entry))
+
         else:
-            incoming_entry = Entry(record=record, **entry)
+            Entry(record=record, **entry)
 
     for param in input:
         setattr(record, param, input[param])
@@ -144,6 +147,61 @@ def resolve_delete_record(obj, info, id):
     '''
     session = info.context['dbsession']
     session.query(Record).filter(Record.id == id).delete()
+    session.commit()
+
+    return id
+
+@mutation.field("createCategory")
+@convert_kwargs_to_snake_case
+def resolve_create_category(obj, info, input):
+    '''GraphQL mutation to create a Category.
+        :param input: params for new Category
+        :returns: Category dictionary
+    '''
+
+    session = info.context['dbsession']
+    existing_category = session.query(Category).filter(Category.category_value == input["category_value"].capitalize().strip()).first()
+
+    if existing_category:
+        return existing_category
+    else:    
+        category = Category(**input)
+        session.add(category)
+        session.commit()
+    
+    return category
+
+@mutation.field("updateCategory")
+@convert_kwargs_to_snake_case
+def resolve_update_category(obj, info, input):
+    '''GraphQL mutation to update a Category
+        :param input: Params to be changed
+        :returns: Updated Category
+    '''
+
+    session = info.context['dbsession']
+    category = session.query(Category).get(input['id'])
+
+    for param in input:
+        setattr(category, param, input[param])
+
+    session.add(category)
+    session.commit()
+    
+    return category
+
+@mutation.field("deleteCategory")
+def resolve_delete_category(obj, info, id):
+    '''GraphQL mutation to soft delete a Category.
+        :param id: UUID of Category to be soft deleted
+        :returns: UUID of soft deleted Category
+    '''
+    session = info.context['dbsession']
+
+    session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Entry).filter(Entry.category_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Target).filter(Target.category_id == id).update({'deleted':datetime.datetime.now()})
+
     session.commit()
 
     return id

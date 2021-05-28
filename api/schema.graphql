@@ -72,7 +72,7 @@ type Category {
   id: ID!
   category: String!
   categoryValue: String!
-  description: String
+  description: String!
 }
 
 type Dataset {
@@ -95,8 +95,7 @@ type Record {
 
 type Entry {
   id: ID!
-  category: String!
-  categoryValue: String!
+  category: Category!
   count: Int!
 }
 
@@ -138,11 +137,30 @@ input CreateRecordInput {
   entries: [EntryInput!]
 }
 
+input CreateCategoryInput {
+  category: String!
+  categoryValue: String!
+  description: String!
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  category: String
+  categoryValue: String
+  description: String
+}
+
 input EntryInput {
+  id: ID
+  categoryId: ID!
+  count: Int!
+}
+
+input CategoryInput {
   id: ID
   category: String!
   categoryValue: String!
-  count: Int!
+  description: String!
 }
 
 type Query {
@@ -157,6 +175,9 @@ type Query {
 
   # Retriever a single program.
   program(id: ID!): Program!
+
+  # Retrieve a single category.
+  category(id: ID!): Category!
 }
 
 type Mutation {
@@ -177,4 +198,13 @@ type Mutation {
 
   # Delete a Record
   deleteRecord(id: ID!): ID!
+
+  # Create a Category
+  createCategory(input: CreateCategoryInput): Category!
+
+  # Update a Category
+  updateCategory(input: UpdateCategoryInput): Category!
+
+  # Delete a Category
+  deleteCategory(id: ID!): ID!
 }

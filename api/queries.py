@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record
+from database import Dataset, User, Record, Category
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
@@ -60,4 +60,13 @@ def resolve_record(obj, info, id):
     record = session.query(Record).filter(Record.id == id, Record.deleted == None).first()
     return record
 
-
+@query.field("category")
+def resolve_category(obj, info, id):
+    '''GraphQL query to find a Category based on Category ID.
+        :param id: Id for the Category to be fetched 
+        :returns: Category dictionary OR None if Category was soft-deleted
+    '''
+    session = info.context['dbsession']
+    category = session.query(Category).filter(Category.id == id, Category.deleted == None).first()
+    
+    return category
