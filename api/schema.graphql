@@ -192,6 +192,9 @@ type Query {
 
   # Retrieve a single category.
   category(id: ID!): Category!
+
+  # Retrieve a single description.
+  description(id: ID!): Description!
 }
 
 type Mutation {
