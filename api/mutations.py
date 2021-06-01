@@ -240,3 +240,16 @@ def resolve_update_description(obj, info, input):
     session.commit()
     
     return description
+
+@mutation.field("deleteDescription")
+def resolve_delete_description(obj, info, id):
+    '''GraphQL mutation to delete a Description.
+        :param id: UUID of Description to be deleted
+        :returns: UUID of deleted Description
+    '''
+    session = info.context['dbsession']
+
+    session.query(Description).filter(Description.id == id).delete()
+    session.commit()
+
+    return id

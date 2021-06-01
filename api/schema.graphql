@@ -227,4 +227,7 @@ type Mutation {
 
   # Update a Description
   updateDescription(input: UpdateDescriptionInput): Description!
+
+  # Delete a Description
+  deleteDescription(id: ID!): ID!
 }
