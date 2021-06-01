@@ -26,6 +26,16 @@ i18next.use(initReactI18next).init({
   react: {
     useSuspense: false,
   },
+  resources: {
+    "en-gb": {
+      translation: {
+        noDataAvailable: "No Data Available",
+      },
+    },
+    en: {
+      noDataAvailable: "No Data Available",
+    },
+  },
 });
 
 async function wait(ms = 0) {
@@ -61,4 +71,30 @@ test("should render home page datasets and formatted 'last updated' date", async
   const row = screen.getAllByRole("row")[1];
   expect(row).toHaveTextContent(/breakfast hour/i);
   expect(within(row).getAllByRole("cell")[2].textContent).toBe("May 10, 2021");
+});
+
+test("should render No Data Available for 'last updated' date when no records exist", async () => {
+  const mock = {
+    Date: () => {
+      return "";
+    },
+  };
+
+  const client = autoMockedClient(mock);
+
+  render(
+    <ApolloProvider client={client}>
+      <Router history={history}>
+        <Home />
+      </Router>
+    </ApolloProvider>
+  );
+
+  await wait();
+
+  const row = screen.getAllByRole("row")[1];
+  expect(row).toHaveTextContent(/breakfast hour/i);
+  expect(within(row).getAllByRole("cell")[2].textContent).toBe(
+    "No Data Available"
+  );
 });

@@ -10,5 +10,6 @@
   "addMoreData": "Add More Data",
   "addData": "Add Data",
   "editData": "Edit",
-  "backToDashboard": "Back To Dashboard"
+  "backToDashboard": "Back To Dashboard",
+  "noDataAvailable": "No Data Available"
 }
