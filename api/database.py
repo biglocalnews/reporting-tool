@@ -318,51 +318,28 @@ def create_dummy_data(session):
     tag.datasets.append(ds1)
     tag.datasets.append(ds2)
 
-    # Gender category
-    gender_description = '''
-    Gender identity expresses one's innermost concept of self as male,
-    female, a blend of both or neither - how individuals perceive
-    themselves and what they call themselves. Someone's gender identity
-    can be the same (cisgender) or different (transgender) from their
-    sex assigned at birth.
-    '''
-
-    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description=gender_description,
+    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e',
                                     category='gender', category_value='non-binary')
-    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', description=gender_description,
+    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb',
                                     category='gender', category_value='cisgender women')
-    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b', description=gender_description,
+    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b',
                                     category='gender', category_value='cisgender men')
-    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b', description=gender_description,
+    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b',
                                     category='gender', category_value='trans women')   
-    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', description=gender_description,
+    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534',
                                     category='gender', category_value='trans men')   
-    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', description=gender_description,
-                                    category='gender', category_value="gender non-conforming")
-    
-    # Disability category
-    disability_description = '''
-    A disability is any condition of the body or mind (impairment)
-    that makes it more difficult for the person with the condition to do certain activities
-    (activity limitation) and interact with the world around them (participation restrictions).
-    Some disabilities may be hidden or not easy to see.
-    '''
+    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df',
+                                    category='gender', category_value='gender non-conforming')
 
-    category_disability_1 = Category(id='c36958cb-cc62-479e-ab61-eb03896a981c', description=disability_description,
-                                    category='disability', category_value='disability')
-    category_disability_2 = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', description=disability_description,
-                                    category='disability', category_value='no disability')
-
-    # Targets 
     target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='51349e29-290e-4398-a401-5bf7d04af75e', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='662557e5-aca8-4cec-ad72-119ad9cda81b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='1525cce8-7db3-4e73-b5b0-d2bd14777534', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_disability_1 = Target(id='b5be10ce-103f-41f2-b4c4-603228724993', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='c36958cb-cc62-479e-ab61-eb03896a981c', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
-    target_disability_2 = Target(id='6e6edce5-3d24-4296-b929-5eec26d52afc', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
-
+          
+    description_gender = Description(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
+    
     category_non_binary.targets.append(target_non_binary)
     category_cis_women.targets.append(target_cis_women)
     category_cis_men.targets.append(target_cis_men)
@@ -372,6 +349,13 @@ def create_dummy_data(session):
     category_disability_1.targets.append(target_disability_1)
     category_disability_2.targets.append(target_disability_2)
 
+    category_non_binary.description = description_gender
+    category_cis_women.description = description_gender
+    category_cis_men.description = description_gender
+    category_trans_women.description = description_gender
+    category_trans_men.description = description_gender
+    category_gender_non_conforming.description = description_gender
+    
     session.add(category_non_binary)
     session.add(category_cis_women)
     session.add(category_cis_men)
