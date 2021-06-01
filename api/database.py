@@ -11,7 +11,7 @@ import uuid
 
 import click
 from datetime import datetime
-from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint, Text
+from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, sessionmaker, validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
@@ -185,13 +185,14 @@ class Category(Base):
     __tablename__ = 'category'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    description = Column(Text, nullable=False)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
 
     targets = relationship('Target', back_populates='category')
     entries = relationship('Entry', back_populates='category')
-    
+    description = relationship('Description', back_populates='categories')
+    description_id = Column(GUID, ForeignKey('description.id'), index=True)
+
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP,
@@ -205,6 +206,20 @@ class Category(Base):
     @validates('category_value')
     def capitalize_category_value(self, key, category_value):
         return category_value.capitalize().strip()
+    
+class Description(Base):
+    __tablename__ = 'description'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    description = Column(Text, nullable=False)
+    
+    categories = relationship('Category', back_populates='description')
+    
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 class Dataset(Base):
     __tablename__ = 'dataset'
