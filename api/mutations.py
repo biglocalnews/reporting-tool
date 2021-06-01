@@ -221,3 +221,22 @@ def resolve_create_description(obj, info, input):
     session.commit()
     
     return description
+
+@mutation.field("updateDescription")
+@convert_kwargs_to_snake_case
+def resolve_update_description(obj, info, input):
+    '''GraphQL mutation to update a Description.
+        :param input: params to be changed
+        :returns: updated Description dictionary
+    '''
+    
+    session = info.context['dbsession']
+    description = session.query(Description).get(input['id'])
+
+    for param in input:
+        setattr(description, param, input[param])
+
+    session.add(description)
+    session.commit()
+    
+    return description

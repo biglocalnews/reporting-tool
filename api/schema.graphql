@@ -172,6 +172,11 @@ input CreateDescriptionInput {
   description: String!
 }
 
+input UpdateDescriptionInput {
+  id: ID!
+  description: String!
+}
+
 type Query {
   # Retrieve a single user.
   user(id: ID!): User!
@@ -219,4 +224,7 @@ type Mutation {
 
   # Create a Description
   createDescription(input: CreateDescriptionInput): Description!
+
+  # Update a Description
+  updateDescription(input: UpdateDescriptionInput): Description!
 }
