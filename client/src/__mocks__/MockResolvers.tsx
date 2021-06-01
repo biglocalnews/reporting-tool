@@ -1,5 +1,4 @@
 import { UserInputError } from "apollo-server";
-import fake from "casual";
 
 // Mocked users
 const users = new Map([
@@ -17,20 +16,52 @@ const users = new Map([
 const categoryData = [
   {
     id: "1",
-    category: "gender",
-    categoryValue: "men",
+    category: {
+      category: "Gender",
+      categoryValue: "Cisgender Men",
+    },
     count: 0,
   },
-  { id: "2", category: "gender", categoryValue: "non-binary", count: 0 },
-  { id: "3", category: "gender", categoryValue: "women", count: 5 },
+  {
+    id: "2",
+    category: {
+      category: "Gender",
+      categoryValue: "Cisgender women",
+    },
+    count: 0,
+  },
+  {
+    id: "3",
+    category: {
+      category: "Gender",
+      categoryValue: "Non-binary",
+    },
+    count: 0,
+  },
   {
     id: "4",
-    category: "gender",
-    categoryValue: "gender non-conforming",
+    category: {
+      category: "Gender",
+      categoryValue: "Gender non-conforming",
+    },
     count: 0,
   },
-  { id: "5", category: "gender", categoryValue: "cisgender", count: 0 },
-  { id: "6", category: "gender", categoryValue: "transgender", count: 0 },
+  {
+    id: "5",
+    category: {
+      category: "Gender",
+      categoryValue: "Trans women",
+    },
+    count: 0,
+  },
+  {
+    id: "6",
+    category: {
+      category: "Gender",
+      categoryValue: "Trans men",
+    },
+    count: 0,
+  },
 ];
 
 // Mocked records
