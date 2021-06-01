@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category
+from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category, Description
 from uuid import UUID
 
 
@@ -602,5 +602,63 @@ class TestGraphQL(unittest.TestCase):
                 "deleteRecord": record_id
             },
         })  
+        
+    def test_create_description(self):
+        success, result = self.run_graphql_query({
+            "operationName": "CreateDescription",
+            "query": """
+                mutation CreateDescription($input: CreateDescriptionInput!) {
+                   createDescription(input: $input) {
+                        id
+                        description
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "description": "Race is ..."
+                }
+            },
+        })
+        self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["createDescription"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "createDescription": {
+                    "id": result["data"]["createDescription"]["id"],
+                    "description": "Race is ..."
+                },
+            },
+        })  
+        
+    def test_update_description(self):
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateDescription",
+            "query": """
+                mutation UpdateDescription($input: UpdateDescriptionInput!) {
+                   updateDescription(input: $input) {
+                        id
+                        description
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                    "description": "Gender is a..."
+                }
+            },
+        })
+        self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateDescription"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "updateDescription": {
+                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                    "description": "Gender is a..."
+                },
+            },
+        }) 
+              
 if __name__ == '__main__':
     unittest.main()
