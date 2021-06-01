@@ -1,4 +1,4 @@
-ariadne==0.12.0
+ariadne==0.13.0
 asyncpg==0.22.0
 bcrypt==3.2.0
 cffi==1.14.5
@@ -10,7 +10,7 @@ email-validator==1.1.2
 fastapi==0.63.0
 FastAPI-SQLAlchemy==0.2.1
 fastapi-users==5.1.2
-graphql-core==3.0.5
+graphql-core==3.1.5
 gunicorn==20.0.4
 h11==0.12.0
 idna==3.1
