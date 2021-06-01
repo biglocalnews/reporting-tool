@@ -38,7 +38,7 @@ async function wait(ms = 0) {
 
 test("should render home page datasets and formatted 'last updated' date", async () => {
   const mock = {
-    Date: () => {
+    DateTime: () => {
       return "2021-05-10T03:04:59";
     },
   };

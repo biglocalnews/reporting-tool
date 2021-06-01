@@ -134,7 +134,7 @@ export const mockResolvers = {
     name: "BBC News",
     datasets: Array.from(datasets.values()),
   }),
-  Date: () => {
+  DateTime: () => {
     return "12/20/2020";
   },
 };
