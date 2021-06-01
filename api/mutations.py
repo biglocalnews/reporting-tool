@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, Description
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -205,3 +205,19 @@ def resolve_delete_category(obj, info, id):
     session.commit()
 
     return id
+
+@mutation.field("createDescription")
+@convert_kwargs_to_snake_case
+def resolve_create_description(obj, info, input):
+    '''GraphQL mutation to create a Description.
+        :param input: params for new Description
+        :returns: Description dictionary
+    '''
+
+    session = info.context['dbsession']
+
+    description = Description(**input)
+    session.add(description)
+    session.commit()
+    
+    return description
