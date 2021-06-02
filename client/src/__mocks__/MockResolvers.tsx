@@ -15,56 +15,56 @@ const users = new Map([
 // Mocked categories and values
 const categoryData = [
   {
-    id: "1",
+    id: "a7122153-6cb7-4ea0-a9bd-05dab5a9b293",
     category: {
-      id: "1",
-      category: "Gender",
-      categoryValue: "Cisgender Men",
-    },
-    count: 0,
-  },
-  {
-    id: "2",
-    category: {
-      id: "2",
-      category: "Gender",
-      categoryValue: "Cisgender women",
-    },
-    count: 0,
-  },
-  {
-    id: "3",
-    category: {
-      id: "3",
+      id: "51349e29-290e-4398-a401-5bf7d04af75e",
       category: "Gender",
       categoryValue: "Non-binary",
     },
     count: 0,
   },
   {
-    id: "4",
+    id: "6196eda7-344c-42f9-a367-59cab0b8de33",
     category: {
-      id: "4",
+      id: "0034d015-0652-497d-ab4a-d42b0bdf08cb",
       category: "Gender",
-      categoryValue: "Gender non-conforming",
+      categoryValue: "Cisgender women",
     },
     count: 0,
   },
   {
-    id: "5",
+    id: "5dfb2847-ef6a-44f9-bd54-547b5e018e90",
     category: {
-      id: "5",
+      id: "d237a422-5858-459c-bd01-a0abdc077e5b",
+      category: "Gender",
+      categoryValue: "Cisgender men",
+    },
+    count: 0,
+  },
+  {
+    id: "b1f9b316-ed18-4e80-bc90-2a4702c68cd5",
+    category: {
+      id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
       category: "Gender",
       categoryValue: "Trans women",
     },
     count: 0,
   },
   {
-    id: "6",
+    id: "674f549b-48f0-4b7a-932b-e8f18a76a4c2",
     category: {
-      id: "6",
+      id: "1525cce8-7db3-4e73-b5b0-d2bd14777534",
       category: "Gender",
       categoryValue: "Trans men",
+    },
+    count: 0,
+  },
+  {
+    id: "e5025b57-9101-45ce-a7a8-29da53e1d03d",
+    category: {
+      id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+      category: "Gender",
+      categoryValue: "Gender non-conforming",
     },
     count: 0,
   },
@@ -149,39 +149,31 @@ export const mockResolvers = {
     datasets: Array.from(datasets.values()),
     targets: [
       {
-        id: "2d501688-92e3-455e-9685-01141de3dbaf",
-        category: {
-          id: "1",
-          category: "Gender",
-          categoryValue: "Cisgender men",
-        },
-      },
-      {
-        id: "eccf90e8-3261-46c1-acd5-507f9113ff72",
-        category: {
-          id: "2",
-          category: "Gender",
-          categoryValue: "Cisgender women",
-        },
-      },
-      {
         id: "40eaeafc-3311-4294-a639-a826eb6495ab",
         category: {
-          id: "3",
+          id: "51349e29-290e-4398-a401-5bf7d04af75e",
           category: "Gender",
           categoryValue: "Non-binary",
         },
       },
       {
-        id: "a459ed7f-5573-4d5b-ade6-3070bc8bd2db",
+        id: "eccf90e8-3261-46c1-acd5-507f9113ff72",
         category: {
-          id: "4",
+          id: "0034d015-0652-497d-ab4a-d42b0bdf08cb",
           category: "Gender",
-          categoryValue: "Gender non-conforming",
+          categoryValue: "Cisgender women",
         },
       },
       {
-        id: "5",
+        id: "2d501688-92e3-455e-9685-01141de3dbaf",
+        category: {
+          id: "d237a422-5858-459c-bd01-a0abdc077e5b",
+          category: "Gender",
+          categoryValue: "Cisgender men",
+        },
+      },
+      {
+        id: "4f7897c2-32a1-4b1e-9749-1a8066faca01",
         category: {
           id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
           category: "Gender",
@@ -191,9 +183,17 @@ export const mockResolvers = {
       {
         id: "9352b16b-2607-4f7d-a272-fe6dedd8165a",
         category: {
-          id: "6",
+          id: "1525cce8-7db3-4e73-b5b0-d2bd14777534",
           category: "Gender",
           categoryValue: "Trans men",
+        },
+      },
+      {
+        id: "a459ed7f-5573-4d5b-ade6-3070bc8bd2db",
+        category: {
+          id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+          category: "Gender",
+          categoryValue: "Gender non-conforming",
         },
       },
     ],
