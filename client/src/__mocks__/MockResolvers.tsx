@@ -74,7 +74,11 @@ const categoryData = [
 const recordsData = [
   {
     id: "05caae8d-bb1a-416e-9dda-bb251fe474ff",
-    publicationDate: "2020-12-20",
+    publicationDate: "2020-12-20T00:00:00",
+    dataset: {
+      id: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
+      name: "Breakfast Hour",
+    },
     entries: categoryData,
   },
 ];
@@ -106,10 +110,14 @@ export const mockResolvers = {
   Query: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
+    dataset: (parent, args, ctx, info) => datasets.get(args.id),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     user: () => users.get("1"),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    record: (parent, args, ctx, info) =>
+      recordsData.find((item) => item.id === args.id),
   }),
   Mutation: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
