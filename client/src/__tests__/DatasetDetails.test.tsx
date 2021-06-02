@@ -10,8 +10,6 @@ import React from "react";
 import { DatasetDetails } from "../components/DatasetDetails/DatasetDetails";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import i18next from "i18next";
-import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
 import { autoMockedClient } from "../__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
@@ -25,26 +23,6 @@ jest.mock("react-router-dom", () => ({
     .fn()
     .mockReturnValue({ datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb" }),
 }));
-
-i18next.use(initReactI18next).init({
-  lng: "en",
-  fallbackLng: "en-gb",
-  interpolation: {
-    escapeValue: false,
-  },
-  keySeparator: false,
-  resources: {
-    "en-gb": {
-      translation: {
-        addData: "Add Data",
-      },
-    },
-    en: {
-      addData: "Add Data",
-    },
-  },
-  lowerCaseLng: true,
-});
 
 async function wait(ms = 0) {
   await act(async () => {
@@ -182,7 +160,7 @@ test("should go to data entry page when edit button for a record is clicked", as
     ) as HTMLElement;
 
     const editButton = within(edit).getByRole("button", {
-      name: "editData",
+      name: "Edit",
     });
 
     await waitFor(() => userEvent.click(editButton));

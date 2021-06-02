@@ -1,39 +1,14 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { AppSidebar } from "../layout/AppSidebar";
-import { mount, shallow } from "enzyme";
-import i18next from "i18next";
-import { initReactI18next } from "react-i18next";
+import { mount } from "enzyme";
 import SubMenu from "antd/lib/menu/SubMenu";
 import { MockedProvider } from "@apollo/client/testing";
-import { act, render, wait, waitFor } from "@testing-library/react";
-import { gql } from "@apollo/client";
 import { BrowserRouter } from "react-router-dom";
 import { GET_USER } from "../__queries__/GetUser.gql";
+import React from "react";
+import i18nextTest from "../services/i18next-test";
 
 describe("UK English internationalization", () => {
-  beforeAll(() => {
-    // Mock react-i18next
-    i18next.use(initReactI18next).init({
-      lng: "en-gb",
-      fallbackLng: "en-gb",
-      interpolation: {
-        escapeValue: false,
-      },
-      keySeparator: false,
-      resources: {
-        "en-gb": {
-          translation: {
-            teamsSideBarTitle: "My Programmes",
-          },
-        },
-        en: {
-          teamsSideBarTitle: "My Programs",
-        },
-      },
-      lowerCaseLng: true,
-    });
-  });
-
   const mocks = [
     {
       request: {
@@ -88,8 +63,9 @@ describe("UK English internationalization", () => {
     },
   ];
 
-  // TODO: revisit test for loading state
-  test.skip("translates sidebar title text to UK English", async () => {
+  test("translates sidebar title text to UK English", async () => {
+    i18nextTest.changeLanguage("en-gb");
+
     const sidebar = mount(
       <MockedProvider mocks={mocks} addTypename={false}>
         <BrowserRouter>
