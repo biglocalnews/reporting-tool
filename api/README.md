@@ -57,7 +57,7 @@ Type in your queries/mutations such as:
 
 ```
 query getUser {
-  user (id: 1) {
+  user (id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77") {
     id
     firstName
     lastName
