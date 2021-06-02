@@ -34,6 +34,7 @@ interface Entry {
   categoryId: string;
   category: string;
   categoryValue: string;
+  categoryValueLabel: string;
   count: number | any;
 }
 
@@ -49,6 +50,7 @@ const renderForm = (
       categoryId: record.category.id,
       category: record.category.category,
       categoryValue: record.category.categoryValue,
+      categoryValueLabel: record.category.categoryValue.replace(/\s+/g, "-"),
       count: record.count,
     }));
   } else {
@@ -56,6 +58,7 @@ const renderForm = (
       categoryId: target.category.id,
       category: target.category.category,
       categoryValue: target.category.categoryValue,
+      categoryValueLabel: target.category.categoryValue.replace(/\s+/g, "-"),
       count: 0,
     })) as Entry[];
   }
@@ -265,14 +268,14 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
               {values.map((item, index) => (
                 <label
                   key={index}
-                  id={item.categoryValue}
+                  id={item.categoryValueLabel}
                   htmlFor={item.categoryValue}
                   className="data-entry-form_label"
                 >
                   <input
                     name={item.categoryValue}
                     required
-                    aria-labelledby={item.categoryValue}
+                    aria-labelledby={item.categoryValueLabel}
                     aria-required="true"
                     type="text"
                     inputMode="numeric"
@@ -284,7 +287,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                   {` ${item.categoryValue} `}
                   <span
                     className="data-entry-form_required-field"
-                    aria-labelledby={item.categoryValue}
+                    aria-labelledby={item.categoryValueLabel}
                   >
                     *
                   </span>
