@@ -688,6 +688,11 @@ class TestGraphQL(unittest.TestCase):
       
     def test_delete_description(self):
         description_id = "2f98f223-417f-41ea-8fdb-35f0c5fe5b41"
+        # Confirm Description exists, then that it does not.
+        existing_description = self.session.query(Description).filter(Description.id == description_id)
+        # Count of non-deleted Description should be zero
+        self.assertEqual(existing_description.count(), 1)
+
         success, result = self.run_graphql_query({
             "operationName": "DeleteDescription",
             "query": """
