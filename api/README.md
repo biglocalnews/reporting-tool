@@ -36,26 +36,26 @@ In your terminal, navigate to the [/api] folder
 
 🌍 set your virtual environment
 
-```
+```bash
 source venv/bin/activate
 ```
 
 🚧 load in required packages
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
 🏁 start your new shiny server
 
-```
+```bash
 uvicorn app:app --reload
 ```
 
 Navigate to http://localhost:8000/graphql/ to see your GraphQL Playground in action!
 Type in your queries/mutations such as:
 
-```
+```graphql
 query getUser {
   user (id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77") {
     id
@@ -67,7 +67,7 @@ query getUser {
 
 sample mutation using inputs:
 
-```
+```graphql
 mutation upsertUsers ($userInfo : UpsertUserInput) {
   upsertUser (input: $userInfo) {
     user {
@@ -80,7 +80,7 @@ mutation upsertUsers ($userInfo : UpsertUserInput) {
 
 in the playground's query variables section:
 
-```
+```json
 {
   "userInfo": {
     "firstName": "Bob",
