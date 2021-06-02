@@ -46,18 +46,16 @@ const renderForm = (
 
   if (existingRecord) {
     form = existingRecord?.record?.entries.map((record) => ({
+      ...record.category,
       id: record.id,
       categoryId: record.category.id,
-      category: record.category.category,
-      categoryValue: record.category.categoryValue,
       categoryValueLabel: record.category.categoryValue.replace(/\s+/g, "-"),
       count: record.count,
     }));
   } else {
     form = metadata?.dataset.program.targets.map((target) => ({
+      ...target.category,
       categoryId: target.category.id,
-      category: target.category.category,
-      categoryValue: target.category.categoryValue,
       categoryValueLabel: target.category.categoryValue.replace(/\s+/g, "-"),
       count: 0,
     })) as Entry[];
