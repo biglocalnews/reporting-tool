@@ -17,6 +17,7 @@ const categoryData = [
   {
     id: "1",
     category: {
+      id: "1",
       category: "Gender",
       categoryValue: "Cisgender Men",
     },
@@ -25,6 +26,7 @@ const categoryData = [
   {
     id: "2",
     category: {
+      id: "2",
       category: "Gender",
       categoryValue: "Cisgender women",
     },
@@ -33,6 +35,7 @@ const categoryData = [
   {
     id: "3",
     category: {
+      id: "3",
       category: "Gender",
       categoryValue: "Non-binary",
     },
@@ -41,6 +44,7 @@ const categoryData = [
   {
     id: "4",
     category: {
+      id: "4",
       category: "Gender",
       categoryValue: "Gender non-conforming",
     },
@@ -49,6 +53,7 @@ const categoryData = [
   {
     id: "5",
     category: {
+      id: "5",
       category: "Gender",
       categoryValue: "Trans women",
     },
@@ -57,6 +62,7 @@ const categoryData = [
   {
     id: "6",
     category: {
+      id: "6",
       category: "Gender",
       categoryValue: "Trans men",
     },
@@ -133,6 +139,56 @@ export const mockResolvers = {
     id: "25c140cc-6cd0-4bd3-8230-35b56e59481a",
     name: "BBC News",
     datasets: Array.from(datasets.values()),
+    targets: [
+      {
+        id: "2d501688-92e3-455e-9685-01141de3dbaf",
+        category: {
+          id: "1",
+          category: "Gender",
+          categoryValue: "Cisgender men",
+        },
+      },
+      {
+        id: "eccf90e8-3261-46c1-acd5-507f9113ff72",
+        category: {
+          id: "2",
+          category: "Gender",
+          categoryValue: "Cisgender women",
+        },
+      },
+      {
+        id: "40eaeafc-3311-4294-a639-a826eb6495ab",
+        category: {
+          id: "3",
+          category: "Gender",
+          categoryValue: "Non-binary",
+        },
+      },
+      {
+        id: "a459ed7f-5573-4d5b-ade6-3070bc8bd2db",
+        category: {
+          id: "4",
+          category: "Gender",
+          categoryValue: "Gender non-conforming",
+        },
+      },
+      {
+        id: "5",
+        category: {
+          id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
+          category: "Gender",
+          categoryValue: "Trans women",
+        },
+      },
+      {
+        id: "9352b16b-2607-4f7d-a272-fe6dedd8165a",
+        category: {
+          id: "6",
+          category: "Gender",
+          categoryValue: "Trans men",
+        },
+      },
+    ],
   }),
   DateTime: () => {
     return "12/20/2020";
