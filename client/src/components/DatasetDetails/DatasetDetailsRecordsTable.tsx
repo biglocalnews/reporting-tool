@@ -96,7 +96,7 @@ const DatasetDetailsRecordsTable = ({
         dataIndex="publicationDate"
         key="id"
         defaultSortOrder="descend"
-        sorter={(dateA: any, dateB: any) =>
+        sorter={(dateA: TableData, dateB: TableData) =>
           dayjs(dateA.publicationDate).unix() -
           dayjs(dateB.publicationDate).unix()
         }
