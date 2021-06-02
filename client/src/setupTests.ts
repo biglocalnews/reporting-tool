@@ -6,6 +6,9 @@ import { configure } from "enzyme";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import "@testing-library/jest-dom/extend-expect";
 import { toHaveNoViolations } from "jest-axe";
+import i18nextTest from "../src/services/i18next-test";
+
+i18nextTest.createInstance();
 
 expect.extend(toHaveNoViolations);
 
