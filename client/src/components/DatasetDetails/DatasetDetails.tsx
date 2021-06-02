@@ -61,6 +61,7 @@ const DatasetDetails = (): JSX.Element => {
       </Row>
       <DatasetDetailsRecordsTable
         datasetId={datasetId}
+        datasetData={queryData}
         records={queryData?.dataset?.records}
         isLoading={queryLoading}
       />

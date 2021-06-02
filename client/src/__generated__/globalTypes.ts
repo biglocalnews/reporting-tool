@@ -1,3 +1,4 @@
+/* tslint:disable */
 /* eslint-disable */
 // @generated
 // This file was automatically generated and should not be edited.
@@ -14,8 +15,7 @@ export interface CreateRecordInput {
 
 export interface EntryInput {
   readonly id?: string | null;
-  readonly category: string;
-  readonly categoryValue: string;
+  readonly categoryId: string;
   readonly count: number;
 }
 

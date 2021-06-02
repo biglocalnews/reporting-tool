@@ -119,11 +119,12 @@ test("should render add entry form with today's date when a record id does not e
 
   expect(screen.getAllByRole("textbox")).toHaveLength(6);
 
-  screen.getByRole("textbox", { name: "men" });
-  screen.getByRole("textbox", { name: "women" });
-  screen.getByRole("textbox", { name: "cisgender" });
-  screen.getByRole("textbox", { name: "transgender" });
-  screen.getByRole("textbox", { name: "non-binary" });
+  screen.getByRole("textbox", { name: /cisgender women/i });
+  screen.getByRole("textbox", { name: /cisgender men/i });
+  screen.getByRole("textbox", { name: /trans men/i });
+  screen.getByRole("textbox", { name: /trans women/i });
+  screen.getByRole("textbox", { name: /non-binary/i });
+  screen.getByRole("textbox", { name: /gender non-conforming/i });
 
   screen.getByRole("button", { name: /Save Record/i });
   screen.getByRole("button", { name: /Save and Add Another Record/i });
