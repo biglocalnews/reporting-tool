@@ -659,6 +659,29 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         }) 
-              
+      
+    def test_delete_description(self):
+        description_id = "2f98f223-417f-41ea-8fdb-35f0c5fe5b41"
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteDescription",
+            "query": """
+                mutation DeleteDescription($id: ID!) {
+                    deleteDescription(id: $id)
+                }
+            """,
+            "variables": {
+                "id": description_id, 
+            },
+        })
+
+        self.assertTrue(success)
+        description = self.session.query(Description).filter(Description.id == description_id)
+        self.assertEqual(description.count(), 0)
+        self.assertTrue(self.is_valid_uuid(description_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteDescription": description_id
+            },
+        })           
 if __name__ == '__main__':
     unittest.main()

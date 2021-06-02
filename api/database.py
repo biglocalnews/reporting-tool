@@ -339,7 +339,8 @@ def create_dummy_data(session):
     target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
           
     description_gender = Description(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
-    
+    description_race = Description(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', description='Race: ...')
+
     category_non_binary.targets.append(target_non_binary)
     category_cis_women.targets.append(target_cis_women)
     category_cis_men.targets.append(target_cis_men)
