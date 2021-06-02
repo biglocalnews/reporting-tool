@@ -690,7 +690,7 @@ class TestGraphQL(unittest.TestCase):
         description_id = "2f98f223-417f-41ea-8fdb-35f0c5fe5b41"
         # Confirm Description exists, then that it does not.
         existing_description = self.session.query(Description).filter(Description.id == description_id)
-        # Count of non-deleted Description should be zero
+        # Count of existing Description should be one
         self.assertEqual(existing_description.count(), 1)
 
         success, result = self.run_graphql_query({
