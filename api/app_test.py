@@ -603,6 +603,32 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
+    def test_query_description(self):
+        success, result = self.run_graphql_query({
+            "operationName": "QueryDescription",
+            "query": """
+                query QueryDescription($id: ID!) {
+                   description(id: $id) {
+                        id
+                        description
+                   }
+                }
+            """,
+            "variables": {
+                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "description": {
+                    "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                    "description": "Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role."
+                },
+            },
+        })
+        
     def test_create_description(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateDescription",
