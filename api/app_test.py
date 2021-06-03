@@ -237,6 +237,22 @@ class TestGraphQL(unittest.TestCase):
                                     "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                                     "categoryValue": "Gender non-conforming"
                                 }
+                            },
+                            {
+                                "id": "335b3680-13a1-4d8f-a917-01e1e7e1311a",
+                                "count": 1,
+                                "category": {
+                                    "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                    "categoryValue": "Disability"
+                                },
+                            },
+                            {
+                                "count": 1,
+                                "id": "fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a",
+                                "category": {
+                                    "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                    "categoryValue": "No disability"
+                                },
                             }
                         ]
                     }],
@@ -428,7 +444,19 @@ class TestGraphQL(unittest.TestCase):
                         {'category': {
                             "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                             "categoryValue": "Gender non-conforming"
-                        }}
+                        }},
+                        {
+                            "category": {
+                                "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                "categoryValue": "Disability"
+                            },
+                        },
+                        {
+                            "category": {
+                                "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                "categoryValue": "No disability"
+                            }
+                        }
                     ]
                 },
             },
@@ -534,6 +562,8 @@ class TestGraphQL(unittest.TestCase):
                         {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "Trans women"}},
                         {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "Trans men"}},
                         {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "Gender non-conforming"}},
+                        {"count": 1, "category": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "categoryValue": "Disability"}},
+                        {"count": 1, "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "categoryValue": "No disability"}}
                     ]
                 },
             },
