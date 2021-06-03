@@ -64,14 +64,13 @@ type Target {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  category: Category!
+  value: Value!
   target: Float!
 }
 
 type Category {
   id: ID!
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
@@ -91,6 +90,12 @@ type Record {
   dataset: Dataset!
   publicationDate: DateTime!
   entries: [Entry!]!
+}
+
+type Value {
+  id: ID!
+  name: String!
+  category: Category!
 }
 
 type Entry {
@@ -143,15 +148,13 @@ input CreateRecordInput {
 }
 
 input CreateCategoryInput {
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
 input UpdateCategoryInput {
   id: ID!
-  category: String
-  categoryValue: String
+  name: String
   description: String
 }
 
@@ -165,15 +168,6 @@ input CategoryInput {
   id: ID
   category: String!
   categoryValue: String!
-  description: String!
-}
-
-input CreateDescriptionInput {
-  description: String!
-}
-
-input UpdateDescriptionInput {
-  id: ID!
   description: String!
 }
 
@@ -193,8 +187,8 @@ type Query {
   # Retrieve a single category.
   category(id: ID!): Category!
 
-  # Retrieve a single description.
-  description(id: ID!): Description!
+  # Retrieve a single value.
+  value(id: ID!): Value!
 }
 
 type Mutation {
@@ -224,13 +218,4 @@ type Mutation {
 
   # Delete a Category
   deleteCategory(id: ID!): ID!
-
-  # Create a Description
-  createDescription(input: CreateDescriptionInput): Description!
-
-  # Update a Description
-  updateDescription(input: UpdateDescriptionInput): Description!
-
-  # Delete a Description
-  deleteDescription(id: ID!): ID!
 }
