@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, Description
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, Value
 from sqlalchemy.orm import joinedload
 
 mutation = ObjectType("Mutation")
@@ -206,50 +206,50 @@ def resolve_delete_category(obj, info, id):
 
     return id
 
-@mutation.field("createDescription")
-@convert_kwargs_to_snake_case
-def resolve_create_description(obj, info, input):
-    '''GraphQL mutation to create a Description.
-        :param input: params for new Description
-        :returns: Description dictionary
-    '''
+# @mutation.field("createDescription")
+# @convert_kwargs_to_snake_case
+# def resolve_create_description(obj, info, input):
+#     '''GraphQL mutation to create a Description.
+#         :param input: params for new Description
+#         :returns: Description dictionary
+#     '''
 
-    session = info.context['dbsession']
+#     session = info.context['dbsession']
 
-    description = Description(**input)
-    session.add(description)
-    session.commit()
+#     description = Description(**input)
+#     session.add(description)
+#     session.commit()
     
-    return description
+#     return description
 
-@mutation.field("updateDescription")
-@convert_kwargs_to_snake_case
-def resolve_update_description(obj, info, input):
-    '''GraphQL mutation to update a Description.
-        :param input: params to be changed
-        :returns: updated Description dictionary
-    '''
+# @mutation.field("updateDescription")
+# @convert_kwargs_to_snake_case
+# def resolve_update_description(obj, info, input):
+#     '''GraphQL mutation to update a Description.
+#         :param input: params to be changed
+#         :returns: updated Description dictionary
+#     '''
     
-    session = info.context['dbsession']
-    description = session.query(Description).get(input['id'])
+#     session = info.context['dbsession']
+#     description = session.query(Description).get(input['id'])
 
-    for param in input:
-        setattr(description, param, input[param])
+#     for param in input:
+#         setattr(description, param, input[param])
 
-    session.add(description)
-    session.commit()
+#     session.add(description)
+#     session.commit()
     
-    return description
+#     return description
 
-@mutation.field("deleteDescription")
-def resolve_delete_description(obj, info, id):
-    '''GraphQL mutation to delete a Description.
-        :param id: UUID of Description to be deleted
-        :returns: UUID of deleted Description
-    '''
-    session = info.context['dbsession']
+# @mutation.field("deleteDescription")
+# def resolve_delete_description(obj, info, id):
+#     '''GraphQL mutation to delete a Description.
+#         :param id: UUID of Description to be deleted
+#         :returns: UUID of deleted Description
+#     '''
+#     session = info.context['dbsession']
 
-    session.query(Description).filter(Description.id == id).delete()
-    session.commit()
+#     session.query(Description).filter(Description.id == id).delete()
+#     session.commit()
 
-    return id
+#     return id
