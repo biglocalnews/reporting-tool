@@ -172,8 +172,8 @@ class Target(Base):
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     target_date = Column(DateTime, nullable=False)
     target = Column(Float, nullable=False)
-    category_id = Column(GUID, ForeignKey('category.id'), index=True)
-    category = relationship('Category', back_populates='targets')
+    value_id = Column(GUID, ForeignKey('value.id'), index=True)
+    value = relationship('Value', back_populates='targets')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -185,13 +185,15 @@ class Category(Base):
     __tablename__ = 'category'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    category = Column(String(255), nullable=False)
-    category_value = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
+    # category_value = Column(String(255), nullable=False)
 
-    targets = relationship('Target', back_populates='category')
-    entries = relationship('Entry', back_populates='category')
-    description = relationship('Description', back_populates='categories')
-    description_id = Column(GUID, ForeignKey('description.id'), index=True)
+    # entries = relationship('Entry', back_populates='category')
+    description = Column(Text, nullable=False)
+    # description_id = Column(GUID, ForeignKey('description.id'), index=True)
+
+    value = relationship('Value', back_populates='category')
+    # value_id = Column(GUID, ForeignKey('value.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -202,25 +204,29 @@ class Category(Base):
     @validates('category')
     def capitalize_category(self, key, category):
         return category.capitalize().strip()
-    
-    @validates('category_value')
-    def capitalize_category_value(self, key, category_value):
-        return category_value.capitalize().strip()
-    
-class Description(Base):
-    __tablename__ = 'description'
+
+class Value(Base):
+    __tablename__ = 'value'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    description = Column(Text, nullable=False)
+    name = Column(String(255), nullable=False)
     
-    categories = relationship('Category', back_populates='description')
+    category = relationship('Category', back_populates='value')
+    category_id = Column(GUID, ForeignKey('category.id'), index=True)
     
+    targets = relationship('Target', back_populates='value')
+    entries = relationship('Entry', back_populates='value')
+
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
-
+    
+    @validates('name')
+    def capitalize_name(self, key, name):
+        return name.capitalize().strip()
+    
 class Dataset(Base):
     __tablename__ = 'dataset'
 
@@ -265,8 +271,8 @@ class Entry(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
 
-    category_id = Column(GUID, ForeignKey('category.id'), index=True)
-    category = relationship('Category', back_populates='entries')
+    value_id = Column(GUID, ForeignKey('value.id'), index=True)
+    value = relationship('Value', back_populates='entries')
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
@@ -318,55 +324,69 @@ def create_dummy_data(session):
     tag.datasets.append(ds1)
     tag.datasets.append(ds2)
 
-    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e',
-                                    category='gender', category_value='non-binary')
-    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb',
-                                    category='gender', category_value='cisgender women')
-    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b',
-                                    category='gender', category_value='cisgender men')
-    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b',
-                                    category='gender', category_value='trans women')   
-    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534',
-                                    category='gender', category_value='trans men')   
-    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df',
-                                    category='gender', category_value='gender non-conforming')
+    category_gender = Category(id='51349e29-290e-4398-a401-5bf7d04af75e',
+                                    name='gender', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
+    category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
 
-    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='51349e29-290e-4398-a401-5bf7d04af75e', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='0034d015-0652-497d-ab4a-d42b0bdf08cb', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='d237a422-5858-459c-bd01-a0abdc077e5b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='662557e5-aca8-4cec-ad72-119ad9cda81b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='1525cce8-7db3-4e73-b5b0-d2bd14777534', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', category_id='a72ced2b-b1a6-4d3d-b003-e35e980960df', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    # category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb',
+    #                                 category='gender', category_value='cisgender women')
+    # category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b',
+    #                                 category='gender', category_value='cisgender men')
+    # category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b',
+    #                                 category='gender', category_value='trans women')   
+    # category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534',
+    #                                 category='gender', category_value='trans men')   
+    # category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df',
+    #                                 category='gender', category_value='gender non-conforming')
+
+    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
           
-    description_gender = Description(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
-    description_race = Description(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', description='Race: ...')
-
-    session.add(description_race)
-
-    category_non_binary.targets.append(target_non_binary)
-    category_cis_women.targets.append(target_cis_women)
-    category_cis_men.targets.append(target_cis_men)
-    category_trans_women.targets.append(target_trans_women)
-    category_trans_men.targets.append(target_trans_men)
-    category_gender_non_conforming.targets.append(target_gender_non_conforming)
-    category_disability_1.targets.append(target_disability_1)
-    category_disability_2.targets.append(target_disability_2)
-
-    category_non_binary.description = description_gender
-    category_cis_women.description = description_gender
-    category_cis_men.description = description_gender
-    category_trans_women.description = description_gender
-    category_trans_men.description = description_gender
-    category_gender_non_conforming.description = description_gender
+    value_cis_women = Value(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women')
+    value_cis_men = Value(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men')
+    value_trans_women = Value(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women')
+    value_trans_men = Value(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men')
+    value_non_conforming = Value(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming')
+    value_non_binary = Value(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary')
+    value_white = Value(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white')
     
-    session.add(category_non_binary)
-    session.add(category_cis_women)
-    session.add(category_cis_men)
-    session.add(category_trans_women)
-    session.add(category_trans_men)
-    session.add(category_gender_non_conforming)
-    session.add(category_disability_1)
-    session.add(category_disability_2)
+    # session.add(description_race)
+
+    value_non_binary.targets.append(target_non_binary)
+    value_cis_women.targets.append(target_cis_women)
+    value_cis_men.targets.append(target_cis_men)
+    value_trans_women.targets.append(target_trans_women)
+    value_trans_men.targets.append(target_trans_men)
+    value_non_conforming.targets.append(target_gender_non_conforming)
+
+    value_non_binary.category = category_gender
+    value_cis_women.category = category_gender
+    value_cis_men.category = category_gender
+    value_trans_women.category = category_gender
+    value_trans_men.category = category_gender
+    value_non_conforming.category = category_gender
+    
+    # category_non_binary.description = description_gender
+    # category_cis_women.description = description_gender
+    # category_cis_men.description = description_gender
+    # category_trans_women.description = description_gender
+    # category_trans_men.description = description_gender
+    # category_gender_non_conforming.description = description_gender
+    
+    session.add(category_gender)
+    session.add(category_race)
+    
+    session.add(value_non_binary)
+    session.add(value_cis_women)
+    session.add(value_cis_men)
+    session.add(value_trans_women)
+    session.add(value_trans_men)
+    session.add(value_non_conforming)
+    session.add(value_non_binary)
 
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
@@ -381,14 +401,12 @@ def create_dummy_data(session):
     entry7 = Entry(id='335b3680-13a1-4d8f-a917-01e1e7e1311a', count=1)
     entry8 = Entry(id='fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a', count=1)
     
-    category_non_binary.entries.append(entry1)
-    category_cis_women.entries.append(entry2)
-    category_cis_men.entries.append(entry3)
-    category_trans_women.entries.append(entry4)
-    category_trans_men.entries.append(entry5)
-    category_gender_non_conforming.entries.append(entry6)
-    category_disability_1.entries.append(entry7)
-    category_disability_2.entries.append(entry8)
+    value_non_binary.entries.append(entry1)
+    value_cis_women.entries.append(entry2)
+    value_cis_men.entries.append(entry3)
+    value_trans_women.entries.append(entry4)
+    value_trans_men.entries.append(entry5)
+    value_non_conforming.entries.append(entry6)
 
     record.entries.append(entry1)
     record.entries.append(entry2)
