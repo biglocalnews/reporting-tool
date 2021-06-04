@@ -630,30 +630,39 @@ class TestGraphQL(unittest.TestCase):
             },
         })
         
-    def test_create_description(self):
+    def test_create_value(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateValue",
             "query": """
-                mutation CreateDescription($input: CreateValueInput!) {
+                mutation CreateValue($input: CreateValueInput!) {
                    createValue(input: $input) {
                         id
-                        description
+                        name
+                        category {
+                            id
+                            name
+                        }    
                    }
                 }
             """,
             "variables": {
                 "input": {
-                    "description": "Race is ..."
+                    "name": "questioning",
+                    "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e"
                 }
             },
         })
         self.assertTrue(success)
-        self.assertTrue(self.is_valid_uuid(result["data"]["createDescription"]["id"]), "Invalid UUID")
+        self.assertTrue(self.is_valid_uuid(result["data"]["createValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "createDescription": {
-                    "id": result["data"]["createDescription"]["id"],
-                    "description": "Race is ..."
+                "createValue": {
+                    "id": result["data"]["createValue"]["id"],
+                    "name": "Questioning",
+                    "category": {
+                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "name": "Gender"
+                    }
                 },
             },
         })  
