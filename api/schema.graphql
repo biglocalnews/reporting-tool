@@ -158,6 +158,17 @@ input UpdateCategoryInput {
   description: String
 }
 
+input CreateValueInput {
+  name: String!
+  categoryId: ID!
+}
+
+input UpdateValueInput {
+  id: ID!
+  name: String
+  categoryId: ID
+}
+
 input EntryInput {
   id: ID
   categoryId: ID!
@@ -217,4 +228,13 @@ type Mutation {
 
   # Delete a Category
   deleteCategory(id: ID!): ID!
+
+  # Create a Value
+  createValue(input: CreateValueInput!): Value!
+
+  # Update a Value
+  updateValue(input: UpdateValueInput!): Value!
+
+  # Delete a Value
+  deleteValue(id: ID!): ID!
 }
