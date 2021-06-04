@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category, Description
+from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category, Value
 from uuid import UUID
 
 
@@ -603,14 +603,14 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
-    def test_query_description(self):
+    def test_query_value(self):
         success, result = self.run_graphql_query({
-            "operationName": "QueryDescription",
+            "operationName": "QueryValue",
             "query": """
-                query QueryDescription($id: ID!) {
-                   description(id: $id) {
+                query QueryValue($id: ID!) {
+                   value(id: $id) {
                         id
-                        description
+                        name
                    }
                 }
             """,
@@ -620,21 +620,22 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
+        print(f'{result}, result')
         self.assertEqual(result, {
             "data": {
-                "description": {
+                "value": {
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    "description": "Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role."
+                    "name": "Cisgender women"
                 },
             },
         })
         
     def test_create_description(self):
         success, result = self.run_graphql_query({
-            "operationName": "CreateDescription",
+            "operationName": "CreateValue",
             "query": """
-                mutation CreateDescription($input: CreateDescriptionInput!) {
-                   createDescription(input: $input) {
+                mutation CreateDescription($input: CreateValueInput!) {
+                   createValue(input: $input) {
                         id
                         description
                    }
