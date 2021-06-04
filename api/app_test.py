@@ -704,32 +704,32 @@ class TestGraphQL(unittest.TestCase):
             },
         }) 
       
-    def test_delete_description(self):
-        description_id = "2f98f223-417f-41ea-8fdb-35f0c5fe5b41"
-        # Confirm Description exists, then that it does not.
-        existing_description = self.session.query(Description).filter(Description.id == description_id)
-        # Count of existing Description should be one
-        self.assertEqual(existing_description.count(), 1)
+    def test_delete_value(self):
+        value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+        # Confirm Value exists, then that it does not.
+        existing_value = self.session.query(Value).filter(Value.id == value_id)
+        # Count of existing Value should be one
+        self.assertEqual(existing_value.count(), 1)
 
         success, result = self.run_graphql_query({
-            "operationName": "DeleteDescription",
+            "operationName": "DeleteValue",
             "query": """
-                mutation DeleteDescription($id: ID!) {
-                    deleteDescription(id: $id)
+                mutation DeleteValue($id: ID!) {
+                    deleteValue(id: $id)
                 }
             """,
             "variables": {
-                "id": description_id, 
+                "id": value_id, 
             },
         })
 
         self.assertTrue(success)
-        description = self.session.query(Description).filter(Description.id == description_id)
-        self.assertEqual(description.count(), 0)
-        self.assertTrue(self.is_valid_uuid(description_id), "Invalid UUID")
+        value = self.session.query(Value).filter(Value.id == value_id)
+        self.assertEqual(value.count(), 0)
+        self.assertTrue(self.is_valid_uuid(value_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "deleteDescription": description_id
+                "deleteValue": value_id
             },
         })           
 if __name__ == '__main__':

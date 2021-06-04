@@ -354,7 +354,7 @@ def create_dummy_data(session):
     value_non_binary = Value(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary')
     value_white = Value(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white')
     
-    # session.add(description_race)
+    session.add(value_white)
 
     value_non_binary.targets.append(target_non_binary)
     value_cis_women.targets.append(target_cis_women)
