@@ -201,9 +201,9 @@ class Category(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
     
-    @validates('category')
-    def capitalize_category(self, key, category):
-        return category.capitalize().strip()
+    @validates('name')
+    def capitalize_category(self, key, name):
+        return name.capitalize().strip()
 
 class Value(Base):
     __tablename__ = 'value'
