@@ -667,31 +667,39 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
-    def test_update_description(self):
+    def test_update_value(self):
         success, result = self.run_graphql_query({
-            "operationName": "UpdateDescription",
+            "operationName": "UpdateValue",
             "query": """
-                mutation UpdateDescription($input: UpdateDescriptionInput!) {
-                   updateDescription(input: $input) {
+                mutation UpdateValue($input: UpdateValueInput!) {
+                   updateValue(input: $input) {
                         id
-                        description
+                        name
+                        category {
+                            id
+                            name
+                        }
                    }
                 }
             """,
             "variables": {
                 "input": {
-                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    "description": "Gender is a..."
+                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                    "name": "transgender woman"
                 }
             },
         })
         self.assertTrue(success)
-        self.assertTrue(self.is_valid_uuid(result["data"]["updateDescription"]["id"]), "Invalid UUID")
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "updateDescription": {
-                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    "description": "Gender is a..."
+                "updateValue": {
+                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                    "name": "Transgender woman",
+                    "category": {
+                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "name": "Gender"
+                    }
                 },
             },
         }) 
