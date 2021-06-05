@@ -101,8 +101,8 @@ def resolve_create_record(obj, info, input):
     n_entries = []
 
     for entry in all_entries:  
-        category = session.query(Category).get(entry['category_id'])
-        n_entries.append(Entry(category=category, **entry))
+        value = session.query(Value).get(entry['value_id'])
+        n_entries.append(Entry(value=value, **entry))
 
     record = Record(entries=n_entries, **input)
     session.add(record)

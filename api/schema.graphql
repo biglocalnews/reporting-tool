@@ -100,7 +100,8 @@ type Value {
 
 type Entry {
   id: ID!
-  category: Category!
+  # category: Category!
+  value: Value!
   count: Int!
 }
 
@@ -171,7 +172,8 @@ input UpdateValueInput {
 
 input EntryInput {
   id: ID
-  categoryId: ID!
+  # categoryId: ID!
+  valueId: ID!
   count: Int!
 }
 

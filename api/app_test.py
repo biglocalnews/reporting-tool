@@ -475,9 +475,9 @@ class TestGraphQL(unittest.TestCase):
                         }
                         entries {
                             count
-                            category {
+                            value {
                                 id
-                                categoryValue
+                                name
                             }
                         }
                    }
@@ -489,7 +489,7 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": '2020-12-22T00:00:00.000Z',
                     "entries": [{
                         "count":  7,
-                        "categoryId": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                        "valueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                     }],
                 }
             },
@@ -502,7 +502,13 @@ class TestGraphQL(unittest.TestCase):
                     "id": result["data"]["createRecord"]["id"],
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                    'entries': [{'count': 7, 'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}}],
+                    'entries': [{
+                        'count': 7, 
+                        'value': {
+                            "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                            "name": "Trans women"
+                        }
+                    }],
                 },
             },
         })
