@@ -5,7 +5,7 @@ import React, {
   SetStateAction,
   useState,
 } from "react";
-import { Alert, Button, Card, Col, Row, Space, Typography } from "antd";
+import { Alert, Button, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./DataEntryAggregateDataEntryForm.css";
 import { useMutation } from "@apollo/client";
@@ -18,7 +18,7 @@ import { GetRecord } from "../../__generated__/GetRecord";
 import { UPDATE_RECORD } from "../../__mutations__/UpdateRecord.gql";
 import { formMessageHandler } from "./DataEntryMessageHandler";
 import { GetDataset } from "../../__generated__/GetDataset";
-import { DataEntryCategorySection } from "./DataEntryCategorySection";
+import { DataEntryCategorySections } from "./DataEntryCategorySections";
 
 const { Text } = Typography;
 
@@ -32,6 +32,7 @@ interface FormProps {
 
 export interface Entry {
   id?: string;
+  index: number;
   categoryId: string;
   category: string;
   categoryValue: string;
@@ -46,16 +47,18 @@ const renderForm = (
   let form: Entry[];
 
   if (existingRecord) {
-    form = existingRecord?.record?.entries.map((record) => ({
-      ...record.category,
-      id: record.id,
-      categoryId: record.category.id,
-      categoryValueLabel: record.category.categoryValue.replace(/\s+/g, "-"),
-      count: record.count,
+    form = existingRecord?.record?.entries.map((entry, index) => ({
+      ...entry.category,
+      id: entry.id,
+      index: index,
+      categoryId: entry.category.id,
+      categoryValueLabel: entry.category.categoryValue.replace(/\s+/g, "-"),
+      count: entry.count,
     }));
   } else {
-    form = metadata?.dataset.program.targets.map((target) => ({
+    form = metadata?.dataset.program.targets.map((target, index) => ({
       ...target.category,
+      index: index,
       categoryId: target.category.id,
       categoryValueLabel: target.category.categoryValue.replace(/\s+/g, "-"),
       count: 0,
@@ -246,13 +249,13 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           />
         </label>
       </div>
-      <Row gutter={[16, 16]} className="data-entry">
-        <DataEntryCategorySection
-          entries={values}
-          onValueChange={handleChange}
-        />
-        <div className="data-entry-form_buttons">
-          <Space>
+      <DataEntryCategorySections
+        entries={values}
+        onValueChange={handleChange}
+      />
+      <Row className="data-entry-form_buttons">
+        <Col span={16} offset={8}>
+          <Space wrap>
             {isEditMode ? (
               <Button
                 type="primary"
@@ -297,7 +300,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
               {t("cancelAndReturnToDashBoard")}
             </Button>
           </Space>
-        </div>
+        </Col>
       </Row>
     </form>
   );
