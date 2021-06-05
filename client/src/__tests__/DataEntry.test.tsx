@@ -83,6 +83,67 @@ test("should load and return error if dataset query fails", async () => {
   ).toBeInTheDocument();
 });
 
+test("should render two category sections in the add entry form", async () => {
+  (useParams as jest.Mock).mockReturnValue({
+    datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
+  });
+
+  // Sets a fixed date of Sunday, 14 June 2015 22:12:05.275
+  // (2015-06-14)
+  MockDate.set(1434319925275);
+
+  const client = autoMockedClient();
+
+  render(
+    <ApolloProvider client={client}>
+      <Router history={history}>
+        <DataEntry />
+      </Router>
+    </ApolloProvider>
+  );
+
+  await wait();
+
+  expect(
+    screen.getByRole("heading", {
+      name: /Add record for BBC News | Breakfast Hour/i,
+    })
+  );
+
+  expect(screen.getByRole("form"));
+  expect(screen.getAllByRole("group")).toHaveLength(2);
+
+  // Reset fixed date
+  MockDate.reset();
+});
+
+test("should render two category sections in the edit entry form", async () => {
+  (useParams as jest.Mock).mockReturnValue({
+    datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
+  });
+
+  const client = autoMockedClient();
+
+  render(
+    <ApolloProvider client={client}>
+      <Router history={history}>
+        <DataEntry />
+      </Router>
+    </ApolloProvider>
+  );
+
+  await wait();
+
+  expect(
+    screen.getByRole("heading", {
+      name: /Add record for BBC News | Breakfast Hour/i,
+    })
+  );
+
+  expect(screen.getByRole("form"));
+  expect(screen.getAllByRole("group")).toHaveLength(2);
+});
+
 test("should render add entry form with today's date when a record id does not exist in route params", async () => {
   (useParams as jest.Mock).mockReturnValue({
     datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
@@ -117,7 +178,7 @@ test("should render add entry form with today's date when a record id does not e
     })
   ).toHaveValue("2015-06-14");
 
-  expect(screen.getAllByRole("textbox")).toHaveLength(6);
+  expect(screen.getAllByRole("textbox")).toHaveLength(8);
 
   screen.getByRole("textbox", { name: /cisgender women/i });
   screen.getByRole("textbox", { name: /cisgender men/i });
@@ -167,7 +228,7 @@ test("should render edit entry form with record's date when a record id exists i
     })
   ).toHaveValue("2020-12-20");
 
-  expect(screen.getAllByRole("textbox")).toHaveLength(6);
+  expect(screen.getAllByRole("textbox")).toHaveLength(8);
 
   screen.getByRole("button", { name: /Update Record/i });
   screen.getByRole("button", {

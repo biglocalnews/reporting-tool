@@ -68,6 +68,24 @@ const categoryData = [
     },
     count: 0,
   },
+  {
+    id: "735bc484-c727-4338-b87a-784fc3663267",
+    category: {
+      id: "c36958cb-cc62-479e-ab61-eb03896a981c",
+      category: "Disability",
+      categoryValue: "Disability",
+    },
+    count: 0,
+  },
+  {
+    id: "6c34da2c-1102-4ecc-ae2d-58499da3771e",
+    category: {
+      id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+      category: "Disability",
+      categoryValue: "No disability",
+    },
+    count: 8,
+  },
 ];
 
 // Mocked records
@@ -194,6 +212,24 @@ export const mockResolvers = {
           id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
           category: "Gender",
           categoryValue: "Gender non-conforming",
+        },
+      },
+      {
+        id: "b5be10ce-103f-41f2-b4c4-603228724993",
+        target: 0.5,
+        category: {
+          id: "c36958cb-cc62-479e-ab61-eb03896a981c",
+          category: "Disability",
+          categoryValue: "Disability",
+        },
+      },
+      {
+        id: "6e6edce5-3d24-4296-b929-5eec26d52afc",
+        target: 0.5,
+        category: {
+          id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+          category: "Disability",
+          categoryValue: "No disability",
         },
       },
     ],
