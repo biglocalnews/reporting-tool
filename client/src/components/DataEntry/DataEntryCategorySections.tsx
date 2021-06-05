@@ -35,9 +35,15 @@ const DataEntryCategorySections = ({
   const categories = groupByCategory(entries);
 
   return (
-    <div id="data-entry_category_section">
+    <div className="data-entry_category_groups">
       {categories.map((category, index) => (
-        <Row key={category.category} gutter={[16, 16]} className="data-entry">
+        <Row
+          role="group"
+          aria-labelledby={category.category}
+          key={category.category}
+          gutter={[16, 16]}
+          className="data-entry"
+        >
           <Col key={index} span={8}>
             <h3 className="data-entry_category-descr-header">
               {t("aboutAttribute", { attribute: category.category })}
@@ -47,7 +53,7 @@ const DataEntryCategorySections = ({
             })}
           </Col>
           <Col span={16}>
-            <Card type="inner" title={category.category}>
+            <Card type="inner" id={category.category} title={category.category}>
               <div className="data-entry-form_input-grid">
                 {category.values.map((item) => (
                   <label
