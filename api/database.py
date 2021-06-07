@@ -186,14 +186,9 @@ class Category(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
-    # category_value = Column(String(255), nullable=False)
-
-    # entries = relationship('Entry', back_populates='category')
     description = Column(Text, nullable=False)
-    # description_id = Column(GUID, ForeignKey('description.id'), index=True)
 
     value = relationship('Value', back_populates='category')
-    # value_id = Column(GUID, ForeignKey('value.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -328,17 +323,6 @@ def create_dummy_data(session):
                                     name='gender', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
     category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
 
-    # category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb',
-    #                                 category='gender', category_value='cisgender women')
-    # category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b',
-    #                                 category='gender', category_value='cisgender men')
-    # category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b',
-    #                                 category='gender', category_value='trans women')   
-    # category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534',
-    #                                 category='gender', category_value='trans men')   
-    # category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df',
-    #                                 category='gender', category_value='gender non-conforming')
-
     target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
@@ -369,13 +353,6 @@ def create_dummy_data(session):
     value_trans_women.category = category_gender
     value_trans_men.category = category_gender
     value_non_conforming.category = category_gender
-    
-    # category_non_binary.description = description_gender
-    # category_cis_women.description = description_gender
-    # category_cis_men.description = description_gender
-    # category_trans_women.description = description_gender
-    # category_trans_men.description = description_gender
-    # category_gender_non_conforming.description = description_gender
     
     session.add(category_gender)
     session.add(category_race)
