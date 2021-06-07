@@ -1,8 +1,8 @@
 import { Card, Col, Row } from "antd";
 import React, { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { GroupBy } from "../../utils/";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
+import _ from "lodash";
 
 interface DataEntryCategorySection {
   entries: Entry[];
@@ -10,11 +10,12 @@ interface DataEntryCategorySection {
 }
 
 const groupByCategory = (entries: Entry[]) => {
-  const group = GroupBy(entries, (obj) => obj.category);
-  const categoryGroups = Object.entries(group).map(([category, values]) => ({
-    category,
-    values,
-  }));
+  const categoryGroups = _.chain(entries)
+    // Group the elements of Array based on nested `category` property
+    .groupBy((obj) => obj.category)
+    // `key` is group's name (category), `value` is the array of objects
+    .map((value, key) => ({ category: key, values: value }))
+    .value();
 
   return categoryGroups;
 };
