@@ -3,6 +3,7 @@ from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, Value
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 mutation = ObjectType("Mutation")
 
@@ -123,11 +124,13 @@ def resolve_update_record(obj, info, input):
     all_entries = input.pop('entries', [])
 
     for entry in all_entries:  
-        existing_entry = session.query(Entry).filter(Entry.id == entry['id'], Entry.record_id == input['id'])
+        existing_entry = session.query(Entry).filter(Entry.id == entry['id'])
         
         if existing_entry:
-            session.merge(Entry(**entry))
-
+            if existing_entry.record_id == input['id']:
+                session.merge(Entry(**entry))
+            else:   
+                raise NoResultFound(f'No Entry with id: {existing_entry.id} associated with Record id: {record.id} was found.')
         else:
             Entry(record=record, **entry)
 
