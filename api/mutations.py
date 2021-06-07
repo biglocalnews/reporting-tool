@@ -123,8 +123,8 @@ def resolve_update_record(obj, info, input):
     all_entries = input.pop('entries', [])
 
     for entry in all_entries:  
-        existing_entry = session.query(Entry).get(entry.get('id'))
-
+        existing_entry = session.query(Entry).filter(Entry.id == entry['id'], Entry.record_id == input['id'])
+        
         if existing_entry:
             session.merge(Entry(**entry))
 
