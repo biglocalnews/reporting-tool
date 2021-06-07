@@ -517,9 +517,14 @@ class TestGraphQL(unittest.TestCase):
                         }
                         entries {
                             count
-                            category {
+                            value {
                                 id
-                                categoryValue
+                                name 
+                                category {
+                                    id
+                                    name
+                                }
+                                
                             }
                         }
                    }
@@ -532,7 +537,7 @@ class TestGraphQL(unittest.TestCase):
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{
                         "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                        "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e", 
+                        "valueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                         "count": 0
                         }
                     ]  
@@ -542,9 +547,6 @@ class TestGraphQL(unittest.TestCase):
         
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
-
-        new_category = self.session.query(Category).filter(Category.category_value == "sour").first()
-
         self.assertEqual(result, {
             "data": {
                 "updateRecord": {
@@ -552,14 +554,12 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [
-                        {"count": 0, "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "categoryValue": "Non-binary"}},
-                        {"count": 1, "category": {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}},
-                        {"count": 1, "category": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "categoryValue": "Cisgender men"}},
-                        {"count": 1, "category": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "categoryValue": "Trans women"}},
-                        {"count": 1, "category": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "categoryValue": "Trans men"}},
-                        {"count": 1, "category": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "categoryValue": "Gender non-conforming"}},
-                        {"count": 1, "category": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "categoryValue": "Disability"}},
-                        {"count": 1, "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "categoryValue": "No disability"}}
+                        {"count": 0, "value": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "value": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "value": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "value": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "value": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "value": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                     ]
                 },
             },
