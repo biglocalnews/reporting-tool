@@ -402,9 +402,9 @@ class TestGraphQL(unittest.TestCase):
                             id
                         }
                         entries {
-                            category {
+                            value {
                                 id
-                                categoryValue
+                                name
                             }
                         }
                    }
@@ -423,42 +423,30 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-21T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
                     "entries": [
-                        {"category": {
-                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-                        "categoryValue": "Non-binary"
+                        {"value": {
+                            "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                            "name": "Non-binary"
                         }}, 
-                        {"category": {
-                            "id": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-                            "categoryValue": "Cisgender women"
+                        {"value": {
+                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                            "name": "Cisgender women"
                         }},
-                        {"category": {
+                        {"value": {
                             "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                            "categoryValue": "Cisgender men"
+                            "name": "Cisgender men"
                         }},
-                        {'category': {
+                        {'value': {
                             "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
-                            "categoryValue": "Trans women"
+                            "name": "Trans women"
                         }},
-                        {'category': {
+                        {'value': {
                             "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
-                            "categoryValue": "Trans men"
+                            "name": "Trans men"
                         }},
-                        {'category': {
+                        {'value': {
                             "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
-                            "categoryValue": "Gender non-conforming"
-                        }},
-                        {
-                            "category": {
-                                "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                "categoryValue": "Disability"
-                            },
-                        },
-                        {
-                            "category": {
-                                "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                "categoryValue": "No disability"
-                            }
-                        }
+                            "name": "Gender non-conforming"
+                        }}
                     ]
                 },
             },
