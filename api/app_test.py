@@ -616,7 +616,6 @@ class TestGraphQL(unittest.TestCase):
         })
 
         self.assertTrue(success)
-        print(f'{result}, result')
         self.assertEqual(result, {
             "data": {
                 "value": {
