@@ -10,6 +10,7 @@
 export interface GetDataset_dataset_program_targets_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly description: string;
   readonly category: string;
   readonly categoryValue: string;
 }
@@ -29,6 +30,7 @@ export interface GetDataset_dataset_program {
 export interface GetDataset_dataset_records_entries_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly description: string;
   readonly category: string;
   readonly categoryValue: string;
 }
