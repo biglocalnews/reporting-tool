@@ -16,7 +16,7 @@ const groupByCategory = (entries: Entry[]) => {
     // `key` is group's name (category), `value` is the array of objects
     .map((value, key) => ({
       category: key,
-      descripion: _(value).head()?.description, // TODO: update when description change is added
+      description: _(value).head()?.description, // TODO: update when description change is added
       values: value,
     }))
     .value();
@@ -54,7 +54,7 @@ const DataEntryCategorySections = ({
               {t("aboutAttribute", { attribute: category.category })}
             </h3>
             {t("attributeDescription", {
-              description: category.descripion,
+              description: category.description,
             })}
           </Col>
           <Col span={16}>
