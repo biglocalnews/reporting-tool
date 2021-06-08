@@ -11,7 +11,7 @@ import uuid
 
 import click
 from datetime import datetime
-from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint, Text
 from sqlalchemy.orm import relationship, sessionmaker, validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
@@ -185,7 +185,7 @@ class Category(Base):
     __tablename__ = 'category'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    description = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
     category = Column(String(255), nullable=False)
     category_value = Column(String(255), nullable=False)
 
@@ -304,23 +304,36 @@ def create_dummy_data(session):
     tag.datasets.append(ds2)
 
     # Gender category
-    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description='Non-binary gender',
+    gender_description = 'Gender identity expresses one\'s innermost concept of self as male,\
+        female, a blend of both or neither - how individuals perceive\
+        themselves and what they call themselves. Someone\'s gender identity\
+        can be the same (cisgender) or different (transgender) from their\
+        sex assigned at birth.'
+
+    category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description=gender_description,
                                     category='gender', category_value='non-binary')
-    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', description='Cisgender women gender',
+    category_cis_women = Category(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', description=gender_description,
                                     category='gender', category_value='cisgender women')
-    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b', description='Cisgender men gender',
+    category_cis_men = Category(id='d237a422-5858-459c-bd01-a0abdc077e5b', description=gender_description,
                                     category='gender', category_value='cisgender men')
-    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b', description='Transgender women gender',
+    category_trans_women = Category(id='662557e5-aca8-4cec-ad72-119ad9cda81b', description=gender_description,
                                     category='gender', category_value='trans women')   
-    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', description='Transgender men gender',
+    category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', description=gender_description,
                                     category='gender', category_value='trans men')   
-    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', description='Gender non-conforming gender',
-                                    category='gender', category_value='gender non-conforming')
+    category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', description=gender_description,
+                                    category='gender', category_value=gender_description)
 
     # Disability category
-    category_disability_1 = Category(id='c36958cb-cc62-479e-ab61-eb03896a981c', description='disability description',
+    disability_description = 'A disability is any condition of the body or mind (impairment) \
+        that makes it more difficult for the person with the condition to do certain activities\
+        (activity limitation) and interact with the world around them (participation restrictions).\
+        Although “people with disabilities” sometimes refers to a single population, this is actually\
+        a diverse group of people with a wide range of needs. Two people with the same type of disability\
+        can be affected in very different ways. Some disabilities may be hidden or not easy to see.'
+
+    category_disability_1 = Category(id='c36958cb-cc62-479e-ab61-eb03896a981c', description=disability_description,
                                     category='disability', category_value='disability')
-    category_disability_2 = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', description='disability description',
+    category_disability_2 = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', description=disability_description,
                                     category='disability', category_value='no disability')
 
     # Targets 
