@@ -327,9 +327,7 @@ def create_dummy_data(session):
     disability_description = 'A disability is any condition of the body or mind (impairment) \
         that makes it more difficult for the person with the condition to do certain activities\
         (activity limitation) and interact with the world around them (participation restrictions).\
-        Although “people with disabilities” sometimes refers to a single population, this is actually\
-        a diverse group of people with a wide range of needs. Two people with the same type of disability\
-        can be affected in very different ways. Some disabilities may be hidden or not easy to see.'
+        Some disabilities may be hidden or not easy to see.'
 
     category_disability_1 = Category(id='c36958cb-cc62-479e-ab61-eb03896a981c', description=disability_description,
                                     category='disability', category_value='disability')
