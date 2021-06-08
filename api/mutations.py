@@ -124,10 +124,10 @@ def resolve_update_record(obj, info, input):
     all_entries = input.pop('entries', [])
 
     for entry in all_entries:  
-        existing_entry = session.query(Entry).filter(Entry.id == entry['id'])
+        existing_entry = session.query(Entry).get(entry.get('id'))
         
         if existing_entry:
-            if existing_entry.record_id == input['id']:
+            if str(existing_entry.record_id) == input['id']:
                 session.merge(Entry(**entry))
             else:   
                 raise NoResultFound(f'No Entry with id: {existing_entry.id} associated with Record id: {record.id} was found.')
