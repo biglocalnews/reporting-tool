@@ -12,6 +12,17 @@ const users = new Map([
   ],
 ]);
 
+const genderDescription = `Gender identity expresses one's innermost concept of self as male, 
+female, a blend of both or neither - how individuals perceive 
+themselves and what they call themselves. Someone's gender identity
+can be the same (cisgender) or different (transgender) from their 
+sex assigned at birth.`;
+
+const disabilityDescription = `A disability is any condition of the body or mind (impairment) 
+that makes it more difficult for the person with the condition to do certain activities 
+(activity limitation) and interact with the world around them (participation restrictions). 
+Some disabilities may be hidden or not easy to see.`;
+
 // Mocked categories and values
 const categoryData = [
   {
@@ -20,6 +31,7 @@ const categoryData = [
       id: "51349e29-290e-4398-a401-5bf7d04af75e",
       category: "Gender",
       categoryValue: "Non-binary",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -29,6 +41,7 @@ const categoryData = [
       id: "0034d015-0652-497d-ab4a-d42b0bdf08cb",
       category: "Gender",
       categoryValue: "Cisgender women",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -38,6 +51,7 @@ const categoryData = [
       id: "d237a422-5858-459c-bd01-a0abdc077e5b",
       category: "Gender",
       categoryValue: "Cisgender men",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -47,6 +61,7 @@ const categoryData = [
       id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
       category: "Gender",
       categoryValue: "Trans women",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -56,6 +71,7 @@ const categoryData = [
       id: "1525cce8-7db3-4e73-b5b0-d2bd14777534",
       category: "Gender",
       categoryValue: "Trans men",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -65,6 +81,7 @@ const categoryData = [
       id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
       category: "Gender",
       categoryValue: "Gender non-conforming",
+      description: genderDescription,
     },
     count: 0,
   },
@@ -74,6 +91,7 @@ const categoryData = [
       id: "c36958cb-cc62-479e-ab61-eb03896a981c",
       category: "Disability",
       categoryValue: "Disability",
+      description: disabilityDescription,
     },
     count: 0,
   },
@@ -83,6 +101,7 @@ const categoryData = [
       id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
       category: "Disability",
       categoryValue: "No disability",
+      description: disabilityDescription,
     },
     count: 8,
   },
