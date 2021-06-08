@@ -163,7 +163,7 @@ def resolve_create_category(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    existing_category = session.query(Category).filter(Category.category_value == input["category_value"].capitalize().strip()).first()
+    existing_category = session.query(Category).filter(Category.name == input["name"].capitalize().strip()).first()
 
     if existing_category:
         return existing_category
