@@ -10,11 +10,15 @@ interface DataEntryCategorySection {
 }
 
 const groupByCategory = (entries: Entry[]) => {
-  const categoryGroups = _.chain(entries)
+  const categoryGroups = _(entries)
     // Group the elements of Array based on nested `category` property
     .groupBy((obj) => obj.category)
     // `key` is group's name (category), `value` is the array of objects
-    .map((value, key) => ({ category: key, values: value }))
+    .map((value, key) => ({
+      category: key,
+      descripion: _(value).head()?.description, // TODO: update when description change is added
+      values: value,
+    }))
     .value();
 
   return categoryGroups;
@@ -50,7 +54,7 @@ const DataEntryCategorySections = ({
               {t("aboutAttribute", { attribute: category.category })}
             </h3>
             {t("attributeDescription", {
-              description: "TBD", // TODO: Remove on description update
+              description: category.descripion,
             })}
           </Col>
           <Col span={16}>

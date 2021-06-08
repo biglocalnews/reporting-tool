@@ -37,6 +37,7 @@ export interface Entry {
   category: string;
   categoryValue: string;
   categoryValueLabel: string;
+  description: string;
   count: number | any;
 }
 
