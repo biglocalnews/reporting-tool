@@ -202,8 +202,7 @@ def resolve_delete_category(obj, info, id):
     session = info.context['dbsession']
 
     session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Entry).filter(Entry.category_id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Target).filter(Target.category_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Value).filter(Value.category_id == id).update({'deleted':datetime.datetime.now()})
 
     session.commit()
 
@@ -252,7 +251,10 @@ def resolve_delete_value(obj, info, id):
     '''
     session = info.context['dbsession']
 
-    session.query(Value).filter(Value.id == id).delete()
+    session.query(Value).filter(Value.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Entry).filter(Entry.value_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Target).filter(Target.value_id == id).update({'deleted':datetime.datetime.now()})
+    
     session.commit()
 
     return id
