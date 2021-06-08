@@ -33,6 +33,8 @@ i18next.use(initReactI18next).init({
         goToDataset: "Go to Dataset",
         saveRecord: "{{buttonTitle}} Record",
         cancelAndReturnToDashBoard: "Cancel and Return To Dashboard",
+        attributeDescription: "{{description}}",
+        aboutAttribute: "About {{attribute}}",
       },
     },
     en: {
@@ -40,6 +42,8 @@ i18next.use(initReactI18next).init({
       goToDataset: "Go to Dataset",
       saveRecord: "{{buttonTitle}} Record",
       cancelAndReturnToDashBoard: "Cancel and Return To Dashboard",
+      attributeDescription: "{{description}}",
+      aboutAttribute: "About {{attribute}}",
     },
   },
   lowerCaseLng: true,
@@ -113,6 +117,19 @@ test("should render two category sections in the add entry form", async () => {
   expect(screen.getByRole("form"));
   expect(screen.getAllByRole("group")).toHaveLength(2);
 
+  expect(screen.getByRole("heading", { name: /About Gender/i }));
+  expect(screen.getByRole("heading", { name: /About Disability/i }));
+
+  expect(
+    screen.getByText(
+      /Gender identity expresses one's innermost concept of self as male/i
+    )
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText(/A disability is any condition of the body /i)
+  ).toBeInTheDocument();
+
   // Reset fixed date
   MockDate.reset();
 });
@@ -142,6 +159,19 @@ test("should render two category sections in the edit entry form", async () => {
 
   expect(screen.getByRole("form"));
   expect(screen.getAllByRole("group")).toHaveLength(2);
+
+  expect(screen.getByRole("heading", { name: /About Gender/i }));
+  expect(screen.getByRole("heading", { name: /About Disability/i }));
+
+  expect(
+    screen.getByText(
+      /Gender identity expresses one's innermost concept of self as male/i
+    )
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText(/A disability is any condition of the body /i)
+  ).toBeInTheDocument();
 });
 
 test("should render add entry form with today's date when a record id does not exist in route params", async () => {
