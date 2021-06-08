@@ -321,8 +321,8 @@ def create_dummy_data(session):
     category_trans_men = Category(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', description=gender_description,
                                     category='gender', category_value='trans men')   
     category_gender_non_conforming = Category(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', description=gender_description,
-                                    category='gender', category_value=gender_description)
-
+                                    category='gender', category_value="gender non-conforming")
+    
     # Disability category
     disability_description = 'A disability is any condition of the body or mind (impairment) \
         that makes it more difficult for the person with the condition to do certain activities\
