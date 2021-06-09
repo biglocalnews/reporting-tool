@@ -12,6 +12,7 @@ export const GET_DATASET = gql`
           id
           category {
             id
+            description
             category
             categoryValue
           }
@@ -24,6 +25,7 @@ export const GET_DATASET = gql`
           id
           category {
             id
+            description
             category
             categoryValue
           }

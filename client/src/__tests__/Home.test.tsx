@@ -75,7 +75,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 
 test("should render No Data Available for 'last updated' date when no records exist", async () => {
   const mock = {
-    Date: () => {
+    DateTime: () => {
       return "";
     },
   };

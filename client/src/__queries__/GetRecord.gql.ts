@@ -12,6 +12,7 @@ export const GET_RECORD = gql`
         id
         category {
           id
+          description
           category
           categoryValue
         }

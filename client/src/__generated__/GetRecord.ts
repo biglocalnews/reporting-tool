@@ -15,6 +15,7 @@ export interface GetRecord_record_dataset {
 export interface GetRecord_record_entries_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly description: string;
   readonly category: string;
   readonly categoryValue: string;
 }
