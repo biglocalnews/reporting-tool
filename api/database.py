@@ -304,11 +304,13 @@ def create_dummy_data(session):
     tag.datasets.append(ds2)
 
     # Gender category
-    gender_description = 'Gender identity expresses one\'s innermost concept of self as male,\
-        female, a blend of both or neither - how individuals perceive\
-        themselves and what they call themselves. Someone\'s gender identity\
-        can be the same (cisgender) or different (transgender) from their\
-        sex assigned at birth.'
+    gender_description = '''
+    Gender identity expresses one's innermost concept of self as male,
+    female, a blend of both or neither - how individuals perceive
+    themselves and what they call themselves. Someone's gender identity
+    can be the same (cisgender) or different (transgender) from their
+    sex assigned at birth.
+    '''
 
     category_non_binary = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', description=gender_description,
                                     category='gender', category_value='non-binary')
@@ -324,10 +326,12 @@ def create_dummy_data(session):
                                     category='gender', category_value="gender non-conforming")
     
     # Disability category
-    disability_description = 'A disability is any condition of the body or mind (impairment) \
-        that makes it more difficult for the person with the condition to do certain activities\
-        (activity limitation) and interact with the world around them (participation restrictions).\
-        Some disabilities may be hidden or not easy to see.'
+    disability_description = '''
+    A disability is any condition of the body or mind (impairment)
+    that makes it more difficult for the person with the condition to do certain activities
+    (activity limitation) and interact with the world around them (participation restrictions).
+    Some disabilities may be hidden or not easy to see.
+    '''
 
     category_disability_1 = Category(id='c36958cb-cc62-479e-ab61-eb03896a981c', description=disability_description,
                                     category='disability', category_value='disability')
