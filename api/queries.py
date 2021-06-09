@@ -1,12 +1,13 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue
+from database import Dataset, User, Record, Category, CategoryValue, Entry
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
+sum_entries_by_category_value = ObjectType("SumEntriesByCategoryValue")
 
-queries = [query, dataset]
+queries = [query, dataset, sum_entries_by_category_value]
 
 '''GraphQL query to find a user based on user ID.
     :param obj: obj is a value returned by a parent resolver
@@ -49,6 +50,43 @@ def resolve_dataset_last_updated(dataset, info):
     return session.query(func.max(Record.updated)).\
             filter(Record.dataset_id == dataset.id, Record.deleted == None).\
                 scalar()
+
+# TODO: We may want to move the dataset/category relationship resolvers in the future
+# to the statement in the following fuction so we can limit the number of queries
+# run per object and avoid N+1 query problem. 
+# Consider batch queries: https://github.com/graphql/dataloader 
+@dataset.field("sumOfCategoryValueCounts")
+def resolve_sums_of_category_values(dataset, info):
+    '''GraphQL query to sum the counts in an entry by category value
+        :param dataset: Dataset object to filter records by dataset ID
+        :returns: Dictionary
+    '''
+    session = info.context['dbsession']
+
+    stmt = session.query(Entry.category_id, func.sum(Entry.count).label('sum_of_counts')).\
+        join(Entry.record).filter(Record.dataset_id == dataset.id, Record.deleted == None).group_by(Entry.category_id).all()
+
+    return [{'dataset_id': dataset.id, 'category_value_id': row[0], 'sum_of_counts': row[1]} for row in stmt]
+
+
+@sum_entries_by_category_value.field("dataset")
+def resolve_sums_dataset_relationship(count_obj, info):
+    '''GraphQL query to add dataset relationship to SumEntriesByCategoryValue
+        :param count_obj: Object in sumOfCategoryValueCounts dataset field array
+        :returns: Dataset dictionary OR None if Dataset was soft-deleted
+    '''
+    session = info.context['dbsession']
+    return session.query(Dataset).filter(Dataset.id == count_obj['dataset_id'], Dataset.deleted == None).first()
+
+
+@sum_entries_by_category_value.field("category")
+def resolve_sums_category_relationship(count_obj, info):
+    '''GraphQL query to add category relationship to SumEntriesByCategoryValue
+        :param count_obj: Object in sumOfCategoryValueCounts dataset field array
+        :returns: Category dictionary OR None if Category was soft-deleted
+    '''
+    session = info.context['dbsession']
+    return session.query(Category).filter(Category.id == count_obj['category_value_id'], Category.deleted == None).first()
 
 
 @query.field("record")

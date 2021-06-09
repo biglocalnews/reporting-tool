@@ -112,6 +112,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   program: Program!
   records: [Record!]!
   tags: [Tag!]!
+  sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
 }
 
 type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
@@ -137,6 +138,12 @@ type Entry @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
 type Description {
   id: ID!
   description: String!
+}
+
+type SumEntriesByCategoryValue {
+  dataset: Dataset!
+  category: Category!
+  sumOfCounts: Int!
 }
 
 input UpsertUserInput {
