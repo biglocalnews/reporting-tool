@@ -30,13 +30,6 @@ const DataEntryCategorySections = ({
 }: DataEntryCategorySection): JSX.Element => {
   const { t } = useTranslation();
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    onValueChange(event, index);
-  };
-
   const categories = groupByCategory(entries);
 
   return (
@@ -77,7 +70,7 @@ const DataEntryCategorySections = ({
                       pattern="[0-9]*"
                       placeholder="0"
                       value={item.count}
-                      onChange={(e) => handleChange(e, item.index)}
+                      onChange={(e) => onValueChange(e, item.index)}
                     />
                     {` ${item.categoryValue} `}
                     <span
