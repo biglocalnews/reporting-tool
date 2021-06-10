@@ -187,7 +187,6 @@ class Category(Base):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-
     value = relationship('Value', back_populates='category')
 
     created = Column(TIMESTAMP,
@@ -204,11 +203,9 @@ class Value(Base):
     __tablename__ = 'value'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    name = Column(String(255), nullable=False)
-    
+    name = Column(String(255), nullable=False) 
     category = relationship('Category', back_populates='value')
     category_id = Column(GUID, ForeignKey('category.id'), index=True)
-    
     targets = relationship('Target', back_populates='value')
     entries = relationship('Entry', back_populates='value')
 
@@ -231,9 +228,6 @@ class Dataset(Base):
     program = relationship('Program', back_populates='datasets')
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     records = relationship('Record')
-    inputter = relationship('User')
-    inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
-
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
 
@@ -265,12 +259,13 @@ class Entry(Base):
     __tablename__ = 'entry'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-
     value_id = Column(GUID, ForeignKey('value.id'), index=True)
     value = relationship('Value', back_populates='entries')
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
+    inputter = relationship('User')
+    inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
