@@ -1,7 +1,7 @@
 import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, Value
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -102,8 +102,8 @@ def resolve_create_record(obj, info, input):
     n_entries = []
 
     for entry in all_entries:  
-        value = session.query(Value).get(entry['value_id'])
-        n_entries.append(Entry(value=value, **entry))
+        category_value = session.query(CategoryValue).get(entry['category_value_id'])
+        n_entries.append(Entry(category_value=category_value, **entry))
 
     record = Record(entries=n_entries, **input)
     session.add(record)
@@ -202,58 +202,58 @@ def resolve_delete_category(obj, info, id):
     session = info.context['dbsession']
 
     session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Value).filter(Value.category_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':datetime.datetime.now()})
 
     session.commit()
 
     return id
 
-@mutation.field("createValue")
+@mutation.field("createCategoryValue")
 @convert_kwargs_to_snake_case
-def resolve_create_value(obj, info, input):
-    '''GraphQL mutation to create a Value.
-        :param input: params for new Value
-        :returns: Value dictionary
+def resolve_create_category_value(obj, info, input):
+    '''GraphQL mutation to create a CategoryValue.
+        :param input: params for new CategoryValue
+        :returns: CategoryValue dictionary
     '''
 
     session = info.context['dbsession']
 
-    value = Value(**input)
-    session.add(value)
+    category_value = CategoryValue(**input)
+    session.add(category_value)
     session.commit()
     
-    return value
+    return category_value
 
-@mutation.field("updateValue")
+@mutation.field("updateCategoryValue")
 @convert_kwargs_to_snake_case
-def resolve_update_value(obj, info, input):
-    '''GraphQL mutation to update a Value.
+def resolve_update_category_value(obj, info, input):
+    '''GraphQL mutation to update a CategoryValue.
         :param input: params to be changed
-        :returns: updated Value dictionary
+        :returns: updated CategoryValue dictionary
     '''
     
     session = info.context['dbsession']
-    value = session.query(Value).get(input['id'])
+    category_value = session.query(CategoryValue).get(input['id'])
 
     for param in input:
-        setattr(value, param, input[param])
+        setattr(category_value, param, input[param])
 
-    session.add(value)
+    session.add(category_value)
     session.commit()
     
-    return value
+    return category_value
 
-@mutation.field("deleteValue")
-def resolve_delete_value(obj, info, id):
-    '''GraphQL mutation to delete a Value.
-        :param id: UUID of Value to be deleted
-        :returns: UUID of deleted Value
+@mutation.field("deleteCategoryValue")
+def resolve_delete_category_value(obj, info, id):
+    '''GraphQL mutation to delete a CategoryValue.
+        :param id: UUID of CategoryValue to be deleted
+        :returns: UUID of deleted CategoryValue
     '''
     session = info.context['dbsession']
 
-    session.query(Value).filter(Value.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Entry).filter(Entry.value_id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Target).filter(Target.value_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Target).filter(Target.category_value_id == id).update({'deleted':datetime.datetime.now()})
     
     session.commit()
 

@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import schema
-from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category, Value
+from database import create_tables, create_dummy_data, Record, Entry, Dataset, Category, CategoryValue
 from uuid import UUID
 
 
@@ -155,7 +155,7 @@ class TestGraphQL(unittest.TestCase):
                                     id
                                     firstName
                                 }
-                                value {
+                                categoryValue {
                                     id
                                     name
                                     
@@ -199,7 +199,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 },
-                                "value": {
+                                "categoryValue": {
                                     "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                     "name": "Non-binary"
                                 }
@@ -211,7 +211,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 },
-                                "value": {
+                                "categoryValue": {
                                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                     "name": "Cisgender women"
                                 }
@@ -223,7 +223,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 },
-                                'value': {
+                                'categoryValue': {
                                     "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
                                     "name": "Cisgender men"
                                 }
@@ -235,7 +235,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 }, 
-                                'value': {
+                                'categoryValue': {
                                     "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
                                     "name": "Trans women"
                                 }
@@ -247,7 +247,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 },
-                                'value': {
+                                'categoryValue': {
                                     "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
                                     "name": "Trans men"
                                 }
@@ -259,7 +259,7 @@ class TestGraphQL(unittest.TestCase):
                                     'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                     'firstName': 'Cat'
                                 },
-                                'value': {
+                                'categoryValue': {
                                     "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                                     "name": "Gender non-conforming"
                                 }
@@ -421,7 +421,7 @@ class TestGraphQL(unittest.TestCase):
                             id
                         }
                         entries {
-                            value {
+                            categoryValue {
                                 id
                                 name
                             }
@@ -442,27 +442,27 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-21T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
                     "entries": [
-                        {"value": {
+                        {"categoryValue": {
                             "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                             "name": "Non-binary"
                         }}, 
-                        {"value": {
+                        {"categoryValue": {
                             "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                             "name": "Cisgender women"
                         }},
-                        {"value": {
+                        {"categoryValue": {
                             "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
                             "name": "Cisgender men"
                         }},
-                        {'value': {
+                        {'categoryValue': {
                             "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
                             "name": "Trans women"
                         }},
-                        {'value': {
+                        {'categoryValue': {
                             "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
                             "name": "Trans men"
                         }},
-                        {'value': {
+                        {'categoryValue': {
                             "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                             "name": "Gender non-conforming"
                         }}
@@ -484,7 +484,7 @@ class TestGraphQL(unittest.TestCase):
                         }
                         entries {
                             count
-                            value {
+                            categoryValue {
                                 id
                                 name
                             }
@@ -501,7 +501,7 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": '2020-12-22T00:00:00.000Z',
                     "entries": [{
                         "count":  7,
-                        "valueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                        "categoryValueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                         "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                     }],
                 }
@@ -518,7 +518,7 @@ class TestGraphQL(unittest.TestCase):
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
                     'entries': [{
                         'count': 7,
-                        'value': {
+                        'categoryValue': {
                             "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
                             "name": "Trans women"
                         },
@@ -542,7 +542,7 @@ class TestGraphQL(unittest.TestCase):
                         }
                         entries {
                             count
-                            value {
+                            categoryValue {
                                 id
                                 name 
                                 category {
@@ -562,7 +562,7 @@ class TestGraphQL(unittest.TestCase):
                     "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                     "entries": [{
                         "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                        "valueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                        "categoryValueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                         "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         "count": 0
                         }
@@ -580,12 +580,12 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-25T00:00:00",
                     "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                     "entries": [
-                        {"count": 0, "value": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                        {"count": 1, "value": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                        {"count": 1, "value": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                        {"count": 1, "value": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                        {"count": 1, "value": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                        {"count": 1, "value": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 0, "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                     ]
                 },
             },
@@ -625,12 +625,12 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
-    def test_query_value(self):
+    def test_query_category_value(self):
         success, result = self.run_graphql_query({
-            "operationName": "QueryValue",
+            "operationName": "QueryCategoryValue",
             "query": """
-                query QueryValue($id: ID!) {
-                   value(id: $id) {
+                query QueryCategoryValue($id: ID!) {
+                   categoryValue(id: $id) {
                         id
                         name
                    }
@@ -644,19 +644,19 @@ class TestGraphQL(unittest.TestCase):
         self.assertTrue(success)
         self.assertEqual(result, {
             "data": {
-                "value": {
+                "categoryValue": {
                     "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                     "name": "Cisgender women"
                 },
             },
         })
         
-    def test_create_value(self):
+    def test_create_category_value(self):
         success, result = self.run_graphql_query({
-            "operationName": "CreateValue",
+            "operationName": "CreateCategoryValue",
             "query": """
-                mutation CreateValue($input: CreateValueInput!) {
-                   createValue(input: $input) {
+                mutation CreateCategoryValue($input: CreateCategoryValueInput!) {
+                   createCategoryValue(input: $input) {
                         id
                         name
                         category {
@@ -674,11 +674,11 @@ class TestGraphQL(unittest.TestCase):
             },
         })
         self.assertTrue(success)
-        self.assertTrue(self.is_valid_uuid(result["data"]["createValue"]["id"]), "Invalid UUID")
+        self.assertTrue(self.is_valid_uuid(result["data"]["createCategoryValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "createValue": {
-                    "id": result["data"]["createValue"]["id"],
+                "createCategoryValue": {
+                    "id": result["data"]["createCategoryValue"]["id"],
                     "name": "Questioning",
                     "category": {
                         "id": "51349e29-290e-4398-a401-5bf7d04af75e",
@@ -688,12 +688,12 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
-    def test_update_value(self):
+    def test_update_category_value(self):
         success, result = self.run_graphql_query({
-            "operationName": "UpdateValue",
+            "operationName": "UpdateCategoryValue",
             "query": """
-                mutation UpdateValue($input: UpdateValueInput!) {
-                   updateValue(input: $input) {
+                mutation UpdateCategoryValue($input: UpdateCategoryValueInput!) {
+                   updateCategoryValue(input: $input) {
                         id
                         name
                         category {
@@ -711,10 +711,10 @@ class TestGraphQL(unittest.TestCase):
             },
         })
         self.assertTrue(success)
-        self.assertTrue(self.is_valid_uuid(result["data"]["updateValue"]["id"]), "Invalid UUID")
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateCategoryValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "updateValue": {
+                "updateCategoryValue": {
                     "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                     "name": "Transgender woman",
                     "category": {
@@ -726,29 +726,29 @@ class TestGraphQL(unittest.TestCase):
         }) 
       
     def test_delete_value(self):
-        value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+        category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
         # Confirm Value exists, then that it does not.
-        existing_value = self.session.query(Value).filter(Value.id == value_id)
-        # Count of existing Value should be one
-        self.assertEqual(existing_value.count(), 1)
+        existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id)
+        # Count of existing CategoryValue should be one
+        self.assertEqual(existing_category_value.count(), 1)
         success, result = self.run_graphql_query({
-            "operationName": "DeleteValue",
+            "operationName": "DeleteCategoryValue",
             "query": """
-                mutation DeleteValue($id: ID!) {
-                    deleteValue(id: $id)
+                mutation DeleteCategoryValue($id: ID!) {
+                    deleteCategoryValue(id: $id)
                 }
             """,
             "variables": {
-                "id": value_id, 
+                "id": category_value_id, 
             },
         })
         self.assertTrue(success)
-        value = self.session.query(Value).filter(Value.id == value_id, Value.deleted is None)
-        self.assertEqual(value.count(), 0)
-        self.assertTrue(self.is_valid_uuid(value_id), "Invalid UUID")
+        category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted is None)
+        self.assertEqual(category_value.count(), 0)
+        self.assertTrue(self.is_valid_uuid(category_value_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
-                "deleteValue": value_id
+                "deleteCategoryValue": category_value_id
             },
         })           
 if __name__ == '__main__':
