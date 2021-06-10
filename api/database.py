@@ -172,8 +172,8 @@ class Target(Base):
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     target_date = Column(DateTime, nullable=False)
     target = Column(Float, nullable=False)
-    value_id = Column(GUID, ForeignKey('value.id'), index=True)
-    value = relationship('Value', back_populates='targets')
+    category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
+    category_value = relationship('CategoryValue', back_populates='targets')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -187,7 +187,7 @@ class Category(Base):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-    value = relationship('Value', back_populates='category')
+    category_value = relationship('CategoryValue', back_populates='category')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -199,15 +199,15 @@ class Category(Base):
     def capitalize_category(self, key, name):
         return name.capitalize().strip()
 
-class Value(Base):
-    __tablename__ = 'value'
+class CategoryValue(Base):
+    __tablename__ = 'category_value'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False) 
-    category = relationship('Category', back_populates='value')
+    category = relationship('Category', back_populates='category_value')
     category_id = Column(GUID, ForeignKey('category.id'), index=True)
-    targets = relationship('Target', back_populates='value')
-    entries = relationship('Entry', back_populates='value')
+    targets = relationship('Target', back_populates='category_value')
+    entries = relationship('Entry', back_populates='category_value')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -259,8 +259,8 @@ class Entry(Base):
     __tablename__ = 'entry'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    value_id = Column(GUID, ForeignKey('value.id'), index=True)
-    value = relationship('Value', back_populates='entries')
+    category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
+    category_value = relationship('CategoryValue', back_populates='entries')
     count = Column(Integer, nullable=False)
     record = relationship('Record', back_populates='entries')
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
@@ -325,40 +325,40 @@ def create_dummy_data(session):
     target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
     target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
           
-    value_cis_women = Value(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women')
-    value_cis_men = Value(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men')
-    value_trans_women = Value(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women')
-    value_trans_men = Value(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men')
-    value_non_conforming = Value(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming')
-    value_non_binary = Value(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary')
-    value_white = Value(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white')
+    category_value_cis_women = CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women')
+    category_value_cis_men = CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men')
+    category_value_trans_women = CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women')
+    category_value_trans_men = CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men')
+    category_value_non_conforming = CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming')
+    category_value_non_binary = CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary')
+    category_value_white = CategoryValue(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white')
     
-    value_non_binary.targets.append(target_non_binary)
-    value_cis_women.targets.append(target_cis_women)
-    value_cis_men.targets.append(target_cis_men)
-    value_trans_women.targets.append(target_trans_women)
-    value_trans_men.targets.append(target_trans_men)
-    value_non_conforming.targets.append(target_gender_non_conforming)
+    category_value_non_binary.targets.append(target_non_binary)
+    category_value_cis_women.targets.append(target_cis_women)
+    category_value_cis_men.targets.append(target_cis_men)
+    category_value_trans_women.targets.append(target_trans_women)
+    category_value_trans_men.targets.append(target_trans_men)
+    category_value_non_conforming.targets.append(target_gender_non_conforming)
 
-    value_non_binary.category = category_gender
-    value_cis_women.category = category_gender
-    value_cis_men.category = category_gender
-    value_trans_women.category = category_gender
-    value_trans_men.category = category_gender
-    value_non_conforming.category = category_gender
+    category_value_non_binary.category = category_gender
+    category_value_cis_women.category = category_gender
+    category_value_cis_men.category = category_gender
+    category_value_trans_women.category = category_gender
+    category_value_trans_men.category = category_gender
+    category_value_non_conforming.category = category_gender
     
-    value_white.category = category_race
+    category_value_white.category = category_race
     
     session.add(category_gender)
     session.add(category_race)
     
-    session.add(value_non_binary)
-    session.add(value_cis_women)
-    session.add(value_cis_men)
-    session.add(value_trans_women)
-    session.add(value_trans_men)
-    session.add(value_non_conforming)
-    session.add(value_non_binary)
+    session.add(category_value_non_binary)
+    session.add(category_value_cis_women)
+    session.add(category_value_cis_men)
+    session.add(category_value_trans_women)
+    session.add(category_value_trans_men)
+    session.add(category_value_non_conforming)
+    session.add(category_value_non_binary)
 
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
@@ -371,12 +371,12 @@ def create_dummy_data(session):
     entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
     entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
     
-    value_non_binary.entries.append(entry1)
-    value_cis_women.entries.append(entry2)
-    value_cis_men.entries.append(entry3)
-    value_trans_women.entries.append(entry4)
-    value_trans_men.entries.append(entry5)
-    value_non_conforming.entries.append(entry6)
+    category_value_non_binary.entries.append(entry1)
+    category_value_cis_women.entries.append(entry2)
+    category_value_cis_men.entries.append(entry3)
+    category_value_trans_women.entries.append(entry4)
+    category_value_trans_men.entries.append(entry5)
+    category_value_non_conforming.entries.append(entry6)
 
     record.entries.append(entry1)
     record.entries.append(entry2)
