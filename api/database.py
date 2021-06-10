@@ -303,8 +303,8 @@ def create_dummy_data(session):
     team.programs.append(program)
 
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
-            description='breakfast hour programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
-    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming', inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77')
+            description='breakfast hour programming')
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
     program.datasets.append(ds1)
     program.datasets.append(ds2)
 
@@ -364,14 +364,12 @@ def create_dummy_data(session):
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
     ds1.records.append(record)
 
-    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1) 
-    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1) 
-    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1) 
-    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1) 
-    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1) 
-    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1) 
-    entry7 = Entry(id='335b3680-13a1-4d8f-a917-01e1e7e1311a', count=1)
-    entry8 = Entry(id='fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a', count=1)
+    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
     
     value_non_binary.entries.append(entry1)
     value_cis_women.entries.append(entry2)
