@@ -151,6 +151,10 @@ class TestGraphQL(unittest.TestCase):
                             entries {
                                 id
                                 count
+                                inputter {
+                                    id
+                                    firstName
+                                }
                                 value {
                                     id
                                     name
@@ -158,10 +162,6 @@ class TestGraphQL(unittest.TestCase):
                                 }
                             } 
                         }       
-                        inputter {
-                            id
-                            firstName
-                        }
                         tags {
                             id
                             name
@@ -194,7 +194,11 @@ class TestGraphQL(unittest.TestCase):
                         "entries": [
                             {   
                                 'id': '64677dc1-a1cd-4cd3-965d-6565832d307a', 
-                                'count': 1, 
+                                'count': 1,
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                },
                                 "value": {
                                     "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                     "name": "Non-binary"
@@ -203,6 +207,10 @@ class TestGraphQL(unittest.TestCase):
                             {
                                 'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409', 
                                 'count': 1,
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                },
                                 "value": {
                                     "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                     "name": "Cisgender women"
@@ -211,6 +219,10 @@ class TestGraphQL(unittest.TestCase):
                             {
                                 'id': '423dc42f-4628-40e4-b9cd-4e6e9e384d61', 
                                 'count': 1, 
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                },
                                 'value': {
                                     "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
                                     "name": "Cisgender men"
@@ -218,7 +230,11 @@ class TestGraphQL(unittest.TestCase):
                             },
                             {
                                 'id': '407f24d0-c5eb-4297-9495-90e325a00a1d',
-                                'count': 1, 
+                                'count': 1,
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                }, 
                                 'value': {
                                     "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
                                     "name": "Trans women"
@@ -227,6 +243,10 @@ class TestGraphQL(unittest.TestCase):
                             {
                                 'id': '4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', 
                                 'count': 1, 
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                },
                                 'value': {
                                     "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
                                     "name": "Trans men"
@@ -235,6 +255,10 @@ class TestGraphQL(unittest.TestCase):
                             {
                                 'id': '1c49c64f-51e6-48fe-af10-69aaeeddc55f', 
                                 'count': 1, 
+                                'inputter': {
+                                    'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                    'firstName': 'Cat'
+                                },
                                 'value': {
                                     "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                                     "name": "Gender non-conforming"
@@ -258,10 +282,6 @@ class TestGraphQL(unittest.TestCase):
                             }
                         ]
                     }],
-                    "inputter": {
-                        "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", 
-                        "firstName": "Cat"
-                    },
                     "tags": [{
                         "id": "4a2142c0-5416-431d-b62f-0dbfe7574688",
                         "name": "News"
@@ -292,7 +312,6 @@ class TestGraphQL(unittest.TestCase):
                     "name": "Happy Hour",
                     "description": "A very happy time",
                     "programId": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
-                    "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                     "tags": [{"name": "Europe", "description": "i am europe", "tagType": "location"}]
                 } 
             },
@@ -469,6 +488,9 @@ class TestGraphQL(unittest.TestCase):
                                 id
                                 name
                             }
+                            inputter {
+                                id
+                            }
                         }
                    }
                 }
@@ -480,10 +502,12 @@ class TestGraphQL(unittest.TestCase):
                     "entries": [{
                         "count":  7,
                         "valueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                        "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                     }],
                 }
             },
         })
+        
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["createRecord"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -493,11 +517,12 @@ class TestGraphQL(unittest.TestCase):
                     "publicationDate": "2020-12-22T00:00:00",
                     "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
                     'entries': [{
-                        'count': 7, 
+                        'count': 7,
                         'value': {
                             "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
                             "name": "Trans women"
-                        }
+                        },
+                        "inputter": {"id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"}
                     }],
                 },
             },
@@ -538,6 +563,7 @@ class TestGraphQL(unittest.TestCase):
                     "entries": [{
                         "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
                         "valueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                        "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         "count": 0
                         }
                     ]  
@@ -705,7 +731,6 @@ class TestGraphQL(unittest.TestCase):
         existing_value = self.session.query(Value).filter(Value.id == value_id)
         # Count of existing Value should be one
         self.assertEqual(existing_value.count(), 1)
-
         success, result = self.run_graphql_query({
             "operationName": "DeleteValue",
             "query": """
@@ -717,9 +742,8 @@ class TestGraphQL(unittest.TestCase):
                 "id": value_id, 
             },
         })
-
         self.assertTrue(success)
-        value = self.session.query(Value).filter(Value.id == value_id)
+        value = self.session.query(Value).filter(Value.id == value_id, Value.deleted is None)
         self.assertEqual(value.count(), 0)
         self.assertTrue(self.is_valid_uuid(value_id), "Invalid UUID")
         self.assertEqual(result, {

@@ -81,7 +81,6 @@ type Dataset {
   lastUpdated: DateTime
   program: Program!
   records: [Record!]!
-  inputter: User!
   tags: [Tag!]!
 }
 
@@ -102,6 +101,7 @@ type Entry {
   id: ID!
   value: Value!
   count: Int!
+  inputter: User!
 }
 
 type Description {
@@ -121,7 +121,6 @@ input CreateDatasetInput {
   name: String!
   description: String!
   programId: ID!
-  inputterId: ID!
   tags: [TagInput!]!
 }
 
@@ -171,6 +170,7 @@ input UpdateValueInput {
 
 input EntryInput {
   id: ID
+  inputterId: ID!
   valueId: ID!
   count: Int!
 }
