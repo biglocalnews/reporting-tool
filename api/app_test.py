@@ -624,7 +624,33 @@ class TestGraphQL(unittest.TestCase):
                 "deleteRecord": record_id
             },
         })  
-        
+      
+    def test_query_category(self):
+        success, result = self.run_graphql_query({
+            "operationName": "QueryCategory",
+            "query": """
+                query QueryCategory($id: ID!) {
+                   category(id: $id) {
+                        id
+                        name
+                   }
+                }
+            """,
+            "variables": {
+                "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+            },
+        })
+
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "category": {
+                    "id" : "51349e29-290e-4398-a401-5bf7d04af75e",
+                    "name": "Gender"
+                },
+            },
+        })
+          
     def test_query_category_value(self):
         success, result = self.run_graphql_query({
             "operationName": "QueryCategoryValue",
