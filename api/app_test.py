@@ -650,7 +650,39 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })
-          
+        
+    def test_create_category(self):
+        success, result = self.run_graphql_query({
+            "operationName": "CreateCategory",
+            "query": """
+                mutation CreateCategory($input: CreateCategoryInput!) {
+                   createCategory(input: $input) {
+                        id
+                        name
+                        description  
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "name": "Ethnicity",
+                    "description": "Ethnicity is..."
+                }
+            },
+        })
+        self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["createCategory"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "createCategory": {
+                    "id": result["data"]["createCategory"]["id"],
+                    "name": "Ethnicity",
+                    "description": "Ethnicity is..."
+                },
+            },
+        })  
+        
+              
     def test_query_category_value(self):
         success, result = self.run_graphql_query({
             "operationName": "QueryCategoryValue",
@@ -779,3 +811,7 @@ class TestGraphQL(unittest.TestCase):
         })           
 if __name__ == '__main__':
     unittest.main()
+
+
+# TODO clean up seed data
+# TODO tighten up unnecessary sql queries when attaching an object to the associated parents
