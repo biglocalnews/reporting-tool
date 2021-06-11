@@ -1,9 +1,9 @@
-import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import func
 
 mutation = ObjectType("Mutation")
 
@@ -47,12 +47,12 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Record).filter(Record.dataset_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session=False)
 
     related_records = session.query(Record).filter(Record.dataset_id == id).all()
     for record in related_records:
-        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':datetime.datetime.now()})
+        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session=False)
     session.commit()
 
     return id
@@ -102,8 +102,7 @@ def resolve_create_record(obj, info, input):
     n_entries = []
 
     for entry in all_entries:  
-        category_value = session.query(CategoryValue).get(entry['category_value_id'])
-        n_entries.append(Entry(category_value=category_value, **entry))
+        n_entries.append(Entry(**entry))
 
     record = Record(entries=n_entries, **input)
     session.add(record)
@@ -201,8 +200,8 @@ def resolve_delete_category(obj, info, id):
     '''
     session = info.context['dbsession']
 
-    session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session=False)
 
     session.commit()
 
@@ -251,9 +250,9 @@ def resolve_delete_category_value(obj, info, id):
     '''
     session = info.context['dbsession']
 
-    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Target).filter(Target.category_value_id == id).update({'deleted':datetime.datetime.now()})
+    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session=False)
     
     session.commit()
 
