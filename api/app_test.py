@@ -842,7 +842,3 @@ class TestGraphQL(unittest.TestCase):
         })           
 if __name__ == '__main__':
     unittest.main()
-
-
-# TODO clean up seed data
-# TODO tighten up unnecessary sql queries when attaching an object to the associated parents
