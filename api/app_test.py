@@ -682,6 +682,37 @@ class TestGraphQL(unittest.TestCase):
             },
         })  
         
+    def test_update_category(self):
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateCategory",
+            "query": """
+                mutation UpdateCategory($input: UpdateCategoryInput!) {
+                   updateCategory(input: $input) {
+                        id
+                        name
+                        description
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                    "name": "Disability",
+                    "description": "Disability is ..."
+                }
+            },
+        })
+        self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["updateCategory"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "updateCategory": {
+                    "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                    "name": "Disability",
+                    "description": "Disability is ..."
+                },
+            },
+        })        
               
     def test_query_category_value(self):
         success, result = self.run_graphql_query({
