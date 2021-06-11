@@ -713,7 +713,34 @@ class TestGraphQL(unittest.TestCase):
                 },
             },
         })        
-              
+            
+    def test_delete_category(self):
+        category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
+        # Confirm Category exists, then that it does not.
+        existing_category = self.session.query(Category).filter(Category.id == category_id)
+        # Count of existing Category should be one
+        self.assertEqual(existing_category.count(), 1)
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteCategory",
+            "query": """
+                mutation DeleteCategory($id: ID!) {
+                    deleteCategory(id: $id)
+                }
+            """,
+            "variables": {
+                "id": category_id, 
+            },
+        })
+        self.assertTrue(success)
+        category = self.session.query(Category).filter(Category.id == category_id, Category.deleted is None)
+        self.assertEqual(category.count(), 0)
+        self.assertTrue(self.is_valid_uuid(category_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteCategory": category_id
+            },
+        })   
+        
     def test_query_category_value(self):
         success, result = self.run_graphql_query({
             "operationName": "QueryCategoryValue",
