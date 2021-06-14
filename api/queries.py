@@ -80,7 +80,5 @@ def resolve_category_value(obj, info, id):
     '''
     session = info.context['dbsession']
     category_value = session.query(CategoryValue).get(id)
-    # if not description:
-    #     raise NoResultFound(f'Description with id: {id} was not found')
     
     return category_value
