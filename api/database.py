@@ -352,15 +352,14 @@ def create_dummy_data(session):
     session.add(category_race)
 
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
-    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
-    ds1.records.append(record)
+    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
 
-    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
-    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
-    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
-    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
-    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
-    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter_id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77') 
+    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter=user) 
+    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter=user) 
+    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter=user) 
+    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1, inputter=user) 
+    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter=user) 
+    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter=user) 
     
     category_value_non_binary.entries.append(entry1)
     category_value_cis_women.entries.append(entry2)
