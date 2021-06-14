@@ -47,12 +47,12 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session=False)
-    session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
 
     related_records = session.query(Record).filter(Record.dataset_id == id).all()
     for record in related_records:
-        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session=False)
+        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session='fetch')
     session.commit()
 
     return id
@@ -200,8 +200,8 @@ def resolve_delete_category(obj, info, id):
     '''
     session = info.context['dbsession']
 
-    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session=False)
-    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
 
     session.commit()
 
@@ -250,9 +250,9 @@ def resolve_delete_category_value(obj, info, id):
     '''
     session = info.context['dbsession']
 
-    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session=False)
-    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session=False)
-    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session=False)
+    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
     
     session.commit()
 
