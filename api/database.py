@@ -349,16 +349,7 @@ def create_dummy_data(session):
     
     category_value_white.category = category_race
     
-    session.add(category_gender)
     session.add(category_race)
-    
-    session.add(category_value_non_binary)
-    session.add(category_value_cis_women)
-    session.add(category_value_cis_men)
-    session.add(category_value_trans_women)
-    session.add(category_value_trans_men)
-    session.add(category_value_non_conforming)
-    session.add(category_value_non_binary)
 
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
     record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset_id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
