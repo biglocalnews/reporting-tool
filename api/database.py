@@ -131,6 +131,7 @@ class Program(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     team_id = Column(GUID, ForeignKey('team.id'), index=True)
+    team = relationship('Team', back_populates='programs')
     datasets = relationship('Dataset')
     targets = relationship('Target')
     tags = relationship('Tag', secondary=program_tags,
@@ -170,6 +171,7 @@ class Target(Base):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
+    program = relationship('Program', back_populates='targets')
     target_date = Column(DateTime, nullable=False)
     target = Column(Float, nullable=False)
     category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
@@ -286,74 +288,37 @@ def create_tables(engine, session):
 
 
 def create_dummy_data(session):
-    print("👩🏽‍💻 Adding dummy data ...")
-    org = Organization(name='BBC')
-
-    team = Team(name='News Team')
-    org.teams.append(team)
-
+    print("👩🏽‍💻 Adding dummy data ...")    
     user = User(id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
             email='tester@notrealemail.info',
             hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
             first_name='Cat', last_name='Berry')
-    team.users.append(user)
-
-    program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
-            description='All BBC news programming')
-    team.programs.append(program)
-
+    
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
             description='breakfast hour programming')
     ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
-    program.datasets.append(ds1)
-    program.datasets.append(ds2)
+    
+    program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
+            description='All BBC news programming', datasets=[ds1, ds2])
+    
+    team = Team(name='News Team', users=[user], programs=[program])
+    
+    org = Organization(name='BBC', teams=[team])
 
-    tag = Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
-            tag_type='news')
-    tag.programs.append(program)
-    tag.datasets.append(ds1)
-    tag.datasets.append(ds2)
-
-    category_gender = Category(id='51349e29-290e-4398-a401-5bf7d04af75e',
-                                    name='gender', description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
+    Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
+            tag_type='news', programs=[program], datasets=[ds1, ds2])
+    
+    category_gender = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', name='gender', 
+                               description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
     category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
 
-    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program_id='1e73e788-0808-4ee8-9b25-682b6fa3868b', target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
           
-    category_value_cis_women = CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women')
-    category_value_cis_men = CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men')
-    category_value_trans_women = CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women')
-    category_value_trans_men = CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men')
-    category_value_non_conforming = CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming')
-    category_value_non_binary = CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary')
-    category_value_white = CategoryValue(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white')
-    
-    category_value_non_binary.targets.append(target_non_binary)
-    category_value_cis_women.targets.append(target_cis_women)
-    category_value_cis_men.targets.append(target_cis_men)
-    category_value_trans_women.targets.append(target_trans_women)
-    category_value_trans_men.targets.append(target_trans_men)
-    category_value_non_conforming.targets.append(target_gender_non_conforming)
-
-    category_value_non_binary.category = category_gender
-    category_value_cis_women.category = category_gender
-    category_value_cis_men.category = category_gender
-    category_value_trans_women.category = category_gender
-    category_value_trans_men.category = category_gender
-    category_value_non_conforming.category = category_gender
-    
-    category_value_white.category = category_race
-    
-    session.add(category_race)
-
-    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
-    record = Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S')) 
-
     entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter=user) 
     entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter=user) 
     entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter=user) 
@@ -361,25 +326,21 @@ def create_dummy_data(session):
     entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter=user) 
     entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter=user) 
     
-    category_value_non_binary.entries.append(entry1)
-    category_value_cis_women.entries.append(entry2)
-    category_value_cis_men.entries.append(entry3)
-    category_value_trans_women.entries.append(entry4)
-    category_value_trans_men.entries.append(entry5)
-    category_value_non_conforming.entries.append(entry6)
-
-    record.entries.append(entry1)
-    record.entries.append(entry2)
-    record.entries.append(entry3)
-    record.entries.append(entry4)
-    record.entries.append(entry5)
-    record.entries.append(entry6)
-    record.entries.append(entry7)
-    record.entries.append(entry8)
-
+    CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women', category=category_gender, targets=[target_cis_women], entries=[entry2])
+    CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men', category=category_gender, targets=[target_cis_men], entries=[entry3])
+    CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women', category=category_gender, targets=[target_trans_women], entries=[entry4])
+    CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men', category=category_gender, targets=[target_trans_men], entries=[entry5])
+    CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming', category=category_gender, targets=[target_gender_non_conforming], entries=[entry6])
+    CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1])
+    category_value_white = CategoryValue(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white', category=category_race)
+    
+    # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
+    Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S'), 
+           entries=[entry1, entry2, entry3, entry4, entry5, entry6]) 
+    
+    session.add(category_value_white)
     session.add(org)
     session.commit()
-
 
 @click.command()
 @click.option("--tables/--no-tables", default=True)
