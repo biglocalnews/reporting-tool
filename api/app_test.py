@@ -472,7 +472,16 @@ class TestGraphQL(unittest.TestCase):
                         {'categoryValue': {
                             "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
                             "name": "Gender non-conforming"
-                        }}
+                        }},
+                        {'categoryValue': {
+                            "id": "c36958cb-cc62-479e-ab61-eb03896a981c", 
+                            "name": "Disabled"
+                        }},
+                        {'categoryValue': {
+                            "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", 
+                            "name": "Non-disabled"
+                        }},
+                        
                     ]
                 },
             },
@@ -593,6 +602,8 @@ class TestGraphQL(unittest.TestCase):
                         {"count": 1, "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                         {"count": 1, "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                         {"count": 1, "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming",  "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                        {"count": 1, "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled",  "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
+                        {"count": 1, "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled",  "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}}
                     ]
                 },
             },
