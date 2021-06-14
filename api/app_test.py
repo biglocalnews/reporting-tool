@@ -173,7 +173,6 @@ class TestGraphQL(unittest.TestCase):
                 "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
             },
         })
-
         self.assertTrue(success)
         self.assertEqual(result, {
             "data": {
@@ -267,17 +266,25 @@ class TestGraphQL(unittest.TestCase):
                             {
                                 "id": "335b3680-13a1-4d8f-a917-01e1e7e1311a",
                                 "count": 1,
-                                "category": {
+                                "inputter": {
+                                    "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                    "firstName": "Cat"
+                                },
+                                "categoryValue": {
                                     "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                    "categoryValue": "Disability"
+                                    "name": "Disabled"
                                 },
                             },
                             {
-                                "count": 1,
                                 "id": "fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a",
-                                "category": {
+                                "count": 1,
+                                "inputter": {
+                                    "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                    "firstName": "Cat"
+                                },
+                                "categoryValue": {
                                     "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                    "categoryValue": "No disability"
+                                    "name": "Non-disabled"
                                 },
                             }
                         ]
