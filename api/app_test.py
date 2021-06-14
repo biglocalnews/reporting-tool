@@ -841,7 +841,7 @@ class TestGraphQL(unittest.TestCase):
             },
         }) 
       
-    def test_delete_value(self):
+    def test_delete_category_value(self):
         category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
         # Confirm Value exists, then that it does not.
         existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id)
