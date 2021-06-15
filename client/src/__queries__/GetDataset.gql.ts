@@ -10,11 +10,14 @@ export const GET_DATASET = gql`
         name
         targets {
           id
-          category {
+          categoryValue {
             id
-            description
-            category
-            categoryValue
+            name
+            category {
+              id
+              name
+              description
+            }
           }
         }
       }
@@ -23,11 +26,14 @@ export const GET_DATASET = gql`
         publicationDate
         entries {
           id
-          category {
+          categoryValue {
             id
-            description
-            category
-            categoryValue
+            name
+            category {
+              id
+              name
+              description
+            }
           }
           count
         }

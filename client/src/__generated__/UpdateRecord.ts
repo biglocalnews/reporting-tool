@@ -14,17 +14,24 @@ export interface UpdateRecord_updateRecord_dataset {
   readonly name: string;
 }
 
-export interface UpdateRecord_updateRecord_entries_category {
+export interface UpdateRecord_updateRecord_entries_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
-  readonly category: string;
-  readonly categoryValue: string;
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface UpdateRecord_updateRecord_entries_categoryValue {
+  readonly __typename: "CategoryValue";
+  readonly id: string;
+  readonly name: string;
+  readonly category: UpdateRecord_updateRecord_entries_categoryValue_category;
 }
 
 export interface UpdateRecord_updateRecord_entries {
   readonly __typename: "Entry";
   readonly id: string;
-  readonly category: UpdateRecord_updateRecord_entries_category;
+  readonly categoryValue: UpdateRecord_updateRecord_entries_categoryValue;
   readonly count: number;
 }
 

@@ -12,18 +12,24 @@ export interface GetRecord_record_dataset {
   readonly name: string;
 }
 
-export interface GetRecord_record_entries_category {
+export interface GetRecord_record_entries_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly name: string;
   readonly description: string;
-  readonly category: string;
-  readonly categoryValue: string;
+}
+
+export interface GetRecord_record_entries_categoryValue {
+  readonly __typename: "CategoryValue";
+  readonly id: string;
+  readonly name: string;
+  readonly category: GetRecord_record_entries_categoryValue_category;
 }
 
 export interface GetRecord_record_entries {
   readonly __typename: "Entry";
   readonly id: string;
-  readonly category: GetRecord_record_entries_category;
+  readonly categoryValue: GetRecord_record_entries_categoryValue;
   readonly count: number;
 }
 
