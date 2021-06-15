@@ -23,7 +23,8 @@ def resolve_create_dataset(obj, info, input):
     all_tags = input.pop('tags', [])
     tags = []
     for tag in all_tags:
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
+        standardized_tag_name = Tag.get_by_name(session, input["name"])
+        existing_tag = session.query(Tag).filter(Tag.name == standardized_tag_name).first()
         if existing_tag:
             tags.append(existing_tag)
         else: 
@@ -63,7 +64,8 @@ def resolve_update_dataset(obj, info, input):
     dataset = session.query(Dataset).get(input['id'])
     all_tags = input.pop('tags', [])
     for tag in all_tags:
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
+        standardized_tag_name = Tag.get_by_name(session, input["name"])
+        existing_tag = session.query(Tag).filter(Tag.name == standardized_tag_name).first()
         if existing_tag:
             dataset.tags.append(existing_tag)
         else: 
@@ -143,7 +145,8 @@ def resolve_create_category(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    existing_category = session.query(Category).filter(Category.name == input["name"].capitalize().strip()).first()
+    standardized_category_name = Category.get_by_name(session, input["name"])
+    existing_category = session.query(Category).filter(Category.name == standardized_category_name).first()
     if existing_category:
         return existing_category
     else:    
