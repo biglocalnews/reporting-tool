@@ -64,7 +64,7 @@ type Target {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  category_value: CategoryValue!
+  categoryValue: CategoryValue!
   target: Float!
 }
 
