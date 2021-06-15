@@ -28,7 +28,7 @@ python3.8 -m venv venv
 
 Do this the first time you set up the project.
 
-To play with the schema I'm just using postgres installed via homebrew on my mac. User is root with no password. You can manually run `create database bbc;`, then run `python database.py` after step (4) below to create tables.
+To play with the schema I'm just using postgres installed via homebrew on my mac. User is root with no password. You can manually run `create database bbc;`, then run `python database.py --dummy-data` after step (4) below to create tables with seed data.
 
 ### General Setup!
 
@@ -67,13 +67,17 @@ query getUser {
 
 sample mutation using inputs:
 
-```graphql
-mutation upsertUsers ($userInfo : UpsertUserInput) {
-  upsertUser (input: $userInfo) {
-    user {
-      firstName
-      lastName
-    }
+```
+mutation createDataset  ($input : CreateDatasetInput) {
+  createDataset (input: $input) {
+      id
+      name
+    	program {
+        name
+      }
+    	tags {
+        name
+      }
   }
 }
 ```
@@ -82,11 +86,12 @@ in the playground's query variables section:
 
 ```json
 {
-  "userInfo": {
-    "firstName": "Bob",
-    "lastName": "Jeans",
-    "email": "bigelow_senior@email.com",
-    "role" : "admin"
+  "input": {
+    "name": "Fun Time",
+    "description": "It's always fun during Fun Time!",
+    "programId": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+    "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+    "tags": [{"name": "East Coast", "description": "i am a new tag!", "tagType": "location"}]
   }
 }
 ```

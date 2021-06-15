@@ -1,8 +1,9 @@
-import datetime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import func
 
 mutation = ObjectType("Mutation")
 
@@ -19,20 +20,17 @@ def resolve_create_dataset(obj, info, input):
         :returns: Dataset dictionary
     '''
     session = info.context['dbsession']
-
     all_tags = input.pop('tags', [])
     tags = []
-
     for tag in all_tags:
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
-
+        standardized_tag_name = Tag.get_by_name(session, input["name"])
+        existing_tag = session.query(Tag).filter(Tag.name == standardized_tag_name).first()
         if existing_tag:
             tags.append(existing_tag)
         else: 
             new_tag = Tag(**tag)
             tags.append(new_tag)
             session.add(new_tag)
-
     dataset = Dataset(tags=tags, **input)
     session.add(dataset)
     session.commit()
@@ -46,12 +44,11 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Record).filter(Record.dataset_id == id).update({'deleted':datetime.datetime.now()})
-
+    session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
     related_records = session.query(Record).filter(Record.dataset_id == id).all()
     for record in related_records:
-        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':datetime.datetime.now()})
+        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session='fetch')
     session.commit()
 
     return id
@@ -65,23 +62,18 @@ def resolve_update_dataset(obj, info, input):
     '''
     session = info.context['dbsession']
     dataset = session.query(Dataset).get(input['id'])
-
-    tags = []
     all_tags = input.pop('tags', [])
-
     for tag in all_tags:
-        existing_tag = session.query(Tag).filter(Tag.name == tag["name"].capitalize().strip()).first()
-
+        standardized_tag_name = Tag.get_by_name(session, input["name"])
+        existing_tag = session.query(Tag).filter(Tag.name == standardized_tag_name).first()
         if existing_tag:
             dataset.tags.append(existing_tag)
         else: 
             new_tag = Tag(**tag)
             dataset.tags.append(new_tag)
             session.add(new_tag)
-   
     for param in input:
         setattr(dataset, param, input[param])
-
     session.add(dataset)
     session.commit()
 
@@ -96,14 +88,10 @@ def resolve_create_record(obj, info, input):
     '''
 
     session = info.context['dbsession']
-
     all_entries = input.pop('entries', [])
     n_entries = []
-
     for entry in all_entries:  
-        category = session.query(Category).get(entry['category_id'])
-        n_entries.append(Entry(category=category, **entry))
-
+        n_entries.append(Entry(**entry))
     record = Record(entries=n_entries, **input)
     session.add(record)
     session.commit()
@@ -119,21 +107,18 @@ def resolve_update_record(obj, info, input):
     '''
     session = info.context['dbsession']
     record = session.query(Record).get(input['id'])
-
     all_entries = input.pop('entries', [])
-
     for entry in all_entries:  
         existing_entry = session.query(Entry).get(entry.get('id'))
-
         if existing_entry:
-            session.merge(Entry(**entry))
-
+            if str(existing_entry.record_id) == input['id']:
+                session.merge(Entry(**entry))
+            else:   
+                raise NoResultFound(f'No Entry with id: {existing_entry.id} associated with Record id: {record.id} was found.')
         else:
             Entry(record=record, **entry)
-
     for param in input:
         setattr(record, param, input[param])
-
     session.add(record)
     session.commit()
 
@@ -148,7 +133,7 @@ def resolve_delete_record(obj, info, id):
     session = info.context['dbsession']
     session.query(Record).filter(Record.id == id).delete()
     session.commit()
-
+    
     return id
 
 @mutation.field("createCategory")
@@ -160,8 +145,8 @@ def resolve_create_category(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    existing_category = session.query(Category).filter(Category.category_value == input["category_value"].capitalize().strip()).first()
-
+    standardized_category_name = Category.get_by_name(session, input["name"])
+    existing_category = session.query(Category).filter(Category.name == standardized_category_name).first()
     if existing_category:
         return existing_category
     else:    
@@ -181,10 +166,8 @@ def resolve_update_category(obj, info, input):
 
     session = info.context['dbsession']
     category = session.query(Category).get(input['id'])
-
     for param in input:
         setattr(category, param, input[param])
-
     session.add(category)
     session.commit()
     
@@ -197,11 +180,54 @@ def resolve_delete_category(obj, info, id):
         :returns: UUID of soft deleted Category
     '''
     session = info.context['dbsession']
+    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.commit()
 
-    session.query(Category).filter(Category.id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Entry).filter(Entry.category_id == id).update({'deleted':datetime.datetime.now()})
-    session.query(Target).filter(Target.category_id == id).update({'deleted':datetime.datetime.now()})
+    return id
 
+@mutation.field("createCategoryValue")
+@convert_kwargs_to_snake_case
+def resolve_create_category_value(obj, info, input):
+    '''GraphQL mutation to create a CategoryValue.
+        :param input: params for new CategoryValue
+        :returns: CategoryValue dictionary
+    '''
+
+    session = info.context['dbsession']
+    category_value = CategoryValue(**input)
+    session.add(category_value)
+    session.commit()
+    
+    return category_value
+
+@mutation.field("updateCategoryValue")
+@convert_kwargs_to_snake_case
+def resolve_update_category_value(obj, info, input):
+    '''GraphQL mutation to update a CategoryValue.
+        :param input: params to be changed
+        :returns: updated CategoryValue dictionary
+    '''
+    
+    session = info.context['dbsession']
+    category_value = session.query(CategoryValue).get(input['id'])
+    for param in input:
+        setattr(category_value, param, input[param])
+    session.add(category_value)
+    session.commit()
+    
+    return category_value
+
+@mutation.field("deleteCategoryValue")
+def resolve_delete_category_value(obj, info, id):
+    '''GraphQL mutation to delete a CategoryValue.
+        :param id: UUID of CategoryValue to be deleted
+        :returns: UUID of deleted CategoryValue
+    '''
+    session = info.context['dbsession']
+    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
     session.commit()
 
     return id

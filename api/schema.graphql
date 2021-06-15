@@ -64,14 +64,13 @@ type Target {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  category: Category!
+  categoryValue: CategoryValue!
   target: Float!
 }
 
 type Category {
   id: ID!
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
@@ -82,7 +81,6 @@ type Dataset {
   lastUpdated: DateTime
   program: Program!
   records: [Record!]!
-  inputter: User!
   tags: [Tag!]!
 }
 
@@ -93,10 +91,22 @@ type Record {
   entries: [Entry!]!
 }
 
+type CategoryValue {
+  id: ID!
+  name: String!
+  category: Category!
+}
+
 type Entry {
   id: ID!
-  category: Category!
+  categoryValue: CategoryValue!
   count: Int!
+  inputter: User!
+}
+
+type Description {
+  id: ID!
+  description: String!
 }
 
 input UpsertUserInput {
@@ -111,7 +121,6 @@ input CreateDatasetInput {
   name: String!
   description: String!
   programId: ID!
-  inputterId: ID!
   tags: [TagInput!]!
 }
 
@@ -138,28 +147,37 @@ input CreateRecordInput {
 }
 
 input CreateCategoryInput {
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
 input UpdateCategoryInput {
   id: ID!
-  category: String
-  categoryValue: String
+  name: String
   description: String
+}
+
+input CreateCategoryValueInput {
+  name: String!
+  categoryId: ID!
+}
+
+input UpdateCategoryValueInput {
+  id: ID!
+  name: String
+  categoryId: ID
 }
 
 input EntryInput {
   id: ID
-  categoryId: ID!
+  inputterId: ID!
+  categoryValueId: ID!
   count: Int!
 }
 
 input CategoryInput {
   id: ID
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
@@ -178,6 +196,9 @@ type Query {
 
   # Retrieve a single category.
   category(id: ID!): Category!
+
+  # Retrieve a single categoryValue.
+  categoryValue(id: ID!): CategoryValue!
 }
 
 type Mutation {
@@ -207,4 +228,13 @@ type Mutation {
 
   # Delete a Category
   deleteCategory(id: ID!): ID!
+
+  # Create a CategoryValue
+  createCategoryValue(input: CreateCategoryValueInput!): CategoryValue!
+
+  # Update a CategoryValue
+  updateCategoryValue(input: UpdateCategoryValueInput!): CategoryValue!
+
+  # Delete a CategoryValue
+  deleteCategoryValue(id: ID!): ID!
 }
