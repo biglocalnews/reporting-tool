@@ -33,7 +33,7 @@ def resolve_dataset(obj, info, id):
         :returns: Dataset dictionary OR None if Dataset was soft-deleted
     '''
     session = info.context['dbsession']
-    dataset = session.query(Dataset).filter(Dataset.id == id, Dataset.deleted == None).first()
+    dataset = Dataset.get_not_deleted(session, id)
 
     return dataset
 

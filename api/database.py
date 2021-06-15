@@ -61,6 +61,19 @@ program_tags = Table('program_tag', Base.metadata,
                          'tag.id'), index=True),
                      )
 
+
+class PermissionsMixin:
+    """Base class defining some common permissions checks."""
+
+    def user_is_team_member(self, user: "Optional[User]") -> bool:
+        """Check whether a user can access an object through their team.
+
+        :param user: User object (could be None)
+        :returns: True if user's team has permission to see the object
+        """
+        return False
+
+
 class Organization(Base):
     __tablename__ = 'organization'
 
@@ -75,7 +88,7 @@ class Organization(Base):
     deleted = Column(TIMESTAMP)
 
 
-class Team(Base):
+class Team(Base, PermissionsMixin):
     __tablename__ = 'team'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
@@ -90,6 +103,11 @@ class Team(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    def user_is_team_member(self, user):
+        if not user:
+            return False
+        return self in user.teams
 
 
 class User(Base, SQLAlchemyBaseUserTable):
@@ -110,6 +128,18 @@ class User(Base, SQLAlchemyBaseUserTable):
     def get_full_name(user):
         return f"{user.first_name} {user.last_name}"
 
+    @classmethod
+    def get_by_email(cls, session: SessionLocal, email: str) -> "Optional[User]":
+        """Get a user by their email address.
+
+        :param email:
+        :returns: User, if one was found
+        """
+        return session.query(User).filter(
+                User.email == email,
+                User.deleted == None,
+                ).first()
+
 
 class Role(Base):
     __tablename__ = 'role'
@@ -124,7 +154,8 @@ class Role(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-class Program(Base):
+
+class Program(Base, PermissionsMixin):
     __tablename__ = 'program'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
@@ -142,6 +173,9 @@ class Program(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    def user_is_team_member(self, user):
+        return self.team.user_is_team_member(user)
 
 
 class Tag(Base):
@@ -178,6 +212,7 @@ class Tag(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+
 class Target(Base):
     __tablename__ = 'target'
 
@@ -194,6 +229,10 @@ class Target(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    def user_is_team_member(self, user):
+        return self.program.user_is_team_member(user)
+
 
 class Category(Base):
     __tablename__ = 'category'
@@ -224,6 +263,7 @@ class Category(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
     
+
 class CategoryValue(Base):
     __tablename__ = 'category_value'
 
@@ -244,7 +284,8 @@ class CategoryValue(Base):
     def capitalize_name(self, key, name):
         return name.capitalize().strip()
     
-class Dataset(Base):
+
+class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
@@ -262,7 +303,15 @@ class Dataset(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-class Record(Base):
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Dataset).filter(Dataset.id == id_, Dataset.deleted == None).first()
+
+    def user_is_team_member(self, user):
+        return self.program.user_is_team_member(user)
+
+
+class Record(Base, PermissionsMixin):
     __tablename__ = 'record'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
@@ -280,7 +329,15 @@ class Record(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
-class Entry(Base):
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Record).filter(Record.id == id_, Record.deleted == None).first()
+
+    def user_is_team_member(self, user):
+        return self.dataset.user_is_team_member(user)
+
+
+class Entry(Base, PermissionsMixin):
     __tablename__ = 'entry'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
@@ -297,6 +354,9 @@ class Entry(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    def user_is_team_member(self, user):
+        return self.record.user_is_team_member(user)
 
 
 def create_tables(engine, session):
@@ -316,6 +376,22 @@ def create_dummy_data(session):
             email='tester@notrealemail.info',
             hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
             first_name='Cat', last_name='Berry')
+    
+    # Secondary app user (no perms, used for testing access controls)
+    other_user = User(id='a47085ba-3d01-46a4-963b-9ffaeda18113',
+    email='other@notrealemail.info',
+    hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+    first_name='Penelope', last_name='Pineapple')
+    session.add(other_user)
+                      
+    # Admin user
+    admin_user = User(id='df6413b4-b910-4f6e-8f3c-8201c9e65af3',
+                    email='admin@notrealemail.info',
+                    hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+                    first_name='Daisy', last_name='Carrot')
+    admin = session.query(Role).get('be5f8cac-ac65-4f75-8052-8d1b5d40dffe')
+    admin_user.roles.append(admin)
+    session.add(admin_user)
     
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
             description='breakfast hour programming')

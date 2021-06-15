@@ -52,7 +52,21 @@ pip install -r requirements.txt
 uvicorn app:app --reload
 ```
 
+3. Usage
+
 Navigate to http://localhost:8000/graphql/ to see your GraphQL Playground in action!
+
+**Important** Most queries / mutations in the GraphQL schema require permissions to run.
+In development mode, you can use the `X-User` header to supply a user's email address who
+you'd like to run the query as. For example, in the GraphQL playground you can add the headers:
+```
+{
+    "X-User": "tester@notrealemail.info"
+}
+```
+to execute queries as one of the test users.
+See the dummy data in `database.py` for more users, or create your own.
+
 Type in your queries/mutations such as:
 
 ```graphql

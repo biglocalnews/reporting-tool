@@ -6,7 +6,7 @@ import datetime
 from fastapi import FastAPI, Request
 # from fastapi_sqlalchemy import DBSessionMiddleware  # middleware helper
 # from fastapi_sqlalchemy import db  # an object to provide global access to a database session
-from fastapi_users.authentication import JWTAuthentication
+from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 import dateutil.parser
@@ -14,21 +14,23 @@ import dateutil.parser
 from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType, ScalarType
 from ariadne.asgi import GraphQL
 
-from database import database, SessionLocal
+from database import database, SessionLocal, User
 from queries import queries
 from mutations import mutation
 from settings import settings
 import user
+import directives
 
 
-app = FastAPI()
+app = FastAPI(debug=settings.debug)
 
+# remove cookie_secure=False later for production
+cookie_authentication = CookieAuthentication(secret=settings.secret, lifetime_seconds=3600, cookie_secure=False)
 
-jwt_authentication = JWTAuthentication(secret=settings.secret, lifetime_seconds=3600, tokenUrl="/auth/jwt/login")
 
 fastapi_users = FastAPIUsers(
     user.user_db,
-    [jwt_authentication],
+    [cookie_authentication],
     user.User,
     user.UserCreate,
     user.UserUpdate,
@@ -51,7 +53,7 @@ def after_verification_request(user: user.UserDB, token: str, request: Request):
 
 # Add restful routers for user management
 app.include_router(
-    fastapi_users.get_auth_router(jwt_authentication), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(cookie_authentication), prefix="/auth/cookie", tags=["auth"]
 )
 app.include_router(
     fastapi_users.get_register_router(on_after_register), prefix="/auth", tags=["auth"]
@@ -89,7 +91,12 @@ def parse_datetime(value: str) -> datetime.datetime:
 # Adds graphql schema and mounts schema + resolvers to fastapi app
 type_defs = load_schema_from_path("schema.graphql")
 schema = make_executable_schema(
-    type_defs, queries, mutation, datetime_scalar, snake_case_fallback_resolvers
+    type_defs, 
+    queries, 
+    mutation, 
+    datetime_scalar, 
+    snake_case_fallback_resolvers,
+    directives={"needsPermission": directives.NeedsPermissionDirective}
 )
 
 @app.middleware("http")
@@ -103,14 +110,24 @@ async def add_db_session(request: Request, call_next):
 
     return response
 
-def get_context(request: Request):
+async def get_context(request: Request):
+    
+    dbsession = request.scope['dbsession']
+    
+    # allow for manual specification of user in request header by email
+    if settings.debug and "X-User" in request.headers:
+        user = User.get_by_email(request.headers['X-User'])
+    else:
+        user = await fastapi_users.current_user(active=True, optional=True)()
+        
     return {
-            "dbsession": request.scope['dbsession'],
+            "dbsession": dbsession,
             "request": request,
+            "current_user": user
             }
 
 # Mount ariadne to fastapi
-app.mount("/graphql", GraphQL(schema, debug=True, context_value=get_context))
+app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
 @app.on_event("startup")
 async def startup():
