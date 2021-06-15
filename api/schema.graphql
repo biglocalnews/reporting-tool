@@ -230,42 +230,51 @@ type Query {
   category(id: ID!): Category! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve a single categoryValue.
-  categoryValue(id: ID!): CategoryValue! @needsPermission(permission: [LOGGED_IN])
+  categoryValue(id: ID!): CategoryValue!
+    @needsPermission(permission: [LOGGED_IN])
 }
 
 type Mutation {
   # Create a Dataset
-  createDataset(input: CreateDatasetInput): Dataset! @needsPermission(permission: [ADMIN])
+  createDataset(input: CreateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a Dataset
   deleteDataset(id: ID!): ID! @needsPermission(permission: [ADMIN])
 
   # Update a Dataset
-  updateDataset(input: UpdateDatasetInput): Dataset! @needsPermission(permission: [ADMIN])
+  updateDataset(input: UpdateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
 
   # Create a Record
-  createRecord(input: CreateRecordInput!): Record! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+  createRecord(input: CreateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Update a Record
-  updateRecord(input: UpdateRecordInput!): Record! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+  updateRecord(input: UpdateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Delete a Record
   deleteRecord(id: ID!): ID! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Create a Category
-  createCategory(input: CreateCategoryInput): Category! @needsPermission(permission: [ADMIN])
+  createCategory(input: CreateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
 
   # Update a Category
-  updateCategory(input: UpdateCategoryInput): Category! @needsPermission(permission: [ADMIN])
+  updateCategory(input: UpdateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a Category
-  deleteCategory(id: ID!): ID!
+  deleteCategory(id: ID!): ID! @needsPermission(permission: [ADMIN])
 
   # Create a CategoryValue
-  createCategoryValue(input: CreateCategoryValueInput!): CategoryValue! @needsPermission(permission: [ADMIN])
+  createCategoryValue(input: CreateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
 
   # Update a CategoryValue
-  updateCategoryValue(input: UpdateCategoryValueInput!): CategoryValue! @needsPermission(permission: [ADMIN])
+  updateCategoryValue(input: UpdateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a CategoryValue
   deleteCategoryValue(id: ID!): ID! @needsPermission(permission: [ADMIN])

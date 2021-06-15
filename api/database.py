@@ -212,6 +212,7 @@ class Tag(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+
 class Target(Base):
     __tablename__ = 'target'
 
@@ -262,6 +263,7 @@ class Category(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
     
+
 class CategoryValue(Base):
     __tablename__ = 'category_value'
 
@@ -282,6 +284,7 @@ class CategoryValue(Base):
     def capitalize_name(self, key, name):
         return name.capitalize().strip()
     
+
 class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
 

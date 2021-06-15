@@ -69,16 +69,16 @@ class TestGraphQL(unittest.TestCase):
     def is_valid_uuid(self, uuid_to_test, version=4):
         """
         Check if uuid_to_test is a valid UUID.
-        
+
         Parameters
         ----------
         uuid_to_test : str
         version : {1, 2, 3, 4}
-        
+
         Returns
         -------
         `True` if uuid_to_test is a valid UUID, otherwise `False`.
-        
+
         Examples
         --------
         >>> is_valid_uuid('c9bf9e57-1685-4c89-bafb-ff5af830be8a')
@@ -86,7 +86,7 @@ class TestGraphQL(unittest.TestCase):
         >>> is_valid_uuid('c9bf9e58')
         False
         """
-        
+
         try:
             uuid_obj = UUID(uuid_to_test, version=version)
         except ValueError:
@@ -200,7 +200,7 @@ class TestGraphQL(unittest.TestCase):
 
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
- 
+
     def test_query_dataset(self):
         """Test queries for a dataset.
 
@@ -230,15 +230,15 @@ class TestGraphQL(unittest.TestCase):
                                 entries {
                                     id
                                     count
-                                    category {
+                                    inputter {
                                         id
-                                        categoryValue
+                                        firstName
                                     }
-                                } 
-                            }       
-                            inputter {
-                                id
-                                firstName
+                                    categoryValue {
+                                        id
+                                        name
+                                    }
+                                }
                             }
                             tags {
                                 id
@@ -267,11 +267,11 @@ class TestGraphQL(unittest.TestCase):
                             }]
                         },
                         "records": [{
-                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", 
+                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                             "publicationDate": "2020-12-21T00:00:00",
                             "entries": [
-                                {   
-                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a', 
+                                {
+                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a',
                                     'count': 1,
                                     'inputter': {
                                         'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
@@ -281,9 +281,9 @@ class TestGraphQL(unittest.TestCase):
                                         "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                         "name": "Non-binary"
                                     }
-                                }, 
+                                },
                                 {
-                                    'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409', 
+                                    'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409',
                                     'count': 1,
                                     'inputter': {
                                         'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
@@ -313,31 +313,31 @@ class TestGraphQL(unittest.TestCase):
                                         'firstName': 'Cat'
                                     },
                                     'categoryValue': {
-                                        "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                                        "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                         "name": "Trans women"
                                     }
                                 },
                                 {
-                                    'id': '4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', 
+                                    'id': '4adcb9f9-c1eb-41ba-b9aa-ed0947311a24',
                                     'count': 1,
                                     'inputter': {
                                         'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                         'firstName': 'Cat'
                                     },
                                     'categoryValue': {
-                                        "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                                        "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
                                         "name": "Trans men"
                                     }
                                 },
                                 {
-                                    'id': '1c49c64f-51e6-48fe-af10-69aaeeddc55f', 
+                                    'id': '1c49c64f-51e6-48fe-af10-69aaeeddc55f',
                                     'count': 1,
                                     'inputter': {
                                         'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                                         'firstName': 'Cat'
                                     },
                                     'categoryValue': {
-                                        "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                                        "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                         "name": "Gender non-conforming"
                                     }
                                 },
@@ -351,7 +351,7 @@ class TestGraphQL(unittest.TestCase):
                                     },
                                     "categoryValue": {
                                         "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                        "name": "Disability"
+                                        "name": "Disabled"
                                     },
                                 },
                                 {
@@ -406,10 +406,10 @@ class TestGraphQL(unittest.TestCase):
                                 categoryValue {
                                     id
                                     name
-                                    
+
                                 }
-                            } 
-                        }       
+                            }
+                        }
                         tags {
                             id
                             name
@@ -424,7 +424,7 @@ class TestGraphQL(unittest.TestCase):
 
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
-       
+
     def test_create_dataset(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateDataset",
@@ -449,7 +449,7 @@ class TestGraphQL(unittest.TestCase):
                     "description": "A very happy time",
                     "programId": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                     "tags": [{"name": "Europe", "description": "i am europe", "tagType": "location"}]
-                } 
+                }
             },
         }, user=self.test_users['admin'])
 
@@ -465,8 +465,8 @@ class TestGraphQL(unittest.TestCase):
                     "tags": [{"name": "Europe"}]
                 },
             },
-        })    
-       
+        })
+
     def test_create_dataset_no_perm(self):
         """Test that dataset creation fails for normal (non-admin) users."""
         for user_role in ['other', 'normal']:
@@ -495,7 +495,7 @@ class TestGraphQL(unittest.TestCase):
                         "programId": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                         "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         "tags": [{"name": "Europe", "description": "i am europe", "tagType": "location"}]
-                    } 
+                    }
                 },
             }, user=user)
 
@@ -526,7 +526,7 @@ class TestGraphQL(unittest.TestCase):
                     "name": "Tea Time",
                     "description": "Tea time programming",
                     "tags": [{"name": "Asia", "description": "i am asia", "tagType": "location"}]
-                } 
+                }
             },
         }, user=self.test_users['admin'])
 
@@ -542,7 +542,7 @@ class TestGraphQL(unittest.TestCase):
                     "tags": [{"name": "News"}, {"name": "Asia"}]
                 },
             },
-        })    
+        })
 
     def test_update_dataset_no_perm(self):
         """Test that dataset updates fail for normal (non-admin) users."""
@@ -571,7 +571,7 @@ class TestGraphQL(unittest.TestCase):
                         "name": "Tea Time",
                         "description": "Tea time programming",
                         "tags": [{"name": "Asia", "description": "i am asia", "tagType": "location"}]
-                    } 
+                    }
                 },
             }, user=user)
 
@@ -581,7 +581,7 @@ class TestGraphQL(unittest.TestCase):
     def test_delete_dataset(self):
         # Confirm Dataset exists, then that it does not.
         dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
-        existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id)
+        existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id, Dataset.deleted == None)
         self.assertEqual(existing_dataset.count(), 1)
         success, result = self.run_graphql_query({
             "operationName": "DeleteDataset",
@@ -597,13 +597,13 @@ class TestGraphQL(unittest.TestCase):
 
         self.assertTrue(success)
         # Query for all associated Records
-        associated_records = self.session.query(Record).filter(Record.dataset_id == dataset_id)
+        associated_records = self.session.query(Record).filter(Record.dataset_id == dataset_id, Record.deleted == None)
         # Compile list of associated Record IDs
         associated_record_ids = [record.id for record in associated_records]
         # Query for non-deleted Entries associated with each Record id
-        existing_entries = self.session.query(Entry).filter(Entry.record_id.contains(associated_record_ids), Entry.deleted is None)
+        existing_entries = self.session.query(Entry).filter(Entry.record_id.in_(associated_record_ids), Entry.deleted == None)
         # Querying for non-deleted associated Records
-        existing_records = associated_records.filter(Record.deleted is None)
+        existing_records = associated_records.filter(Record.deleted == None)
         # Count of non-deleted records, and entries should be zero
         self.assertEqual(existing_entries.count(), 0)
         self.assertEqual(existing_records.count(), 0)
@@ -613,7 +613,7 @@ class TestGraphQL(unittest.TestCase):
             "data": {
                 "deleteDataset": dataset_id
             },
-        })       
+        })
 
     def test_delete_dataset_no_perm(self):
         """Test that dataset deletes fail for normal (non-admin) users."""
@@ -683,7 +683,7 @@ class TestGraphQL(unittest.TestCase):
                             {"categoryValue": {
                                 "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                 "name": "Non-binary"
-                            }}, 
+                            }},
                             {"categoryValue": {
                                 "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                 "name": "Cisgender women"
@@ -693,20 +693,20 @@ class TestGraphQL(unittest.TestCase):
                                 "name": "Cisgender men"
                             }},
                             {'categoryValue': {
-                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b", 
+                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                 "name": "Trans women"
                             }},
                             {'categoryValue': {
-                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", 
+                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
                                 "name": "Trans men"
                             }},
                             {'categoryValue': {
-                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", 
+                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                 "name": "Gender non-conforming"
                             }},
                             {"categoryValue": {
                                 "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                "name": "Disability"
+                                "name": "Disabled"
                             }},
                             {"categoryValue": {
                                 "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
@@ -730,9 +730,9 @@ class TestGraphQL(unittest.TestCase):
                             id
                         }
                         entries {
-                            category {
+                            categoryValue {
                                 id
-                                categoryValue
+                                name
                             }
                         }
                    }
@@ -768,6 +768,9 @@ class TestGraphQL(unittest.TestCase):
                                     id
                                     name
                                 }
+                                inputter {
+                                    id
+                                }
                             }
                        }
                     }
@@ -778,7 +781,8 @@ class TestGraphQL(unittest.TestCase):
                         "publicationDate": '2020-12-22T00:00:00.000Z',
                         "entries": [{
                             "count":  7,
-                            "categoryId": "0034d015-0652-497d-ab4a-d42b0bdf08cb",
+                            "categoryValueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                            "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         }],
                     }
                 },
@@ -792,7 +796,14 @@ class TestGraphQL(unittest.TestCase):
                         "id": result["data"]["createRecord"]["id"],
                         "publicationDate": "2020-12-22T00:00:00",
                         "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"},
-                        'entries': [{'count': 7, 'category': {"id": "0034d015-0652-497d-ab4a-d42b0bdf08cb", "categoryValue": "Cisgender women"}}],
+                        'entries': [{
+                            'count': 7,
+                            'categoryValue': {
+                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                "name": "Trans women"
+                            },
+                            "inputter": {"id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"}
+                        }],
                     },
                 },
             })
@@ -862,6 +873,10 @@ class TestGraphQL(unittest.TestCase):
                                 categoryValue {
                                     id
                                     name
+                                    category {
+                                        id
+                                        name
+                                    }
                                 }
                             }
                        }
@@ -874,18 +889,17 @@ class TestGraphQL(unittest.TestCase):
                         "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                         "entries": [{
                             "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
-                            "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e", 
+                            "categoryValueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                            "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                             "count": 0
                             }
-                        ]  
-                    } 
+                        ]
+                    }
                 },
             }, user=user)
-            
+
             self.assertTrue(success)
             self.assertTrue(self.is_valid_uuid(result["data"]["updateRecord"]["id"]), "Invalid UUID")
-
-            new_category = self.session.query(Category).filter(Category.category_value == "sour").first()
 
             self.assertEqual(result, {
                 "data": {
@@ -900,13 +914,13 @@ class TestGraphQL(unittest.TestCase):
                             {"count": 1, "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1, "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disability", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
+                            {"count": 1, "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                             {"count": 1, "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                         ]
                     },
                 },
             })
- 
+
     def test_update_record_no_perm(self):
         """Test that users on other teams can't update records."""
         user = self.test_users['other']
@@ -925,12 +939,12 @@ class TestGraphQL(unittest.TestCase):
                             count
                             categoryValue {
                                 id
-                                name 
+                                name
                                 category {
                                     id
                                     name
                                 }
-                                
+
                             }
                         }
                    }
@@ -947,14 +961,14 @@ class TestGraphQL(unittest.TestCase):
                         "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         "count": 0
                         }
-                    ]  
-                } 
+                    ]
+                }
             },
         }, user=user)
-        
+
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
-        
+
     def test_delete_record(self):
         """Test that users on a team and admins can delete records."""
         for user_role in ['admin', 'normal']:
@@ -978,7 +992,7 @@ class TestGraphQL(unittest.TestCase):
             }, user=user)
 
             self.assertTrue(success)
-            # Query for Record 
+            # Query for Record
             record = self.session.query(Record).filter(Record.id == record_id)
             # Record count should be zero
             self.assertEqual(record.count(), 0)
@@ -994,7 +1008,7 @@ class TestGraphQL(unittest.TestCase):
             })
             self.tearDown()
 
-            
+
     def test_delete_record_no_perm(self):
         """Test that users on a different team can't delete a record."""
         user = self.test_users['other']
@@ -1014,41 +1028,45 @@ class TestGraphQL(unittest.TestCase):
                 "id": record_id
             },
         }, user=user)
-                                                 
+
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
         # Query for Record
         record = self.session.query(Record).filter(Record.id == record_id)
         # Record count should still be one
         self.assertEqual(record.count(), 1)
-      
-    def test_query_category(self):
-        success, result = self.run_graphql_query({
-            "operationName": "QueryCategory",
-            "query": """
-                query QueryCategory($id: ID!) {
-                   category(id: $id) {
-                        id
-                        name
-                   }
-                }
-            """,
-            "variables": {
-                "id": "51349e29-290e-4398-a401-5bf7d04af75e",
-            },
-        })
 
-        self.assertTrue(success)
-        self.assertEqual(result, {
-            "data": {
-                "category": {
-                    "id" : "51349e29-290e-4398-a401-5bf7d04af75e",
-                    "name": "Gender"
+    def test_query_category(self):
+        """Test that anyone can query a category."""
+        for user_role in ["admin", "normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryCategory",
+                "query": """
+                    query QueryCategory($id: ID!) {
+                       category(id: $id) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "51349e29-290e-4398-a401-5bf7d04af75e",
                 },
-            },
-        })
-        
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "category": {
+                        "id" : "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "name": "Gender"
+                    },
+                },
+            })
+
     def test_create_category(self):
+        """Test that the admin can create a category."""
         success, result = self.run_graphql_query({
             "operationName": "CreateCategory",
             "query": """
@@ -1056,7 +1074,7 @@ class TestGraphQL(unittest.TestCase):
                    createCategory(input: $input) {
                         id
                         name
-                        description  
+                        description
                    }
                 }
             """,
@@ -1066,7 +1084,7 @@ class TestGraphQL(unittest.TestCase):
                     "description": "Ethnicity is..."
                 }
             },
-        })
+        }, user=self.test_users['admin'])
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["createCategory"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -1077,9 +1095,35 @@ class TestGraphQL(unittest.TestCase):
                     "description": "Ethnicity is..."
                 },
             },
-        })  
-        
+        })
+
+    def test_create_category_no_perm(self):
+        """Test that non-admins can not create a category."""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateCategory",
+                "query": """
+                    mutation CreateCategory($input: CreateCategoryInput!) {
+                       createCategory(input: $input) {
+                            id
+                            name
+                            description
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "Ethnicity",
+                        "description": "Ethnicity is..."
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
     def test_update_category(self):
+        """Test that the admin can update categories."""
         success, result = self.run_graphql_query({
             "operationName": "UpdateCategory",
             "query": """
@@ -1098,7 +1142,7 @@ class TestGraphQL(unittest.TestCase):
                     "description": "Disability is ..."
                 }
             },
-        })
+        }, self.test_users["admin"])
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateCategory"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -1109,12 +1153,40 @@ class TestGraphQL(unittest.TestCase):
                     "description": "Disability is ..."
                 },
             },
-        })        
-            
+        })
+
+    def test_update_category_no_perm(self):
+        """Test that users other than admin can not update categories."""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateCategory",
+                "query": """
+                    mutation UpdateCategory($input: UpdateCategoryInput!) {
+                       updateCategory(input: $input) {
+                            id
+                            name
+                            description
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                        "name": "Disability",
+                        "description": "Disability is ..."
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
     def test_delete_category(self):
+        """Test that admin can delete a category."""
+        user = self.test_users["admin"]
         category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
         # Confirm Category exists, then that it does not.
-        existing_category = self.session.query(Category).filter(Category.id == category_id)
+        existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
         # Count of existing Category should be one
         self.assertEqual(existing_category.count(), 1)
         success, result = self.run_graphql_query({
@@ -1125,46 +1197,76 @@ class TestGraphQL(unittest.TestCase):
                 }
             """,
             "variables": {
-                "id": category_id, 
+                "id": category_id,
             },
-        })
+        }, user=user)
         self.assertTrue(success)
-        category = self.session.query(Category).filter(Category.id == category_id, Category.deleted is None)
+        category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
         self.assertEqual(category.count(), 0)
         self.assertTrue(self.is_valid_uuid(category_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
                 "deleteCategory": category_id
             },
-        })   
-        
-    def test_query_category_value(self):
-        success, result = self.run_graphql_query({
-            "operationName": "QueryCategoryValue",
-            "query": """
-                query QueryCategoryValue($id: ID!) {
-                   categoryValue(id: $id) {
-                        id
-                        name
-                   }
-                }
-            """,
-            "variables": {
-                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-            },
         })
 
-        self.assertTrue(success)
-        self.assertEqual(result, {
-            "data": {
-                "categoryValue": {
-                    "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                    "name": "Cisgender women"
+    def test_delete_category_no_perm(self):
+        """Test that non-admins can not delete a category."""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
+            # Confirm Category exists, then that it does not.
+            existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
+            # Count of existing Category should be one
+            self.assertEqual(existing_category.count(), 1)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteCategory",
+                "query": """
+                    mutation DeleteCategory($id: ID!) {
+                        deleteCategory(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": category_id,
                 },
-            },
-        })
-        
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
+            self.assertEqual(category.count(), 1)
+
+    def test_query_category_value(self):
+        """Test that anyone can query category values"""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryCategoryValue",
+                "query": """
+                    query QueryCategoryValue($id: ID!) {
+                       categoryValue(id: $id) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "categoryValue": {
+                        "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                        "name": "Cisgender women"
+                    },
+                },
+            })
+
     def test_create_category_value(self):
+        """Test that only admins can create category values."""
+        user = self.test_users["admin"]
         success, result = self.run_graphql_query({
             "operationName": "CreateCategoryValue",
             "query": """
@@ -1175,7 +1277,7 @@ class TestGraphQL(unittest.TestCase):
                         category {
                             id
                             name
-                        }    
+                        }
                    }
                 }
             """,
@@ -1185,7 +1287,7 @@ class TestGraphQL(unittest.TestCase):
                     "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e"
                 }
             },
-        })
+        }, user=user)
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["createCategoryValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -1199,9 +1301,39 @@ class TestGraphQL(unittest.TestCase):
                     }
                 },
             },
-        })  
-        
+        })
+
+    def test_create_category_value_no_perm(self):
+        """Test that non-admins can not create category values."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateCategoryValue",
+                "query": """
+                    mutation CreateCategoryValue($input: CreateCategoryValueInput!) {
+                       createCategoryValue(input: $input) {
+                            id
+                            name
+                            category {
+                                id
+                                name
+                            }
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "questioning",
+                        "categoryId": "51349e29-290e-4398-a401-5bf7d04af75e"
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
     def test_update_category_value(self):
+        """Only admins can update category values"""
+        user = self.test_users["admin"]
         success, result = self.run_graphql_query({
             "operationName": "UpdateCategoryValue",
             "query": """
@@ -1222,7 +1354,7 @@ class TestGraphQL(unittest.TestCase):
                     "name": "transgender woman"
                 }
             },
-        })
+        }, user=user)
         self.assertTrue(success)
         self.assertTrue(self.is_valid_uuid(result["data"]["updateCategoryValue"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
@@ -1236,12 +1368,42 @@ class TestGraphQL(unittest.TestCase):
                     }
                 },
             },
-        }) 
-      
+        })
+
+    def test_update_category_value_no_perm(self):
+        """Only admins can update category values"""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateCategoryValue",
+                "query": """
+                    mutation UpdateCategoryValue($input: UpdateCategoryValueInput!) {
+                       updateCategoryValue(input: $input) {
+                            id
+                            name
+                            category {
+                                id
+                                name
+                            }
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                        "name": "transgender woman"
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
     def test_delete_category_value(self):
+        """Only admins can delete category values."""
+        user = self.test_users["admin"]
         category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
         # Confirm Value exists, then that it does not.
-        existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id)
+        existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
         # Count of existing CategoryValue should be one
         self.assertEqual(existing_category_value.count(), 1)
         success, result = self.run_graphql_query({
@@ -1252,11 +1414,11 @@ class TestGraphQL(unittest.TestCase):
                 }
             """,
             "variables": {
-                "id": category_value_id, 
+                "id": category_value_id,
             },
-        })
+        }, user=user)
         self.assertTrue(success)
-        category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted is None)
+        category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
         self.assertEqual(category_value.count(), 0)
         self.assertTrue(self.is_valid_uuid(category_value_id), "Invalid UUID")
         self.assertEqual(result, {
@@ -1264,6 +1426,31 @@ class TestGraphQL(unittest.TestCase):
                 "deleteCategoryValue": category_value_id
             },
         })
+
+    def test_delete_category_value_no_perm(self):
+        """Only admins can delete category values."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+            # Confirm Value exists, then that it does not.
+            existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
+            # Count of existing CategoryValue should be one
+            self.assertEqual(existing_category_value.count(), 1)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteCategoryValue",
+                "query": """
+                    mutation DeleteCategoryValue($id: ID!) {
+                        deleteCategoryValue(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": category_value_id,
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
+            self.assertEqual(category_value.count(), 1)
 
 
 if __name__ == '__main__':
