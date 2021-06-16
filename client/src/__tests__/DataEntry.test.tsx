@@ -11,6 +11,7 @@ import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
 import { DataEntry } from "../components/DataEntry/DataEntry";
 import MockDate from "mockdate";
+import i18nextTest from "../services/i18next-test";
 
 const history = createMemoryHistory();
 
@@ -18,36 +19,6 @@ jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
 }));
-
-i18next.use(initReactI18next).init({
-  lng: "en",
-  fallbackLng: "en-gb",
-  interpolation: {
-    escapeValue: false,
-  },
-  keySeparator: false,
-  resources: {
-    "en-gb": {
-      translation: {
-        addMoreData: "Add More Data",
-        goToDataset: "Go to Dataset",
-        saveRecord: "{{buttonTitle}} Record",
-        cancelAndReturnToDashBoard: "Cancel and Return To Dashboard",
-        attributeDescription: "{{description}}",
-        aboutAttribute: "About {{attribute}}",
-      },
-    },
-    en: {
-      addMoreData: "Add More Data",
-      goToDataset: "Go to Dataset",
-      saveRecord: "{{buttonTitle}} Record",
-      cancelAndReturnToDashBoard: "Cancel and Return To Dashboard",
-      attributeDescription: "{{description}}",
-      aboutAttribute: "About {{attribute}}",
-    },
-  },
-  lowerCaseLng: true,
-});
 
 async function wait(ms = 0) {
   await act(async () => {
