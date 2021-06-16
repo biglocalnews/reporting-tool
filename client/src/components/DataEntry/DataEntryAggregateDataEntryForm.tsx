@@ -120,7 +120,6 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         datasetId: props.datasetId,
         publicationDate: formPublicationDate,
         entries: values?.map((newEntry) => ({
-          inputterId: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", // TODO: placeholder until auth implementation
           categoryValueId: newEntry.categoryValueId,
           count: newEntry.count,
         })),
@@ -163,7 +162,6 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         publicationDate: formPublicationDate,
         entries: values?.map((updatedEntry) => ({
           id: updatedEntry.entryId,
-          inputterId: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77", // TODO: placeholder until auth implementation
           categoryValueId: updatedEntry.categoryValueId,
           count: updatedEntry.count,
         })),

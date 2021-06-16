@@ -200,7 +200,7 @@ input UpdateCategoryValueInput {
 
 input EntryInput {
   id: ID
-  inputterId: ID!
+  inputterId: ID
   categoryValueId: ID!
   count: Int!
 }
