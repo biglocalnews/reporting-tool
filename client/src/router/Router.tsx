@@ -106,15 +106,17 @@ export function RenderRoutes({
   protectedContainer,
   auth,
 }: RenderRoutesProps) {
-  const C = protectedContainer;
+  const Container = protectedContainer;
   const WrappedPrivate = privateComponent(auth, (props: AnyRouteProps) => (
-    <C>
+    <Container>
       <ProtectedRoutes routes={protectedRoutes} />
-    </C>
+    </Container>
   ));
 
-  const L = loginComponent;
-  const WrappedLogin = (props: AnyRouteProps) => <L {...props} auth={auth} />;
+  const Login = loginComponent;
+  const WrappedLogin = (props: AnyRouteProps) => (
+    <Login {...props} auth={auth} />
+  );
 
   return (
     <Switch>
