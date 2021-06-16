@@ -10,6 +10,7 @@ import {
   InMemoryCache,
   HttpLink,
   from,
+  ApolloLink,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { AuthProvider } from "./components/AuthProvider";
@@ -33,6 +34,17 @@ const httpLink = new HttpLink({
       : "/graphql/",
 });
 
+const authLink = new ApolloLink((operation, forward) => {
+  // Use the setContext method to set the HTTP headers
+  operation.setContext({
+    headers: {
+      "X-User": "tester@notrealemail.info", // TODO: remove placeholder when user login is merged
+    },
+  });
+
+  return forward(operation);
+});
+
 const cache = new InMemoryCache({
   typePolicies: {
     Dataset: {
@@ -49,7 +61,7 @@ const cache = new InMemoryCache({
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: from([errorLink, httpLink]),
+  link: from([authLink, errorLink, httpLink]),
 });
 
 // Create a new auth service, and initialize it. The `init` request is actually
