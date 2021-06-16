@@ -11,8 +11,13 @@ import ROUTES from "./router/routes";
 import { RenderRoutes } from "./router/Router";
 
 import { auth } from "./services/auth";
+import { AuthProvider } from "./components/AuthProvider";
 
 const { Footer, Content } = Layout;
+
+// Kick off asynchronous auth initialization. Don't wait for it here; it uses
+// Suspense to delay rendering.
+auth.init();
 
 /**
  * Layout container for an authenticated user.
@@ -42,14 +47,16 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<h1>Loading...</h1>}>
-        <Layout style={{ height: "100vh" }}>
-          <RenderRoutes
-            auth={auth}
-            loginComponent={Login}
-            protectedRoutes={ROUTES}
-            protectedContainer={ProtectedAppContainer}
-          />
-        </Layout>
+        <AuthProvider auth={auth}>
+          <Layout style={{ height: "100vh" }}>
+            <RenderRoutes
+              auth={auth}
+              loginComponent={Login}
+              protectedRoutes={ROUTES}
+              protectedContainer={ProtectedAppContainer}
+            />
+          </Layout>
+        </AuthProvider>
       </Suspense>
     </BrowserRouter>
   );

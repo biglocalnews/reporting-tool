@@ -34,9 +34,9 @@ export const Login = (props: LoginProps) => {
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);
 
-    const success = await props.auth.login(email, password);
-    if (!success) {
-      setError(new Error(t("loginFailed")));
+    const error = await props.auth.login(email, password);
+    if (error) {
+      setError(new Error(error));
     } else {
       const state = props.location.state;
       const redirect = (state && (state as Record<string, any>).from) || {

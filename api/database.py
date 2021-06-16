@@ -374,7 +374,7 @@ def create_dummy_data(session):
     print("👩🏽‍💻 Adding dummy data ...")    
     user = User(id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
             email='tester@notrealemail.info',
-            hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+            hashed_password='$2b$12$jsOYCT1t0H6T3fJ/ODmySO46/Z1zHqYauAbFsgpyjUG1ZUWsAQwn6',
             first_name='Cat', last_name='Berry')
     
     # Secondary app user (no perms, used for testing access controls)
