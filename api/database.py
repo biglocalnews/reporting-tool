@@ -213,7 +213,7 @@ class Tag(Base):
     deleted = Column(TIMESTAMP)
 
 
-class Target(Base):
+class Target(Base, PermissionsMixin):
     __tablename__ = 'target'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
