@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Form, Card, Input, Typography } from "antd";
 import { RouteComponentProps } from "react-router-dom";
 import { Auth } from "../../services/auth";
+import { useAuth } from "../AuthProvider";
 import "./Login.css";
 
 const { Text } = Typography;
@@ -21,12 +22,13 @@ type LoginRequest = {
  * Mostly these come from react-router, but the auth component is our custom
  * service that manages authentication.
  */
-export type LoginProps = { auth: Auth } & RouteComponentProps;
+export type LoginProps = RouteComponentProps;
 
 /**
  * Login UI form.
  */
 export const Login = (props: LoginProps) => {
+  const auth = useAuth();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -34,7 +36,7 @@ export const Login = (props: LoginProps) => {
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);
 
-    const error = await props.auth.login(email, password);
+    const error = await auth.login(email, password);
     if (error) {
       setError(new Error(error));
     } else {

@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
 import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
+import { useAuth } from "../components/AuthProvider";
 import { LoginProps } from "../components/Login/Login";
 
 /**
@@ -89,7 +90,6 @@ export type RenderRoutesProps = {
   loginComponent: React.ComponentType<LoginProps>;
   protectedRoutes: RoutesList;
   protectedContainer: React.ComponentType;
-  auth: Auth;
 };
 
 /**
@@ -104,8 +104,8 @@ export function RenderRoutes({
   loginComponent,
   protectedRoutes,
   protectedContainer,
-  auth,
 }: RenderRoutesProps) {
+  const auth = useAuth();
   const Container = protectedContainer;
   const WrappedPrivate = privateComponent(auth, (props: AnyRouteProps) => (
     <Container>
@@ -113,14 +113,9 @@ export function RenderRoutes({
     </Container>
   ));
 
-  const Login = loginComponent;
-  const WrappedLogin = (props: AnyRouteProps) => (
-    <Login {...props} auth={auth} />
-  );
-
   return (
     <Switch>
-      <Route exact path="/login" component={WrappedLogin} />
+      <Route exact path="/login" component={loginComponent} />
       <Route path="/" component={WrappedPrivate} />
     </Switch>
   );

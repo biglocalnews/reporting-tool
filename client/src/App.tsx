@@ -11,8 +11,6 @@ import { Loading } from "./components/Loading/Loading";
 import ROUTES from "./router/routes";
 import { RenderRoutes } from "./router/Router";
 
-import { useAuth } from "./components/AuthProvider";
-
 const { Footer, Content } = Layout;
 
 /**
@@ -44,13 +42,11 @@ export function ProtectedAppContainer({
  * Top-level app layout.
  */
 function App() {
-  const auth = useAuth();
   return (
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Layout style={{ height: "100vh" }}>
           <RenderRoutes
-            auth={auth}
             loginComponent={Login}
             protectedRoutes={ROUTES}
             protectedContainer={ProtectedAppContainer}

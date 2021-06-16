@@ -13,7 +13,6 @@ exports[`renders App correctly 1`] = `
       }
     >
       <RenderRoutes
-        auth={null}
         loginComponent={[Function]}
         protectedContainer={[Function]}
         protectedRoutes={
