@@ -371,23 +371,25 @@ def create_tables(engine, session):
 
 
 def create_dummy_data(session):
+    from passlib.hash import bcrypt
+
     print("👩🏽‍💻 Adding dummy data ...")    
     user = User(id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
             email='tester@notrealemail.info',
-            hashed_password='$2b$12$jsOYCT1t0H6T3fJ/ODmySO46/Z1zHqYauAbFsgpyjUG1ZUWsAQwn6',
+            hashed_password=bcrypt('password'),
             first_name='Cat', last_name='Berry')
     
     # Secondary app user (no perms, used for testing access controls)
     other_user = User(id='a47085ba-3d01-46a4-963b-9ffaeda18113',
     email='other@notrealemail.info',
-    hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+    hashed_password=bcrypt('otherpassword'),
     first_name='Penelope', last_name='Pineapple')
     session.add(other_user)
                       
     # Admin user
     admin_user = User(id='df6413b4-b910-4f6e-8f3c-8201c9e65af3',
                     email='admin@notrealemail.info',
-                    hashed_password='c053ecf9ed41df0311b9df13cc6c3b6078d2d3c2',
+                    hashed_password=bcrypt('adminpassword'),
                     first_name='Daisy', last_name='Carrot')
     admin = session.query(Role).get('be5f8cac-ac65-4f75-8052-8d1b5d40dffe')
     admin_user.roles.append(admin)
