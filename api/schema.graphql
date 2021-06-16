@@ -212,6 +212,14 @@ input CreateTeamInput {
   organizationId: ID
 }
 
+input UpdateTeamInput {
+  id: ID!
+  name: String
+  userIds: [ID!]
+  programIds: [ID!]
+  organizationId: ID
+}
+
 input EntryInput {
   id: ID
   categoryValueId: ID!
@@ -294,4 +302,7 @@ type Mutation {
 
   # Create a Team
   createTeam(input: CreateTeamInput!): Team!
+
+  # Update a Team
+  updateTeam(input: UpdateTeamInput!): Team!
 }

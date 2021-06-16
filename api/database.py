@@ -97,6 +97,7 @@ class Team(Base, PermissionsMixin):
     programs = relationship('Program')
     organization_id = Column(GUID, ForeignKey(
         'organization.id'), nullable=False, index=True)
+    organization = relationship('Organization', back_populates='teams')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
