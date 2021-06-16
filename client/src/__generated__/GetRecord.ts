@@ -1,3 +1,4 @@
+/* tslint:disable */
 /* eslint-disable */
 // @generated
 // This file was automatically generated and should not be edited.
@@ -11,11 +12,18 @@ export interface GetRecord_record_dataset {
   readonly name: string;
 }
 
+export interface GetRecord_record_entries_category {
+  readonly __typename: "Category";
+  readonly id: string;
+  readonly description: string;
+  readonly category: string;
+  readonly categoryValue: string;
+}
+
 export interface GetRecord_record_entries {
   readonly __typename: "Entry";
   readonly id: string;
-  readonly category: string;
-  readonly categoryValue: string;
+  readonly category: GetRecord_record_entries_category;
   readonly count: number;
 }
 
@@ -28,7 +36,7 @@ export interface GetRecord_record {
 }
 
 export interface GetRecord {
-  readonly record: GetRecord_record | null;
+  readonly record: GetRecord_record;
 }
 
 export interface GetRecordVariables {

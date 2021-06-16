@@ -10,6 +10,12 @@ import i18nextTest from "../src/services/i18next-test";
 
 i18nextTest.createInstance();
 
+// Mock HTTP requests via the `fetchMock` global.
+import jestFetchMock from "jest-fetch-mock";
+// Mocks are enabled to get global objects like Response. Note that it's
+// usually better to avoid the fetchMock global and use dependency injection!
+jestFetchMock.enableMocks();
+
 expect.extend(toHaveNoViolations);
 
 configure({ adapter: new Adapter() });

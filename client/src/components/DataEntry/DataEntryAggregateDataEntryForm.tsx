@@ -5,7 +5,7 @@ import React, {
   SetStateAction,
   useState,
 } from "react";
-import { Alert, Button, Card, Col, Row, Space, Typography } from "antd";
+import { Alert, Button, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./DataEntryAggregateDataEntryForm.css";
 import { useMutation } from "@apollo/client";
@@ -17,62 +17,56 @@ import { CREATE_RECORD } from "../../__mutations__/CreateRecord";
 import { GetRecord } from "../../__generated__/GetRecord";
 import { UPDATE_RECORD } from "../../__mutations__/UpdateRecord.gql";
 import { formMessageHandler } from "./DataEntryMessageHandler";
+import { GetDataset } from "../../__generated__/GetDataset";
+import { DataEntryCategorySections } from "./DataEntryCategorySections";
 
 const { Text } = Typography;
 
 interface FormProps {
+  datasetData: GetDataset | undefined;
   datasetId: string;
   recordId?: string;
   existingRecord?: GetRecord | undefined;
   onFormSubmitted: Dispatch<SetStateAction<boolean>>;
 }
 
-interface Entry {
+export interface Entry {
   id?: string;
+  index: number;
+  categoryId: string;
   category: string;
   categoryValue: string;
+  categoryValueLabel: string;
+  description: string;
   count: number | any;
 }
 
-interface Category {
-  categoryType: string;
-  categoryAttributes: string[];
-}
+const renderForm = (
+  metadata: GetDataset | undefined,
+  existingRecord: GetRecord | undefined
+) => {
+  let form: Entry[];
 
-const categories: Category = {
-  categoryType: "gender",
-  categoryAttributes: [
-    "men",
-    "women",
-    "non-binary",
-    "transgender",
-    "cisgender",
-    "gender non-conforming",
-  ],
-};
+  if (existingRecord) {
+    form = existingRecord?.record?.entries.map((entry, index) => ({
+      ...entry.category,
+      id: entry.id,
+      index: index,
+      categoryId: entry.category.id,
+      categoryValueLabel: entry.category.categoryValue.replace(/\s+/g, "-"),
+      count: entry.count,
+    }));
+  } else {
+    form = metadata?.dataset.program.targets.map((target, index) => ({
+      ...target.category,
+      index: index,
+      categoryId: target.category.id,
+      categoryValueLabel: target.category.categoryValue.replace(/\s+/g, "-"),
+      count: 0,
+    })) as Entry[];
+  }
 
-// Temporary function to render an initial form (pending category addition to schema)
-const createFormFields = (existingRecord: GetRecord | undefined) => {
-  const initialForm = categories.categoryAttributes.flatMap((attribute) => ({
-    category: categories.categoryType,
-    categoryValue: attribute,
-    count: 0,
-  }));
-
-  const existingEntries = existingRecord?.record?.entries.map((obj) => ({
-    ...obj,
-  })) as Entry[];
-
-  return existingEntries
-    ? initialForm.map((initial) => ({
-        ...initial,
-        ...existingEntries.find(
-          (entry) =>
-            entry.categoryValue.toLowerCase() ===
-            initial.categoryValue.toLowerCase()
-        ),
-      }))
-    : initialForm;
+  return form;
 };
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
@@ -81,7 +75,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   const isEditMode = props.recordId ? true : false;
 
-  const entries = createFormFields(props.existingRecord);
+  const entries = renderForm(props.datasetData, props.existingRecord);
   const [values, setValues] = useState<Entry[]>(entries);
 
   const [formPublicationDate, setFormPublicationDate] = useState<string>(
@@ -112,9 +106,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         datasetId: props.datasetId,
         publicationDate: formPublicationDate,
         entries: values?.map((d) => ({
+          categoryId: d.categoryId,
           count: d.count,
-          category: d.category,
-          categoryValue: d.categoryValue,
         })),
       },
     };
@@ -151,9 +144,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         publicationDate: formPublicationDate,
         entries: values?.map((d) => ({
           id: d.id,
+          categoryId: d.categoryId,
           count: d.count,
-          category: d.category,
-          categoryValue: d.categoryValue,
         })),
       },
     };
@@ -258,58 +250,26 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           />
         </label>
       </div>
-      <Row gutter={[16, 16]} className="data-entry">
-        <Col span={8}>
-          <h3 className="data-entry_category-descr-header">
-            {t("aboutAttribute", { attribute: "Gender" })}
-          </h3>
-          <Text>
-            {t("attributeDescription", {
-              description: `Gender identity expresses one's innermost concept of self as male,
-        female, a blend of both or neither - how individuals perceive
-        themselves and what they call themselves. Someone's gender identity
-        can be the same (cisgender) or different (transgender) from their
-        sex assigned at birth.`,
-            })}
-          </Text>
-        </Col>
-        <Col span={16}>
-          <Card type="inner" title="Gender">
-            <div className="data-entry-form_input-grid">
-              {values.map((item, index) => (
-                <label
-                  key={index}
-                  id={item.categoryValue}
-                  htmlFor={item.categoryValue}
-                  className="data-entry-form_label"
-                >
-                  <input
-                    name={item.categoryValue}
-                    required
-                    aria-labelledby={item.categoryValue}
-                    aria-required="true"
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    placeholder="0"
-                    value={item.count}
-                    onChange={(e) => handleChange(e, index)}
-                  />{" "}
-                  {item.categoryValue}{" "}
-                  <span
-                    className="data-entry-form_required-field"
-                    aria-labelledby={item.categoryValue}
-                  >
-                    *
-                  </span>
-                </label>
-              ))}
-            </div>
-          </Card>
-
-          <div className="data-entry-form_buttons">
-            <Space>
-              {isEditMode ? (
+      <DataEntryCategorySections
+        entries={values}
+        onValueChange={handleChange}
+      />
+      <Row className="data-entry-form_buttons">
+        <Col span={16} offset={8}>
+          <Space wrap>
+            {isEditMode ? (
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SaveOutlined />}
+                style={{ whiteSpace: "normal", height: "auto" }}
+              >
+                {t("saveRecord", {
+                  buttonTitle: "Update",
+                })}
+              </Button>
+            ) : (
+              <>
                 <Button
                   type="primary"
                   htmlType="submit"
@@ -317,43 +277,30 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                   style={{ whiteSpace: "normal", height: "auto" }}
                 >
                   {t("saveRecord", {
-                    buttonTitle: "Update",
+                    buttonTitle: "Save",
                   })}
                 </Button>
-              ) : (
-                <>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    icon={<SaveOutlined />}
-                    style={{ whiteSpace: "normal", height: "auto" }}
-                  >
-                    {t("saveRecord", {
-                      buttonTitle: "Save",
-                    })}
-                  </Button>
-                  <Button
-                    htmlType="button"
-                    icon={<SaveOutlined />}
-                    style={{ whiteSpace: "normal", height: "auto" }}
-                    onClick={() => handleSubmitReload()}
-                  >
-                    {t("saveRecord", {
-                      buttonTitle: "Save and Add Another",
-                    })}
-                  </Button>
-                </>
-              )}
-              <Button
-                htmlType="button"
-                onClick={() => history.push("/")}
-                icon={<CloseSquareFilled />}
-                style={{ whiteSpace: "normal", height: "auto" }}
-              >
-                {t("cancelAndReturnToDashBoard")}
-              </Button>
-            </Space>
-          </div>
+                <Button
+                  htmlType="button"
+                  icon={<SaveOutlined />}
+                  style={{ whiteSpace: "normal", height: "auto" }}
+                  onClick={() => handleSubmitReload()}
+                >
+                  {t("saveRecord", {
+                    buttonTitle: "Save and Add Another",
+                  })}
+                </Button>
+              </>
+            )}
+            <Button
+              htmlType="button"
+              onClick={() => history.push("/")}
+              icon={<CloseSquareFilled />}
+              style={{ whiteSpace: "normal", height: "auto" }}
+            >
+              {t("cancelAndReturnToDashBoard")}
+            </Button>
+          </Space>
         </Col>
       </Row>
     </form>

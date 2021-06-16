@@ -100,6 +100,7 @@ const DataEntry = (): JSX.Element => {
         </Link>
       </Title>
       <DataEntryAggregateDataEntryForm
+        datasetData={datasetData}
         datasetId={datasetId}
         recordId={recordId}
         onFormSubmitted={setFormSuccess}

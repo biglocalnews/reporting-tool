@@ -10,8 +10,12 @@ export const GET_RECORD = gql`
       }
       entries {
         id
-        category
-        categoryValue
+        category {
+          id
+          description
+          category
+          categoryValue
+        }
         count
       }
     }

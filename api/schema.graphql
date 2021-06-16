@@ -1,3 +1,33 @@
+directive @needsPermission(
+  # Permissions are checked with ANY semantics. E.g., [ADMIN, CURRENT_USER]
+  # means that either the user is an Admin OR they are the user who owns the
+  # given object being queried.
+  #
+  # This directive can be used on either a field definition or an object. In
+  # case both are defined, the field definition takes precedence over the
+  # object definition. (The permissions lists are *not* merged; the field
+  # definition simply overrides the object definition).
+  #
+  # See the documentation in the directive implementation for more details.
+  permission: [Permission!]!
+) on FIELD_DEFINITION | OBJECT
+
+enum Permission {
+  # The ADMIN permission checks that the user has the Admin role.
+  # can access.
+  ADMIN
+  # The LOGGED_IN permission only checks that a user is logged in as any user.
+  LOGGED_IN
+  # The CURRENT_USER permission checks that the user who is currently logged in
+  # directly owns the object in question (e.g., the User object with the same
+  # ID as the one who is logged in).
+  CURRENT_USER
+  # The TEAM_MEMBER permission checks that the currently logged in user
+  # belongs to the team that owns the object in question (e.g., they are on
+  # the team that owns the Program they are querying).
+  TEAM_MEMBER
+}
+
 schema {
   query: Query
   mutation: Mutation
@@ -5,13 +35,13 @@ schema {
 
 scalar DateTime
 
-type Organization {
+type Organization @needsPermission(permission: [LOGGED_IN]) {
   id: ID!
   name: String!
   teams: [Team!]!
 }
 
-type Team {
+type Team @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   users: [User!]!
@@ -19,7 +49,7 @@ type Team {
   organizations: [Organization!]!
 }
 
-type User {
+type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
   id: ID!
   firstName: String!
   lastName: String!
@@ -34,7 +64,7 @@ type Role {
   description: String!
 }
 
-type Program {
+type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   description: String!
@@ -60,43 +90,53 @@ input TagInput {
   tagType: String!
 }
 
-type Target {
+type Target @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  category: Category!
+  categoryValue: CategoryValue!
   target: Float!
 }
 
 type Category {
   id: ID!
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
-type Dataset {
+type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   description: String
   lastUpdated: DateTime
   program: Program!
   records: [Record!]!
-  inputter: User!
   tags: [Tag!]!
 }
 
-type Record {
+type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   dataset: Dataset!
   publicationDate: DateTime!
   entries: [Entry!]!
 }
 
-type Entry {
+type CategoryValue {
   id: ID!
+  name: String!
   category: Category!
+}
+
+type Entry @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  categoryValue: CategoryValue!
   count: Int!
+  inputter: User!
+}
+
+type Description {
+  id: ID!
+  description: String!
 }
 
 input UpsertUserInput {
@@ -111,7 +151,6 @@ input CreateDatasetInput {
   name: String!
   description: String!
   programId: ID!
-  inputterId: ID!
   tags: [TagInput!]!
 }
 
@@ -138,73 +177,105 @@ input CreateRecordInput {
 }
 
 input CreateCategoryInput {
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
 input UpdateCategoryInput {
   id: ID!
-  category: String
-  categoryValue: String
+  name: String
   description: String
+}
+
+input CreateCategoryValueInput {
+  name: String!
+  categoryId: ID!
+}
+
+input UpdateCategoryValueInput {
+  id: ID!
+  name: String
+  categoryId: ID
 }
 
 input EntryInput {
   id: ID
-  categoryId: ID!
+  inputterId: ID!
+  categoryValueId: ID!
   count: Int!
 }
 
 input CategoryInput {
   id: ID
-  category: String!
-  categoryValue: String!
+  name: String!
   description: String!
 }
 
 type Query {
+  # NOTE: Permissions are enforced at the object-level as objects are returned.
+
   # Retrieve a single user.
-  user(id: ID!): User!
+  user(id: ID!): User! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve a single dataset.
-  dataset(id: ID!): Dataset!
+  dataset(id: ID!): Dataset! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve a single Record.
-  record(id: ID!): Record!
+  record(id: ID!): Record! @needsPermission(permission: [LOGGED_IN])
 
-  # Retriever a single program.
-  program(id: ID!): Program!
+  # Retrieve a single program.
+  program(id: ID!): Program! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve a single category.
-  category(id: ID!): Category!
+  category(id: ID!): Category! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a single categoryValue.
+  categoryValue(id: ID!): CategoryValue!
+    @needsPermission(permission: [LOGGED_IN])
 }
 
 type Mutation {
   # Create a Dataset
   createDataset(input: CreateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a Dataset
-  deleteDataset(id: ID!): ID!
+  deleteDataset(id: ID!): ID! @needsPermission(permission: [ADMIN])
 
   # Update a Dataset
   updateDataset(input: UpdateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
 
   # Create a Record
   createRecord(input: CreateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Update a Record
   updateRecord(input: UpdateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Delete a Record
-  deleteRecord(id: ID!): ID!
+  deleteRecord(id: ID!): ID! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 
   # Create a Category
   createCategory(input: CreateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
 
   # Update a Category
   updateCategory(input: UpdateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a Category
-  deleteCategory(id: ID!): ID!
+  deleteCategory(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a CategoryValue
+  createCategoryValue(input: CreateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a CategoryValue
+  updateCategoryValue(input: UpdateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a CategoryValue
+  deleteCategoryValue(id: ID!): ID! @needsPermission(permission: [ADMIN])
 }

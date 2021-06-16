@@ -1,13 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly 1`] = `
+exports[`renders App correctly 1`] = `
 <BrowserRouter>
   <Suspense
-    fallback={
-      <h1>
-        Loading...
-      </h1>
-    }
+    fallback={<Loading />}
   >
     <Layout
       style={
@@ -16,73 +12,81 @@ exports[`renders correctly 1`] = `
         }
       }
     >
-      <AppHeader />
-      <Layout>
-        <AppSidebar />
-        <Layout
-          style={
+      <RenderRoutes
+        loginComponent={[Function]}
+        protectedContainer={[Function]}
+        protectedRoutes={
+          Array [
             Object {
-              "padding": "0 24px 24px",
-            }
-          }
-        >
-          <Content
-            className="site-layout-background"
-          >
-            <BreadCrumb />
-            <RenderRoutes
-              routes={
-                Array [
-                  Object {
-                    "component": [Function],
-                    "exact": true,
-                    "path": "/dataset/:datasetId/entry/reload",
-                  },
-                  Object {
-                    "breadcrumb": "Home",
-                    "component": [Function],
-                    "exact": true,
-                    "key": "home",
-                    "path": "/",
-                  },
-                  Object {
-                    "breadcrumb": "Dataset Details",
-                    "component": [Function],
-                    "key": "dataset-details",
-                    "path": "/dataset/:datasetId/details",
-                    "routes": Array [
-                      Object {
-                        "breadcrumb": "Add Entry",
-                        "component": [Function],
-                        "exact": true,
-                        "key": "add-entry",
-                        "path": "/dataset/:datasetId/entry",
-                      },
-                      Object {
-                        "breadcrumb": "Edit Entry",
-                        "component": [Function],
-                        "exact": true,
-                        "key": "edit-entry",
-                        "path": "/dataset/:datasetId/entry/edit/:recordId",
-                      },
-                    ],
-                  },
-                ]
-              }
-            />
-          </Content>
-          <Footer
-            style={
-              Object {
-                "textAlign": "center",
-              }
-            }
-          >
-            Footer content
-          </Footer>
-        </Layout>
-      </Layout>
+              "component": [Function],
+              "exact": true,
+              "path": "/dataset/:datasetId/entry/reload",
+            },
+            Object {
+              "breadcrumb": "Home",
+              "component": [Function],
+              "exact": true,
+              "key": "home",
+              "path": "/",
+            },
+            Object {
+              "breadcrumb": "Dataset Details",
+              "component": [Function],
+              "key": "dataset-details",
+              "path": "/dataset/:datasetId/details",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Add Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "add-entry",
+                  "path": "/dataset/:datasetId/entry",
+                },
+                Object {
+                  "breadcrumb": "Edit Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "edit-entry",
+                  "path": "/dataset/:datasetId/entry/edit/:recordId",
+                },
+              ],
+            },
+          ]
+        }
+      />
     </Layout>
   </Suspense>
 </BrowserRouter>
+`;
+
+exports[`renders ProtectedAppContainer correctly 1`] = `
+<Fragment>
+  <AppHeader />
+  <Layout>
+    <AppSidebar />
+    <Layout
+      style={
+        Object {
+          "padding": "0 24px 24px",
+        }
+      }
+    >
+      <Content
+        className="site-layout-background"
+      >
+        <BreadCrumb />
+        <div />
+      </Content>
+      <Footer
+        style={
+          Object {
+            "textAlign": "center",
+          }
+        }
+      >
+        Footer content
+      </Footer>
+    </Layout>
+  </Layout>
+</Fragment>
 `;

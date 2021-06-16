@@ -14,6 +14,7 @@ services:
     environment:
       - db_name=${RT_DB_NAME}
       - db_host=db
+      - debug=False
     secrets:
       - source: db-password
         target: /run/secrets/db_pw
