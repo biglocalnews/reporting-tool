@@ -16,7 +16,9 @@ const defaultUser: UserProfile = {
   last_name: "Pomegranate",
   email: "penelope@pomegran.ate",
   is_active: true,
+  is_verified: true,
   id: "cb1aa2f7-2b27-4649-ba0d-f5c1e60fbb92",
+  roles: [],
 };
 
 /**

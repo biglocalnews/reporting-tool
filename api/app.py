@@ -3,7 +3,7 @@ import databases
 import sqlalchemy
 import datetime
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 # from fastapi_sqlalchemy import DBSessionMiddleware  # middleware helper
 # from fastapi_sqlalchemy import db  # an object to provide global access to a database session
 from fastapi_users.authentication import CookieAuthentication
@@ -76,7 +76,23 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
-app.include_router(fastapi_users.get_users_router(), prefix="/users", tags=["users"])
+
+# Use a custom implementation of the /users/me instead of fastapi-users's.
+# Their permissions are too simple for us; we want to return a list of roles
+# for the user. Behavior around 200 and 401 responses is otherwise the same.
+@app.get("/users/me")
+def get_current_user(request: Request, user: user.User = Depends(fastapi_users.current_user(active=True))):
+    session = request.scope["dbsession"]
+    dbuser = session.query(User).get(user.id)
+    return {
+            "id": dbuser.id,
+            "roles": [r.name for r in dbuser.roles],
+            "first_name": dbuser.first_name,
+            "last_name": dbuser.last_name,
+            "email": dbuser.email,
+            "is_active": dbuser.is_active,
+            "is_verified": dbuser.is_verified,
+            }
 
 
 # General Graphql Field Resolvers
