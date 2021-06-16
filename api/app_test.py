@@ -536,7 +536,7 @@ class TestGraphQL(unittest.TestCase):
             "data": {
                 "updateDataset": {
                     "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
-                    "name": "XTea Time",
+                    "name": "Tea Time",
                     "description": "Tea time programming",
                     "program": {"name": "BBC News"},
                     "tags": [{"name": "News"}, {"name": "Asia"}]
