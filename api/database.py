@@ -371,25 +371,32 @@ def create_tables(engine, session):
 
 
 def create_dummy_data(session):
+    if not settings.debug:
+        raise RuntimeError("Can't add dummy data when not in a debug environment")
+
     from passlib.hash import bcrypt
+    def hash_test_password(pw: str) -> str:
+        # NOTE: Use consistent salt and rounds to eliminate non-determinism in
+        # testing. This is obviously not intended to be secure.
+        return bcrypt.hash(pw, salt="0"*22, rounds=4)
 
     print("👩🏽‍💻 Adding dummy data ...")    
     user = User(id='cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
             email='tester@notrealemail.info',
-            hashed_password=bcrypt('password'),
+            hashed_password=hash_test_password('password'),
             first_name='Cat', last_name='Berry')
     
     # Secondary app user (no perms, used for testing access controls)
     other_user = User(id='a47085ba-3d01-46a4-963b-9ffaeda18113',
     email='other@notrealemail.info',
-    hashed_password=bcrypt('otherpassword'),
+    hashed_password=hash_test_password('otherpassword'),
     first_name='Penelope', last_name='Pineapple')
     session.add(other_user)
                       
     # Admin user
     admin_user = User(id='df6413b4-b910-4f6e-8f3c-8201c9e65af3',
                     email='admin@notrealemail.info',
-                    hashed_password=bcrypt('adminpassword'),
+                    hashed_password=hash_test_password('adminpassword'),
                     first_name='Daisy', last_name='Carrot')
     admin = session.query(Role).get('be5f8cac-ac65-4f75-8052-8d1b5d40dffe')
     admin_user.roles.append(admin)
