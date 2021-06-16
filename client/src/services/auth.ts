@@ -1,7 +1,7 @@
 /**
  * Information about the currently authenticated user.
  */
-type UserProfile = Readonly<{
+export type UserProfile = Readonly<{
   id: string;
   email: string;
   is_active: boolean;
@@ -21,6 +21,14 @@ type AuthInitState = "created" | "initializing" | "ready" | "error";
  * Should be used as a singleton.
  */
 export class Auth {
+  /**
+   * Instantiate an Auth instance with the given fetch implementation.
+   *
+   * By default this just uses the native `fetch` implementation, but it can be
+   * replaced with a customized one, or a mock for testing.
+   */
+  constructor(private fetcher: typeof fetch) {}
+
   /**
    * State of the singleton. This only represents the initialization state, not
    * the authentication state.
@@ -130,7 +138,7 @@ export class Auth {
     formData.append("username", email);
     formData.append("password", password);
 
-    const response = await fetch("/auth/cookie/login", {
+    const response = await this.fetcher("/auth/cookie/login", {
       credentials: "same-origin",
       method: "POST",
       body: formData,
@@ -151,7 +159,7 @@ export class Auth {
    * Returns any error that occurred as a string.
    */
   public async logout() {
-    const response = await fetch("/auth/cookie/logout", {
+    const response = await this.fetcher("/auth/cookie/logout", {
       method: "POST",
       credentials: "same-origin",
     });
@@ -167,7 +175,7 @@ export class Auth {
    * Update current user profile. Return any error that occurs as a string.
    */
   private async refreshCurrentUser() {
-    const response = await fetch("/users/me", {
+    const response = await this.fetcher("/users/me", {
       credentials: "same-origin",
     });
 
@@ -180,8 +188,3 @@ export class Auth {
     return null;
   }
 }
-
-/**
- * Singleton holding state about auth status.
- */
-export const auth = new Auth();
