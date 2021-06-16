@@ -25,7 +25,11 @@ import directives
 app = FastAPI(debug=settings.debug)
 
 # remove cookie_secure=False later for production
-cookie_authentication = CookieAuthentication(secret=settings.secret, lifetime_seconds=3600, cookie_secure=False)
+cookie_authentication = CookieAuthentication(
+        secret=settings.secret,
+        lifetime_seconds=3600,
+        cookie_secure=not settings.debug,
+        cookie_name='rtauth')
 
 
 fastapi_users = FastAPIUsers(

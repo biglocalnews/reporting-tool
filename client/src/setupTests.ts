@@ -6,6 +6,11 @@ import { configure } from "enzyme";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import "@testing-library/jest-dom/extend-expect";
 import { toHaveNoViolations } from "jest-axe";
+// Mock HTTP requests via the `fetchMock` global.
+import jestFetchMock from "jest-fetch-mock";
+// Mocks are enabled to get global objects like Response. Note that it's
+// usually better to avoid the fetchMock global and use dependency injection!
+jestFetchMock.enableMocks();
 
 expect.extend(toHaveNoViolations);
 

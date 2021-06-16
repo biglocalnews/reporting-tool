@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./services/i18next";
 import App from "./App";
@@ -12,6 +12,9 @@ import {
   from,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import { AuthProvider } from "./components/AuthProvider";
+import { Auth } from "./services/auth";
+import { Loading } from "./components/Loading/Loading";
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
@@ -49,11 +52,21 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   link: from([errorLink, httpLink]),
 });
 
+// Create a new auth service, and initialize it. The `init` request is actually
+// a promise that's sent asynchronously; it will be awaited during rener with
+// the Suspense hook in AuthProvider.
+const auth = new Auth(window.fetch.bind(window));
+auth.init();
+
 const MainApp = () => {
   return (
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>
+    <Suspense fallback={<Loading />}>
+      <ApolloProvider client={client}>
+        <AuthProvider auth={auth}>
+          <App />
+        </AuthProvider>
+      </ApolloProvider>
+    </Suspense>
   );
 };
 

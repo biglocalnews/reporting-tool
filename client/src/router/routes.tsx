@@ -10,6 +10,7 @@ interface SubRoute extends BreadcrumbsRoute {
   exact?: boolean;
   component?: any;
 }
+
 export interface IRoute extends SubRoute {
   routes?: SubRoute[];
 }

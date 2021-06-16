@@ -11,5 +11,12 @@
   "addData": "Add Data",
   "editData": "Edit",
   "backToDashboard": "Back To Dashboard",
-  "noDataAvailable": "No Data Available"
+  "noDataAvailable": "No Data Available",
+  "loginPrompt": "Log in to start using the reporting tool!",
+  "enterEmailLabel": "Enter your e-mail",
+  "enterEmailError": "Please enter your e-mail",
+  "enterPasswordLabel": "Enter your password",
+  "enterPasswordError": "Please enter your password",
+  "loginAction": "Login!",
+  "loginFailed": "The email and password combination you entered was incorrect."
 }
