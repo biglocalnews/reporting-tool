@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
@@ -235,3 +235,24 @@ def resolve_delete_category_value(obj, info, id):
     session.commit()
 
     return id
+
+@mutation.field("createTeam")
+@convert_kwargs_to_snake_case
+def resolve_create_team(obj, info, input):
+    '''GraphQL mutation to create a Team
+        :param input: params for new Team
+        :returns: Team dictionary
+    '''
+
+    session = info.context['dbsession']
+    users = input.pop('user_ids')
+    programs = input.pop('program_ids')
+    
+    team = Team(**input)
+    team.programs += [session.merge(Program(id=program_id)) for program_id in programs]
+    team.users += [session.merge(User(id=user_id)) for user_id in users]
+
+    session.add(team)
+    session.commit()
+    
+    return team

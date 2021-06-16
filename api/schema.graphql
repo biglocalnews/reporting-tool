@@ -46,7 +46,7 @@ type Team @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   name: String!
   users: [User!]!
   programs: [Program!]!
-  organizations: [Organization!]!
+  organization: Organization!
 }
 
 type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
@@ -205,6 +205,13 @@ input UpdateCategoryValueInput {
   categoryId: ID
 }
 
+input CreateTeamInput {
+  name: String!
+  userIds: [ID!]!
+  programIds: [ID!]!
+  organizationId: ID
+}
+
 input EntryInput {
   id: ID
   categoryValueId: ID!
@@ -284,4 +291,7 @@ type Mutation {
 
   # Delete a CategoryValue
   deleteCategoryValue(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a Team
+  createTeam(input: CreateTeamInput!): Team!
 }
