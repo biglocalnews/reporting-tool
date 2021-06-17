@@ -8,7 +8,7 @@ import BreadCrumb from "./components/Breadcrumb/Breadcrumbs";
 import { Login } from "./components/Login/Login";
 import { Loading } from "./components/Loading/Loading";
 
-import ROUTES from "./router/routes";
+import { normalRoutes, adminRoutes } from "./router/routes";
 import { RenderRoutes } from "./router/Router";
 
 const { Footer, Content } = Layout;
@@ -48,7 +48,8 @@ function App() {
         <Layout style={{ height: "100vh" }}>
           <RenderRoutes
             loginComponent={Login}
-            protectedRoutes={ROUTES}
+            adminRoutes={adminRoutes}
+            protectedRoutes={normalRoutes}
             protectedContainer={ProtectedAppContainer}
           />
         </Layout>

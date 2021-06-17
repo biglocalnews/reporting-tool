@@ -4,6 +4,7 @@ import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
 import { useAuth } from "../components/AuthProvider";
 import { LoginProps } from "../components/Login/Login";
+import { useTranslation } from "react-i18next";
 
 /**
  * Flatten routes to render components for a subroute
@@ -29,31 +30,6 @@ function flattenRoutes(route: IRoute, agg: any = []) {
  * Type representing the base router props.
  */
 type AnyRouteProps = RouteComponentProps<Record<string, string | undefined>>;
-
-/**
- * Type representing a React component that can be used as a react-router component.
- *
- * The component can be either a classical or a functional component.
- */
-type RouteComponentType = React.ComponentType<AnyRouteProps>;
-
-/**
- * Require the user to be authenticated to view the given component.
- */
-export const privateComponent = (auth: Auth, Component: RouteComponentType) => {
-  return function protectedRoute(props: AnyRouteProps) {
-    return auth.isLoggedIn() ? (
-      <Component {...props} />
-    ) : (
-      <Redirect
-        to={{
-          pathname: "/login",
-          state: { from: props.location },
-        }}
-      />
-    );
-  };
-};
 
 /**
  * List of routes defined as objects.
@@ -88,6 +64,7 @@ export function ProtectedRoutes({ routes }: ProtectedRoutesProps) {
  */
 export type RenderRoutesProps = {
   loginComponent: React.ComponentType<LoginProps>;
+  adminRoutes: RoutesList;
   protectedRoutes: RoutesList;
   protectedContainer: React.ComponentType;
 };
@@ -102,20 +79,54 @@ export type RenderRoutesProps = {
  */
 export function RenderRoutes({
   loginComponent,
+  adminRoutes,
   protectedRoutes,
   protectedContainer,
 }: RenderRoutesProps) {
+  const { t } = useTranslation();
   const auth = useAuth();
   const Container = protectedContainer;
-  const WrappedPrivate = privateComponent(auth, (props: AnyRouteProps) => (
+
+  // Routes that a normal authed user can visit.
+  // If the user is not logged in, they will be redirected to the login screen.
+  const WrappedPrivate = (props: AnyRouteProps) => (
     <Container>
-      <ProtectedRoutes routes={protectedRoutes} />
+      {auth.isLoggedIn() ? (
+        <ProtectedRoutes routes={protectedRoutes} />
+      ) : (
+        <Redirect
+          to={{
+            pathname: "/login",
+            state: { from: props.location },
+          }}
+        />
+      )}
     </Container>
-  ));
+  );
+
+  // Additional routes that only authed admins can visit.
+  // When a user is logged in but lacks permission, they will see an error
+  // telling them that they can't view the requested site.
+  //
+  // If a user is *not* logged in, they will be redirected to login screen.
+  const WrappedPrivateAdmin = (props: AnyRouteProps) => (
+    <Container>
+      {auth.isAdmin() ? (
+        <ProtectedRoutes routes={adminRoutes} />
+      ) : auth.isLoggedIn() ? (
+        <div>{t("notAuthorized")}</div>
+      ) : (
+        <Redirect
+          to={{ pathname: "/login", state: { from: props.location } }}
+        />
+      )}
+    </Container>
+  );
 
   return (
     <Switch>
       <Route exact path="/login" component={loginComponent} />
+      <Route path="/admin/" component={WrappedPrivateAdmin} />
       <Route path="/" component={WrappedPrivate} />
     </Switch>
   );
