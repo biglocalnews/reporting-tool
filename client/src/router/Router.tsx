@@ -89,44 +89,44 @@ export function RenderRoutes({
 
   // Routes that a normal authed user can visit.
   // If the user is not logged in, they will be redirected to the login screen.
-  const WrappedPrivate = (props: AnyRouteProps) => (
-    <Container>
-      {auth.isLoggedIn() ? (
+  const WrappedPrivate = (props: AnyRouteProps) =>
+    auth.isLoggedIn() ? (
+      <Container>
         <ProtectedRoutes routes={protectedRoutes} />
-      ) : (
-        <Redirect
-          to={{
-            pathname: "/login",
-            state: { from: props.location },
-          }}
-        />
-      )}
-    </Container>
-  );
+      </Container>
+    ) : (
+      <Redirect
+        to={{
+          pathname: "/login",
+          state: { from: props.location },
+        }}
+      />
+    );
 
   // Additional routes that only authed admins can visit.
   // When a user is logged in but lacks permission, they will see an error
   // telling them that they can't view the requested site.
   //
   // If a user is *not* logged in, they will be redirected to login screen.
-  const WrappedPrivateAdmin = (props: AnyRouteProps) => (
-    <Container>
-      {auth.isAdmin() ? (
-        <ProtectedRoutes routes={adminRoutes} />
-      ) : auth.isLoggedIn() ? (
-        <div>{t("notAuthorized")}</div>
-      ) : (
-        <Redirect
-          to={{ pathname: "/login", state: { from: props.location } }}
-        />
-      )}
-    </Container>
-  );
+  const WrappedPrivateAdmin = (props: AnyRouteProps) =>
+    auth.isLoggedIn() ? (
+      <Container>
+        {auth.isAdmin() ? (
+          <ProtectedRoutes routes={adminRoutes} />
+        ) : (
+          <div>{t("notAuthorized")}</div>
+        )}
+      </Container>
+    ) : (
+      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
+    );
 
   return (
     <Switch>
       <Route exact path="/login" component={loginComponent} />
-      <Route path="/admin/" component={WrappedPrivateAdmin} />
+      {auth.isAdmin() && (
+        <Route path="/admin/" component={WrappedPrivateAdmin} />
+      )}
       <Route path="/" component={WrappedPrivate} />
     </Switch>
   );
