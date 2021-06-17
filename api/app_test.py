@@ -1,11 +1,13 @@
 import unittest
 from unittest.mock import Mock
 
+from fastapi.testclient import TestClient
 from ariadne import graphql_sync
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
-from app import schema
+from app import schema, app, get_current_user_dep
 from database import (
         create_tables,
         create_dummy_data,
@@ -19,11 +21,19 @@ from database import (
 from uuid import UUID
 
 
-class TestGraphQL(unittest.TestCase):
+class BaseAppTest(unittest.TestCase):
+    """Base test runner that sets up an in-memory database that test cases can
+    make assertions against.
+    """
 
     def setUp(self):
-        # Create in-memory sqlite database
-        self.engine = create_engine('sqlite://')
+        # Create in-memory sqlite database. This is configured to work with
+        # multithreaded environments, so it can be used safely with the real
+        # FastAPI app instance.
+        self.engine = create_engine('sqlite://',
+                connect_args={'check_same_thread': False},
+                poolclass=StaticPool)
+
         # Turn on foreign keys to emulate Postgres better (without this things
         # like cascading deletes won't work)
         self.engine.execute('PRAGMA foreign_keys = ON')
@@ -35,8 +45,81 @@ class TestGraphQL(unittest.TestCase):
 
         session.close()
 
-        # Create new, fresh session for test case to use
-        self.session = Session()
+        # Expose the session maker so a test can make one
+        self.Session = Session
+
+    def tearDown(self):
+        self.engine.dispose()
+
+
+class TestAppUsers(BaseAppTest):
+    """Test /users/ API routes."""
+
+    def setUp(self):
+        super().setUp()
+
+        # Mock out database objects to use in-memory DB.
+        app.extra['database'] = Mock()
+        app.extra['get_db_session'] = self.Session
+
+        # Set up Starlette test client
+        self.client = TestClient(app)
+
+        # A few user fixtures to use for testing different scenarios
+        self.user_ids = {
+                'normal': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'admin': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
+                }
+
+    def tearDown(self):
+        super().tearDown()
+        app.dependency_overrides = {}
+
+    def test_users_me_not_authed(self):
+        """Checks that route returns error when user is not authed."""
+        response = self.client.get('/users/me')
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Unauthorized'}
+
+    def test_users_me_normal(self):
+        """Checks that a user can get info about themselves."""
+        app.dependency_overrides[get_current_user_dep] = lambda: User(id=self.user_ids['normal'])
+        response = self.client.get('/users/me')
+        assert response.status_code == 200
+        assert response.json() == {
+                'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'email': 'tester@notrealemail.info',
+                'first_name': 'Cat',
+                'last_name': 'Berry',
+                'is_active': True,
+                'is_verified': False,
+                'roles': [],
+                }
+
+    def test_users_me_admin(self):
+        """Checks that an admin user can get info about themselves."""
+        app.dependency_overrides[get_current_user_dep] = lambda: User(id=self.user_ids['admin'])
+        response = self.client.get('/users/me')
+        assert response.status_code == 200
+        assert response.json() == {
+                'id': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
+                'email': 'admin@notrealemail.info',
+                'first_name': 'Daisy',
+                'last_name': 'Carrot',
+                'is_active': True,
+                'is_verified': False,
+                'roles': ['admin'],
+                }
+
+
+
+class TestGraphQL(BaseAppTest):
+    """Tests for the GraphQL schema, including permissions directives."""
+
+    def setUp(self):
+        super().setUp()
+        # Create new session for test case to use
+        self.session = self.Session()
 
         # Fetch some users for testing.
         self.test_users = {
@@ -45,10 +128,10 @@ class TestGraphQL(unittest.TestCase):
                 'other': User.get_by_email(self.session, "other@notrealemail.info"),
                 }
 
-
     def tearDown(self):
         self.session.close()
-        self.engine.dispose()
+        super().tearDown()
+
 
     def run_graphql_query(self, data, user=None):
         """Run a GraphQL query with the given data as the given user.

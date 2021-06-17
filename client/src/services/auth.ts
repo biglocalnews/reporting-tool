@@ -5,8 +5,10 @@ export type UserProfile = Readonly<{
   id: string;
   email: string;
   is_active: boolean;
+  is_verified: boolean;
   first_name: string;
   last_name: string;
+  roles: string[];
 }>;
 
 /**
@@ -56,6 +58,13 @@ export class Auth {
    */
   public isLoggedIn() {
     return !!this.currentUser;
+  }
+
+  /**
+   * Test whether user has admin permissions.
+   */
+  public isAdmin() {
+    return !!this.currentUser && this.currentUser.roles.includes("admin");
   }
 
   /**
@@ -168,6 +177,7 @@ export class Auth {
       return "An error occurred trying to sign out.";
     }
 
+    this.currentUser = null;
     return null;
   }
 
