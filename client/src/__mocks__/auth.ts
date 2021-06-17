@@ -30,23 +30,102 @@ type AuthMockReturnValue = {
 };
 
 /**
+ * Create a new unauthorized response from /users/me
+ */
+const createUnauthorizedProfileResponse = () =>
+  new Response(
+    JSON.stringify({
+      details: "Unauthorized",
+    }),
+    {
+      headers: new Headers({
+        "Content-Type": "application/json",
+      }),
+      status: 401,
+    }
+  );
+
+/**
+ * Create a successful response from /users/me
+ */
+const createAuthorizedProfileResponse = (user?: Partial<UserProfile>) =>
+  new Response(
+    JSON.stringify({
+      ...defaultUser,
+      ...(user || {}),
+    }),
+    {
+      headers: new Headers({
+        "Content-Type": "application/json",
+      }),
+      status: 200,
+    }
+  );
+
+/**
+ * Simulate logging in with a correct username and password.
+ */
+export const mockUserLogIn = (email: string, password: string) => {
+  let loggedIn = false;
+
+  const mock = jest.fn(
+    async (uri: string, props?: RequestInit): Promise<Response> => {
+      switch (uri) {
+        case "/users/me":
+          if (!loggedIn) {
+            return createUnauthorizedProfileResponse();
+          }
+          return new Response(
+            JSON.stringify({
+              ...defaultUser,
+              email,
+            }),
+            {
+              headers: new Headers({
+                "Content-Type": "application/json",
+              }),
+              status: 200,
+            }
+          );
+        case "/auth/cookie/login":
+          expect(props?.method).toEqual("POST");
+          expect(props?.credentials).toEqual("same-origin");
+
+          // Check username password; return unauthorized if they don't match
+          const form = props?.body as FormData;
+          if (
+            form.get("username") !== email ||
+            form.get("password") !== password
+          ) {
+            return new Response(JSON.stringify({ detail: "Unauthorized" }), {
+              headers: new Headers({ "Content-Type": "application/json" }),
+              status: 400,
+            });
+          }
+          loggedIn = true;
+          return new Response("", { status: 200 });
+        case "/auth/cookie/logout":
+          expect(props).toEqual({ method: "POST", credentials: "same-origin" });
+          loggedIn = false;
+          return new Response("", { status: 200 });
+        default:
+          throw new Error("Unexpected request:" + uri);
+      }
+    }
+  ) as typeof fetch;
+
+  const auth = new Auth(mock);
+
+  return { auth, mock } as AuthMockReturnValue;
+};
+
+/**
  * Simulate having a valid authentication cookie for the given user.
  */
 export const mockUserLoggedIn = (user?: Partial<UserProfile>) => {
   const mock = jest.fn(async (uri: string): Promise<Response> => {
     if (uri === "/users/me") {
-      return new Response(
-        JSON.stringify({
-          ...defaultUser,
-          ...(user || {}),
-        }),
-        {
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
-          status: 200,
-        }
-      );
+      return createAuthorizedProfileResponse(user);
     }
 
     throw new Error("Unexpected request: " + JSON.stringify(uri));
@@ -63,17 +142,7 @@ export const mockUserLoggedIn = (user?: Partial<UserProfile>) => {
 export const mockUserNotLoggedIn = () => {
   const mock = jest.fn(async (uri: string): Promise<Response> => {
     if (uri === "/users/me") {
-      return new Response(
-        JSON.stringify({
-          details: "Unauthorized",
-        }),
-        {
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
-          status: 401,
-        }
-      );
+      return createUnauthorizedProfileResponse();
     }
 
     throw new Error("Unexpected request: " + JSON.stringify(uri));

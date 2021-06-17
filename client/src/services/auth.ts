@@ -177,6 +177,7 @@ export class Auth {
       return "An error occurred trying to sign out.";
     }
 
+    this.currentUser = null;
     return null;
   }
 
