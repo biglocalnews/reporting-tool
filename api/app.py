@@ -141,14 +141,18 @@ async def add_db_session(request: Request, call_next):
     return response
 
 async def get_context(request: Request):
-    
     dbsession = request.scope['dbsession']
     
     # allow for manual specification of user in request header by email
     if settings.debug and "X-User" in request.headers:
         user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
     else:
-        user = await fastapi_users.current_user(active=True, optional=True)()
+        # TODO(jnu): fastapi_users.current_user is meant to be called with
+        # FastAPI's `Depends`. We have to hook into their "blood magic" here
+        # to call it outside of Depends.
+        user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
+        # TODO(jnu): The users.UserDB and database.User model should be unified.
+        user = dbsession.query(User).get(user_db.id)
         
     return {
             "dbsession": dbsession,

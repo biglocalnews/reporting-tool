@@ -20,6 +20,8 @@ class UserUpdate(User, models.BaseUserUpdate):
 
 
 class UserDB(User, models.BaseUserDB):
+    # NOTE(jnu): the database.User model is much more useful than this one.
+    # We should figure out how to unify them.
     first_name: str
     last_name: str
 

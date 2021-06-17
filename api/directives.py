@@ -192,7 +192,7 @@ class NeedsPermissionDirective(SchemaDirectiveVisitor):
         def resolve_field_with_permissions(obj, info, **kwargs):
             permissions = set(getattr(field, self.PERM_KEY))
             if not user_has_permission(permissions, obj, info):
-                raise NotAuthorizedError()
+                raise NotAuthorizedError("Lacking permission: " + ", ".join(permissions))
             return original_resolver(obj, info, **kwargs)
 
         field.resolve = resolve_field_with_permissions
