@@ -1536,5 +1536,98 @@ class TestGraphQL(BaseAppTest):
             self.assertEqual(category_value.count(), 1)
 
 
+    def test_create_team(self):
+        """Test that the admin can create a team."""
+        success, result = self.run_graphql_query({
+            "operationName": "CreateTeam",
+            "query": """
+                mutation CreateTeam($input: CreateTeamInput!) {
+                   createTeam(input: $input) {
+                        id
+                        name
+                        users {
+                            id
+                            firstName
+                        }
+                        programs {
+                            id
+                            name
+                        }
+                        organization {
+                            name
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "name": "The Best Team!",
+                    "userIds": ["cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"],
+                    "programIds": ["1e73e788-0808-4ee8-9b25-682b6fa3868b"],
+                    "organizationId": "15d89a19-b78d-4ee8-b321-043f26bdd48a"
+                }
+            },
+        }, user=self.test_users['admin'])
+        self.assertTrue(success)
+        print(f'{result}, resultoooo')
+        self.assertTrue(self.is_valid_uuid(result["data"]["createTeam"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "createTeam": {
+                    "id": result["data"]["createTeam"]["id"],
+                    "name": "The Best Team!",
+                    "users": [{
+                        "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                        "firstName": "Cat"
+                    }],
+                    "programs": [{
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "BBC News"
+                    }],
+                    "organization": {
+                        "name": "BBC"
+                    }
+                },
+            },
+        })
+
+    def test_create_teams_no_perm(self):
+        """Test that non-admins can not create a team."""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateTeam",
+                "query": """
+                    mutation CreateTeam($input: CreateTeamInput!) {
+                       createTeam(input: $input) {
+                            id
+                            name
+                            users {
+                                id
+                                firstName
+                            }
+                            programs {
+                                id
+                                name
+                            }
+                            organization {
+                                name
+                            }
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "The Best Team!",
+                        "userIds": ["cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"],
+                        "programIds": ["1e73e788-0808-4ee8-9b25-682b6fa3868b"],
+                        "organizationId": "15d89a19-b78d-4ee8-b321-043f26bdd48a"
+                    }   
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
+
 if __name__ == '__main__':
     unittest.main()
