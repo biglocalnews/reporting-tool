@@ -865,12 +865,12 @@ class TestGraphQL(BaseAppTest):
                         "entries": [{
                             "count":  7,
                             "categoryValueId": "662557e5-aca8-4cec-ad72-119ad9cda81b",
-                            "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         }],
                     }
                 },
             }, user=user)
 
+            # self.maxDiff = None
             self.assertTrue(success)
             self.assertTrue(self.is_valid_uuid(result["data"]["createRecord"]["id"]), "Invalid UUID")
             self.assertEqual(result, {
@@ -885,7 +885,7 @@ class TestGraphQL(BaseAppTest):
                                 "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                 "name": "Trans women"
                             },
-                            "inputter": {"id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"}
+                            "inputter": {"id": result["data"]["createRecord"]["entries"][0]["inputter"]["id"]}
                         }],
                     },
                 },
@@ -973,7 +973,6 @@ class TestGraphQL(BaseAppTest):
                         "entries": [{
                             "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
                             "categoryValueId": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                            "inputterId": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                             "count": 0
                             }
                         ]
