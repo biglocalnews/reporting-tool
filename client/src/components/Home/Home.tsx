@@ -9,6 +9,8 @@ import { useQuery } from "@apollo/client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { TFunction, useTranslation } from "react-i18next";
+import { useAuth } from "../AuthProvider";
+import { ErrorFallback } from "../Error/ErrorFallback";
 
 dayjs.extend(localizedFormat);
 
@@ -102,15 +104,18 @@ const getTableData = (
 
 const Home = (): JSX.Element => {
   const { t } = useTranslation();
+  const userId = useAuth().getUserId();
 
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
     {
-      variables: { id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77" }, // TODO: Replace after user auth implementation
+      variables: { id: userId },
     }
   );
 
   const rowData = getTableData(data, t);
+
+  if (error) return <ErrorFallback error={error} />;
 
   return (
     <div>

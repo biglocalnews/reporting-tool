@@ -31,9 +31,9 @@ interface FormProps {
 }
 
 export interface Entry {
-  id?: string;
+  entryId?: string;
   index: number;
-  categoryId: string;
+  categoryValueId: string;
   category: string;
   categoryValue: string;
   categoryValueLabel: string;
@@ -41,29 +41,39 @@ export interface Entry {
   count: number | any;
 }
 
+/**
+ * Function creates a new dataset record input object with entries.
+ * @param {GetDataset} dataset object
+ * @param {GetRecord} record and entried object
+ * @returns form for rendering data entry fields
+ */
 const renderForm = (
   metadata: GetDataset | undefined,
   existingRecord: GetRecord | undefined
 ) => {
-  let form: Entry[];
+  let form: Array<Entry>;
 
   if (existingRecord) {
     form = existingRecord?.record?.entries.map((entry, index) => ({
-      ...entry.category,
-      id: entry.id,
+      entryId: entry.id,
       index: index,
-      categoryId: entry.category.id,
-      categoryValueLabel: entry.category.categoryValue.replace(/\s+/g, "-"),
+      category: entry.categoryValue.category.name,
+      description: entry.categoryValue.category.description,
+      categoryValueId: entry.categoryValue.id,
+      categoryValue: entry.categoryValue.name,
+      categoryValueLabel: entry.categoryValue.name.replace(/\s+/g, "-"),
       count: entry.count,
     }));
   } else {
-    form = metadata?.dataset.program.targets.map((target, index) => ({
-      ...target.category,
+    form = metadata?.dataset?.program?.targets.map((target, index) => ({
       index: index,
-      categoryId: target.category.id,
-      categoryValueLabel: target.category.categoryValue.replace(/\s+/g, "-"),
+      category: target.categoryValue.category.name,
+      description: target.categoryValue.category.description,
+      categoryValueId: target.categoryValue.id,
+      categoryValue: target.categoryValue.name,
+      categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
       count: 0,
-    })) as Entry[];
+    })) as Array<Entry>;
   }
 
   return form;
@@ -100,14 +110,18 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     ],
   });
 
+  /**
+   * Function creates a new dataset record input object with entries.
+   * @returns mutation to create a record
+   */
   const create = () => {
     const newRecord = {
       input: {
         datasetId: props.datasetId,
         publicationDate: formPublicationDate,
-        entries: values?.map((d) => ({
-          categoryId: d.categoryId,
-          count: d.count,
+        entries: values?.map((newEntry) => ({
+          categoryValueId: newEntry.categoryValueId,
+          count: newEntry.count,
         })),
       },
     };
@@ -136,16 +150,20 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     ],
   });
 
+  /**
+   * Function creates an updated dataset record input object with entries.
+   * @returns mutation to update a record
+   */
   const update = () => {
     const updatedRecord = {
       input: {
         id: props.recordId,
         datasetId: props.datasetId,
         publicationDate: formPublicationDate,
-        entries: values?.map((d) => ({
-          id: d.id,
-          categoryId: d.categoryId,
-          count: d.count,
+        entries: values?.map((updatedEntry) => ({
+          id: updatedEntry.entryId,
+          categoryValueId: updatedEntry.categoryValueId,
+          count: updatedEntry.count,
         })),
       },
     };

@@ -1,12 +1,13 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { AppSidebar } from "../layout/AppSidebar";
-import { mount } from "enzyme";
-import SubMenu from "antd/lib/menu/SubMenu";
 import { MockedProvider } from "@apollo/client/testing";
 import { BrowserRouter } from "react-router-dom";
 import { GET_USER } from "../__queries__/GetUser.gql";
 import React from "react";
 import i18nextTest from "../services/i18next-test";
+import { AuthProvider } from "../components/AuthProvider";
+import { mockUserLoggedIn } from "../__mocks__/auth";
+import { render } from "@testing-library/react";
 
 describe("UK English internationalization", () => {
   const mocks = [
@@ -66,14 +67,19 @@ describe("UK English internationalization", () => {
   test("translates sidebar title text to UK English", async () => {
     i18nextTest.changeLanguage("en-gb");
 
-    const sidebar = mount(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <BrowserRouter>
-          <AppSidebar />
-        </BrowserRouter>
-      </MockedProvider>
+    const { auth } = mockUserLoggedIn();
+    await auth.init();
+
+    const sidebar = render(
+      <AuthProvider auth={auth}>
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <BrowserRouter>
+            <AppSidebar />
+          </BrowserRouter>
+        </MockedProvider>
+      </AuthProvider>
     );
 
-    expect(sidebar.find(SubMenu).first().prop("title")).toBe("My Programmes");
+    expect(sidebar.getByText(/My Programmes/i)).toBeInTheDocument();
   });
 });

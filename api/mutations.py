@@ -88,10 +88,12 @@ def resolve_create_record(obj, info, input):
     '''
 
     session = info.context['dbsession']
+    current_user = info.context['current_user']
+
     all_entries = input.pop('entries', [])
     n_entries = []
     for entry in all_entries:  
-        n_entries.append(Entry(**entry))
+        n_entries.append(Entry(inputter=current_user, **entry))
     record = Record(entries=n_entries, **input)
     session.add(record)
     session.commit()
@@ -106,6 +108,8 @@ def resolve_update_record(obj, info, input):
         :returns: Record dictionary
     '''
     session = info.context['dbsession']
+    current_user = info.context['current_user']
+
     record = session.query(Record).get(input['id'])
     all_entries = input.pop('entries', [])
     for entry in all_entries:  
@@ -116,7 +120,7 @@ def resolve_update_record(obj, info, input):
             else:   
                 raise NoResultFound(f'No Entry with id: {existing_entry.id} associated with Record id: {record.id} was found.')
         else:
-            Entry(record=record, **entry)
+            Entry(record=record, inputter=current_user, **entry)
     for param in input:
         setattr(record, param, input[param])
     session.add(record)

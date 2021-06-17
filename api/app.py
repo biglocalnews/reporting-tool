@@ -146,7 +146,7 @@ async def get_context(request: Request):
     
     # allow for manual specification of user in request header by email
     if settings.debug and "X-User" in request.headers:
-        user = User.get_by_email(request.headers['X-User'])
+        user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
     else:
         user = await fastapi_users.current_user(active=True, optional=True)()
         

@@ -27,81 +27,105 @@ Some disabilities may be hidden or not easy to see.`;
 const categoryData = [
   {
     id: "a7122153-6cb7-4ea0-a9bd-05dab5a9b293",
-    category: {
-      id: "51349e29-290e-4398-a401-5bf7d04af75e",
-      category: "Gender",
-      categoryValue: "Non-binary",
-      description: genderDescription,
+    categoryValue: {
+      id: "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+      name: "Non-binary",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "6196eda7-344c-42f9-a367-59cab0b8de33",
-    category: {
-      id: "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-      category: "Gender",
-      categoryValue: "Cisgender women",
-      description: genderDescription,
+    categoryValue: {
+      id: "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+      name: "Cisgender women",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "5dfb2847-ef6a-44f9-bd54-547b5e018e90",
-    category: {
+    categoryValue: {
       id: "d237a422-5858-459c-bd01-a0abdc077e5b",
-      category: "Gender",
-      categoryValue: "Cisgender men",
-      description: genderDescription,
+      name: "Cisgender men",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "b1f9b316-ed18-4e80-bc90-2a4702c68cd5",
-    category: {
+    categoryValue: {
       id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
-      category: "Gender",
-      categoryValue: "Trans women",
-      description: genderDescription,
+      name: "Trans women",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "674f549b-48f0-4b7a-932b-e8f18a76a4c2",
-    category: {
+    categoryValue: {
       id: "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-      category: "Gender",
-      categoryValue: "Trans men",
-      description: genderDescription,
+      name: "Trans men",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "e5025b57-9101-45ce-a7a8-29da53e1d03d",
-    category: {
+    categoryValue: {
       id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-      category: "Gender",
-      categoryValue: "Gender non-conforming",
-      description: genderDescription,
+      name: "Gender non-conforming",
+      category: {
+        id: "51349e29-290e-4398-a401-5bf7d04af75e",
+        name: "Gender",
+        description: genderDescription,
+      },
     },
     count: 0,
   },
   {
     id: "735bc484-c727-4338-b87a-784fc3663267",
-    category: {
+    categoryValue: {
       id: "c36958cb-cc62-479e-ab61-eb03896a981c",
-      category: "Disability",
-      categoryValue: "Disability",
-      description: disabilityDescription,
+      name: "Disabled",
+      category: {
+        id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+        name: "Disability",
+        description: disabilityDescription,
+      },
     },
     count: 0,
   },
   {
     id: "6c34da2c-1102-4ecc-ae2d-58499da3771e",
-    category: {
+    categoryValue: {
       id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-      category: "Disability",
-      categoryValue: "No disability",
-      description: disabilityDescription,
+      name: "Non-disabled",
+      category: {
+        id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+        name: "Disability",
+        description: disabilityDescription,
+      },
     },
     count: 8,
   },
@@ -187,68 +211,92 @@ export const mockResolvers = {
     targets: [
       {
         id: "40eaeafc-3311-4294-a639-a826eb6495ab",
-        category: {
-          id: "51349e29-290e-4398-a401-5bf7d04af75e",
-          category: "Gender",
-          categoryValue: "Non-binary",
+        categoryValue: {
+          id: "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+          name: "Non-binary",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "eccf90e8-3261-46c1-acd5-507f9113ff72",
-        category: {
-          id: "0034d015-0652-497d-ab4a-d42b0bdf08cb",
-          category: "Gender",
-          categoryValue: "Cisgender women",
+        categoryValue: {
+          id: "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+          name: "Cisgender women",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "2d501688-92e3-455e-9685-01141de3dbaf",
-        category: {
+        categoryValue: {
           id: "d237a422-5858-459c-bd01-a0abdc077e5b",
-          category: "Gender",
-          categoryValue: "Cisgender men",
+          name: "Cisgender men",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "4f7897c2-32a1-4b1e-9749-1a8066faca01",
-        category: {
+        categoryValue: {
           id: "662557e5-aca8-4cec-ad72-119ad9cda81b",
-          category: "Gender",
-          categoryValue: "Trans women",
+          name: "Trans women",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "9352b16b-2607-4f7d-a272-fe6dedd8165a",
-        category: {
+        categoryValue: {
           id: "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-          category: "Gender",
-          categoryValue: "Trans men",
+          name: "Trans men",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "a459ed7f-5573-4d5b-ade6-3070bc8bd2db",
-        category: {
+        categoryValue: {
           id: "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-          category: "Gender",
-          categoryValue: "Gender non-conforming",
+          name: "Gender non-conforming",
+          category: {
+            id: "51349e29-290e-4398-a401-5bf7d04af75e",
+            name: "Gender",
+          },
         },
       },
       {
         id: "b5be10ce-103f-41f2-b4c4-603228724993",
         target: 0.5,
-        category: {
+        categoryValue: {
           id: "c36958cb-cc62-479e-ab61-eb03896a981c",
-          category: "Disability",
-          categoryValue: "Disability",
+          name: "Disabled",
+          category: {
+            id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+            name: "Disability",
+          },
         },
       },
       {
         id: "6e6edce5-3d24-4296-b929-5eec26d52afc",
         target: 0.5,
-        category: {
+        categoryValue: {
           id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-          category: "Disability",
-          categoryValue: "No disability",
+          name: "Non-disabled",
+          category: {
+            id: "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+            name: "Disability",
+          },
         },
       },
     ],

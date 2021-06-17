@@ -10,10 +10,14 @@ export const UPDATE_RECORD = gql`
       }
       entries {
         id
-        category {
+        categoryValue {
           id
-          category
-          categoryValue
+          name
+          category {
+            id
+            name
+            description
+          }
         }
         count
       }

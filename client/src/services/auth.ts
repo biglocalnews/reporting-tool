@@ -78,6 +78,28 @@ export class Auth {
   }
 
   /**
+   * The UUID of the currently authenticated user.
+   * @returns {string} UUID
+   */
+  public getUserId(): string {
+    if (!this.currentUser) {
+      return "";
+    }
+    return this.currentUser.id;
+  }
+
+  /**
+   * The email address of the currently authenticated user.
+   * @returns {string} email address
+   */
+  public getEmail(): string {
+    if (!this.currentUser) {
+      return "";
+    }
+    return this.currentUser.email;
+  }
+
+  /**
    * Initialize the auth singleton, fetching the current user if there is
    * currently a valid auth token.
    */

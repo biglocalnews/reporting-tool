@@ -7,18 +7,24 @@
 // GraphQL query operation: GetDataset
 // ====================================================
 
-export interface GetDataset_dataset_program_targets_category {
+export interface GetDataset_dataset_program_targets_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly name: string;
   readonly description: string;
-  readonly category: string;
-  readonly categoryValue: string;
+}
+
+export interface GetDataset_dataset_program_targets_categoryValue {
+  readonly __typename: "CategoryValue";
+  readonly id: string;
+  readonly name: string;
+  readonly category: GetDataset_dataset_program_targets_categoryValue_category;
 }
 
 export interface GetDataset_dataset_program_targets {
   readonly __typename: "Target";
   readonly id: string;
-  readonly category: GetDataset_dataset_program_targets_category;
+  readonly categoryValue: GetDataset_dataset_program_targets_categoryValue;
 }
 
 export interface GetDataset_dataset_program {
@@ -27,18 +33,24 @@ export interface GetDataset_dataset_program {
   readonly targets: ReadonlyArray<GetDataset_dataset_program_targets>;
 }
 
-export interface GetDataset_dataset_records_entries_category {
+export interface GetDataset_dataset_records_entries_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
+  readonly name: string;
   readonly description: string;
-  readonly category: string;
-  readonly categoryValue: string;
+}
+
+export interface GetDataset_dataset_records_entries_categoryValue {
+  readonly __typename: "CategoryValue";
+  readonly id: string;
+  readonly name: string;
+  readonly category: GetDataset_dataset_records_entries_categoryValue_category;
 }
 
 export interface GetDataset_dataset_records_entries {
   readonly __typename: "Entry";
   readonly id: string;
-  readonly category: GetDataset_dataset_records_entries_category;
+  readonly categoryValue: GetDataset_dataset_records_entries_categoryValue;
   readonly count: number;
 }
 

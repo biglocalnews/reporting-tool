@@ -15,7 +15,8 @@ export interface CreateRecordInput {
 
 export interface EntryInput {
   readonly id?: string | null;
-  readonly categoryId: string;
+  readonly inputterId?: string | null;
+  readonly categoryValueId: string;
   readonly count: number;
 }
 

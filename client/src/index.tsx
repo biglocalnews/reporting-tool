@@ -10,6 +10,7 @@ import {
   InMemoryCache,
   HttpLink,
   from,
+  ApolloLink,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { AuthProvider } from "./components/AuthProvider";

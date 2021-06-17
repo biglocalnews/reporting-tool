@@ -44,7 +44,7 @@ const DatasetDetailsRecordsTable = ({
    */
   const tableData = records?.map((record) => {
     return record.entries.reduce(
-      (acc, cur) => ({ ...acc, [cur.category.categoryValue]: cur.count }),
+      (acc, cur) => ({ ...acc, [cur.categoryValue.name]: cur.count }),
       {
         id: record.id,
         publicationDate: record.publicationDate,
@@ -106,8 +106,8 @@ const DatasetDetailsRecordsTable = ({
       />
       {datasetData?.dataset.program.targets.map((target) => (
         <Table.Column<TableData>
-          title={target.category.categoryValue}
-          dataIndex={target.category.categoryValue}
+          title={target.categoryValue.name}
+          dataIndex={target.categoryValue.name}
           key="id"
         />
       ))}
