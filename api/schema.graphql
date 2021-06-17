@@ -302,10 +302,12 @@ type Mutation {
 
   # Create a Team
   createTeam(input: CreateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
 
   # Update a Team
   updateTeam(input: UpdateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
 
   # Delete a Team
-  deleteTeam(id: ID!): ID!
+  deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
 }
