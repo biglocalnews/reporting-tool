@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue, Entry
+from database import Dataset, User, Record, Category, CategoryValue, Entry, Team
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
@@ -122,3 +122,14 @@ def resolve_category_value(obj, info, id):
     category_value = session.query(CategoryValue).get(id)
     
     return category_value
+
+@query.field("team")
+def resolve_team(obj, info, id):
+    '''GraphQL query to find a Team based on Team ID.
+        :param id: Id for the Team to be fetched 
+        :returns: Team dictionary 
+    '''
+    session = info.context['dbsession']
+    team = session.query(Team).get(id)
+    
+    return team

@@ -1536,7 +1536,35 @@ class TestGraphQL(BaseAppTest):
             category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
             self.assertEqual(category_value.count(), 1)
 
+    def test_query_team(self):
+        """Test that anyone can query teams"""
+        for user_role in ["normal"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryTeam",
+                "query": """
+                    query QueryTeam($id: ID!) {
+                       team(id: $id) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                },
+            }, user=user)
 
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "team": {
+                        "id" : "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        "name": "News Team"
+                    },
+                },
+            })
+                                        
     def test_create_team(self):
         """Test that the admin can create a team."""
         success, result = self.run_graphql_query({

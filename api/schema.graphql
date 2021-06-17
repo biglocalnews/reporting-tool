@@ -253,6 +253,9 @@ type Query {
   # Retrieve a single categoryValue.
   categoryValue(id: ID!): CategoryValue!
     @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a team.
+  team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
 }
 
 type Mutation {
