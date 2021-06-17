@@ -17,6 +17,7 @@ from database import (
         Category,
         CategoryValue,
         User,
+        Team
         )
 from uuid import UUID
 
@@ -1681,6 +1682,60 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
+
+    def test_delete_team(self):
+        """Only admins can delete teams."""
+        user = self.test_users["admin"]
+        team_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+        # Confirm Team exists, then that it does not.
+        existing_team = self.session.query(Team).filter(Team.id == team_id)
+        # Count of existing Team should be one
+        self.assertEqual(existing_team.count(), 1)
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteTeam",
+            "query": """
+                mutation DeleteTeam($id: ID!) {
+                    deleteTeam(id: $id)
+                }
+            """,
+            "variables": {
+                "id": team_id,
+            },
+        }, user=user)
+        self.assertTrue(success)
+        team = self.session.query(Team).filter(Team.id == team_id)
+        self.assertEqual(team.count(), 0)
+        self.assertTrue(self.is_valid_uuid(team_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteTeam": team_id
+            },
+        })
+
+    def test_delete_team_no_perm(self):
+        """Only admins can delete teams."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            team_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+            # Confirm Team exists, then that it does not.
+            existing_team = self.session.query(Team).filter(Team.id == team_id)
+            # Count of existing Team should be one
+            self.assertEqual(existing_team.count(), 1)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteTeam",
+                "query": """
+                    mutation DeleteTeam($id: ID!) {
+                        deleteTeam(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": team_id,
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            team = self.session.query(Team).filter(Team.id == team_id)
+            self.assertEqual(team.count(), 1)
 
 
 if __name__ == '__main__':
