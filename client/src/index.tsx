@@ -34,17 +34,6 @@ const httpLink = new HttpLink({
       : "/graphql/",
 });
 
-const authLink = new ApolloLink((operation, forward) => {
-  // Use the setContext method to set the HTTP headers
-  operation.setContext(({ headers = {} }) => ({
-    headers: {
-      "X-User": auth.getEmail(), // get user email from auth service
-      ...headers,
-    },
-  }));
-  return forward(operation);
-});
-
 const cache = new InMemoryCache({
   typePolicies: {
     Dataset: {
@@ -61,7 +50,7 @@ const cache = new InMemoryCache({
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, httpLink]),
 });
 
 // Create a new auth service, and initialize it. The `init` request is actually
