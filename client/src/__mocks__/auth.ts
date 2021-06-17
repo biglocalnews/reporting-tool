@@ -92,10 +92,9 @@ export const mockUserLogIn = (email: string, password: string) => {
           expect(props?.credentials).toEqual("same-origin");
 
           // Check username password; return unauthorized if they don't match
-          const form = props?.body as FormData;
           if (
-            form.get("username") !== email ||
-            form.get("password") !== password
+            (props?.body as FormData).get("username") !== email ||
+            (props?.body as FormData).get("password") !== password
           ) {
             return new Response(JSON.stringify({ detail: "Unauthorized" }), {
               headers: new Headers({ "Content-Type": "application/json" }),
