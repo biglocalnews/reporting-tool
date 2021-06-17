@@ -5,6 +5,8 @@ import { createMemoryHistory } from "history";
 import { ApolloProvider } from "@apollo/client";
 import { Router } from "react-router-dom";
 import { autoMockedClient } from "../__mocks__/AutoMockProvider";
+import { mockUserLoggedIn } from "../__mocks__/auth";
+import { AuthProvider } from "../components/AuthProvider";
 
 const history = createMemoryHistory();
 
@@ -22,20 +24,25 @@ async function wait(ms = 0) {
 }
 
 test("should render home page datasets and formatted 'last updated' date", async () => {
-  const mock = {
+  const { auth, mock } = mockUserLoggedIn();
+  await auth.init();
+
+  const mockDateTime = {
     DateTime: () => {
       return "2021-05-10T03:04:59";
     },
   };
 
-  const client = autoMockedClient(mock);
+  const client = autoMockedClient(mockDateTime);
 
   render(
-    <ApolloProvider client={client}>
-      <Router history={history}>
-        <Home />
-      </Router>
-    </ApolloProvider>
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={history}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
   );
 
   await wait();
@@ -49,20 +56,25 @@ test("should render home page datasets and formatted 'last updated' date", async
 });
 
 test("should render No Data Available for 'last updated' date when no records exist", async () => {
-  const mock = {
+  const { auth, mock } = mockUserLoggedIn();
+  await auth.init();
+
+  const mockDateTime = {
     DateTime: () => {
       return "";
     },
   };
 
-  const client = autoMockedClient(mock);
+  const client = autoMockedClient(mockDateTime);
 
   render(
-    <ApolloProvider client={client}>
-      <Router history={history}>
-        <Home />
-      </Router>
-    </ApolloProvider>
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={history}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
   );
 
   await wait();

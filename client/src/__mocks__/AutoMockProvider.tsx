@@ -2,7 +2,6 @@ import React from "react";
 import {
   ApolloClient,
   ApolloLink,
-  ApolloProvider,
   InMemoryCache,
   Observable,
   split,
