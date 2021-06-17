@@ -36,12 +36,12 @@ const httpLink = new HttpLink({
 
 const authLink = new ApolloLink((operation, forward) => {
   // Use the setContext method to set the HTTP headers
-  operation.setContext({
+  operation.setContext(({ headers = {} }) => ({
     headers: {
-      "X-User": "tester@notrealemail.info", // TODO: remove placeholder when user login is merged
+      "X-User": auth.getEmail(), // get user email from auth service
+      ...headers,
     },
-  });
-
+  }));
   return forward(operation);
 });
 
@@ -61,7 +61,7 @@ const cache = new InMemoryCache({
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: from([authLink, errorLink, httpLink]),
+  link: from([errorLink, authLink, httpLink]),
 });
 
 // Create a new auth service, and initialize it. The `init` request is actually
