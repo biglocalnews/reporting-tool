@@ -1627,6 +1627,60 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
+            
+    def test_update_team(self):
+        """Only admins can update teams"""
+        user = self.test_users["admin"]
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateTeam",
+            "query": """
+                mutation UpdateTeam($input: UpdateTeamInput!) {
+                   updateTeam(input: $input) {
+                        id
+                        name
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                    "name": "New Name"
+                }
+            },
+        }, user=user)
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "updateTeam": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                    "name": "New Name"
+                },
+            },
+        })
+
+    def test_update_team_no_perm(self):
+        """Only admins can update teams"""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateTeam",
+                "query": """
+                    mutation UpdateTeam($input: UpdateTeamInput!) {
+                       updateTeam(input: $input) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        "name": "New new name"
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
 
 
 if __name__ == '__main__':

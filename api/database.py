@@ -415,7 +415,7 @@ def create_dummy_data(session):
     program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming', datasets=[ds1, ds2])
     
-    team = Team(name='News Team', users=[user], programs=[program])
+    team = Team(id="472d17da-ff8b-4743-823f-3f01ea21a349", name='News Team', users=[user], programs=[program])
     
     org = Organization(id="15d89a19-b78d-4ee8-b321-043f26bdd48a", name='BBC', teams=[team])
 
