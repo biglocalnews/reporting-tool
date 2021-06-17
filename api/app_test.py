@@ -25,6 +25,8 @@ class BaseAppTest(unittest.TestCase):
     """Base test runner that sets up an in-memory database that test cases can
     make assertions against.
     """
+    # Get full diff outuput
+    maxDiff = None
 
     def setUp(self):
         # Create in-memory sqlite database. This is configured to work with
@@ -870,7 +872,6 @@ class TestGraphQL(BaseAppTest):
                 },
             }, user=user)
 
-            # self.maxDiff = None
             self.assertTrue(success)
             self.assertTrue(self.is_valid_uuid(result["data"]["createRecord"]["id"]), "Invalid UUID")
             self.assertEqual(result, {
