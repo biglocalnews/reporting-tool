@@ -886,7 +886,7 @@ class TestGraphQL(BaseAppTest):
                                 "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                 "name": "Trans women"
                             },
-                            "inputter": {"id": result["data"]["createRecord"]["entries"][0]["inputter"]["id"]}
+                            "inputter": {"id": str(user.id)}
                         }],
                     },
                 },
