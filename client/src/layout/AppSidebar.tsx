@@ -26,7 +26,7 @@ interface Dataset {
 /**
  * Sidebar content for normal (non-admin) users.
  */
-const AppNormalUserSidebarMenu = () => {
+export const AppNormalUserSidebarMenu = () => {
   const { t, i18n } = useTranslation();
   const userId = useAuth().getUserId();
 
@@ -98,7 +98,7 @@ const AppNormalUserSidebarMenu = () => {
 /**
  * Sidebar content for admin users.
  */
-const AppAdminSidebarMenu = () => {
+export const AppAdminSidebarMenu = () => {
   const { t, i18n } = useTranslation();
   return (
     <Menu mode="inline">
