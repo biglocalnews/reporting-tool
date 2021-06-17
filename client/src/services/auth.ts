@@ -64,7 +64,7 @@ export class Auth {
    * Test whether user has admin permissions.
    */
   public isAdmin() {
-    return !!this.currentUser && this.currentUser.roles.contains("admin");
+    return !!this.currentUser && this.currentUser.roles.includes("admin");
   }
 
   /**

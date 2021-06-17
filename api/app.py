@@ -22,7 +22,14 @@ import user
 import directives
 
 
-app = FastAPI(debug=settings.debug)
+app = FastAPI(
+        debug=settings.debug,
+        # NOTE: the following dependencies are available in the `extra` dict
+        # on the app object. They're injected here so they can be patched
+        # easier in testing.
+        db=database,
+        get_db_session=SessionLocal,
+        )
 
 # remove cookie_secure=False later for production
 cookie_authentication = CookieAuthentication(
@@ -77,11 +84,14 @@ app.include_router(
     tags=["auth"],
 )
 
+# Dependency to get the current authed user from the cookie.
+get_current_user_dep = fastapi_users.current_user(active=True)
+
 # Use a custom implementation of the /users/me instead of fastapi-users's.
 # Their permissions are too simple for us; we want to return a list of roles
 # for the user. Behavior around 200 and 401 responses is otherwise the same.
 @app.get("/users/me")
-def get_current_user(request: Request, user: user.User = Depends(fastapi_users.current_user(active=True))):
+def get_current_user(request: Request, user: user.User = Depends(get_current_user_dep)):
     session = request.scope["dbsession"]
     dbuser = session.query(User).get(user.id)
     return {
@@ -121,7 +131,7 @@ schema = make_executable_schema(
 
 @app.middleware("http")
 async def add_db_session(request: Request, call_next):
-    session = SessionLocal()
+    session = app.extra['get_db_session']()
     request.scope["dbsession"] = session
 
     response = await call_next(request)
@@ -151,11 +161,13 @@ app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_co
 
 @app.on_event("startup")
 async def startup():
-    await database.connect()
+    await app.extra['db'].connect()
+    pass
 
 @app.on_event("shutdown")
 async def shutdown():
-    await database.disconnect()
+    await app.extra['db'].disconnect()
+    pass
 
 def home():
     return "Ahh!! Aliens!"
