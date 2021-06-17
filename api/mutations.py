@@ -269,8 +269,10 @@ def resolve_update_team(obj, info, input):
     team = session.query(Team).get(input['id'])
     users = input.pop('user_ids', [])
     programs = input.pop('program_ids', [])
-    team.programs = [session.merge(Program(id=program_id)) for program_id in programs]
-    team.users = [session.merge(User(id=user_id)) for user_id in users]
+    if len(users) > 0:
+        team.users = [session.merge(User(id=user_id)) for user_id in users]
+    if len(programs) > 0:
+        team.programs = [session.merge(Program(id=program_id)) for program_id in programs]
     for param in input:
         setattr(team, param, input[param])
     session.add(team)
