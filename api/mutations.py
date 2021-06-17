@@ -277,3 +277,17 @@ def resolve_update_team(obj, info, input):
     session.commit()
     
     return team
+
+@mutation.field("deleteTeam")
+@convert_kwargs_to_snake_case
+def resolve_delete_team(obj, info, id):
+    '''GraphQL mutation to delete a Team
+        :param id: UUID of Team to be deleted
+        :returns: UUID of deleted Team
+    '''
+    
+    session = info.context['dbsession']
+    session.query(Team).filter(Team.id == id).delete()
+    session.commit()
+    
+    return id

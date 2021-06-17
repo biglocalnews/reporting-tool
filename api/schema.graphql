@@ -305,4 +305,7 @@ type Mutation {
 
   # Update a Team
   updateTeam(input: UpdateTeamInput!): Team!
+
+  # Delete a Team
+  deleteTeam(id: ID!): ID!
 }
