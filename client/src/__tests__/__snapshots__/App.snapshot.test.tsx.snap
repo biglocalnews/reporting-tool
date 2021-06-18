@@ -13,6 +13,37 @@ exports[`renders App correctly 1`] = `
       }
     >
       <RenderRoutes
+        adminRoutes={
+          Array [
+            Object {
+              "key": "admin",
+              "path": "/admin",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Manage users",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "users",
+                  "path": "/admin/users",
+                },
+                Object {
+                  "breadcrumb": "Manage teams",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "teams",
+                  "path": "/admin/teams",
+                },
+                Object {
+                  "breadcrumb": "Manage programs",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "programs",
+                  "path": "/admin/programs",
+                },
+              ],
+            },
+          ]
+        }
         loginComponent={[Function]}
         protectedContainer={[Function]}
         protectedRoutes={
@@ -89,4 +120,94 @@ exports[`renders ProtectedAppContainer correctly 1`] = `
     </Layout>
   </Layout>
 </Fragment>
+`;
+
+exports[`renders admin stuff when authed as admin 1`] = `
+<BrowserRouter>
+  <Suspense
+    fallback={<Loading />}
+  >
+    <Layout
+      style={
+        Object {
+          "height": "100vh",
+        }
+      }
+    >
+      <RenderRoutes
+        adminRoutes={
+          Array [
+            Object {
+              "key": "admin",
+              "path": "/admin",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Manage users",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "users",
+                  "path": "/admin/users",
+                },
+                Object {
+                  "breadcrumb": "Manage teams",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "teams",
+                  "path": "/admin/teams",
+                },
+                Object {
+                  "breadcrumb": "Manage programs",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "programs",
+                  "path": "/admin/programs",
+                },
+              ],
+            },
+          ]
+        }
+        loginComponent={[Function]}
+        protectedContainer={[Function]}
+        protectedRoutes={
+          Array [
+            Object {
+              "component": [Function],
+              "exact": true,
+              "path": "/dataset/:datasetId/entry/reload",
+            },
+            Object {
+              "breadcrumb": "Home",
+              "component": [Function],
+              "exact": true,
+              "key": "home",
+              "path": "/",
+            },
+            Object {
+              "breadcrumb": "Dataset Details",
+              "component": [Function],
+              "key": "dataset-details",
+              "path": "/dataset/:datasetId/details",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Add Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "add-entry",
+                  "path": "/dataset/:datasetId/entry",
+                },
+                Object {
+                  "breadcrumb": "Edit Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "edit-entry",
+                  "path": "/dataset/:datasetId/entry/edit/:recordId",
+                },
+              ],
+            },
+          ]
+        }
+      />
+    </Layout>
+  </Suspense>
+</BrowserRouter>
 `;

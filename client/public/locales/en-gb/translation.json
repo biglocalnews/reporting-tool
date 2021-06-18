@@ -11,5 +11,6 @@
   "addData": "Add Data",
   "editData": "Edit",
   "backToDashboard": "Back To Dashboard",
-  "noDataAvailable": "No Data Available"
+  "noDataAvailable": "No Data Available",
+  "adminSidebarManagePrograms": "Programmes"
 }

@@ -15,7 +15,10 @@ export interface IRoute extends SubRoute {
   routes?: SubRoute[];
 }
 
-const ROUTES: IRoute[] = [
+/**
+ * Routes that are visible to every logged in user.
+ */
+export const normalRoutes: IRoute[] = [
   {
     path: "/dataset/:datasetId/entry/reload",
     exact: true,
@@ -56,4 +59,44 @@ const ROUTES: IRoute[] = [
   },
 ];
 
-export default ROUTES;
+/**
+ * Placeholder for development.
+ * TODO: remove when we've built everything :)
+ */
+const Todo = (what: string) => {
+  const TodoCmp = () => <div>TODO: {what}</div>;
+  return TodoCmp;
+};
+
+/**
+ * Routes that are only visible to admins.
+ */
+export const adminRoutes: IRoute[] = [
+  {
+    path: "/admin",
+    key: "admin",
+    routes: [
+      {
+        path: "/admin/users",
+        key: "users",
+        exact: true,
+        component: Todo("manage users"),
+        breadcrumb: "Manage users",
+      },
+      {
+        path: "/admin/teams",
+        key: "teams",
+        exact: true,
+        component: Todo("manage teams"),
+        breadcrumb: "Manage teams",
+      },
+      {
+        path: "/admin/programs",
+        key: "programs",
+        exact: true,
+        component: Todo("manage programs"),
+        breadcrumb: "Manage programs",
+      },
+    ],
+  },
+];

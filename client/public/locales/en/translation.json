@@ -18,5 +18,11 @@
   "enterPasswordLabel": "Enter your password",
   "enterPasswordError": "Please enter your password",
   "loginAction": "Login!",
-  "loginFailed": "The email and password combination you entered was incorrect."
+  "loginFailed": "The email and password combination you entered was incorrect.",
+  "adminSidebarControlsHeader": "Manage application",
+  "adminSidebarManageUsers": "Users",
+  "adminSidebarManageTeams": "Teams",
+  "adminSidebarManagePrograms": "Programs",
+  "adminSidebarViewAll": "View all datasets",
+  "notAuthorized": "You do not have permission to view this page."
 }
