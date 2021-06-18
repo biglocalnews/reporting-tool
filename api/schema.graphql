@@ -56,6 +56,7 @@ type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
   email: String!
   roles: [Role!]!
   teams: [Team!]!
+  active: Boolean!
 }
 
 type Role {
@@ -238,6 +239,9 @@ type Query {
   # Retrieve a single user.
   user(id: ID!): User! @needsPermission(permission: [LOGGED_IN])
 
+  # Retrieve all users
+  users: [User!]! @needsPermission(permission: [ADMIN])
+
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset! @needsPermission(permission: [LOGGED_IN])
 
@@ -256,6 +260,12 @@ type Query {
 
   # Retrieve a team.
   team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve list of all teams.
+  teams: [Team!]! @needsPermission(permission: [ADMIN])
+
+  # Retrive list of all roles.
+  roles: [Role!]! @needsPermission(permission: [ADMIN])
 }
 
 type Mutation {

@@ -1,8 +1,10 @@
 import React from "react";
 import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
+import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
 import { useAuth } from "../components/AuthProvider";
+import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
 import { LoginProps } from "../pages/Login/Login";
 import { useTranslation } from "react-i18next";
 
@@ -124,9 +126,13 @@ export function RenderRoutes({
   return (
     <Switch>
       <Route exact path="/login" component={loginComponent} />
-      {auth.isAdmin() && (
-        <Route path="/admin/" component={WrappedPrivateAdmin} />
-      )}
+      <Route exact path="/account/verify" component={VerifyAccount} />
+      <Route
+        exact
+        path="/account/reset-password"
+        component={ResetAccountPassword}
+      />
+      <Route path="/admin/" component={WrappedPrivateAdmin} />
       <Route path="/" component={WrappedPrivate} />
     </Switch>
   );

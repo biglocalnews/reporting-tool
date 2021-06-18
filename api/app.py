@@ -3,7 +3,7 @@ import databases
 import sqlalchemy
 import datetime
 
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, Depends, HTTPException, Response
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
@@ -16,6 +16,7 @@ from database import database, SessionLocal, User
 from queries import queries
 from mutations import mutation
 from settings import settings
+import mailer
 import user
 import directives
 
@@ -47,17 +48,26 @@ fastapi_users = FastAPIUsers(
 )
 
 
-# Add login functions 
-def on_after_register(user: user.UserDBModel, request: Request):
-    print(f"User {user.id} has registered.")
+async def on_after_register(user: user.UserDBModel, request: Request):
+    """Handle user registration by sending the new user a greeting."""
+    json = await request.json()
+    temp_password = json["password"]
+    await mailer.send_register_email(user, temp_password)
 
 
-def on_after_forgot_password(user: user.UserDBModel, token: str, request: Request):
-    print(f"User {user.id} has forgot their password. Reset token: {token}")
+async def on_after_forgot_password(user: user.UserDBModel, token: str, request: Request):
+    """Handle forgot-password by sending them an email with a reset link."""
+    await mailer.send_password_reset_email(user, token)
 
 
-def after_verification_request(user: user.UserDBModel, token: str, request: Request):
-    print(f"Verification requested for user {user.id}. Verification token: {token}")
+async def after_verification_request(user: user.UserDBModel, token: str, request: Request):
+    """Handle user verification request by emailing link."""
+    await mailer.send_verify_request_email(user, token)
+
+
+async def after_verify(user: user.UserDBModel, request: Request):
+    """Handle verification by sending confirmation email."""
+    await mailer.send_verify_confirm_email(user)
 
 
 def admin_user(request: Request):
@@ -88,20 +98,40 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+
 app.include_router(
     fastapi_users.get_verify_router(
-        settings.secret, after_verification_request=after_verification_request
+        settings.secret,
+        after_verification_request=after_verification_request,
+        after_verification=after_verify,
     ),
     prefix="/auth",
     tags=["auth"],
 )
 
+# HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
+# None value for a 204 response. FastAPI chooses the JSONResponse class if no
+# other one is specified, which causes the None value to be encoded as "null".
+# This is an illegal response for a 204 "No data" status code, so it causes
+# various different errors in servers and browsers.
+#
+# I submitted a pull request to fix this in fastapi-users here:
+# https://github.com/frankie567/fastapi-users/pull/650
+# 
+# More info here:
+# https://github.com/tiangolo/fastapi/issues/717
+#
+# When the PR is merged, bump the fastapi-users version and remove the hack.
+# For now, reach into the router's delete_user route and set the response class
+# explicitly to the bare Response class to avoid issues.
+users_router = fastapi_users.get_users_router()
+delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
+delete_route.response_class = Response
 app.include_router(
-    fastapi_users.get_users_router(),
-     prefix="/users",
-     tags=["users"],
+    users_router,
+    prefix="/users",
+    tags=["users"],
 )
-
 
 
 

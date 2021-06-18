@@ -103,17 +103,17 @@ export const AppAdminSidebarMenu = () => {
   return (
     <Menu mode="inline">
       <Menu.Item key="alldata" icon={<DatabaseOutlined />}>
-        <Link to="/">{t("adminSidebarViewAll")}</Link>
+        <Link to="/">{t("admin.sidebar.viewAll")}</Link>
       </Menu.Item>
-      <Menu.ItemGroup key="admin" title={t("adminSidebarControlsHeader")}>
+      <Menu.ItemGroup key="admin" title={t("admin.sidebar.controlsHeader")}>
         <Menu.Item key="users" icon={<UserSwitchOutlined />}>
-          <Link to="/admin/users">{t("adminSidebarManageUsers")}</Link>
+          <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
         </Menu.Item>
         <Menu.Item key="teams" icon={<TeamOutlined />}>
-          <Link to="/admin/teams">{t("adminSidebarManageTeams")}</Link>
+          <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
         </Menu.Item>
         <Menu.Item key="programs" icon={<TableOutlined />}>
-          <Link to="/admin/programs">{t("adminSidebarManagePrograms")}</Link>
+          <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
         </Menu.Item>
       </Menu.ItemGroup>
     </Menu>

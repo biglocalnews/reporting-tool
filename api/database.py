@@ -152,7 +152,8 @@ class User(Base, SQLAlchemyBaseUserTable):
         :param id: UUID of user
         """
         return session.query(User).filter(User.id == id).update({
-            User.delete: func.now(),
+            User.is_active: False,
+            User.deleted: func.now(),
             }, synchronize_session='fetch')
 
 

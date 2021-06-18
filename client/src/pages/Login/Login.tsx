@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Form, Card, Input, Typography } from "antd";
+import { Button, Form, Card, Input, Typography, Modal, message } from "antd";
 import { RouteComponentProps } from "react-router-dom";
 import { Auth } from "../../services/auth";
+import * as account from "../../services/account";
 import { useAuth } from "../../components/AuthProvider";
 import "./Login.css";
 
@@ -32,6 +33,10 @@ export const Login = (props: LoginProps) => {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [forgotPasswordForm] = Form.useForm<{ email: string }>();
+  const [loginForm] = Form.useForm<{ email: string; password: string }>();
 
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);
@@ -48,30 +53,80 @@ export const Login = (props: LoginProps) => {
     }
   };
 
-  const onFinishFailed = (...args: any[]) => {
-    console.log("finish failed", args);
+  /**
+   * Request a password reset token.
+   */
+  const resetPassword = async ({ email }: { email: string }) => {
+    setResettingPassword(true);
+
+    try {
+      await account.requestPasswordReset(email);
+      setShowForgotPassword(false);
+      message.success(t("account.resetPassword.reresetSuccess", { email }));
+    } catch (e) {
+      message.error(
+        t("account.resetPassword.reresetError", { message: e.message })
+      );
+    } finally {
+      setResettingPassword(false);
+    }
   };
+
+  // Sync the forgot password form with the login form to save user keystrokes.
+  forgotPasswordForm.setFieldsValue({
+    email: loginForm.getFieldValue("email"),
+  });
 
   return (
     <div className="login">
+      <Modal
+        forceRender
+        visible={showForgotPassword}
+        confirmLoading={resettingPassword}
+        onCancel={() => {
+          forgotPasswordForm.resetFields();
+          setShowForgotPassword(false);
+        }}
+        onOk={() => forgotPasswordForm.submit()}
+      >
+        <Form form={forgotPasswordForm} onFinish={resetPassword}>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: t("account.login.enterEmailError"),
+              },
+            ]}
+            label={t("account.login.enterEmailLabel")}
+            name="email"
+          >
+            <Input
+              aria-required={true}
+              aria-label="e-mail"
+              disabled={resettingPassword}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
       <Card className="login-form">
         <Form
           name="login"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
+          form={loginForm}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
         >
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Text>{t("loginPrompt")}</Text>
+            <Text>{t("account.login.prompt")}</Text>
           </Form.Item>
           <Form.Item
-            label={t("enterEmailLabel")}
+            label={t("account.login.enterEmailLabel")}
             name="email"
             rules={[
               {
                 required: true,
-                message: t("enterEmailError"),
+                message: t("account.login.enterEmailError"),
               },
             ]}
           >
@@ -83,12 +138,12 @@ export const Login = (props: LoginProps) => {
             />
           </Form.Item>
           <Form.Item
-            label={t("enterPasswordLabel")}
+            label={t("account.login.enterPasswordLabel")}
             name="password"
             rules={[
               {
                 required: true,
-                message: t("enterPasswordError"),
+                message: t("account.login.enterPasswordError"),
               },
             ]}
           >
@@ -98,6 +153,12 @@ export const Login = (props: LoginProps) => {
               required
             />
           </Form.Item>
+
+          <Form.Item>
+            <Button type="link" onClick={() => setShowForgotPassword(true)}>
+              {t("account.login.forgotPassword")}
+            </Button>
+          </Form.Item>
           {error && (
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Text>Error: {error.message}</Text>
@@ -105,7 +166,7 @@ export const Login = (props: LoginProps) => {
           )}
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
-              {t("loginAction")}
+              {t("account.login.action")}
             </Button>
           </Form.Item>
         </Form>

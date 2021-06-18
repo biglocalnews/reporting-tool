@@ -1,0 +1,111 @@
+import React, { useState } from "react";
+import { useQuery } from "@apollo/client";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { Button, Modal, Table, Form } from "antd";
+import { ColumnsType } from "antd/lib/table";
+import {
+  EditOutlined,
+  CheckCircleOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { GET_USER_LIST } from "../../__queries__/GetUserList.gql";
+import {
+  GetUserList,
+  GetUserList_users,
+} from "../../__generated__/GetUserList";
+import { Loading } from "../../components/Loading/Loading";
+import { CreateUser } from "./CreateUser";
+import * as account from "../../services/account";
+
+/**
+ * Index of all users in the organization.
+ */
+export const UserList = () => {
+  const [createUserForm] = Form.useForm<account.CreateUserFormValues>();
+  const { t } = useTranslation();
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const { data, loading, error } = useQuery<GetUserList>(GET_USER_LIST, {
+    fetchPolicy: "network-only",
+  });
+
+  // TODO: update error and loading components
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (error || !data || !data.users) {
+    return <div>An error occurred: {error}</div>;
+  }
+
+  const columns: ColumnsType<GetUserList_users> = (
+    ["email", "firstName", "lastName"] as Array<keyof GetUserList_users>
+  ).map((c) => ({
+    title: t(`admin.userList.columnTitle.${c}`),
+    dataIndex: c,
+    key: c,
+    defaultSortOrder: "ascend",
+    sorter: (a, b) => (a[c] < b[c] ? -1 : 1),
+  }));
+
+  const Active = (active: boolean) => (active ? <CheckCircleOutlined /> : null);
+
+  columns.push({
+    title: t(`admin.userList.columnTitle.active`),
+    dataIndex: "active",
+    key: "active",
+    defaultFilteredValue: ["true"],
+    filters: [
+      {
+        text: "Active",
+        value: "true",
+      },
+      {
+        text: "Inactive",
+        value: "false",
+      },
+    ],
+    onFilter: (value: boolean | number | string, record: GetUserList_users) =>
+      `${record.active}` === value,
+    render: Active,
+  });
+
+  const ActionLink = (text: string, record: GetUserList_users) => (
+    <Link to={`/admin/users/${record.id}`}>
+      <EditOutlined />
+    </Link>
+  );
+
+  columns.push({
+    title: "",
+    key: "action",
+    render: ActionLink,
+  });
+
+  return (
+    <div className="admin user-userlist_container">
+      <Button
+        icon={<UserAddOutlined />}
+        type="primary"
+        onClick={() => setShowCreateUser(true)}
+      >
+        {t("admin.user.createNew")}
+      </Button>
+      <Modal
+        forceRender
+        visible={showCreateUser}
+        onOk={() => createUserForm.submit()}
+        okText={t("admin.user.save")}
+        onCancel={() => {
+          setShowCreateUser(false);
+          createUserForm.resetFields();
+        }}
+        cancelText={t("admin.user.cancel")}
+        title={t("admin.user.createTitle")}
+      >
+        <CreateUser form={createUserForm} />
+      </Modal>
+      <Table dataSource={data.users} columns={columns} />
+    </div>
+  );
+};

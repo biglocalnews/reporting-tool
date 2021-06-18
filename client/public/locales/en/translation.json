@@ -12,17 +12,99 @@
   "editData": "Edit",
   "backToDashboard": "Back To Dashboard",
   "noDataAvailable": "No Data Available",
-  "loginPrompt": "Log in to start using the reporting tool!",
-  "enterEmailLabel": "Enter your e-mail",
-  "enterEmailError": "Please enter your e-mail",
-  "enterPasswordLabel": "Enter your password",
-  "enterPasswordError": "Please enter your password",
-  "loginAction": "Login!",
-  "loginFailed": "The email and password combination you entered was incorrect.",
-  "adminSidebarControlsHeader": "Manage application",
-  "adminSidebarManageUsers": "Users",
-  "adminSidebarManageTeams": "Teams",
-  "adminSidebarManagePrograms": "Programs",
-  "adminSidebarViewAll": "View all datasets",
-  "notAuthorized": "You do not have permission to view this page."
+  "notAuthorized": "You do not have permission to view this page.",
+  "account": {
+    "login": {
+      "action": "Login!",
+      "loginFailed": "The email and password combination you entered was incorrect.",
+      "prompt": "Log in to start using the reporting tool!",
+      "enterEmailLabel": "Enter your e-mail",
+      "enterEmailError": "Please enter your e-mail",
+      "enterPasswordLabel": "Enter your password",
+      "enterPasswordError": "Please enter your password",
+      "forgotPassword": "Forgot password?"
+    },
+    "resetPassword": {
+      "submit": "Update password",
+      "newPasswordLabel": "New password",
+      "success": "You have successfully reset your password!",
+      "error": "Failed to reset password",
+      "action": "Request new token",
+      "missingPassword": "You must enter a new password",
+      "reresetError": "Failed to request a new reset token: {{message}}",
+      "reresetSuccess": "A password reset email was sent to {{email}}. Please check your email and follow those instructions.",
+      "errors": {
+        "MISSING_TOKEN": "You are missing a valid token. Please request a new one and try again.",
+        "VALIDATION_ERROR": "There was an error validating your request. Please request a new token and try again.",
+        "RESET_PASSWORD_BAD_TOKEN": "Your reset token was invalid. Please request a new token and try again.",
+        "REGISTER_INVALID_PASSWORD": "The new password you chose is not strong enough. Please enter a longer password."
+      }
+    },
+    "verify": {
+      "action": "Request a new token",
+      "success": "Successfully verified your email!",
+      "successDetail": "You are being redirected to the home page.",
+      "reverifySuccess": "Sent a new verification token to {{email}}.",
+      "reverifyError": "Failed to request a new verification token: {{message}}",
+      "error": "An error occurred verifying your email.",
+      "errors": {
+        "VALIDATION_ERROR": "The given token couldn't be verified. Please request a new one and try again.",
+        "VERIFY_USER_TOKEN_EXPIRED": "This token has already expired. Please request a new one and try again.",
+        "VERIFY_USER_BAD_TOKEN": "This token is invalid. Please request a new one and try again.",
+        "VERIFY_USER_ALREADY_VERIFIED": "Your email has already been verified.",
+        "UNKNOWN_ERROR": "We're not sure what went wrong. Please request a new token and try to verify your account again. If that doesn't work, contact someone in charge.",
+        "MISSING_TOKEN": "Your verification token is missing. Please request a new one and try again."
+      }
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "controlsHeader": "Manage application",
+      "manageUsers": "Users",
+      "manageTeams": "Teams",
+      "managePrograms": "Programs",
+      "viewAll": "View all datasets"
+    },
+    "user": {
+      "createNew": "Add user",
+      "createTitle": "Create a new user",
+      "noQueryData": "query did not return any data",
+      "queryMissingKey": "query did not return the expected {{expectedKey}} key",
+      "title": "Edit user",
+      "save": "Save",
+      "cancel": "Cancel",
+      "restore": "Reactivate user",
+      "saveSuccess": "Successfully saved changes!",
+      "delete": "Deactivate",
+      "deleteTitle": "Deactivate user",
+      "deleteInfo": "You are about to deactive this user. Please confirm you really wish to do this. You can reactivate them later if needed.",
+      "alreadyDeletedTitle": "This user is inactive.",
+      "alreadyDeletedInfo": "You cannot edit this user because they have been deactivated. Please reactive them if you wish to edit their information.",
+      "teamSearch": "Search teams",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "E-mail",
+        "teams": "Teams",
+        "roles": "Roles"
+      },
+      "validation": {
+        "saveError": "An error occurred saving this user's data",
+        "restoreError": "An error occurred restoring this user",
+        "deleteError": "An error occurred deleting this user",
+        "email": "Not a valid email",
+        "emailRequired": "You need to enter an email.",
+        "firstNameRequired": "You need to enter a first name.",
+        "lastNameRequired": "You need to enter a last name."
+      }
+    },
+    "userList": {
+      "columnTitle": {
+        "email": "Email",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "active": "Active"
+      }
+    }
+  }
 }

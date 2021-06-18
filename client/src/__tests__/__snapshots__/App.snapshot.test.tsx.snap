@@ -27,6 +27,13 @@ exports[`renders App correctly 1`] = `
                   "path": "/admin/users",
                 },
                 Object {
+                  "breadcrumb": "Edit User",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "user",
+                  "path": "/admin/users/:userId",
+                },
+                Object {
                   "breadcrumb": "Manage teams",
                   "component": [Function],
                   "exact": true,
@@ -147,6 +154,13 @@ exports[`renders admin stuff when authed as admin 1`] = `
                   "exact": true,
                   "key": "users",
                   "path": "/admin/users",
+                },
+                Object {
+                  "breadcrumb": "Edit User",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "user",
+                  "path": "/admin/users/:userId",
                 },
                 Object {
                   "breadcrumb": "Manage teams",
