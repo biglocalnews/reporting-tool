@@ -283,6 +283,11 @@ class CategoryValue(Base):
     @validates('name')
     def capitalize_name(self, key, name):
         return name.capitalize().strip()
+
+    @classmethod
+    def get_not_deleted(cls, session, id):
+        return session.query(CategoryValue).\
+            filter(CategoryValue.id == id, CategoryValue.deleted == None).first()
     
 
 class Dataset(Base, PermissionsMixin):

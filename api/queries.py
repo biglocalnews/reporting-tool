@@ -63,8 +63,8 @@ def resolve_sums_of_category_values(dataset, info):
     '''
     session = info.context['dbsession']
 
-    stmt = session.query(Entry.category_id, func.sum(Entry.count).label('sum_of_counts')).\
-        join(Entry.record).filter(Record.dataset_id == dataset.id, Record.deleted == None).group_by(Entry.category_id).all()
+    stmt = session.query(Entry.category_value_id, func.sum(Entry.count).label('sum_of_counts')).\
+        join(Entry.record).filter(Record.dataset_id == dataset.id, Record.deleted == None).group_by(Entry.category_value_id).all()
 
     return [{'dataset_id': dataset.id, 'category_value_id': row[0], 'sum_of_counts': row[1]} for row in stmt]
 
@@ -76,17 +76,19 @@ def resolve_sums_dataset_relationship(count_obj, info):
         :returns: Dataset dictionary OR None if Dataset was soft-deleted
     '''
     session = info.context['dbsession']
-    return session.query(Dataset).filter(Dataset.id == count_obj['dataset_id'], Dataset.deleted == None).first()
+    dataset_rel = Dataset.get_not_deleted(session, count_obj['dataset_id'])
+    return dataset_rel
 
 
-@sum_entries_by_category_value.field("category")
+@sum_entries_by_category_value.field("categoryValue")
 def resolve_sums_category_relationship(count_obj, info):
     '''GraphQL query to add category relationship to SumEntriesByCategoryValue
         :param count_obj: Object in sumOfCategoryValueCounts dataset field array
         :returns: Category dictionary OR None if Category was soft-deleted
     '''
     session = info.context['dbsession']
-    return session.query(Category).filter(Category.id == count_obj['category_value_id'], Category.deleted == None).first()
+    category_value_rel = CategoryValue.get_not_deleted(session, count_obj['category_value_id'])
+    return category_value_rel
 
 
 @query.field("record")

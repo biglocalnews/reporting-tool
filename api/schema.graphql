@@ -142,7 +142,7 @@ type Description {
 
 type SumEntriesByCategoryValue {
   dataset: Dataset!
-  category: Category!
+  categoryValue: CategoryValue!
   sumOfCounts: Int!
 }
 
