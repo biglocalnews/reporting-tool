@@ -7,6 +7,26 @@
 // GraphQL query operation: GetDataset
 // ====================================================
 
+export interface GetDataset_dataset_sumOfCategoryValueCounts_categoryValue_category {
+  readonly __typename: "Category";
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface GetDataset_dataset_sumOfCategoryValueCounts_categoryValue {
+  readonly __typename: "CategoryValue";
+  readonly id: string;
+  readonly name: string;
+  readonly category: GetDataset_dataset_sumOfCategoryValueCounts_categoryValue_category;
+}
+
+export interface GetDataset_dataset_sumOfCategoryValueCounts {
+  readonly __typename: "SumEntriesByCategoryValue";
+  readonly categoryValue: GetDataset_dataset_sumOfCategoryValueCounts_categoryValue;
+  readonly sumOfCounts: number;
+}
+
 export interface GetDataset_dataset_program_targets_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
@@ -66,6 +86,7 @@ export interface GetDataset_dataset {
   readonly id: string;
   readonly name: string;
   readonly lastUpdated: any | null;
+  readonly sumOfCategoryValueCounts: ReadonlyArray<GetDataset_dataset_sumOfCategoryValueCounts>;
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
 }
