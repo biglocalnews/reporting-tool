@@ -1,4 +1,12 @@
 /**
+ * Description of a role assigned to a user.
+ */
+export type UserRole = Readonly<{
+  name: string;
+  description: string;
+}>;
+
+/**
  * Information about the currently authenticated user.
  */
 export type UserProfile = Readonly<{
@@ -8,7 +16,7 @@ export type UserProfile = Readonly<{
   is_verified: boolean;
   first_name: string;
   last_name: string;
-  roles: string[];
+  roles: UserRole[];
 }>;
 
 /**
@@ -64,7 +72,10 @@ export class Auth {
    * Test whether user has admin permissions.
    */
   public isAdmin() {
-    return !!this.currentUser && this.currentUser.roles.includes("admin");
+    return (
+      !!this.currentUser &&
+      this.currentUser.roles.some((r) => r.name === "admin")
+    );
   }
 
   /**
