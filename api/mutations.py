@@ -341,3 +341,15 @@ def resolve_update_program(obj, info, input):
     session.commit()
 
     return program
+
+@mutation.field("deleteProgram")
+def resolve_delete_program(obj, info, id):
+    '''GraphQL mutation to delete a Program.
+        :param id: UUID of Program to be deleted
+        :returns: UUID of deleted Program
+    '''
+    session = info.context['dbsession']
+    session.query(Program).get(id).soft_delete(session)
+    session.commit()
+
+    return id

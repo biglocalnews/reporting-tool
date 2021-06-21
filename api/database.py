@@ -193,6 +193,13 @@ class Program(Base, PermissionsMixin):
     def user_is_team_member(self, user):
         return self.team.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        datasets = session.query(Dataset).filter(Dataset.program_id == self.id).all()
+        for dataset in datasets: 
+            dataset.soft_delete(session)
+        session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class Tag(Base):
     __tablename__ = 'tag'
@@ -331,6 +338,12 @@ class Dataset(Base, PermissionsMixin):
     def user_is_team_member(self, user):
         return self.program.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        records = session.query(Record).filter(Record.dataset_id == self.id).all()
+        for record in records:
+            record.soft_delete(session)
 
 class Record(Base, PermissionsMixin):
     __tablename__ = 'record'
@@ -357,7 +370,11 @@ class Record(Base, PermissionsMixin):
     def user_is_team_member(self, user):
         return self.dataset.user_is_team_member(user)
 
-
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        session.query(Entry).filter(Entry.record_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
+        
 class Entry(Base, PermissionsMixin):
     __tablename__ = 'entry'
 

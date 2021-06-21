@@ -347,4 +347,7 @@ type Mutation {
   # Update a Program
   updateProgram(input: UpdateProgramInput!): Program!
     @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+
+  # Delete a Program
+  deleteProgram(id: ID!): ID! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 }
