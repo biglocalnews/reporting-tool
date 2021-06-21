@@ -315,3 +315,29 @@ def resolve_create_program(obj, info, input):
     session.commit()
     
     return program
+
+@mutation.field("updateProgram")
+@convert_kwargs_to_snake_case
+def resolve_update_program(obj, info, input):
+    '''GraphQL mutation to update a Program.
+        :param input: params for updated Program
+        :returns: Updated Program dictionary
+    '''
+
+    session = info.context['dbsession']
+    datasets = input.pop('dataset_ids', [])
+    targets = input.pop('target_ids', [])
+    tags = input.pop('tag_ids', [])
+    program = session.query(Program).get(input['id'])
+    if len(datasets) > 0:
+        program.datasets = [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
+    if len(targets) > 0:
+        program.targets = [session.merge(Target(id=target_id)) for target_id in targets]
+    if len(tags) > 0:
+        program.tags = [session.merge(Tag(id=tag_id)) for tag_id in tags]
+    for param in input:
+        setattr(program, param, input[param])
+    session.add(program)
+    session.commit()
+
+    return program

@@ -228,6 +228,16 @@ input CreateProgramInput {
   tagIds: [ID!]
 }
 
+input UpdateProgramInput {
+  id: ID!
+  name: String
+  description: String
+  teamId: ID
+  datasetIds: [ID!]
+  targetIds: [ID!]
+  tagIds: [ID!]
+}
+
 input EntryInput {
   id: ID
   categoryValueId: ID!
@@ -332,5 +342,9 @@ type Mutation {
   deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
   # Create a Program
   createProgram(input: CreateProgramInput!): Program!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+
+  # Update a Program
+  updateProgram(input: UpdateProgramInput!): Program!
     @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 }
