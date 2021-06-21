@@ -72,7 +72,7 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   team: Team!
   datasets: [Dataset!]!
   targets: [Target!]!
-  tags: [Tag!]!
+  tags: [Tag!]
 }
 
 type Tag {
@@ -219,6 +219,13 @@ input UpdateTeamInput {
   userIds: [ID!]
   programIds: [ID!]
   organizationId: ID
+input CreateProgramInput {
+  name: String!
+  description: String!
+  teamId: ID!
+  datasetIds: [ID!]!
+  targetIds: [ID!]!
+  tagIds: [ID!]
 }
 
 input EntryInput {
@@ -323,4 +330,7 @@ type Mutation {
 
   # Delete a Team
   deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
+  # Create a Program
+  createProgram(input: CreateProgramInput!): Program!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
 }

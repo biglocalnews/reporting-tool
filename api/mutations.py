@@ -293,3 +293,25 @@ def resolve_delete_team(obj, info, id):
     session.commit()
     
     return id
+@mutation.field("createProgram")
+@convert_kwargs_to_snake_case
+def resolve_create_program(obj, info, input):
+    '''GraphQL mutation to create a Program.
+        :param input: params for new Program
+        :returns: Program dictionary
+    '''
+
+    session = info.context['dbsession']
+    datasets = input.pop('dataset_ids')
+    targets = input.pop('target_ids')
+    tags = input.pop('tag_ids')
+    
+    program = Program(**input)
+    program.datasets += [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
+    program.targets += [session.merge(Target(id=target_id)) for target_id in targets]
+    program.tags += [session.merge(Tag(id=tag_id)) for tag_id in tags]
+
+    session.add(program)
+    session.commit()
+    
+    return program
