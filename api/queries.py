@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue, Entry, Team, Role
+from database import Dataset, User, Record, Category, CategoryValue, Program, Entry, Team, Role
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
@@ -40,6 +40,18 @@ def resolve_users(obj, info):
     '''
     session = info.context['dbsession']
     return session.query(User).order_by(User.email.asc()).all()
+
+@query.field("program")
+@convert_kwargs_to_snake_case
+def resolve_program(obj, info, id):
+    '''GraphQL query to find a Program based on Program ID.
+        :param id: Id for the Program to be fetched
+        :returns: Program dictionary
+    '''
+    session = info.context['dbsession']
+    program = session.query(Program).get(id)
+
+    return program
 
 @query.field("dataset")
 @convert_kwargs_to_snake_case
