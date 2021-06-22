@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/charts": "^1.1.17",
     "@apollo/client": "^3.3.11",
     "@testing-library/user-event": "^12.1.10",
     "@types/lodash": "^4.14.170",
@@ -129,6 +130,7 @@
     "@typescript-eslint/parser": "^4.23.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
     "apollo-server": "^2.21.1",
+    "canvas": "^2.8.0",
     "casual": "^1.6.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
@@ -142,6 +144,7 @@
     "husky": "^6.0.0",
     "jest": "26.6.0",
     "jest-axe": "^4.1.0",
+    "jest-canvas-mock": "^2.3.1",
     "jest-transform-stub": "^2.0.0",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
