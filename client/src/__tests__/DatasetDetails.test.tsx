@@ -24,6 +24,10 @@ jest.mock("react-router-dom", () => ({
     .mockReturnValue({ datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb" }),
 }));
 
+jest.mock("@ant-design/charts", () => ({
+  Pie: () => null,
+}));
+
 async function wait(ms = 0) {
   await act(async () => {
     return await new Promise((resolve) => {
