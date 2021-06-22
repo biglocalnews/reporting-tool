@@ -44,13 +44,7 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).get(id).soft_delete(session) 
-
-    # session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    # session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    # related_records = session.query(Record).filter(Record.dataset_id == id).all()
-    # for record in related_records:
-    #     session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session='fetch')
+    Dataset.get_not_deleted(session, id).soft_delete(session) 
     session.commit()
 
     return id

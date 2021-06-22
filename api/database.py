@@ -333,7 +333,7 @@ class Dataset(Base, PermissionsMixin):
 
     @classmethod
     def get_not_deleted(cls, session, id_):
-        return session.query(Dataset).filter(Dataset.id == id_, Dataset.deleted == None).first()
+        return session.query(Dataset).filter(Dataset.id == id_, Dataset.deleted == None).scalar()
 
     def user_is_team_member(self, user):
         return self.program.user_is_team_member(user)
