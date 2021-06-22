@@ -1,4 +1,4 @@
-import { Button, Col, Row, Typography } from "antd";
+import { Button, PageHeader, Typography } from "antd";
 import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
@@ -10,12 +10,13 @@ import {
 import { GET_DATASET } from "../../__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
+import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 
 interface RouteParams {
   datasetId: string;
 }
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const DatasetDetails = (): JSX.Element => {
   const { datasetId } = useParams<RouteParams>();
@@ -36,29 +37,32 @@ const DatasetDetails = (): JSX.Element => {
 
   return (
     <div className="dataset-details_container">
-      <Row wrap={false} align="middle">
-        <Col flex="none">
-          <div>
-            <Title style={{ marginBottom: "0px" }} level={2}>
-              {queryData?.dataset?.program.name}
-            </Title>
-            <Text style={{ fontSize: "large", marginTop: "0px" }}>
-              {queryData?.dataset?.name}
-            </Text>
-          </div>
-        </Col>
-        <Col flex="auto">
-          <div style={{ float: "right" }}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => history.push(`/dataset/${datasetId}/entry`)}
-            >
-              {t("addData")}
-            </Button>
-          </div>
-        </Col>
-      </Row>
+      <PageHeader
+        style={{ padding: 0 }}
+        title={
+          <Text style={{ fontSize: "xx-large" }}>
+            {queryData?.dataset?.program.name}
+          </Text>
+        }
+        subTitle={
+          <Text style={{ fontSize: "large" }}>{queryData?.dataset?.name}</Text>
+        }
+        extra={[
+          <Button
+            key="1"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => history.push(`/dataset/${datasetId}/entry`)}
+          >
+            {t("addData")}
+          </Button>,
+        ]}
+      ></PageHeader>
+
+      {queryData!.dataset.records.length > 0 && (
+        <DatasetDetailsScoreCard data={queryData} datasetId={datasetId} />
+      )}
+
       <DatasetDetailsRecordsTable
         datasetId={datasetId}
         datasetData={queryData}
