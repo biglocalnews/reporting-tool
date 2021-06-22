@@ -225,7 +225,7 @@ input CreateProgramInput {
   teamId: ID!
   datasetIds: [ID!]!
   targetIds: [ID!]!
-  tagIds: [ID!]
+  tagIds: [ID!]!
 }
 
 input UpdateProgramInput {
