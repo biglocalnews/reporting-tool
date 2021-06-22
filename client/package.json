@@ -145,7 +145,6 @@
     "husky": "^6.0.0",
     "jest": "26.6.0",
     "jest-axe": "^4.1.0",
-    "jest-canvas-mock": "^2.3.1",
     "jest-transform-stub": "^2.0.0",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
