@@ -37,6 +37,7 @@
     "build": "react-scripts build",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "npx jest --coverage",
     "eject": "react-scripts eject",
     "lint": "eslint -c .eslintrc.js 'src/**/*{.ts,.tsx,.js}'",
     "lint:fix": "eslint -c .eslintrc.js --fix 'src/**/*{.ts,.tsx}'",
