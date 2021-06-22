@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
 import _ from "lodash";
 
-interface DataEntryCategorySection {
+interface DataEntryCategorySectionProps {
   entries: Entry[];
   onValueChange: (event: ChangeEvent<HTMLInputElement>, index: number) => void;
 }
@@ -27,7 +27,7 @@ const groupByCategory = (entries: Entry[]) => {
 const DataEntryCategorySections = ({
   entries,
   onValueChange,
-}: DataEntryCategorySection): JSX.Element => {
+}: DataEntryCategorySectionProps): JSX.Element => {
   const { t } = useTranslation();
 
   const categories = groupByCategory(entries);

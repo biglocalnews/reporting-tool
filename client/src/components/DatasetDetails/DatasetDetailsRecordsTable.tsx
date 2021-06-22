@@ -38,18 +38,17 @@ const DatasetDetailsRecordsTable = ({
 
   /*
    * Takes all the entries from a record and sets the
-   * category value (e.g. gender) of the entry as a key
+   * category value (e.g. non-binary gender) of the entry as a key
    * and its count as the corresponding value to create an
    * array of flat objects.
    */
   const tableData = records?.map((record) => {
-    return record.entries.reduce(
-      (acc, cur) => ({ ...acc, [cur.categoryValue.name]: cur.count }),
-      {
-        id: record.id,
-        publicationDate: record.publicationDate,
-      }
-    );
+    return record.entries.reduce((accumulator: any, currentItem) => {
+      accumulator[currentItem.categoryValue.name] = currentItem.count;
+      accumulator["id"] = record.id;
+      accumulator["publicationDate"] = record.publicationDate;
+      return accumulator;
+    }, {});
   }) as TableData[];
 
   const [

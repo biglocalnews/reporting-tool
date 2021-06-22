@@ -6,10 +6,23 @@ export const GET_DATASET = gql`
       id
       name
       lastUpdated
+      sumOfCategoryValueCounts {
+        categoryValue {
+          id
+          name
+          category {
+            id
+            name
+            description
+          }
+        }
+        sumOfCounts
+      }
       program {
         name
         targets {
           id
+          target
           categoryValue {
             id
             name
