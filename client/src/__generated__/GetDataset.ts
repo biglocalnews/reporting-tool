@@ -44,6 +44,7 @@ export interface GetDataset_dataset_program_targets_categoryValue {
 export interface GetDataset_dataset_program_targets {
   readonly __typename: "Target";
   readonly id: string;
+  readonly target: number;
   readonly categoryValue: GetDataset_dataset_program_targets_categoryValue;
 }
 

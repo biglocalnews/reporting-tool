@@ -22,6 +22,7 @@ export const GET_DATASET = gql`
         name
         targets {
           id
+          target
           categoryValue {
             id
             name
