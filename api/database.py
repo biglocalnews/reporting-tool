@@ -365,7 +365,7 @@ class Record(Base, PermissionsMixin):
 
     @classmethod
     def get_not_deleted(cls, session, id_):
-        return session.query(Record).filter(Record.id == id_, Record.deleted == None).first()
+        return session.query(Record).filter(Record.id == id_, Record.deleted == None).scalar()
 
     def user_is_team_member(self, user):
         return self.dataset.user_is_team_member(user)
