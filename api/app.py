@@ -35,7 +35,7 @@ app = FastAPI(
 cookie_authentication = CookieAuthentication(
         secret=settings.secret,
         lifetime_seconds=3600,
-        cookie_secure=not settings.debug,
+        cookie_secure=False,
         cookie_name='rtauth')
 
 
