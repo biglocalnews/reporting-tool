@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tag, Button, Table, Space } from "antd";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -11,24 +11,37 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { TFunction, useTranslation } from "react-i18next";
 import { useAuth } from "../AuthProvider";
 import { ErrorFallback } from "../Error/ErrorFallback";
+import { Loading } from "../Loading/Loading";
+import { ColumnsType } from "antd/lib/table";
 
 dayjs.extend(localizedFormat);
 
-const columns = [
+export interface TableData {
+  id: string;
+  team: string;
+  dataset: string;
+  lastUpdated: string;
+  tags: Array<string>;
+}
+
+const columns: ColumnsType<TableData> = [
   {
     title: "Team",
     dataIndex: "team",
     key: "team",
+    sortDirections: ["ascend", "descend"],
+    sorter: (a, b) => a.team.localeCompare(b.team),
   },
   {
     title: "Dataset",
     dataIndex: "dataset",
     key: "dataset",
+    sortDirections: ["ascend", "descend"],
+    sorter: (a, b) => a.dataset.localeCompare(b.dataset),
   },
   {
     title: "Last Updated",
     dataIndex: "lastUpdated",
-    key: "lastUpdated",
   },
   {
     title: "Tags",
@@ -79,7 +92,7 @@ const getTableData = (
   queryData: GetUser | undefined,
   t: TFunction<"translation">
 ) => {
-  const rowData: any = [];
+  const rowData: Array<TableData> = [];
 
   queryData?.user?.teams.map((team) => {
     return team.programs.map((program) => {
@@ -91,8 +104,8 @@ const getTableData = (
           lastUpdated: dataset.lastUpdated
             ? dayjs(dataset.lastUpdated).format("ll")
             : t("noDataAvailable"),
-          tags: dataset.tags.map((t) => {
-            return t.name;
+          tags: dataset.tags.map((tag) => {
+            return tag.name;
           }),
         });
       });
@@ -113,30 +126,53 @@ const Home = (): JSX.Element => {
     }
   );
 
+  const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
+
   const rowData = getTableData(data, t);
+
+  // Filters datasets table by search term
+  const handleTableSearchFilter = (searchText: string) => {
+    const data = [...rowData];
+    const filteredData = data.filter(({ team, dataset }) => {
+      team = team.toLowerCase();
+      dataset = dataset.toLowerCase();
+      return team.includes(searchText) || dataset.includes(searchText);
+    });
+
+    setFilteredData(filteredData);
+  };
 
   if (error) return <ErrorFallback error={error} />;
 
   return (
-    <div>
+    <>
       {loading ? (
-        <h1>Loading...</h1>
+        <Loading />
       ) : (
         <div>
-          <HomeSearchAutoComplete
-            dataSource={rowData.map(
-              (i: { team: string; dataset: string }) =>
-                `${i.team} - ${i.dataset}`
-            )}
-          />
+          <div
+            id="home_table-search"
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "1rem",
+            }}
+          >
+            <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
+          </div>
           <Table
-            dataSource={rowData}
+            dataSource={filteredData.length > 0 ? filteredData : rowData}
             columns={columns}
             rowKey={(dataset) => dataset.id}
+            footer={() =>
+              filteredData.length > 0
+                ? `Showing ${filteredData.length} of ${rowData.length} results`
+                : `Showing ${rowData.length} of ${rowData.length} results`
+            }
           />
         </div>
       )}
-    </div>
+    </>
   );
 };
 
