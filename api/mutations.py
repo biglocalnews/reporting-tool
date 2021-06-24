@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue
+from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
@@ -234,4 +234,62 @@ def resolve_delete_category_value(obj, info, id):
     session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
     session.commit()
 
+    return id
+
+@mutation.field("createTeam")
+@convert_kwargs_to_snake_case
+def resolve_create_team(obj, info, input):
+    '''GraphQL mutation to create a Team
+        :param input: params for new Team
+        :returns: Team dictionary
+    '''
+
+    session = info.context['dbsession']
+    users = input.pop('user_ids')
+    programs = input.pop('program_ids')
+    
+    team = Team(**input)
+    team.programs += [session.merge(Program(id=program_id)) for program_id in programs]
+    team.users += [session.merge(User(id=user_id)) for user_id in users]
+
+    session.add(team)
+    session.commit()
+    
+    return team
+
+@mutation.field("updateTeam")
+@convert_kwargs_to_snake_case
+def resolve_update_team(obj, info, input):
+    '''GraphQL mutation to update a Team
+        :param input: params for updated Team
+        :returns: Team dictionary
+    '''
+
+    session = info.context['dbsession']
+    team = session.query(Team).get(input['id'])
+    users = input.pop('user_ids', [])
+    programs = input.pop('program_ids', [])
+    if len(users) > 0:
+        team.users = [session.merge(User(id=user_id)) for user_id in users]
+    if len(programs) > 0:
+        team.programs = [session.merge(Program(id=program_id)) for program_id in programs]
+    for param in input:
+        setattr(team, param, input[param])
+    session.add(team)
+    session.commit()
+    
+    return team
+
+@mutation.field("deleteTeam")
+@convert_kwargs_to_snake_case
+def resolve_delete_team(obj, info, id):
+    '''GraphQL mutation to delete a Team
+        :param id: UUID of Team to be deleted
+        :returns: UUID of deleted Team
+    '''
+    
+    session = info.context['dbsession']
+    session.query(Team).filter(Team.id == id).delete()
+    session.commit()
+    
     return id

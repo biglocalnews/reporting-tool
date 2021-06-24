@@ -37,7 +37,7 @@ user_teams = Table('user_team', Base.metadata,
                    Column('user_id', GUID, ForeignKey(
                        'user.id'), index=True),
                    Column('team_id', GUID, ForeignKey(
-                       'team.id'), index=True),
+                       'team.id', ondelete="CASCADE"), index=True),
                    )
 
 user_roles = Table('user_role', Base.metadata,
@@ -97,6 +97,7 @@ class Team(Base, PermissionsMixin):
     programs = relationship('Program')
     organization_id = Column(GUID, ForeignKey(
         'organization.id'), nullable=False, index=True)
+    organization = relationship('Organization', back_populates='teams')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -161,7 +162,7 @@ class Program(Base, PermissionsMixin):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
-    team_id = Column(GUID, ForeignKey('team.id'), index=True)
+    team_id = Column(GUID, ForeignKey('team.id', ondelete='SET NULL'), index=True)
     team = relationship('Team', back_populates='programs')
     datasets = relationship('Dataset')
     targets = relationship('Target')
@@ -414,9 +415,9 @@ def create_dummy_data(session):
     program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming', datasets=[ds1, ds2])
     
-    team = Team(name='News Team', users=[user], programs=[program])
+    team = Team(id="472d17da-ff8b-4743-823f-3f01ea21a349", name='News Team', users=[user], programs=[program])
     
-    org = Organization(name='BBC', teams=[team])
+    org = Organization(id="15d89a19-b78d-4ee8-b321-043f26bdd48a", name='BBC', teams=[team])
 
     Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news', programs=[program], datasets=[ds1, ds2])

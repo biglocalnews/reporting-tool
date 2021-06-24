@@ -1,4 +1,5 @@
 import unittest
+import sqlalchemy
 from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
@@ -17,6 +18,8 @@ from database import (
         Category,
         CategoryValue,
         User,
+        Team,
+        Program
         )
 from uuid import UUID
 
@@ -1534,6 +1537,248 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
             category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
             self.assertEqual(category_value.count(), 1)
+
+    def test_query_team(self):
+        """Test that anyone can query teams"""
+        for user_role in ["normal"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryTeam",
+                "query": """
+                    query QueryTeam($id: ID!) {
+                       team(id: $id) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "team": {
+                        "id" : "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        "name": "News Team"
+                    },
+                },
+            })
+                                        
+    def test_create_team(self):
+        """Test that the admin can create a team."""
+        success, result = self.run_graphql_query({
+            "operationName": "CreateTeam",
+            "query": """
+                mutation CreateTeam($input: CreateTeamInput!) {
+                   createTeam(input: $input) {
+                        id
+                        name
+                        users {
+                            id
+                            firstName
+                        }
+                        programs {
+                            id
+                            name
+                        }
+                        organization {
+                            name
+                        }
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "name": "The Best Team!",
+                    "userIds": ["cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"],
+                    "programIds": ["1e73e788-0808-4ee8-9b25-682b6fa3868b"],
+                    "organizationId": "15d89a19-b78d-4ee8-b321-043f26bdd48a"
+                }
+            },
+        }, user=self.test_users['admin'])
+        self.assertTrue(success)
+        print(f'{result}, resultoooo')
+        self.assertTrue(self.is_valid_uuid(result["data"]["createTeam"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "createTeam": {
+                    "id": result["data"]["createTeam"]["id"],
+                    "name": "The Best Team!",
+                    "users": [{
+                        "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                        "firstName": "Cat"
+                    }],
+                    "programs": [{
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "BBC News"
+                    }],
+                    "organization": {
+                        "name": "BBC"
+                    }
+                },
+            },
+        })
+
+    def test_create_teams_no_perm(self):
+        """Test that non-admins can not create a team."""
+        for user_role in ["normal", "other"]:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateTeam",
+                "query": """
+                    mutation CreateTeam($input: CreateTeamInput!) {
+                       createTeam(input: $input) {
+                            id
+                            name
+                            users {
+                                id
+                                firstName
+                            }
+                            programs {
+                                id
+                                name
+                            }
+                            organization {
+                                name
+                            }
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "The Best Team!",
+                        "userIds": ["cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"],
+                        "programIds": ["1e73e788-0808-4ee8-9b25-682b6fa3868b"],
+                        "organizationId": "15d89a19-b78d-4ee8-b321-043f26bdd48a"
+                    }   
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            
+    def test_update_team(self):
+        """Only admins can update teams"""
+        user = self.test_users["admin"]
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateTeam",
+            "query": """
+                mutation UpdateTeam($input: UpdateTeamInput!) {
+                   updateTeam(input: $input) {
+                        id
+                        name
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                    "name": "New Name"
+                }
+            },
+        }, user=user)
+        self.assertTrue(success)
+        self.assertEqual(result, {
+            "data": {
+                "updateTeam": {
+                    "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                    "name": "New Name"
+                },
+            },
+        })
+
+    def test_update_team_no_perm(self):
+        """Only admins can update teams"""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateTeam",
+                "query": """
+                    mutation UpdateTeam($input: UpdateTeamInput!) {
+                       updateTeam(input: $input) {
+                            id
+                            name
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        "name": "New new name"
+                    }
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
+    def test_delete_team(self):
+        """Only admins can delete teams."""
+        user = self.test_users["admin"]
+        team_id = "472d17da-ff8b-4743-823f-3f01ea21a349"
+        # Confirm Team exists, then that it does not.
+        existing_team = self.session.query(Team).filter(Team.id == team_id)
+        # Count of existing Team should be one
+        self.assertEqual(existing_team.count(), 1)
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteTeam",
+            "query": """
+                mutation DeleteTeam($id: ID!) {
+                    deleteTeam(id: $id)
+                }
+            """,
+            "variables": {
+                "id": team_id,
+            },
+        }, user=user)
+        self.assertTrue(success)
+        team = self.session.query(Team).filter(Team.id == team_id)
+        self.assertEqual(team.count(), 0)
+        program = self.session.query(Program).filter(Program.team_id == team_id)
+        self.assertEqual(program.count(), 0)
+        # Adding raw SQL query to hit join table
+        query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
+        user_teams = self.session.execute(query).fetchall()
+        self.assertEqual(len(user_teams), 0)
+        
+        self.assertTrue(self.is_valid_uuid(team_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteTeam": team_id
+            },
+        })
+
+    def test_delete_team_no_perm(self):
+        """Only admins can delete teams."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            team_id = "472d17da-ff8b-4743-823f-3f01ea21a349"
+            # Confirm Team exists, then that it does not.
+            existing_team = self.session.query(Team).filter(Team.id == team_id)
+            # Count of existing Team should be one
+            self.assertEqual(existing_team.count(), 1)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteTeam",
+                "query": """
+                    mutation DeleteTeam($id: ID!) {
+                        deleteTeam(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": team_id,
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            team = self.session.query(Team).filter(Team.id == team_id)
+            self.assertEqual(team.count(), 1)
+            program = self.session.query(Program).filter(Program.team_id == team_id)
+            self.assertEqual(program.count(), 1)
+            # Adding raw SQL query to hit join table
+            query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
+            user_teams = self.session.execute(query).fetchall()
+            self.assertEqual(len(user_teams), 1)
 
 
 if __name__ == '__main__':

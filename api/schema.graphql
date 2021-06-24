@@ -46,7 +46,7 @@ type Team @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   name: String!
   users: [User!]!
   programs: [Program!]!
-  organizations: [Organization!]!
+  organization: Organization!
 }
 
 type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
@@ -205,6 +205,21 @@ input UpdateCategoryValueInput {
   categoryId: ID
 }
 
+input CreateTeamInput {
+  name: String!
+  userIds: [ID!]!
+  programIds: [ID!]!
+  organizationId: ID
+}
+
+input UpdateTeamInput {
+  id: ID!
+  name: String
+  userIds: [ID!]
+  programIds: [ID!]
+  organizationId: ID
+}
+
 input EntryInput {
   id: ID
   categoryValueId: ID!
@@ -238,6 +253,9 @@ type Query {
   # Retrieve a single categoryValue.
   categoryValue(id: ID!): CategoryValue!
     @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a team.
+  team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
 }
 
 type Mutation {
@@ -284,4 +302,15 @@ type Mutation {
 
   # Delete a CategoryValue
   deleteCategoryValue(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a Team
+  createTeam(input: CreateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a Team
+  updateTeam(input: UpdateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a Team
+  deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
 }
