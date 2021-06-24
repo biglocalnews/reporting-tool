@@ -1714,7 +1714,7 @@ class TestGraphQL(BaseAppTest):
     def test_delete_team(self):
         """Only admins can delete teams."""
         user = self.test_users["admin"]
-        team_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+        team_id = "472d17da-ff8b-4743-823f-3f01ea21a349"
         # Confirm Team exists, then that it does not.
         existing_team = self.session.query(Team).filter(Team.id == team_id)
         # Count of existing Team should be one
@@ -1744,7 +1744,7 @@ class TestGraphQL(BaseAppTest):
         """Only admins can delete teams."""
         for user in ["normal", "other"]:
             user = self.test_users[user]
-            team_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
+            team_id = "472d17da-ff8b-4743-823f-3f01ea21a349"
             # Confirm Team exists, then that it does not.
             existing_team = self.session.query(Team).filter(Team.id == team_id)
             # Count of existing Team should be one

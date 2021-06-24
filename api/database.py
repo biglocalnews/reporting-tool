@@ -418,7 +418,6 @@ def create_dummy_data(session):
     team = Team(id="472d17da-ff8b-4743-823f-3f01ea21a349", name='News Team', users=[user], programs=[program])
     
     org = Organization(id="15d89a19-b78d-4ee8-b321-043f26bdd48a", name='BBC', teams=[team])
-    testing_team = Team(id="0034d015-0652-497d-ab4a-d42b0bdf08cb", name="Temporary Team", organization=org)
 
     Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news', programs=[program], datasets=[ds1, ds2])
@@ -462,7 +461,6 @@ def create_dummy_data(session):
            entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8]) 
     
     session.add(category_value_white)
-    session.add(testing_team)
     session.add(org)
     session.commit()
 
