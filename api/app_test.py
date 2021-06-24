@@ -1,4 +1,5 @@
 import unittest
+import sqlalchemy
 from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
@@ -17,7 +18,8 @@ from database import (
         Category,
         CategoryValue,
         User,
-        Team
+        Team,
+        Program
         )
 from uuid import UUID
 
@@ -1733,6 +1735,13 @@ class TestGraphQL(BaseAppTest):
         self.assertTrue(success)
         team = self.session.query(Team).filter(Team.id == team_id)
         self.assertEqual(team.count(), 0)
+        program = self.session.query(Program).filter(Program.team_id == team_id)
+        self.assertEqual(program.count(), 0)
+        # Adding raw SQL query to hit join table
+        query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
+        user_teams = self.session.execute(query).fetchall()
+        self.assertEqual(len(user_teams), 0)
+        
         self.assertTrue(self.is_valid_uuid(team_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -1764,6 +1773,12 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
             team = self.session.query(Team).filter(Team.id == team_id)
             self.assertEqual(team.count(), 1)
+            program = self.session.query(Program).filter(Program.team_id == team_id)
+            self.assertEqual(program.count(), 1)
+            # Adding raw SQL query to hit join table
+            query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
+            user_teams = self.session.execute(query).fetchall()
+            self.assertEqual(len(user_teams), 1)
 
 
 if __name__ == '__main__':
