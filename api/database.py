@@ -93,7 +93,7 @@ class Team(Base, PermissionsMixin):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
-    users = relationship('User', secondary=user_teams, backref='Team')
+    users = relationship('User', secondary=user_teams, cascade="all, delete-orphan", backref='Team')
     programs = relationship('Program')
     organization_id = Column(GUID, ForeignKey(
         'organization.id'), nullable=False, index=True)
