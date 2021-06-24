@@ -35,7 +35,7 @@ app = FastAPI(
 cookie_authentication = CookieAuthentication(
         secret=settings.secret,
         lifetime_seconds=3600,
-        cookie_secure=not settings.debug,
+        cookie_secure=False,
         cookie_name='rtauth')
 
 
@@ -152,8 +152,8 @@ async def get_context(request: Request):
         # to call it outside of Depends.
         user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
         # TODO(jnu): The users.UserDB and database.User model should be unified.
-        user = dbsession.query(User).get(user_db.id)
-        
+        user = dbsession.query(User).get(user_db.id) if user_db else None
+                
     return {
             "dbsession": dbsession,
             "request": request,
