@@ -225,9 +225,7 @@ def resolve_delete_category_value(obj, info, id):
         :returns: UUID of deleted CategoryValue
     '''
     session = info.context['dbsession']
-    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    CategoryValue.get_not_deleted(session, id).soft_delete(session)
     session.commit()
 
     return id
@@ -345,7 +343,7 @@ def resolve_delete_program(obj, info, id):
         :returns: UUID of deleted Program
     '''
     session = info.context['dbsession']
-    session.query(Program).get(id).soft_delete(session)
+    Program.get_not_deleted(session, id).soft_delete(session)
     session.commit()
 
     return id
