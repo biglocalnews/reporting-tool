@@ -190,6 +190,10 @@ class Program(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Program).filter(Program.id == id_, Program.deleted == None).scalar()
+
     def user_is_team_member(self, user):
         return self.team.user_is_team_member(user)
 
@@ -312,6 +316,17 @@ class CategoryValue(Base):
         return session.query(CategoryValue).\
             filter(CategoryValue.id == id, CategoryValue.deleted == None).first()
     
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(CategoryValue).filter(CategoryValue.id == id_, CategoryValue.deleted == None).scalar()
+
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        entries = session.query(Entry).filter(Entry.category_value_id == self.id).all()
+        for entry in entries: 
+            entry.soft_delete(session)
+        session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
@@ -373,7 +388,9 @@ class Record(Base, PermissionsMixin):
     def soft_delete(self, session):
         self.deleted= func.now()
         session.add(self)
-        session.query(Entry).filter(Entry.record_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
+        entries = session.query(Entry).filter(Entry.record_id == self.id).all()
+        for entry in entries:
+            entry.soft_delete(session)
         
 class Entry(Base, PermissionsMixin):
     __tablename__ = 'entry'
@@ -393,9 +410,16 @@ class Entry(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Entry).filter(Entry.id == id_, Entry.deleted == None).scalar()
+
     def user_is_team_member(self, user):
         return self.record.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
 
 def create_tables(engine, session):
     print("🍽  Creating tables ...")
