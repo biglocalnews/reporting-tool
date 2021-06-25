@@ -3,28 +3,26 @@ import { AutoComplete, Input } from "antd";
 import { useTranslation } from "react-i18next";
 import "./HomeSearchAutoComplete.css";
 
-interface Props {
-  dataSource: [];
-  // onTextChange: (text: string) => void;
+const { Search } = Input;
+
+interface AutoCompleteProps {
+  onSearch: (text: string) => void;
 }
 
-const HomeSearchAutoComplete = ({ dataSource }: Props): JSX.Element => {
-  const { t, i18n } = useTranslation();
+const HomeSearchAutoComplete = ({
+  onSearch,
+}: AutoCompleteProps): JSX.Element => {
+  const { t } = useTranslation();
 
   return (
     <AutoComplete
-      style={{ width: 300, float: "right", marginBottom: "10px" }}
+      style={{ width: 300 }}
       aria-label="Search"
-      dropdownMatchSelectWidth={252}
-      dataSource={dataSource}
       placeholder={`Search your ${t("program")}s`}
-      filterOption={(inputValue, option) =>
-        option?.value.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0
-      }
       aria-expanded="false"
-      notFoundContent={`${t("program")} not found`}
+      onSearch={onSearch}
     >
-      <Input.Search size="middle" enterButton />
+      <Search allowClear />
     </AutoComplete>
   );
 };

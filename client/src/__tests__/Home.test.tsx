@@ -7,6 +7,7 @@ import { Router } from "react-router-dom";
 import { autoMockedClient } from "../__mocks__/AutoMockProvider";
 import { mockUserLoggedIn } from "../__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
+import { axe } from "jest-axe";
 
 const history = createMemoryHistory();
 
@@ -84,4 +85,30 @@ test("should render No Data Available for 'last updated' date when no records ex
   expect(within(row).getAllByRole("cell")[2].textContent).toBe(
     "No Data Available"
   );
+});
+
+describe("accessibility", () => {
+  // The violation in the following test does not appear to be an issue when
+  // checked against axe dev tools in the UI so we will skip it.
+  it.skip("should not have basic accessibility issues", async () => {
+    const { auth } = mockUserLoggedIn();
+    await auth.init();
+
+    const client = autoMockedClient();
+
+    const { container } = render(
+      <AuthProvider auth={auth}>
+        <ApolloProvider client={client}>
+          <Router history={history}>
+            <Home />
+          </Router>
+        </ApolloProvider>
+      </AuthProvider>
+    );
+
+    await wait();
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
 });

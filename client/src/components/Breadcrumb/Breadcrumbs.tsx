@@ -14,7 +14,7 @@ const BreadCrumb = () => {
    */
   const breadcrumbs = useBreadcrumbs(normalRoutes, { disableDefaults: true });
   return (
-    <Breadcrumb>
+    <Breadcrumb style={{ marginBottom: 10 }}>
       {breadcrumbs.map(({ breadcrumb, match }) => (
         <Breadcrumb.Item key={match.url}>
           <Link to={match.url || ""}>{breadcrumb}</Link>
