@@ -1351,9 +1351,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             # Confirm Record exists, then that it does not.
             record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
-            existing_record = self.session.query(Record).filter(Record.id == record_id)
-            # Count of non-deleted entries should be zero
-            self.assertEqual(existing_record.count(), 1)
+            existing_record = Record.get_not_deleted(self.session, record_id)
+            # Count of non-deleted records should not be None
+            self.assertNotEqual(existing_record, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteRecord",
                 "query": """
@@ -1367,12 +1367,12 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
 
             self.assertTrue(success)
-            # Query for Record
-            record = self.session.query(Record).filter(Record.id == record_id)
-            # Record count should be zero
-            self.assertEqual(record.count(), 0)
+            # Query for Records that were not deleted
+            record = Record.get_not_deleted(self.session, record_id)
+            # Record should be None
+            self.assertEqual(record, None)
             # Query for all associated Entries
-            associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id)
+            associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id, Entry.deleted == None)
             # Entries count should be zero
             self.assertEqual(associated_entries.count(), 0)
             self.assertTrue(self.is_valid_uuid(record_id), "Invalid UUID")
@@ -1389,9 +1389,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users['other']
         # Confirm Record exists, then that it does not.
         record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
-        existing_record = self.session.query(Record).filter(Record.id == record_id)
-        # Count of non-deleted entries should be zero
-        self.assertEqual(existing_record.count(), 1)
+        existing_record = Record.get_not_deleted(self.session, record_id)
+        # Count of non-deleted records should not be None
+        self.assertNotEqual(existing_record, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteRecord",
             "query": """
@@ -1407,9 +1407,9 @@ class TestGraphQL(BaseAppTest):
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
         # Query for Record
-        record = self.session.query(Record).filter(Record.id == record_id)
-        # Record count should still be one
-        self.assertEqual(record.count(), 1)
+        existing_record = Record.get_not_deleted(self.session, record_id)
+        # Count of non-deleted records should still not be None
+        self.assertNotEqual(existing_record, None)
 
     def test_query_category(self):
         """Test that anyone can query a category."""
