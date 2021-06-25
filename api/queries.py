@@ -49,7 +49,7 @@ def resolve_program(obj, info, id):
         :returns: Program dictionary
     '''
     session = info.context['dbsession']
-    program = session.query(Program).filter(Program.id == dataset.id, Program.deleted == None).scalar()
+    program = Program.get_not_deleted(session, id)
     return program
 
 @query.field("dataset")
