@@ -41,7 +41,7 @@ const DataEntry = (): JSX.Element => {
     variables: { id: datasetId },
   });
 
-  const programAndDataset = `${datasetData?.dataset.program.name} | ${datasetData?.dataset.name}`;
+  const programAndDatasetPageTitle = `${datasetData?.dataset.program.name} | ${datasetData?.dataset.name}`;
 
   /* Retrieve a record to populate the data entry form if editing */
   const {
@@ -54,14 +54,15 @@ const DataEntry = (): JSX.Element => {
     skip: !isEditMode,
   });
 
-  const [formSuccess, setFormSuccess] = useState<boolean>(false);
+  const [isFormSubmittedSuccess, setIsFormSubmittedSuccess] =
+    useState<boolean>(false);
 
-  if (formSuccess)
+  if (isFormSubmittedSuccess)
     return (
       <Result
         status="success"
         title="Success!"
-        subTitle={`Data has been saved succesfully for ${programAndDataset}`}
+        subTitle={`Data has been saved succesfully for ${programAndDatasetPageTitle}`}
         extra={[
           !isEditMode && (
             <Button
@@ -99,14 +100,14 @@ const DataEntry = (): JSX.Element => {
             pathname: `/dataset/${datasetId}/details`,
           }}
         >
-          {` ${programAndDataset}`}
+          {` ${programAndDatasetPageTitle}`}
         </Link>
       </Title>
       <DataEntryAggregateDataEntryForm
         datasetData={datasetData}
         datasetId={datasetId}
         recordId={recordId}
-        onFormSubmitted={setFormSuccess}
+        onFormSubmitted={setIsFormSubmittedSuccess}
         existingRecord={existingRecordCalled && existingRecord}
       />
     </>
