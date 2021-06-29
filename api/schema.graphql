@@ -219,6 +219,8 @@ input UpdateTeamInput {
   userIds: [ID!]
   programIds: [ID!]
   organizationId: ID
+}
+
 input CreateProgramInput {
   name: String!
   description: String!
