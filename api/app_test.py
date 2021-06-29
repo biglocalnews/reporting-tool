@@ -2227,6 +2227,45 @@ class TestGraphQL(BaseAppTest):
                 },
             },
         })
+        
+    def test_create_program_no_perm(self):
+        """Test that program creation fails for normal (non-admin) users."""
+        for user_role in ['other', 'normal']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateProgram",
+                "query": """
+                    mutation CreateProgram($input: CreateProgramInput!) {
+                        createProgram(input: $input) {
+                            id
+                            name
+                            description
+                            team {
+                                name
+                            }
+                            datasets {
+                                name
+                            }
+                            targets {
+                                target
+                            }
+                        }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "An (unsuccessfully) updated program!",
+                        "description": "A very (unsuccessfully) updated program",
+                        "teamId": "2c4cfe21-42b1-4eec-b970-5409449d53a5",
+                        "datasetIds": ["b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"],
+                        "targetIds": ["b5be10ce-103f-41f2-b4c4-603228724993", "6e6edce5-3d24-4296-b929-5eec26d52afc"],
+                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
+                    },
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
 
 if __name__ == '__main__':
     unittest.main()
