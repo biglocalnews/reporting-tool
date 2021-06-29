@@ -145,10 +145,9 @@ def resolve_category_value(obj, info, id):
         :returns: CategoryValue dictionary OR None if CategoryValue was deleted
     '''
     session = info.context['dbsession']
-    category_value = session.query(CategoryValue).get(id)
+    category_value = session.query(CategoryValue).filter(CategoryValue.id == id, CategoryValue.deleted == None).first()
     
     return category_value
-
 @query.field("team")
 def resolve_team(obj, info, id):
     '''GraphQL query to find a Team based on Team ID.
