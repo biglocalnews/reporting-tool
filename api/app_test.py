@@ -2267,5 +2267,59 @@ class TestGraphQL(BaseAppTest):
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
 
+    def test_delete_program(self):
+        """Only admins can delete programs."""
+        user = self.test_users["admin"]
+        program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+        # Confirm Program exists, then that it does not.
+        existing_program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
+        # Count of existing Program should be one
+        self.assertEqual(existing_program.count(), 1)
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteProgram",
+            "query": """
+                mutation DeleteProgram($id: ID!) {
+                    deleteProgram(id: $id)
+                }
+            """,
+            "variables": {
+                "id": program_id,
+            },
+        }, user=user)
+        self.assertTrue(success)
+        program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
+        self.assertEqual(program.count(), 0)
+        self.assertTrue(self.is_valid_uuid(program_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteProgram": program_id
+            },
+        })
+
+    def test_delete_program_no_perm(self):
+        """Only admins can delete Programs."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+            # Confirm Program exists, then that it does not.
+            existing_program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
+            # Count of existing Program should be one
+            self.assertEqual(existing_program.count(), 1)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteProgram",
+                "query": """
+                    mutation DeleteProgram($id: ID!) {
+                        deleteProgram(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": program_id,
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
+            self.assertEqual(program.count(), 1)
+
 if __name__ == '__main__':
     unittest.main()
