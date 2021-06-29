@@ -2,7 +2,9 @@ import React, {
   ChangeEvent,
   Dispatch,
   FormEvent,
+  MutableRefObject,
   SetStateAction,
+  useRef,
   useState,
 } from "react";
 import { Alert, Button, Col, Row, Space, Typography } from "antd";
@@ -93,10 +95,6 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     dayjs(props.existingRecord?.record?.publicationDate).format("YYYY-MM-DD")
   );
 
-  // // get/set state when "save and add another" button is clicked
-  const [isSaveAndAddAnotherRecord, setIsSaveAndAddAnotherRecord] =
-    useState<boolean>(false);
-
   const { createRecord, loadingRecordCreation, errorOnCreate } =
     useCreateRecordMutation({ datasetId: props.datasetId });
 
@@ -108,6 +106,19 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const dupeRecordErrorMessage = `A record with date ${formPublicationDate}
       already exists for this dataset. Please enter a new date and try again or edit the existing
       record.`;
+
+  const isSaveAndAddAnotherRecordClicked = useRef(false);
+  React.useEffect(() => {
+    isSaveAndAddAnotherRecordClicked.current = true;
+    return () => {
+      isSaveAndAddAnotherRecordClicked.current = false;
+    };
+  }, []);
+
+  // set reference when "save and add another" button is clicked
+  const setIsSaveAndAddAnotherRecord = (clicked: boolean) => {
+    isSaveAndAddAnotherRecordClicked.current = clicked;
+  };
 
   /**
    * Function creates a new dataset record input object with entries.
@@ -155,7 +166,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (isSaveAndAddAnotherRecord) {
+    // if second save button has been clicked
+    if (isSaveAndAddAnotherRecordClicked.current) {
       return handleSubmitForSaveAndAddNewRecord();
     }
 
@@ -208,7 +220,11 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   // TODO: prevent user from editing date
   return (
-    <form onSubmit={handleSubmit} id="data-entry-form" aria-label="Data Entry">
+    <form
+      onSubmit={handleSubmit}
+      id="data-entry-form"
+      aria-label="data-entry-form"
+    >
       {errorOnCreate && error && (
         <Alert
           message="Oh, no! Something went wrong"
@@ -262,10 +278,11 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
             {isEditMode ? (
               <Button
                 type="primary"
+                name="save"
+                value="update record"
                 htmlType="submit"
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
-                // onClick={() => setIsSaveAndAddAnotherRecord(false)}
               >
                 {t("saveRecord", {
                   buttonTitle: "Update",
@@ -275,6 +292,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
               <>
                 <Button
                   type="primary"
+                  name="save"
+                  value="save record"
                   htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
@@ -284,6 +303,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                   })}
                 </Button>
                 <Button
+                  name="save_add_new"
+                  value="save and add another record"
                   htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
