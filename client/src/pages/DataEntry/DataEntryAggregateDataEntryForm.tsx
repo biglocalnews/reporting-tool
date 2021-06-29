@@ -95,7 +95,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   // // get/set state when "save and add another" button is clicked
   const [isSaveAndAddAnotherRecord, setIsSaveAndAddAnotherRecord] =
-    useState<boolean>();
+    useState<boolean>(false);
 
   const { createRecord, loadingRecordCreation, errorOnCreate } =
     useCreateRecordMutation({ datasetId: props.datasetId });
@@ -265,6 +265,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                 htmlType="submit"
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
+                // onClick={() => setIsSaveAndAddAnotherRecord(false)}
               >
                 {t("saveRecord", {
                   buttonTitle: "Update",
@@ -283,7 +284,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                   })}
                 </Button>
                 <Button
-                  htmlType="button"
+                  htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
                   onClick={() => setIsSaveAndAddAnotherRecord(true)}
