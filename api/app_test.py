@@ -2341,6 +2341,9 @@ class TestGraphQL(BaseAppTest):
                                     name
                                 }
                             }
+                            tags {
+                                name
+                            }
                             
                        }
                     }
@@ -2349,7 +2352,8 @@ class TestGraphQL(BaseAppTest):
                     "input": {
                         "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                         "name": "An updated new Program",
-                        "targetIds": ["40eaeafc-3311-4294-a639-a826eb6495ab", "2d501688-92e3-455e-9685-01141de3dbaf", "4f7897c2-32a1-4b1e-9749-1a8066faca01"]
+                        "targetIds": ["40eaeafc-3311-4294-a639-a826eb6495ab", "2d501688-92e3-455e-9685-01141de3dbaf", "4f7897c2-32a1-4b1e-9749-1a8066faca01"],
+                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
                     }
                 },
             }, user=user)
@@ -2378,6 +2382,9 @@ class TestGraphQL(BaseAppTest):
                                     "name": "Non-binary"
                                 }
                             }
+                        ],
+                        "tags": [
+                            {"name": "News"}
                         ]
                     },
                 },
