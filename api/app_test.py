@@ -1808,9 +1808,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user]
             category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
             # Confirm Value exists, then that it does not.
-            existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-            # Count of existing CategoryValue should be one
-            self.assertEqual(existing_category_value.count(), 1)
+            existing_category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+            # CExisting CategoryValue should not be None
+            self.assertNotEqual(existing_category_value, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteCategoryValue",
                 "query": """
@@ -1824,8 +1824,8 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
-            category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-            self.assertEqual(category_value.count(), 1)
+            category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+            self.assertNotEqual(category_value, None)
 
     def test_query_team(self):
         """Test that anyone can query teams"""
