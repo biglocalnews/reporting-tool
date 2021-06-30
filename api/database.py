@@ -263,22 +263,6 @@ class Target(Base, PermissionsMixin):
 
 class Category(Base):
     __tablename__ = 'category'
-    @classmethod
-    def get_by_name(cls, session, name):
-        return session.query(cls).filter(cls.name == cls.clean_name(name)).first()
-    
-    @classmethod
-    def clean_name(cls, name):
-        return name.capitalize().strip()
-
-    @validates('name')
-    def capitalize_category(self, key, name):
-        # NOTE: `self.__class__` basically just means `Category` here. It's slightly
-        # better to avoid referencing the class explicitly by name in case a) we change
-        # the name of the class, or b) we extend the class and want to allow the child
-        # to override the method.
-        return self.__class__.clean_name(name)
-    
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
@@ -289,6 +273,26 @@ class Category(Base):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+    
+    @classmethod
+    def get_by_name(cls, session, name):
+        return session.query(cls).filter(cls.name == cls.clean_name(name)).first()
+    
+    @classmethod
+    def clean_name(cls, name):
+        return name.capitalize().strip()
+
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Category).filter(Category.id == id_, Category.deleted == None).scalar()
+
+    @validates('name')
+    def capitalize_category(self, key, name):
+        # NOTE: `self.__class__` basically just means `Category` here. It's slightly
+        # better to avoid referencing the class explicitly by name in case a) we change
+        # the name of the class, or b) we extend the class and want to allow the child
+        # to override the method.
+        return self.__class__.clean_name(name)
     
 
 class CategoryValue(Base):

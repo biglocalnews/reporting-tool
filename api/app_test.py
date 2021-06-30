@@ -958,8 +958,8 @@ class TestGraphQL(BaseAppTest):
     def test_delete_dataset(self):
         # Confirm Dataset exists, then that it does not.
         dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
-        existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id, Dataset.deleted == None)
-        self.assertEqual(existing_dataset.count(), 1)
+        existing_dataset= Dataset.get_not_deleted(self.session, dataset_id)
+        self.assertNotEqual(existing_dataset, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteDataset",
             "query": """
@@ -998,8 +998,8 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             # Confirm Dataset exists, then that it does not.
             dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
-            existing_dataset = self.session.query(Dataset).filter(Dataset.id == dataset_id)
-            self.assertEqual(existing_dataset.count(), 1)
+            existing_dataset = Dataset.get_not_deleted(self.session, dataset_id)
+            self.assertNotEqual(existing_dataset, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteDataset",
                 "query": """
@@ -1015,8 +1015,8 @@ class TestGraphQL(BaseAppTest):
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
             # Verify nothing was deleted
-            existing_dataset = self.session.query(Dataset).filter(Dataset.id == dataset_id)
-            self.assertEqual(existing_dataset.count(), 1)
+            existing_dataset = Dataset.get_not_deleted(self.session, dataset_id)
+            self.assertNotEqual(existing_dataset, None)
 
     def test_query_record(self):
         """Test that dataset records can be queried.
@@ -1561,9 +1561,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users["admin"]
         category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
         # Confirm Category exists, then that it does not.
-        existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-        # Count of existing Category should be one
-        self.assertEqual(existing_category.count(), 1)
+        existing_category = Category.get_not_deleted(self.session, category_id)
+        # Existing Category should not be None
+        self.assertNotEqual(existing_category, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteCategory",
             "query": """
@@ -1576,8 +1576,8 @@ class TestGraphQL(BaseAppTest):
             },
         }, user=user)
         self.assertTrue(success)
-        category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-        self.assertEqual(category.count(), 0)
+        category = Category.get_not_deleted(self.session, category_id)
+        self.assertEqual(category, None)
         self.assertTrue(self.is_valid_uuid(category_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -2272,9 +2272,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users["admin"]
         program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
         # Confirm Program exists, then that it does not.
-        existing_program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
-        # Count of existing Program should be one
-        self.assertEqual(existing_program.count(), 1)
+        existing_program = Program.get_not_deleted(self.session, program_id)
+        # Existing Program should not be None
+        self.assertNotEqual(existing_program, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteProgram",
             "query": """
@@ -2287,8 +2287,8 @@ class TestGraphQL(BaseAppTest):
             },
         }, user=user)
         self.assertTrue(success)
-        program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
-        self.assertEqual(program.count(), 0)
+        program = Program.get_not_deleted(self.session, program_id)
+        self.assertEqual(program, None)
         self.assertTrue(self.is_valid_uuid(program_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -2302,9 +2302,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user]
             program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
             # Confirm Program exists, then that it does not.
-            existing_program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
-            # Count of existing Program should be one
-            self.assertEqual(existing_program.count(), 1)
+            existing_program = Program.get_not_deleted(self.session, program_id)
+            # Existing Program should not be None
+            self.assertNotEqual(existing_program, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteProgram",
                 "query": """
@@ -2318,8 +2318,11 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
-            program = self.session.query(Program).filter(Program.id == program_id, Program.deleted == None)
-            self.assertEqual(program.count(), 1)
+            program = Program.get_not_deleted(self.session, program_id)
+            self.assertNotEqual(program, None)
 
 if __name__ == '__main__':
     unittest.main()
+
+# TODO CHECK THAT PROGRAM CHILDREN WERE ALSO SOFT DELETED
+# TODO UPDATE TO USE CLASS AND INSTANCE METHODS
