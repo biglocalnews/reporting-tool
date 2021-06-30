@@ -2,14 +2,17 @@ import unittest
 import sqlalchemy
 from unittest.mock import Mock
 
+from fastapi_users.utils import generate_jwt, JWT_ALGORITHM
 from fastapi.testclient import TestClient
 from ariadne import graphql_sync
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import schema, app, get_current_user_dep
+from app import schema, app, cookie_authentication
+from user import user_db
 from database import (
+        Base,
         create_tables,
         create_dummy_data,
         Record,
@@ -24,6 +27,16 @@ from database import (
 from uuid import UUID
 
 
+def user_cookie(user_id):
+    data = {"aud": "fastapi-users:auth"}
+    if user_id:
+        data["user_id"] = user_id
+    return generate_jwt(data,
+            cookie_authentication.lifetime_seconds,
+            cookie_authentication.secret,
+            JWT_ALGORITHM)
+
+
 class BaseAppTest(unittest.TestCase):
     """Base test runner that sets up an in-memory database that test cases can
     make assertions against.
@@ -35,7 +48,7 @@ class BaseAppTest(unittest.TestCase):
         # Create in-memory sqlite database. This is configured to work with
         # multithreaded environments, so it can be used safely with the real
         # FastAPI app instance.
-        self.engine = create_engine('sqlite://',
+        self.engine = create_engine('sqlite:///:memory:',
                 connect_args={'check_same_thread': False},
                 poolclass=StaticPool)
 
@@ -54,6 +67,7 @@ class BaseAppTest(unittest.TestCase):
         self.Session = Session
 
     def tearDown(self):
+        Base.metadata.drop_all(self.engine)
         self.engine.dispose()
 
 
@@ -66,6 +80,7 @@ class TestAppUsers(BaseAppTest):
         # Mock out database objects to use in-memory DB.
         app.extra['database'] = Mock()
         app.extra['get_db_session'] = self.Session
+        user_db.session_factory = self.Session
 
         # Set up Starlette test client
         self.client = TestClient(app)
@@ -76,10 +91,6 @@ class TestAppUsers(BaseAppTest):
                 'admin': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
                 }
 
-    def tearDown(self):
-        super().tearDown()
-        app.dependency_overrides = {}
-
     def test_users_me_not_authed(self):
         """Checks that route returns error when user is not authed."""
         response = self.client.get('/users/me')
@@ -88,8 +99,7 @@ class TestAppUsers(BaseAppTest):
 
     def test_users_me_normal(self):
         """Checks that a user can get info about themselves."""
-        app.dependency_overrides[get_current_user_dep] = lambda: User(id=self.user_ids['normal'])
-        response = self.client.get('/users/me')
+        response = self.client.get('/users/me', cookies={'rtauth': user_cookie(self.user_ids['normal'])})
         assert response.status_code == 200
         assert response.json() == {
                 'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
@@ -98,13 +108,13 @@ class TestAppUsers(BaseAppTest):
                 'last_name': 'Berry',
                 'is_active': True,
                 'is_verified': False,
+                'is_superuser': False,
                 'roles': [],
                 }
 
     def test_users_me_admin(self):
         """Checks that an admin user can get info about themselves."""
-        app.dependency_overrides[get_current_user_dep] = lambda: User(id=self.user_ids['admin'])
-        response = self.client.get('/users/me')
+        response = self.client.get('/users/me', cookies={'rtauth': user_cookie(self.user_ids['admin'])})
         assert response.status_code == 200
         assert response.json() == {
                 'id': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
@@ -113,8 +123,68 @@ class TestAppUsers(BaseAppTest):
                 'last_name': 'Carrot',
                 'is_active': True,
                 'is_verified': False,
-                'roles': ['admin'],
+                'is_superuser': False,
+                'roles': [{
+                    'description': 'User is an admin and has administrative privileges',
+                    'name': 'admin',
+                    }],
                 }
+
+    def test_users_register_admin(self):
+        """Checks that an admin can create a new user."""
+        response = self.client.post(
+                "/auth/register",
+                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                json={
+                    "email": "new@user.org",
+                    "first_name": "new",
+                    "last_name": "user",
+                    "password": "password123",
+                    "roles": [],
+                    })
+        assert response.status_code == 201
+        rsp_json = response.json()
+        assert rsp_json == {
+                'id': rsp_json.get('id'),
+                'email': 'new@user.org',
+                'is_active': True,
+                'is_verified': False,
+                'is_superuser': False,
+                'first_name': 'new',
+                'last_name': 'user',
+                'roles': [],
+                }
+
+    def test_users_register_normal(self):
+        """Checks that a normal user cannot create a new user."""
+        response = self.client.post(
+                "/auth/register",
+                cookies={'rtauth': user_cookie(self.user_ids['normal'])},
+                json={
+                    "email": "new@user.org",
+                    "first_name": "new",
+                    "last_name": "user",
+                    "password": "password123",
+                    "roles": [],
+                    })
+        assert response.status_code == 403
+        rsp_json = response.json()
+        assert rsp_json == {'detail': 'You do not have permission for this action'}
+
+    def test_users_register_normal(self):
+        """Checks that an anonymous user cannot create a new user."""
+        response = self.client.post(
+                "/auth/register",
+                json={
+                    "email": "new@user.org",
+                    "first_name": "new",
+                    "last_name": "user",
+                    "password": "password123",
+                    "roles": [],
+                    })
+        assert response.status_code == 401
+        rsp_json = response.json()
+        assert rsp_json == {'detail': 'You are not authenticated'}
 
 
 

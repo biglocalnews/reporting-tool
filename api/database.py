@@ -30,6 +30,7 @@ database = databases.Database("postgres://" + DATABASE_URL)
 engine = create_engine('postgresql+psycopg2://' + DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 Base = declarative_base()
 
 # Handling Many-to-Many Relationships
