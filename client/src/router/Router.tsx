@@ -3,7 +3,7 @@ import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
 import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
 import { useAuth } from "../components/AuthProvider";
-import { LoginProps } from "../components/Login/Login";
+import { LoginProps } from "../pages/Login/Login";
 import { useTranslation } from "react-i18next";
 
 /**
