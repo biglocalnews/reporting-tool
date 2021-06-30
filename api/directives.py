@@ -9,6 +9,7 @@ from database import (
         User,
         Dataset,
         Record,
+        Program
         )
 
 from typing import List, Iterable
@@ -98,6 +99,13 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
                 id_ = info.variable_values['id']
                 record = Record.get_not_deleted(session, id_)
                 if record and record.user_is_team_member(current_user):
+                    return True
+                
+            if info.field_name == 'updateProgram':
+                checked = True
+                id_ = info.variable_values['input']['id']
+                program = Program.get_not_deleted(session, id_)
+                if program and program.user_is_team_member(current_user):
                     return True
 
         if not checked:
