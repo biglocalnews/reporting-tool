@@ -2325,6 +2325,64 @@ class TestGraphQL(BaseAppTest):
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
 
+    def test_update_program(self):
+        """Test that users on a team / admins can update Programs."""
+        for user_role in ['admin', 'normal']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateProgram",
+                "query": """
+                    mutation UpdateProgram($input: UpdateProgramInput!) {
+                        updateProgram(input: $input) {
+                            id
+                            name
+                            
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "An updated new Program",
+                        "targetIds": ["40eaeafc-3311-4294-a639-a826eb6495ab", "2d501688-92e3-455e-9685-01141de3dbaf", "4f7897c2-32a1-4b1e-9749-1a8066faca01"]
+                    }
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertTrue(self.is_valid_uuid(result["data"]["updateProgram"]["id"]), "Invalid UUID")
+            self.assertEqual(result, {
+                "data": {
+                    "updateProgram": {
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "An updated new Program",
+                    },
+                },
+            })
+
+    def test_update_program_no_perm(self):
+        """Test that users on other teams can't update Programs."""
+        user = self.test_users['other']
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateProgram",
+            "query": """
+                mutation UpdateProgram($input: UpdateProgramInput!) {
+                    updateProgram(input: $input) {
+                        id
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+                }
+            },
+        }, user=user)
+
+        self.assertTrue(success)
+        self.assertResultWasNotAuthed(result)
+
+
     def test_delete_program(self):
         """Only admins can delete programs."""
         user = self.test_users["admin"]
