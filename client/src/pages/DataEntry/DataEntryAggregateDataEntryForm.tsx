@@ -108,13 +108,6 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       record.`;
 
   const isSaveAndAddAnotherRecordClicked = useRef(false);
-  React.useEffect(() => {
-    isSaveAndAddAnotherRecordClicked.current = true;
-    return () => {
-      isSaveAndAddAnotherRecordClicked.current = false;
-    };
-  }, []);
-
   // set reference when "save and add another" button is clicked
   const setIsSaveAndAddAnotherRecord = (clicked: boolean) => {
     isSaveAndAddAnotherRecordClicked.current = clicked;
@@ -283,6 +276,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                 htmlType="submit"
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
+                onClick={() => setIsSaveAndAddAnotherRecord(false)}
               >
                 {t("saveRecord", {
                   buttonTitle: "Update",
@@ -297,6 +291,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
                   htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
+                  onClick={() => setIsSaveAndAddAnotherRecord(false)}
                 >
                   {t("saveRecord", {
                     buttonTitle: "Save",
