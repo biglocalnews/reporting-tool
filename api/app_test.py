@@ -2189,6 +2189,11 @@ class TestGraphQL(BaseAppTest):
                     query QueryProgram($id: ID!) {
                        program(id: $id) {
                             id
+                            description
+                            datasets {
+                                id
+                                name
+                            }
                        }
                     }
                 """,
@@ -2201,7 +2206,12 @@ class TestGraphQL(BaseAppTest):
             self.assertEqual(result, {
                 "data": {
                     "program": {
-                        "id" : "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+                        "id" : "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "description": "All BBC news programming",
+                        "datasets": [
+                            {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"}, 
+                            {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"}
+                        ]
                     },
                 },
             })
