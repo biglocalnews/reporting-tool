@@ -31,7 +31,6 @@ export const useCreateRecordMutation = ({
 
 interface UpdateRecordMutationProps {
   datasetId: string;
-  // formSuccess: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useUpdateRecordMutation = ({
@@ -45,9 +44,6 @@ export const useUpdateRecordMutation = ({
       error: errorOnRecordUpdate,
     },
   ] = useMutation(UPDATE_RECORD, {
-    // onCompleted: (data) => {
-    //   // if (data) formSuccess(true);
-    // },
     awaitRefetchQueries: true,
     refetchQueries: [
       {
