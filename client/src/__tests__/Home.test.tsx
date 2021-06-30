@@ -4,8 +4,8 @@ import { Home } from "../components/Home/Home";
 import { createMemoryHistory } from "history";
 import { ApolloProvider } from "@apollo/client";
 import { Router } from "react-router-dom";
-import { autoMockedClient } from "../__mocks__/AutoMockProvider";
-import { mockUserLoggedIn } from "../__mocks__/auth";
+import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
+import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
 import { axe } from "jest-axe";
 

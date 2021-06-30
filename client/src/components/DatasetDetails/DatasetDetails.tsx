@@ -6,8 +6,8 @@ import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import {
   GetDataset,
   GetDatasetVariables,
-} from "../../__generated__/GetDataset";
-import { GET_DATASET } from "../../__queries__/GetDataset.gql";
+} from "../../graphql/__generated__/GetDataset";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";

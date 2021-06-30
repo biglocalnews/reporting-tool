@@ -6,13 +6,16 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
-import { GetRecord, GetRecordVariables } from "../../__generated__/GetRecord";
-import { GET_RECORD } from "../../__queries__/GetRecord.gql";
+import {
+  GetRecord,
+  GetRecordVariables,
+} from "../../graphql/__generated__/GetRecord";
+import { GET_RECORD } from "../../graphql/__queries__/GetRecord.gql";
 import {
   GetDataset,
   GetDatasetVariables,
-} from "../../__generated__/GetDataset";
-import { GET_DATASET } from "../../__queries__/GetDataset.gql";
+} from "../../graphql/__generated__/GetDataset";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 
 const { Title } = Typography;
 

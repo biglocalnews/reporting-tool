@@ -9,8 +9,8 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { GetUser, GetUserVariables } from "../__generated__/getUser";
-import { GET_USER } from "../__queries__/GetUser.gql";
+import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
+import { GET_USER } from "../graphql/__queries__/GetUser.gql";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "../components/AuthProvider";
 import { ErrorFallback } from "../components/Error/ErrorFallback";
