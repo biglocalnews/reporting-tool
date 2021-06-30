@@ -1837,7 +1837,7 @@ class TestGraphQL(BaseAppTest):
                     query QueryTeam($id: ID!) {
                        team(id: $id) {
                             id
-                            name
+                            name    
                        }
                     }
                 """,
@@ -2177,6 +2177,54 @@ class TestGraphQL(BaseAppTest):
             else:
                 self.assertResultWasNotAuthed(result)
 
+    def test_query_program(self):
+        """Test that programs can be queried.
+        Users on the right team and admins should be able to query programs.
+        """
+        for user_role in ['admin', 'normal']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryProgram",
+                "query": """
+                    query QueryProgram($id: ID!) {
+                       program(id: $id) {
+                            id
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "program": {
+                        "id" : "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+                    },
+                },
+            })
+           
+    def test_query_program_no_perm(self):
+        """Test that programs can't be queried by users on the wrong team."""
+        success, result = self.run_graphql_query({
+            "operationName": "QueryProgram",
+            "query": """
+                query QueryProgram($id: ID!) {
+                   program(id: $id) {
+                        id
+                   }
+                }
+            """,
+            "variables": {
+                "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+            },
+        }, user=self.test_users['other'])
+
+        self.assertTrue(success)
+        self.assertResultWasNotAuthed(result)
+        
     def test_create_program(self):
         success, result = self.run_graphql_query({
             "operationName": "CreateProgram",
