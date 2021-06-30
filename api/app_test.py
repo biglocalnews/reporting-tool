@@ -1778,9 +1778,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users["admin"]
         category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
         # Confirm Value exists, then that it does not.
-        existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-        # Count of existing CategoryValue should be one
-        self.assertEqual(existing_category_value.count(), 1)
+        existing_category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+        # Existing CategoryValue should not be None
+        self.assertNotEqual(existing_category_value, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteCategoryValue",
             "query": """
@@ -1793,8 +1793,8 @@ class TestGraphQL(BaseAppTest):
             },
         }, user=user)
         self.assertTrue(success)
-        category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-        self.assertEqual(category_value.count(), 0)
+        category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+        self.assertEqual(category_value, None)
         self.assertTrue(self.is_valid_uuid(category_value_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
