@@ -266,15 +266,11 @@ test("should render success screen if on click 'save record' is successful", asy
   const saveButton = screen.getByRole("button", { name: /Save Record/i });
   userEvent.click(saveButton);
 
-  await waitFor(() => {
-    expect(
-      screen.getByText(
-        /Data has been saved succesfully for BBC News | Breakfast Hour/i
-      )
-    ).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Data has been saved succesfully/i)
+  ).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /Add More Data/i }));
-  });
+  expect(await screen.findByRole("button", { name: /Add More Data/i }));
 });
 
 test("should render success message and stay on screen if on click 'save and add another' is successful", async () => {
