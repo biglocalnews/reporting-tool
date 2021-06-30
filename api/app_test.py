@@ -1591,9 +1591,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
             # Confirm Category exists, then that it does not.
-            existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-            # Count of existing Category should be one
-            self.assertEqual(existing_category.count(), 1)
+            existing_category = Category.get_not_deleted(self.session, category_id)
+            # Existing Category should not be None
+            self.assertNotEqual(existing_category, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteCategory",
                 "query": """
@@ -1607,8 +1607,8 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
-            category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-            self.assertEqual(category.count(), 1)
+            category = Category.get_not_deleted(self.session, category_id)
+            self.assertNotEqual(category, None)
 
     def test_query_category_value(self):
         """Test that anyone can query category values"""
