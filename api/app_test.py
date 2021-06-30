@@ -2269,7 +2269,6 @@ class TestGraphQL(BaseAppTest):
         }, user=self.test_users['admin'])
 
         self.assertTrue(success)
-        print(f'{result}, result here')
         self.assertTrue(self.is_valid_uuid(result["data"]["createProgram"]["id"]), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -2336,6 +2335,12 @@ class TestGraphQL(BaseAppTest):
                         updateProgram(input: $input) {
                             id
                             name
+                            targets {
+                                id
+                                categoryValue {
+                                    name
+                                }
+                            }
                             
                        }
                     }
@@ -2356,6 +2361,24 @@ class TestGraphQL(BaseAppTest):
                     "updateProgram": {
                         "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                         "name": "An updated new Program",
+                        "targets": [
+                            {
+                                "id": "2d501688-92e3-455e-9685-01141de3dbaf", 
+                                "categoryValue": {
+                                    "name": "Cisgender men"}
+                                }, 
+                            {
+                                "id": "4f7897c2-32a1-4b1e-9749-1a8066faca01", 
+                                "categoryValue": {
+                                    "name": "Trans women"}
+                                }, 
+                            {
+                                "id": "40eaeafc-3311-4294-a639-a826eb6495ab", 
+                                "categoryValue": {
+                                    "name": "Non-binary"
+                                }
+                            }
+                        ]
                     },
                 },
             })
