@@ -1,3 +1,5 @@
+import uuid
+
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
@@ -324,11 +326,11 @@ def resolve_update_program(obj, info, input):
     tags = input.pop('tag_ids', [])
     program = session.query(Program).get(input['id'])
     if len(datasets) > 0:
-        program.datasets = [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
+        program.datasets = [session.merge(Dataset(id=uuid.UUID(dataset_id))) for dataset_id in datasets]
     if len(targets) > 0:
-        program.targets = [session.merge(Target(id=target_id)) for target_id in targets]
+        program.targets = [session.merge(Target(id=uuid.UUID(target_id))) for target_id in targets]
     if len(tags) > 0:
-        program.tags = [session.merge(Tag(id=tag_id)) for tag_id in tags]
+        program.tags = [session.merge(Tag(id=uuid.UUID(tag_id))) for tag_id in tags]
     for param in input:
         setattr(program, param, input[param])
     session.add(program)
