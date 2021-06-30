@@ -2,7 +2,6 @@ import React, {
   ChangeEvent,
   Dispatch,
   FormEvent,
-  MutableRefObject,
   SetStateAction,
   useRef,
   useState,
@@ -95,10 +94,13 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     dayjs(props.existingRecord?.record?.publicationDate).format("YYYY-MM-DD")
   );
 
-  const { createRecord, loadingRecordCreation, errorOnCreate } =
-    useCreateRecordMutation({ datasetId: props.datasetId });
+  const {
+    createRecord,
+    loading: loadingRecordCreation,
+    error: errorOnCreate,
+  } = useCreateRecordMutation({ datasetId: props.datasetId });
 
-  const { updateRecord, errorOnRecordUpdate } = useUpdateRecordMutation({
+  const { updateRecord, error: errorOnRecordUpdate } = useUpdateRecordMutation({
     datasetId: props.datasetId,
   });
 
