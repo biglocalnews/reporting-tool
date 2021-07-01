@@ -24,7 +24,6 @@ def resolve_user(obj, info, id):
     '''
     session = info.context['dbsession']
     user = session.query(User).filter(User.id == id).first()
-
     return user
 
 @user.field("active")
@@ -61,7 +60,6 @@ def resolve_dataset(obj, info, id):
     '''
     session = info.context['dbsession']
     dataset = Dataset.get_not_deleted(session, id)
-
     return dataset
 
 @dataset.field("lastUpdated")
@@ -72,7 +70,6 @@ def resolve_dataset_last_updated(dataset, info):
         :returns: Datetime scalar
     '''
     session = info.context['dbsession']
-
     return session.query(func.max(Record.updated)).\
             filter(Record.dataset_id == dataset.id, Record.deleted == None).\
                 scalar()
@@ -116,7 +113,6 @@ def resolve_sums_category_relationship(count_obj, info):
     category_value_rel = CategoryValue.get_not_deleted(session, count_obj['category_value_id'])
     return category_value_rel
 
-
 @query.field("record")
 def resolve_record(obj, info, id):
     '''GraphQL query to find a Record based on Record ID.
@@ -124,7 +120,7 @@ def resolve_record(obj, info, id):
         :returns: Record dictionary OR None if Record was soft-deleted
     '''
     session = info.context['dbsession']
-    record = session.query(Record).filter(Record.id == id, Record.deleted == None).first()
+    record = Record.get_not_deleted(session, id)
     return record
 
 @query.field("category")
@@ -134,8 +130,7 @@ def resolve_category(obj, info, id):
         :returns: Category dictionary OR None if Category was soft-deleted
     '''
     session = info.context['dbsession']
-    category = session.query(Category).filter(Category.id == id, Category.deleted == None).first()
-    
+    category = Category.get_not_deleted(session, id)
     return category
 
 @query.field("categoryValue")
@@ -145,9 +140,9 @@ def resolve_category_value(obj, info, id):
         :returns: CategoryValue dictionary OR None if CategoryValue was deleted
     '''
     session = info.context['dbsession']
-    category_value = session.query(CategoryValue).filter(CategoryValue.id == id, CategoryValue.deleted == None).first()
-    
+    category_value = CategoryValue.get_not_deleted(session, id)
     return category_value
+
 @query.field("team")
 def resolve_team(obj, info, id):
     '''GraphQL query to find a Team based on Team ID.
@@ -176,3 +171,4 @@ def resolve_roles(obj, info):
     '''
     session = info.context['dbsession']
     return session.query(Role).filter(Role.deleted == None).order_by(Role.name.asc()).all()
+
