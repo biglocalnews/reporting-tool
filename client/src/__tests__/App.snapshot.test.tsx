@@ -43,7 +43,9 @@ test("renders ProtectedAppContainer correctly", async () => {
 });
 
 it("renders admin stuff when authed as admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({ roles: ["admin"] });
+  const { auth, mock } = mockUserLoggedIn({
+    roles: [{ name: "admin", description: "" }],
+  });
   await auth.init();
 
   const tree = shallow(<App />, {
@@ -55,7 +57,9 @@ it("renders admin stuff when authed as admin", async () => {
 });
 
 it("renders custom sidebar for admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({ roles: ["admin"] });
+  const { auth, mock } = mockUserLoggedIn({
+    roles: [{ name: "admin", description: "" }],
+  });
   await auth.init();
 
   const tree = mount(
