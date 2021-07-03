@@ -6,10 +6,39 @@ from typing import Optional, List
 import database
 
 
+class BaseUserCreateUpdate(BaseModel):
+    id: Optional[UUID4]
+
+    def create_update_dict(self):
+        return self.dict(
+            exclude_unset=True,
+            exclude={
+                "id",
+                "is_superuser",
+                "is_active",
+                "is_verified",
+                "oauth_accounts",
+                "roles",
+                "teams",
+            },
+        )
+
+    def create_update_dict_superuser(self):
+        return self.dict(exclude_unset=True, exclude={"id"})
+
 
 class UserRole(BaseModel):
-    name: str
-    description: str
+    id: UUID4
+    name: Optional[str]
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class UserTeam(BaseModel):
+    id: UUID4
+    name: Optional[str]
 
     class Config:
         orm_mode = True
@@ -18,19 +47,24 @@ class UserRole(BaseModel):
 class UserModel(models.BaseUser):
     first_name: str
     last_name: str
-    roles: List[UserRole]
+    roles: Optional[List[UserRole]]
+    teams: Optional[List[UserTeam]]
 
 
-class UserCreateModel(models.BaseUserCreate):
+class UserCreateModel(BaseUserCreateUpdate):
+    email: EmailStr
+    password: str
     first_name: str
     last_name: str
-    roles: Optional[List[str]]
 
 
-class UserUpdateModel(UserModel, models.BaseUserUpdate):
+class UserUpdateModel(BaseUserCreateUpdate):
+    email: Optional[EmailStr]
+    password: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
-    roles: Optional[List[str]]
+    roles: Optional[List[UserRole]]
+    teams: Optional[List[UserTeam]]
 
 
 class UserDBModel(UserModel, models.BaseUserDB):
@@ -45,6 +79,15 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
     https://github.com/frankie567/fastapi-users/blob/c83bdeb0e0004692f398ad89a4fdeaaa125900d5/fastapi_users/db/sqlalchemy.py#L92
     """
 
+    @classmethod
+    def format_orm_model(cls, ormuser: Optional[database.User]) -> UserDBModel:
+        if not ormuser:
+            return None
+        user = UserDBModel.from_orm(ormuser)
+        if any(r.name == 'admin' for r in user.roles):
+            user.is_superuser = True
+        return user
+
     def __init__(self, session_factory):
         super().__init__(UserDBModel)
         self.session_factory = session_factory
@@ -53,7 +96,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         dbuser = session.query(database.User).get(id)
-        user = UserDBModel.from_orm(dbuser) if dbuser else None
+        user = self.format_orm_model(dbuser)
         session.close()
         return user
 
@@ -61,7 +104,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         dbuser = database.User.get_by_email(session, email)
-        user = UserDBModel.from_orm(dbuser) if dbuser else None
+        user = self.format_orm_model(dbuser)
         session.close()
         return user
 
@@ -69,11 +112,14 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         d = user.dict()
-        d['roles'] = [database.Role.get_by_name(r) for r in user.roles]
+        if not d['roles']:
+            d['roles'] = []
+        if not d['teams']:
+            d['teams'] = []
         dbuser = database.User(**d)
         session.add(dbuser)
         session.commit()
-        user = UserDBModel.from_orm(dbuser)
+        user = self.format_orm_model(dbuser)
         session.close()
         return user
     
@@ -81,11 +127,29 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         d = user.dict()
-        d['roles'] = [database.Role.get_by_name(r) for r in user.roles]
-        dbuser = database.User(**d)
+
+        # Get the existing user from the DB
+        dbuser = session.query(database.User).get(user.id)
+
+        # Only allow updates of certain columns
+        for k in ['first_name', 'last_name', 'email']:
+            if k in d:
+                setattr(dbuser, k, d[k])
+        
+        # Update roles and teams separately
+        dbuser.roles = session.query(database.Role).filter(
+            database.Role.id.in_([r['id'] for r in d['roles']]),
+            database.Role.deleted == None,
+        ).all() if d['roles'] else []
+
+        dbuser.teams = session.query(database.Team).filter(
+            database.Team.id.in_([t['id'] for t in d['teams']]),
+            database.Team.deleted == None,
+            ).all() if d['teams'] else []
+
         session.merge(dbuser)
         session.commit()
-        user = UserDBModel.from_orm(dbuser)
+        user = self.format_orm_model(dbuser)
         session.close()
         return user
 

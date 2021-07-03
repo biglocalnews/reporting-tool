@@ -138,7 +138,7 @@ async def add_user(request: Request, call_next):
     if settings.debug and "X-User" in request.headers:
         user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
     else:
-        # TODO(jnu): fastapi_users.current_user is meant to be called with
+        # NOTE(jnu): fastapi_users.current_user is meant to be called with
         # FastAPI's `Depends`. We have to hook into their "blood magic" here
         # to call it outside of Depends.
         user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))

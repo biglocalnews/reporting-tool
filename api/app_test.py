@@ -89,6 +89,7 @@ class TestAppUsers(BaseAppTest):
         self.user_ids = {
                 'normal': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
                 'admin': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
+                'other': 'a47085ba-3d01-46a4-963b-9ffaeda18113',
                 }
 
     def test_users_me_not_authed(self):
@@ -110,6 +111,7 @@ class TestAppUsers(BaseAppTest):
                 'is_verified': False,
                 'is_superuser': False,
                 'roles': [],
+                'teams': [{'id': '472d17da-ff8b-4743-823f-3f01ea21a349', 'name': 'News Team'}],
                 }
 
     def test_users_me_admin(self):
@@ -123,11 +125,13 @@ class TestAppUsers(BaseAppTest):
                 'last_name': 'Carrot',
                 'is_active': True,
                 'is_verified': False,
-                'is_superuser': False,
+                'is_superuser': True,
                 'roles': [{
+                    "id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
                     'description': 'User is an admin and has administrative privileges',
                     'name': 'admin',
                     }],
+                'teams': [],
                 }
 
     def test_users_register_admin(self):
@@ -141,6 +145,7 @@ class TestAppUsers(BaseAppTest):
                     "last_name": "user",
                     "password": "password123",
                     "roles": [],
+                    "teams": [],
                     })
         assert response.status_code == 201
         rsp_json = response.json()
@@ -153,6 +158,7 @@ class TestAppUsers(BaseAppTest):
                 'first_name': 'new',
                 'last_name': 'user',
                 'roles': [],
+                'teams': [],
                 }
 
     def test_users_register_normal(self):
@@ -166,12 +172,13 @@ class TestAppUsers(BaseAppTest):
                     "last_name": "user",
                     "password": "password123",
                     "roles": [],
+                    "teams": [],
                     })
         assert response.status_code == 403
         rsp_json = response.json()
         assert rsp_json == {'detail': 'You do not have permission for this action'}
 
-    def test_users_register_normal(self):
+    def test_users_register_not_logged_in(self):
         """Checks that an anonymous user cannot create a new user."""
         response = self.client.post(
                 "/auth/register",
@@ -181,10 +188,140 @@ class TestAppUsers(BaseAppTest):
                     "last_name": "user",
                     "password": "password123",
                     "roles": [],
+                    "teams": [],
                     })
         assert response.status_code == 401
         rsp_json = response.json()
         assert rsp_json == {'detail': 'You are not authenticated'}
+
+    def test_user_register_teams_and_roles(self):
+        """Test that user cannot be added to team / roles on creation."""
+        response = self.client.post(
+                "/auth/register",
+                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                json={
+                    "email": "new@user.org",
+                    "first_name": "new",
+                    "last_name": "user",
+                    "password": "password123",
+                    "roles": [{
+                        "id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
+                        }],
+                    "teams": [{
+                        "id": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        }],
+                    })
+        assert response.status_code == 201
+        rsp_json = response.json()
+        assert rsp_json == {
+                'id': rsp_json.get('id'),
+                'email': 'new@user.org',
+                'is_active': True,
+                'is_verified': False,
+                'is_superuser': False,
+                'first_name': 'new',
+                'last_name': 'user',
+                'roles': [],
+                'teams': [],
+                }
+
+    def test_user_update_not_authed(self):
+        """Test that users without permission can't update other users."""
+        response = self.client.patch(
+                f"/users/{self.user_ids['normal']}",
+                cookies={'rtauth': user_cookie(None)},
+                json={
+                    "email": "some@updated.email",
+                    })
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Unauthorized'}
+
+    def test_user_update_no_perm(self):
+        """Test that users without permission can't update other users."""
+        for user in ['other', 'normal']:
+            response = self.client.patch(
+                    f"/users/{self.user_ids['normal']}",
+                    cookies={'rtauth': user_cookie(self.user_ids[user])},
+                    json={
+                        "email": "some@updated.email",
+                        })
+            assert response.status_code == 403
+            assert response.json() == {'detail': 'Forbidden'}
+
+    def test_user_update_basic(self):
+        """Test that admins and the user themselves can update their info."""
+        response = self.client.patch(
+                f"/users/{self.user_ids['normal']}",
+                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                json={
+                    "email": "some@updated.email",
+                    })
+        assert response.status_code == 200
+        assert response.json() == {
+                'email': 'some@updated.email',
+                'first_name': 'Cat',
+                'last_name': 'Berry',
+                'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'is_superuser': False,
+                'is_active': True,
+                'is_verified': False,
+                'roles': [],
+                'teams': [{
+                    'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
+                    'name': 'News Team',
+                    }],
+                }
+
+    def test_user_update_grant_admin(self):
+        response = self.client.patch(
+                f"/users/{self.user_ids['normal']}",
+                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                json={
+                    "roles": [{"id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"}],
+                    })
+        assert response.status_code == 200
+        assert response.json() == {
+                'email': 'tester@notrealemail.info',
+                'first_name': 'Cat',
+                'last_name': 'Berry',
+                'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'is_superuser': True,
+                'is_active': True,
+                'is_verified': False,
+                'roles': [{
+                    'id': 'be5f8cac-ac65-4f75-8052-8d1b5d40dffe',
+                    'name': 'admin',
+                    'description': 'User is an admin and has administrative privileges',
+                    }],
+                'teams': [{
+                    'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
+                    'name': 'News Team',
+                    }],
+                }
+
+    def test_user_cant_give_self_admin(self):
+        """Test that normal users can't escalate privileges."""
+        response = self.client.patch(
+                "/users/me",
+                cookies={'rtauth': user_cookie(self.user_ids['normal'])},
+                json={
+                    "roles": [{"id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"}],
+                    })
+        assert response.json() == {
+                'email': 'tester@notrealemail.info',
+                'first_name': 'Cat',
+                'last_name': 'Berry',
+                'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'is_superuser': False,
+                'is_active': True,
+                'is_verified': False,
+                'roles': [],
+                'teams': [{
+                    'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
+                    'name': 'News Team',
+                    }],
+                }
+        assert response.status_code == 200
 
 
 
