@@ -60,7 +60,11 @@ export const CreateUser = ({ form }: CreateUserProps) => {
           },
         ]}
       >
-        <Input />
+        <Input
+          allowClear
+          aria-label={t("admin.user.fields.firstName")}
+          aria-required="true"
+        />
       </Form.Item>
 
       <Form.Item
@@ -73,7 +77,11 @@ export const CreateUser = ({ form }: CreateUserProps) => {
           },
         ]}
       >
-        <Input />
+        <Input
+          allowClear
+          aria-label={t("admin.user.fields.lastName")}
+          aria-required="true"
+        />
       </Form.Item>
 
       <Form.Item
@@ -90,7 +98,11 @@ export const CreateUser = ({ form }: CreateUserProps) => {
           },
         ]}
       >
-        <Input />
+        <Input
+          allowClear
+          aria-label={t("admin.user.fields.email")}
+          aria-required="true"
+        />
       </Form.Item>
     </Form>
   );

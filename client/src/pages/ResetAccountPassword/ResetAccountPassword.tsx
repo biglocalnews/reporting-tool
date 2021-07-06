@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Card, Form, Input, Alert, Button, message } from "antd";
+import { PageHeader, Card, Form, Input, Alert, Button, message } from "antd";
 import { Loading } from "../../components/Loading/Loading";
 import * as account from "../../services/account";
 import "./ResetAccountPassword.css";
@@ -90,6 +90,10 @@ export const ResetAccountPassword = () => {
           </>
         )}
         <Form onFinish={saveNewPassword}>
+          <PageHeader
+            title={t("account.resetPassword.title")}
+            subTitle={t("account.resetPassword.subtitle")}
+          />
           <Form.Item
             label={t("account.resetPassword.newPasswordLabel")}
             rules={[
@@ -100,7 +104,11 @@ export const ResetAccountPassword = () => {
             ]}
             name="password"
           >
-            <Input.Password disabled={!canSubmit} />
+            <Input.Password
+              aria-required="true"
+              aria-label={t("account.resetPassword.newPasswordLabel")}
+              disabled={!canSubmit}
+            />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

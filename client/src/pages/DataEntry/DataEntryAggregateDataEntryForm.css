@@ -9,8 +9,8 @@
   margin-top: 1.5rem;
 }
 
-input[type="text"],
-select {
+#data-entry-form input[type="text"],
+#data-entry-form select {
   width: 50%;
   margin: 0;
   border: 1px solid #ccc;
@@ -28,8 +28,8 @@ select {
   color: red;
 }
 
-input[type="date"],
-select {
+#data-entry-form input[type="date"],
+#data-entry-form select {
   border: 1px solid #f0f0f0;
   box-sizing: border-box;
   padding: 2px 2px 2px 5px;

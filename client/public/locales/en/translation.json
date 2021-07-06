@@ -22,38 +22,43 @@
       "enterEmailError": "Please enter your e-mail",
       "enterPasswordLabel": "Enter your password",
       "enterPasswordError": "Please enter your password",
-      "forgotPassword": "Forgot password?"
+      "forgotPasswordAction": "Send reset link",
+      "forgotPassword": "Reset password?",
+      "forgotPasswordTitle": "Reset password",
+      "forgotPasswordInstructions": "Enter your email address and press send. Then check your email for a link to reset your password."
     },
     "resetPassword": {
-      "submit": "Update password",
+      "title": "Change password",
+      "subtitle": "Enter a new password and press \"save\"",
+      "submit": "Save",
       "newPasswordLabel": "New password",
       "success": "You have successfully reset your password!",
       "error": "Failed to reset password",
-      "action": "Request new token",
+      "action": "Request new link",
       "missingPassword": "You must enter a new password",
-      "reresetError": "Failed to request a new reset token: {{message}}",
+      "reresetError": "Failed to request a new reset link: {{message}}",
       "reresetSuccess": "A password reset email was sent to {{email}}. Please check your email and follow those instructions.",
       "errors": {
-        "MISSING_TOKEN": "You are missing a valid token. Please request a new one and try again.",
-        "VALIDATION_ERROR": "There was an error validating your request. Please request a new token and try again.",
-        "RESET_PASSWORD_BAD_TOKEN": "Your reset token was invalid. Please request a new token and try again.",
+        "MISSING_TOKEN": "You are missing a valid token. Please request a new reset link and try again.",
+        "VALIDATION_ERROR": "There was an error validating your request. Please request a new link and try again.",
+        "RESET_PASSWORD_BAD_TOKEN": "Your reset token was invalid. Please request a new link and try again.",
         "REGISTER_INVALID_PASSWORD": "The new password you chose is not strong enough. Please enter a longer password."
       }
     },
     "verify": {
-      "action": "Request a new token",
+      "action": "Request a new link",
       "success": "Successfully verified your email!",
       "successDetail": "You are being redirected to the home page.",
-      "reverifySuccess": "Sent a new verification token to {{email}}.",
-      "reverifyError": "Failed to request a new verification token: {{message}}",
+      "reverifySuccess": "Sent a new verification link to {{email}}.",
+      "reverifyError": "Failed to request a new verification link: {{message}}",
       "error": "An error occurred verifying your email.",
       "errors": {
-        "VALIDATION_ERROR": "The given token couldn't be verified. Please request a new one and try again.",
-        "VERIFY_USER_TOKEN_EXPIRED": "This token has already expired. Please request a new one and try again.",
-        "VERIFY_USER_BAD_TOKEN": "This token is invalid. Please request a new one and try again.",
+        "VALIDATION_ERROR": "The given token couldn't be verified. Please request a new link and try again.",
+        "VERIFY_USER_TOKEN_EXPIRED": "This token has already expired. Please request a new link and try again.",
+        "VERIFY_USER_BAD_TOKEN": "This token is invalid. Please request a new link and try again.",
         "VERIFY_USER_ALREADY_VERIFIED": "Your email has already been verified.",
-        "UNKNOWN_ERROR": "We're not sure what went wrong. Please request a new token and try to verify your account again. If that doesn't work, contact someone in charge.",
-        "MISSING_TOKEN": "Your verification token is missing. Please request a new one and try again."
+        "UNKNOWN_ERROR": "We're not sure what went wrong. Please request a new link and try to verify your account again. If that doesn't work, contact someone in charge.",
+        "MISSING_TOKEN": "Your verification token is missing. Please request a new link and try again."
       }
     }
   },
@@ -66,6 +71,8 @@
       "viewAll": "View all datasets"
     },
     "user": {
+      "userListTitle": "Manage users",
+      "userListSubTitle": "Use this page to add and edit users",
       "createNew": "Add user",
       "createTitle": "Create a new user",
       "noQueryData": "query did not return any data",

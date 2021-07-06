@@ -82,13 +82,18 @@ export const Login = (props: LoginProps) => {
       <Modal
         forceRender
         visible={showForgotPassword}
+        title={t("account.login.forgotPasswordTitle")}
         confirmLoading={resettingPassword}
         onCancel={() => {
           forgotPasswordForm.resetFields();
           setShowForgotPassword(false);
         }}
+        okText={t("account.login.forgotPasswordAction")}
         onOk={() => forgotPasswordForm.submit()}
       >
+        <Typography.Paragraph>
+          {t("account.login.forgotPasswordInstructions")}
+        </Typography.Paragraph>
         <Form form={forgotPasswordForm} onFinish={resetPassword}>
           <Form.Item
             rules={[

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Button, Modal, Table, Form } from "antd";
+import { Button, Modal, Table, Form, PageHeader } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import {
   EditOutlined,
@@ -82,13 +82,20 @@ export const UserList = () => {
 
   return (
     <div className="admin user-userlist_container">
-      <Button
-        icon={<UserAddOutlined />}
-        type="primary"
-        onClick={() => setShowCreateUser(true)}
-      >
-        {t("admin.user.createNew")}
-      </Button>
+      <PageHeader
+        title={t("admin.user.userListTitle")}
+        subTitle={t("admin.user.userListSubTitle")}
+        extra={[
+          <Button
+            icon={<UserAddOutlined />}
+            key="add-user"
+            type="primary"
+            onClick={() => setShowCreateUser(true)}
+          >
+            {t("admin.user.createNew")}
+          </Button>,
+        ]}
+      />
       <Modal
         forceRender
         visible={showCreateUser}

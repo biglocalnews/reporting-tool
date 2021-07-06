@@ -238,6 +238,7 @@ export const EditUser = () => {
     refresh,
   } = useAdminUserQueries(userId, t);
 
+  const [teamSelectorOpen, setTeamSelectorOpen] = useState(false);
   const { saving, saveError, saveUser } = useSaveUser(userId, t);
   const { deleting, deleteError, deleteUser } = useDeleteUser(userId, t);
   const { restoring, restoreError, restoreUser } = useRestoreUser(
@@ -330,7 +331,11 @@ export const EditUser = () => {
           label={t("admin.user.fields.firstName")}
           name="first_name"
         >
-          <Input disabled={inactive} />
+          <Input
+            aria-label={t("admin.user.fields.firstName")}
+            aria-required="true"
+            disabled={inactive}
+          />
         </Form.Item>
 
         <Form.Item
@@ -343,7 +348,11 @@ export const EditUser = () => {
           label={t("admin.user.fields.lastName")}
           name="last_name"
         >
-          <Input disabled={inactive} />
+          <Input
+            aria-label={t("admin.user.fields.lastName")}
+            aria-required="true"
+            disabled={inactive}
+          />
         </Form.Item>
 
         <Form.Item
@@ -357,7 +366,11 @@ export const EditUser = () => {
             },
           ]}
         >
-          <Input disabled={inactive} />
+          <Input
+            aria-label={t("admin.user.fields.email")}
+            aria-required="true"
+            disabled={inactive}
+          />
         </Form.Item>
 
         <Divider orientation="left" />
@@ -367,6 +380,9 @@ export const EditUser = () => {
             mode="multiple"
             showSearch
             disabled={inactive}
+            aria-expanded={teamSelectorOpen ? "true" : "false"}
+            onFocus={() => setTeamSelectorOpen(true)}
+            onBlur={() => setTeamSelectorOpen(false)}
             placeholder={t("admin.user.teamSearch")}
             optionFilterProp="children"
             filterOption={(input, option) =>
@@ -390,7 +406,9 @@ export const EditUser = () => {
           <Checkbox.Group disabled={inactive}>
             {rolesResponse.data!.roles.map((role) => (
               <Row key={role.id}>
-                <Checkbox value={role.id}>{role.description}</Checkbox>
+                <Checkbox value={role.id} aria-label={role.description}>
+                  {role.description}
+                </Checkbox>
               </Row>
             ))}
           </Checkbox.Group>
