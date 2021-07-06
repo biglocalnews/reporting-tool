@@ -20,7 +20,7 @@ exports[`renders App correctly 1`] = `
               "path": "/admin",
               "routes": Array [
                 Object {
-                  "breadcrumb": "Manage users",
+                  "breadcrumb": "Manage Users",
                   "component": [Function],
                   "exact": true,
                   "key": "users",
@@ -34,14 +34,14 @@ exports[`renders App correctly 1`] = `
                   "path": "/admin/users/:userId",
                 },
                 Object {
-                  "breadcrumb": "Manage teams",
+                  "breadcrumb": "Manage Teams",
                   "component": [Function],
                   "exact": true,
                   "key": "teams",
                   "path": "/admin/teams",
                 },
                 Object {
-                  "breadcrumb": "Manage programs",
+                  "breadcrumb": "Manage Programs",
                   "component": [Function],
                   "exact": true,
                   "key": "programs",
@@ -149,7 +149,7 @@ exports[`renders admin stuff when authed as admin 1`] = `
               "path": "/admin",
               "routes": Array [
                 Object {
-                  "breadcrumb": "Manage users",
+                  "breadcrumb": "Manage Users",
                   "component": [Function],
                   "exact": true,
                   "key": "users",
@@ -163,14 +163,14 @@ exports[`renders admin stuff when authed as admin 1`] = `
                   "path": "/admin/users/:userId",
                 },
                 Object {
-                  "breadcrumb": "Manage teams",
+                  "breadcrumb": "Manage Teams",
                   "component": [Function],
                   "exact": true,
                   "key": "teams",
                   "path": "/admin/teams",
                 },
                 Object {
-                  "breadcrumb": "Manage programs",
+                  "breadcrumb": "Manage Programs",
                   "component": [Function],
                   "exact": true,
                   "key": "programs",
