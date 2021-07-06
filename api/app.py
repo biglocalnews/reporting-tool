@@ -3,9 +3,7 @@ import databases
 import sqlalchemy
 import datetime
 
-from fastapi import FastAPI, Request, Depends
-# from fastapi_sqlalchemy import DBSessionMiddleware  # middleware helper
-# from fastapi_sqlalchemy import db  # an object to provide global access to a database session
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
@@ -42,24 +40,35 @@ cookie_authentication = CookieAuthentication(
 fastapi_users = FastAPIUsers(
     user.user_db,
     [cookie_authentication],
-    user.User,
-    user.UserCreate,
-    user.UserUpdate,
-    user.UserDB,
+    user.UserModel,
+    user.UserCreateModel,
+    user.UserUpdateModel,
+    user.UserDBModel,
 )
 
 
 # Add login functions 
-def on_after_register(user: user.UserDB, request: Request):
+def on_after_register(user: user.UserDBModel, request: Request):
     print(f"User {user.id} has registered.")
 
 
-def on_after_forgot_password(user: user.UserDB, token: str, request: Request):
+def on_after_forgot_password(user: user.UserDBModel, token: str, request: Request):
     print(f"User {user.id} has forgot their password. Reset token: {token}")
 
 
-def after_verification_request(user: user.UserDB, token: str, request: Request):
+def after_verification_request(user: user.UserDBModel, token: str, request: Request):
     print(f"Verification requested for user {user.id}. Verification token: {token}")
+
+
+def admin_user(request: Request):
+    """Dependency to verify that a user is an admin."""
+    user = request.scope.get('dbuser')
+    if not user:
+        raise HTTPException(status_code=401, detail="You are not authenticated")
+    if not any(r.name == 'admin' for r in user.roles):
+        raise HTTPException(status_code=403, detail="You do not have permission for this action")
+    return user
+    
 
 
 # Add restful routers for user management
@@ -67,7 +76,10 @@ app.include_router(
     fastapi_users.get_auth_router(cookie_authentication), prefix="/auth/cookie", tags=["auth"]
 )
 app.include_router(
-    fastapi_users.get_register_router(on_after_register), prefix="/auth", tags=["auth"]
+    fastapi_users.get_register_router(on_after_register),
+    prefix="/auth",
+    dependencies=[Depends(admin_user)],
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_reset_password_router(
@@ -84,25 +96,13 @@ app.include_router(
     tags=["auth"],
 )
 
-# Dependency to get the current authed user from the cookie.
-get_current_user_dep = fastapi_users.current_user(active=True)
+app.include_router(
+    fastapi_users.get_users_router(),
+     prefix="/users",
+     tags=["users"],
+)
 
-# Use a custom implementation of the /users/me instead of fastapi-users's.
-# Their permissions are too simple for us; we want to return a list of roles
-# for the user. Behavior around 200 and 401 responses is otherwise the same.
-@app.get("/users/me")
-def get_current_user(request: Request, user: user.User = Depends(get_current_user_dep)):
-    session = request.scope["dbsession"]
-    dbuser = session.query(User).get(user.id)
-    return {
-            "id": dbuser.id,
-            "roles": [r.name for r in dbuser.roles],
-            "first_name": dbuser.first_name,
-            "last_name": dbuser.last_name,
-            "email": dbuser.email,
-            "is_active": dbuser.is_active,
-            "is_verified": dbuser.is_verified,
-            }
+
 
 
 # General Graphql Field Resolvers
@@ -129,6 +129,26 @@ schema = make_executable_schema(
     directives={"needsPermission": directives.NeedsPermissionDirective}
 )
 
+
+@app.middleware("http")
+async def add_user(request: Request, call_next):
+    dbsession = request.scope["dbsession"]
+
+    # allow for manual specification of user in request header by email
+    if settings.debug and "X-User" in request.headers:
+        user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
+    else:
+        # NOTE(jnu): fastapi_users.current_user is meant to be called with
+        # FastAPI's `Depends`. We have to hook into their "blood magic" here
+        # to call it outside of Depends.
+        user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
+        # The permissions checks use the ORM object, not the Pydantic model. 
+        user = dbsession.query(User).get(user_db.id) if user_db else None
+
+    request.scope["dbuser"] = user
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def add_db_session(request: Request, call_next):
     session = app.extra['get_db_session']()
@@ -140,24 +160,14 @@ async def add_db_session(request: Request, call_next):
 
     return response
 
+
 async def get_context(request: Request):
     dbsession = request.scope['dbsession']
-    
-    # allow for manual specification of user in request header by email
-    if settings.debug and "X-User" in request.headers:
-        user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
-    else:
-        # TODO(jnu): fastapi_users.current_user is meant to be called with
-        # FastAPI's `Depends`. We have to hook into their "blood magic" here
-        # to call it outside of Depends.
-        user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
-        # TODO(jnu): The users.UserDB and database.User model should be unified.
-        user = dbsession.query(User).get(user_db.id) if user_db else None
-                
+    dbuser = request.scope['dbuser']
     return {
             "dbsession": dbsession,
             "request": request,
-            "current_user": user
+            "current_user": dbuser,
             }
 
 # Mount ariadne to fastapi

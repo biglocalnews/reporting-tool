@@ -3,7 +3,7 @@ import _ from "lodash";
 import {
   GetDataset,
   GetDataset_dataset_sumOfCategoryValueCounts_categoryValue,
-} from "../../__generated__/GetDataset";
+} from "../../graphql/__generated__/GetDataset";
 import { Pie } from "@ant-design/charts";
 import { PieConfig } from "@ant-design/charts/es/pie";
 import { Card, Col, Row } from "antd";

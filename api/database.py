@@ -30,6 +30,7 @@ database = databases.Database("postgres://" + DATABASE_URL)
 engine = create_engine('postgresql+psycopg2://' + DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 Base = declarative_base()
 
 # Handling Many-to-Many Relationships
@@ -140,6 +141,19 @@ class User(Base, SQLAlchemyBaseUserTable):
                 User.email == email,
                 User.deleted == None,
                 ).first()
+
+    @classmethod
+    def delete(cls, session: SessionLocal, id) -> None:
+        """Delete a user by their ID.
+
+        This is a soft delete; the record will stay in the database.
+
+        :param session: Database session
+        :param id: UUID of user
+        """
+        return session.query(User).filter(User.id == id).update({
+            User.delete: func.now(),
+            }, synchronize_session='fetch')
 
 
 class Role(Base):

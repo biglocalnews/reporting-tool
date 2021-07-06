@@ -11,7 +11,7 @@ import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { autoMockedClient } from "../__mocks__/AutoMockProvider";
+import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
 

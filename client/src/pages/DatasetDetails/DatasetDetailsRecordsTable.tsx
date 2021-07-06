@@ -4,9 +4,9 @@ import "./DatasetDetailsRecordsTable.css";
 import {
   GetDataset,
   GetDataset_dataset_records,
-} from "../../__generated__/GetDataset";
-import { GET_DATASET } from "../../__queries__/GetDataset.gql";
-import { DELETE_RECORD } from "../../__mutations__/DeleteRecord.gql";
+} from "../../graphql/__generated__/GetDataset";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";

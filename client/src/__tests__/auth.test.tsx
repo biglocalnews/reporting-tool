@@ -1,7 +1,9 @@
-import { mockUserLoggedIn, mockUserLogIn } from "../__mocks__/auth";
+import { mockUserLoggedIn, mockUserLogIn } from "../graphql/__mocks__/auth";
 
 it("marks user as admin correctly", async () => {
-  const { auth } = mockUserLoggedIn({ roles: ["admin"] });
+  const { auth } = mockUserLoggedIn({
+    roles: [{ name: "admin", description: "" }],
+  });
   await auth.init();
   expect(auth.isAdmin()).toBe(true);
 });

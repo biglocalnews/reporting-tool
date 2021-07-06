@@ -6,7 +6,7 @@ import { Router, useParams } from "react-router-dom";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
-import { autoMockedClient } from "../__mocks__/AutoMockProvider";
+import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
 import { DataEntry } from "../pages/DataEntry/DataEntry";

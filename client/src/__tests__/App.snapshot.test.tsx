@@ -3,7 +3,10 @@ import { MemoryRouter } from "react-router-dom";
 import { shallow, mount } from "enzyme";
 import toJson from "enzyme-to-json";
 import App, { ProtectedAppContainer } from "../App";
-import { mockUserLoggedIn, mockUserNotLoggedIn } from "../__mocks__/auth";
+import {
+  mockUserLoggedIn,
+  mockUserNotLoggedIn,
+} from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
 import { Login } from "../pages/Login/Login";
 import { AppSidebar, AppAdminSidebarMenu } from "../layout/AppSidebar";
@@ -43,7 +46,9 @@ test("renders ProtectedAppContainer correctly", async () => {
 });
 
 it("renders admin stuff when authed as admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({ roles: ["admin"] });
+  const { auth, mock } = mockUserLoggedIn({
+    roles: [{ name: "admin", description: "" }],
+  });
   await auth.init();
 
   const tree = shallow(<App />, {
@@ -55,7 +60,9 @@ it("renders admin stuff when authed as admin", async () => {
 });
 
 it("renders custom sidebar for admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({ roles: ["admin"] });
+  const { auth, mock } = mockUserLoggedIn({
+    roles: [{ name: "admin", description: "" }],
+  });
   await auth.init();
 
   const tree = mount(

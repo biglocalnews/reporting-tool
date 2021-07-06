@@ -8,7 +8,7 @@ import {
 } from "@apollo/client";
 import { makeExecutableSchema, IMocks, mergeResolvers } from "graphql-tools";
 import { printSchema, buildClientSchema } from "graphql/utilities";
-import introspectionResult from "../schema.json";
+import introspectionResult from "../../schema.json";
 import { GraphQLError } from "graphql";
 import { SchemaLink } from "@apollo/client/link/schema";
 import { addMockFunctionsToSchema } from "apollo-server";
