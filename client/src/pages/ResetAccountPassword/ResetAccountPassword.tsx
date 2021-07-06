@@ -3,7 +3,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader, Card, Form, Input, Alert, Button, message } from "antd";
 import { Loading } from "../../components/Loading/Loading";
-import * as account from "../../services/account";
+import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./ResetAccountPassword.css";
 
 /**
@@ -11,6 +11,7 @@ import "./ResetAccountPassword.css";
  */
 export const ResetAccountPassword = () => {
   const { t } = useTranslation();
+  const account = useUserAccountManager();
   const history = useHistory();
   const location = useLocation();
   const [resetError, setResetError] = useState<Error | null>(null);

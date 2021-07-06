@@ -18,24 +18,25 @@ import {
   message,
 } from "antd";
 
-import { ADMIN_GET_USER } from "../../__queries__/AdminGetUser.gql";
-import { ADMIN_GET_ALL_TEAMS } from "../../__queries__/AdminGetAllTeams.gql";
-import { ADMIN_GET_ALL_ROLES } from "../../__queries__/AdminGetAllRoles.gql";
+import { ADMIN_GET_USER } from "../../graphql/__queries__/AdminGetUser.gql";
+import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
+import { ADMIN_GET_ALL_ROLES } from "../../graphql/__queries__/AdminGetAllRoles.gql";
 import {
   AdminGetAllTeams,
   AdminGetAllTeams_teams,
-} from "../../__generated__/AdminGetAllTeams";
+} from "../../graphql/__generated__/AdminGetAllTeams";
 import {
   AdminGetAllRoles,
   AdminGetAllRoles_roles,
-} from "../../__generated__/AdminGetAllRoles";
+} from "../../graphql/__generated__/AdminGetAllRoles";
 import {
   AdminGetUser,
   AdminGetUser_user,
   AdminGetUser_user_teams,
-} from "../../__generated__/AdminGetUser";
+} from "../../graphql/__generated__/AdminGetUser";
 import { Loading } from "../../components/Loading/Loading";
-import * as account from "../../services/account";
+import { EditUserFormData } from "../../services/account";
+import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 
 /**
  * Check that GraphQL query response doesn't contain an error.
@@ -118,6 +119,7 @@ const useAdminUserQueries = (id: string, t: TFunction) => {
 const useSaveUser = (id: string, t: TFunction) => {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<Error | null>(null);
+  const account = useUserAccountManager();
 
   return {
     /**
@@ -131,7 +133,7 @@ const useSaveUser = (id: string, t: TFunction) => {
     /**
      * Save user data to server.
      */
-    saveUser: async (formData: account.EditUserFormData) => {
+    saveUser: async (formData: EditUserFormData) => {
       setSaving(true);
       setSaveError(null);
       setSaving(false);
@@ -151,6 +153,7 @@ const useSaveUser = (id: string, t: TFunction) => {
  */
 const useDeleteUser = (userId: string, t: TFunction) => {
   const history = useHistory();
+  const account = useUserAccountManager();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<Error | null>(null);
 
@@ -192,6 +195,7 @@ const useDeleteUser = (userId: string, t: TFunction) => {
  * Hook for the query to restore a user, with associated state.
  */
 const useRestoreUser = (userId: string, refresh: () => void, t: TFunction) => {
+  const account = useUserAccountManager();
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<Error | null>(null);
 
@@ -261,7 +265,7 @@ export const EditUser = () => {
     teamsResponse.data!.teams.find((t) => t.id === id);
 
   // Initial values of the form fields.
-  const initialFormState: account.EditUserFormData = {
+  const initialFormState: EditUserFormData = {
     first_name: userResponse.data!.user.firstName,
     last_name: userResponse.data!.user.lastName,
     email: userResponse.data!.user.email,

@@ -9,20 +9,20 @@ import {
   CheckCircleOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { GET_USER_LIST } from "../../__queries__/GetUserList.gql";
+import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
 import {
   GetUserList,
   GetUserList_users,
-} from "../../__generated__/GetUserList";
+} from "../../graphql/__generated__/GetUserList";
 import { Loading } from "../../components/Loading/Loading";
 import { CreateUser } from "./CreateUser";
-import * as account from "../../services/account";
+import { CreateUserFormValues } from "../../services/account";
 
 /**
  * Index of all users in the organization.
  */
 export const UserList = () => {
-  const [createUserForm] = Form.useForm<account.CreateUserFormValues>();
+  const [createUserForm] = Form.useForm<CreateUserFormValues>();
   const { t } = useTranslation();
   const [showCreateUser, setShowCreateUser] = useState(false);
   const { data, loading, error } = useQuery<GetUserList>(GET_USER_LIST, {

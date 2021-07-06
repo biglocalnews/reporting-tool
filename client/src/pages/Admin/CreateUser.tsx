@@ -2,13 +2,14 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Form, Input, FormInstance, message } from "antd";
-import * as account from "../../services/account";
+import { CreateUserFormValues } from "../../services/account";
+import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 
 export type CreateUserProps = {
   /**
    * Form object that will be filled out by the UI elements.
    */
-  form: FormInstance<account.CreateUserFormValues>;
+  form: FormInstance<CreateUserFormValues>;
 };
 
 /**
@@ -24,11 +25,12 @@ export type CreateUserProps = {
 export const CreateUser = ({ form }: CreateUserProps) => {
   const { t } = useTranslation();
   const history = useHistory();
+  const account = useUserAccountManager();
 
   /**
    * Create a new user and handle success / error conditions.
    */
-  const saveNewUser = async (values: account.CreateUserFormValues) => {
+  const saveNewUser = async (values: CreateUserFormValues) => {
     try {
       const id = await account.createUser(values);
       try {

@@ -3,7 +3,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Alert, Button, message } from "antd";
 import { Loading } from "../components/Loading/Loading";
-import * as account from "../services/account";
+import { useUserAccountManager } from "../components/UserAccountManagerProvider";
 
 /**
  * Component to verify a user's account.
@@ -16,6 +16,7 @@ import * as account from "../services/account";
  */
 export const VerifyAccount = () => {
   const { t } = useTranslation();
+  const account = useUserAccountManager();
   const history = useHistory();
   const location = useLocation();
   const [verifying, setVerifying] = useState(false);
