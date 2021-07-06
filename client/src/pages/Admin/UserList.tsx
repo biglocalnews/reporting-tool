@@ -43,7 +43,6 @@ export const UserList = () => {
   ).map((fieldName) => ({
     title: t(`admin.userList.columnTitle.${fieldName}`),
     dataIndex: fieldName,
-    key: fieldName,
     defaultSortOrder: "ascend",
     sorter: (a, b) => (a[fieldName] < b[fieldName] ? -1 : 1),
   }));
@@ -53,7 +52,6 @@ export const UserList = () => {
   columns.push({
     title: t(`admin.userList.columnTitle.active`),
     dataIndex: "active",
-    key: "active",
     defaultFilteredValue: ["true"],
     filters: [
       {
@@ -105,7 +103,11 @@ export const UserList = () => {
       >
         <CreateUser form={createUserForm} />
       </Modal>
-      <Table dataSource={data.users} columns={columns} />
+      <Table
+        rowKey={(user) => user.id}
+        dataSource={data.users}
+        columns={columns}
+      />
     </div>
   );
 };
