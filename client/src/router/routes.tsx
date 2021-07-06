@@ -1,9 +1,9 @@
 import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
-import { DataEntry } from "../components/DataEntry/DataEntry";
-import { DatasetDetails } from "../components/DatasetDetails/DatasetDetails";
-import { Home } from "../components/Home/Home";
+import { DataEntry } from "../pages/DataEntry/DataEntry";
+import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
+import { Home } from "../pages/Home/Home";
 
 interface SubRoute extends BreadcrumbsRoute {
   key?: string;

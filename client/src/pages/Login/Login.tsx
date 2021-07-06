@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Form, Card, Input, Typography } from "antd";
 import { RouteComponentProps } from "react-router-dom";
 import { Auth } from "../../services/auth";
-import { useAuth } from "../AuthProvider";
+import { useAuth } from "../../components/AuthProvider";
 import "./Login.css";
 
 const { Text } = Typography;

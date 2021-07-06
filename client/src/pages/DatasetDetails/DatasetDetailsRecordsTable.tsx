@@ -10,7 +10,11 @@ import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
-import { messageError, messageInfo, messageSuccess } from "../Message";
+import {
+  messageError,
+  messageInfo,
+  messageSuccess,
+} from "../../components/Message";
 import dayjs from "dayjs";
 
 interface DatasetRecordsTableProps {

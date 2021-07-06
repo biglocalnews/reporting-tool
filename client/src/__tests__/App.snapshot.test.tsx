@@ -8,7 +8,7 @@ import {
   mockUserNotLoggedIn,
 } from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
-import { Login } from "../components/Login/Login";
+import { Login } from "../pages/Login/Login";
 import { AppSidebar, AppAdminSidebarMenu } from "../layout/AppSidebar";
 
 it("renders App correctly", async () => {

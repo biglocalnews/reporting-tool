@@ -1,4 +1,8 @@
-import { messageError, messageLoading, messageSuccess } from "../Message";
+import {
+  messageError,
+  messageLoading,
+  messageSuccess,
+} from "../../components/Message";
 
 export const formMessageHandler = ({
   isEditMode = false,

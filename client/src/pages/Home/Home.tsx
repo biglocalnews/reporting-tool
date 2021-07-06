@@ -9,9 +9,9 @@ import { useQuery } from "@apollo/client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { TFunction, useTranslation } from "react-i18next";
-import { useAuth } from "../AuthProvider";
-import { ErrorFallback } from "../Error/ErrorFallback";
-import { Loading } from "../Loading/Loading";
+import { useAuth } from "../../components/AuthProvider";
+import { ErrorFallback } from "../../components/Error/ErrorFallback";
+import { Loading } from "../../components/Loading/Loading";
 import { ColumnsType } from "antd/lib/table";
 
 dayjs.extend(localizedFormat);

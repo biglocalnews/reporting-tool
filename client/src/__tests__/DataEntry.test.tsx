@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
-import { DataEntry } from "../components/DataEntry/DataEntry";
+import { DataEntry } from "../pages/DataEntry/DataEntry";
 import MockDate from "mockdate";
 import i18nextTest from "../services/i18next-test";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { act, render, screen, within } from "@testing-library/react";
-import { Home } from "../components/Home/Home";
+import { Home } from "../pages/Home/Home";
 import { createMemoryHistory } from "history";
 import { ApolloProvider } from "@apollo/client";
 import { Router } from "react-router-dom";

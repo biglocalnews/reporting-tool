@@ -5,7 +5,7 @@ import AppHeader from "./layout/AppHeader";
 import { AppSidebar } from "./layout/AppSidebar";
 import "./App.css";
 import BreadCrumb from "./components/Breadcrumb/Breadcrumbs";
-import { Login } from "./components/Login/Login";
+import { Login } from "./pages/Login/Login";
 import { Loading } from "./components/Loading/Loading";
 
 import { normalRoutes, adminRoutes } from "./router/routes";
