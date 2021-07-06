@@ -40,12 +40,12 @@ export const UserList = () => {
 
   const columns: ColumnsType<GetUserList_users> = (
     ["email", "firstName", "lastName"] as Array<keyof GetUserList_users>
-  ).map((c) => ({
-    title: t(`admin.userList.columnTitle.${c}`),
-    dataIndex: c,
-    key: c,
+  ).map((fieldName) => ({
+    title: t(`admin.userList.columnTitle.${fieldName}`),
+    dataIndex: fieldName,
+    key: fieldName,
     defaultSortOrder: "ascend",
-    sorter: (a, b) => (a[c] < b[c] ? -1 : 1),
+    sorter: (a, b) => (a[fieldName] < b[fieldName] ? -1 : 1),
   }));
 
   const Active = (active: boolean) => (active ? <CheckCircleOutlined /> : null);
