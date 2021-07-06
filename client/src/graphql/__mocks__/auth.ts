@@ -4,7 +4,7 @@
  * This relies on the jest-fetch-mock being enabled.
  */
 
-import { Auth, UserProfile } from "../services/auth";
+import { Auth, UserProfile } from "../../services/auth";
 
 /**
  * Default user profile to use for tests.

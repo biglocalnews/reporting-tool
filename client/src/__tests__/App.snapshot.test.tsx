@@ -3,7 +3,10 @@ import { MemoryRouter } from "react-router-dom";
 import { shallow, mount } from "enzyme";
 import toJson from "enzyme-to-json";
 import App, { ProtectedAppContainer } from "../App";
-import { mockUserLoggedIn, mockUserNotLoggedIn } from "../__mocks__/auth";
+import {
+  mockUserLoggedIn,
+  mockUserNotLoggedIn,
+} from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
 import { Login } from "../components/Login/Login";
 import { AppSidebar, AppAdminSidebarMenu } from "../layout/AppSidebar";

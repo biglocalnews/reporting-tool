@@ -2,11 +2,11 @@
 import { AppSidebar } from "../layout/AppSidebar";
 import { MockedProvider } from "@apollo/client/testing";
 import { BrowserRouter } from "react-router-dom";
-import { GET_USER } from "../__queries__/GetUser.gql";
+import { GET_USER } from "../graphql/__queries__/GetUser.gql";
 import React from "react";
 import i18nextTest from "../services/i18next-test";
 import { AuthProvider } from "../components/AuthProvider";
-import { mockUserLoggedIn } from "../__mocks__/auth";
+import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
 import { render } from "@testing-library/react";
 
 describe("UK English internationalization", () => {

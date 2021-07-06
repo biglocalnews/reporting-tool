@@ -1,7 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import App, { ProtectedAppContainer } from "../App";
-import { mockUserLoggedIn } from "../__mocks__/auth";
+import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
 
 describe("App Component", () => {
