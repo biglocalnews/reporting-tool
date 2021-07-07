@@ -3,22 +3,20 @@ import React, {
   Dispatch,
   FormEvent,
   SetStateAction,
+  useRef,
   useState,
 } from "react";
 import { Alert, Button, Col, Row, Space, Typography } from "antd";
 import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
 import "./DataEntryAggregateDataEntryForm.css";
-import { useMutation } from "@apollo/client";
-import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import dayjs from "dayjs";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord";
 import { GetRecord } from "../../graphql/__generated__/GetRecord";
-import { UPDATE_RECORD } from "../../graphql/__mutations__/UpdateRecord.gql";
 import { formMessageHandler } from "./DataEntryMessageHandler";
 import { GetDataset } from "../../graphql/__generated__/GetDataset";
 import { DataEntryCategorySections } from "./DataEntryCategorySections";
+import { useCreateRecordMutation, useUpdateRecordMutation } from "./hooks";
 
 const { Text } = Typography;
 
@@ -47,9 +45,9 @@ export interface Entry {
  * @param {GetRecord} record and entried object
  * @returns form for rendering data entry fields
  */
-const renderForm = (
+export const renderForm = (
   metadata: GetDataset | undefined,
-  existingRecord: GetRecord | undefined
+  existingRecord?: GetRecord | undefined
 ) => {
   let form: Array<Entry>;
 
@@ -92,23 +90,36 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     dayjs(props.existingRecord?.record?.publicationDate).format("YYYY-MM-DD")
   );
 
+  const {
+    createRecord,
+    loading: loadingRecordCreation,
+    error: errorOnCreate,
+  } = useCreateRecordMutation({ datasetId: props.datasetId });
+
+  const { updateRecord, error: errorOnRecordUpdate } = useUpdateRecordMutation({
+    datasetId: props.datasetId,
+  });
+
   const [error, setError] = useState<Error>();
   const dupeRecordErrorMessage = `A record with date ${formPublicationDate}
       already exists for this dataset. Please enter a new date and try again or edit the existing
       record.`;
 
-  const [
-    createRecord,
-    { data: newRecordData, loading: loadingRecordCreation, error: createError },
-  ] = useMutation(CREATE_RECORD, {
-    awaitRefetchQueries: true,
-    refetchQueries: [
-      {
-        query: GET_DATASET,
-        variables: { id: props.datasetId },
-      },
-    ],
-  });
+  // NOTE: Refs cannot be as expected to check against the submitter
+  // in a form event because  Safari browsers do not have a submitter
+  // for synthetic events. As a workaround, we are using refs like
+  // similar to how we would use state hooks but with the tested
+  // guarantee that we could call on this boolean and immediately
+  // get the updated value once it has been set. Our tests failed when
+  // we attempted to do the same with a state hook.
+  // TODO: Replace native HTML form with AntD form and test for accessibility
+  // to see if setting state for button clicks solves this issue using
+  // an AntD form .
+  const isSaveAndAddAnotherRecordClicked = useRef(false);
+  // set reference when "save and add another" button is clicked
+  const setIsSaveAndAddAnotherRecord = (clicked: boolean) => {
+    isSaveAndAddAnotherRecordClicked.current = clicked;
+  };
 
   /**
    * Function creates a new dataset record input object with entries.
@@ -130,31 +141,11 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     });
   };
 
-  const [
-    updateRecord,
-    {
-      data: updatedRecordData,
-      loading: loadingRecordUpdate,
-      error: updateError,
-    },
-  ] = useMutation(UPDATE_RECORD, {
-    onCompleted: (data) => {
-      if (data) props.onFormSubmitted(true);
-    },
-    awaitRefetchQueries: true,
-    refetchQueries: [
-      {
-        query: GET_DATASET,
-        variables: { id: props.datasetId },
-      },
-    ],
-  });
-
   /**
    * Function creates an updated dataset record input object with entries.
    * @returns mutation to update a record
    */
-  const update = () => {
+  const update = async () => {
     const updatedRecord = {
       input: {
         id: props.recordId,
@@ -167,6 +158,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         })),
       },
     };
+
     return updateRecord({
       variables: updatedRecord,
     });
@@ -175,23 +167,20 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (isEditMode) {
-      try {
-        await update();
-      } catch (err) {
-        setError(err);
-      }
+    // if second save button has been clicked
+    if (isSaveAndAddAnotherRecordClicked.current) {
+      return handleSubmitForSaveAndAddNewRecord();
     }
 
     try {
-      const data = await create();
-      if (data) props.onFormSubmitted(true);
+      const data = isEditMode ? await update() : await create();
+      if (data) return props.onFormSubmitted(true);
     } catch (err) {
-      setError(err);
+      return setError(err);
     }
   };
 
-  const handleSubmitReload = async () => {
+  const handleSubmitForSaveAndAddNewRecord = async () => {
     try {
       const data = await create();
       if (loadingRecordCreation) {
@@ -206,6 +195,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           isSuccess: true,
         });
         clearState();
+        setIsSaveAndAddAnotherRecord(false);
       }
     } catch (err) {
       setError(err);
@@ -214,6 +204,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   const clearState = () => {
     setValues(entries);
+    setFormPublicationDate("");
   };
 
   const handleChange = (
@@ -230,8 +221,12 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   // TODO: prevent user from editing date
   return (
-    <form onSubmit={handleSubmit} id="data-entry-form" aria-label="Data Entry">
-      {createError && error && (
+    <form
+      onSubmit={handleSubmit}
+      id="data-entry-form"
+      aria-label="data-entry-form"
+    >
+      {errorOnCreate && error && (
         <Alert
           message="Oh, no! Something went wrong"
           description={
@@ -244,7 +239,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           closable
         />
       )}
-      {updateError && error && (
+      {errorOnRecordUpdate && error && (
         <Alert
           message="Oh, no! Something went wrong"
           description={`${error.message} \nPlease refresh and try again.`}
@@ -255,15 +250,21 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       )}
       <div className="data-entry_publication-date-field">
         <label htmlFor="publicationDate">
-          <Text>Released on: </Text>
+          <Text>Released on: </Text>{" "}
+          <span
+            className="data-entry-form_required-field"
+            aria-labelledby="publicationDate"
+          >
+            {" * "}
+          </span>
           <input
             type="date"
             id="publicationDate"
             name="publicationDate"
             aria-label="publicationDate"
             value={formPublicationDate}
-            aria-required="true"
             required
+            aria-required="true"
             onChange={(e) => setFormPublicationDate(e.target.value)}
           />
         </label>
@@ -278,9 +279,12 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
             {isEditMode ? (
               <Button
                 type="primary"
+                name="save"
+                value="update record"
                 htmlType="submit"
                 icon={<SaveOutlined />}
                 style={{ whiteSpace: "normal", height: "auto" }}
+                onClick={() => setIsSaveAndAddAnotherRecord(false)}
               >
                 {t("saveRecord", {
                   buttonTitle: "Update",
@@ -290,19 +294,24 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
               <>
                 <Button
                   type="primary"
+                  name="save"
+                  value="save record"
                   htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
+                  onClick={() => setIsSaveAndAddAnotherRecord(false)}
                 >
                   {t("saveRecord", {
                     buttonTitle: "Save",
                   })}
                 </Button>
                 <Button
-                  htmlType="button"
+                  name="save_add_new"
+                  value="save and add another record"
+                  htmlType="submit"
                   icon={<SaveOutlined />}
                   style={{ whiteSpace: "normal", height: "auto" }}
-                  onClick={() => handleSubmitReload()}
+                  onClick={() => setIsSaveAndAddAnotherRecord(true)}
                 >
                   {t("saveRecord", {
                     buttonTitle: "Save and Add Another",

@@ -12,10 +12,11 @@ export const ErrorFallback = ({ error }: ErrorProps): JSX.Element => {
     <Alert
       className="error-alert"
       role="alert"
-      message="Something went wrong"
+      message="Oh, no! Something went wrong"
       description={`${error.message} Please refresh and try again.`}
       type="error"
       showIcon
+      closable
     />
   );
 };

@@ -29,6 +29,5 @@ export const formMessageHandler = ({
   if (isSuccess)
     return messageSuccess({
       content: `Success! Your ${messageText} record has been saved.`,
-      key: messageKey,
     });
 };

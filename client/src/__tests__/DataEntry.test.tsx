@@ -1,17 +1,21 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  cleanup,
+  fireEvent,
+} from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import React from "react";
 import { createMemoryHistory } from "history";
 import { Router, useParams } from "react-router-dom";
-import i18next from "i18next";
-import { initReactI18next } from "react-i18next";
 import userEvent from "@testing-library/user-event";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
 import { ApolloProvider } from "@apollo/client";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 import MockDate from "mockdate";
-import i18nextTest from "../services/i18next-test";
 
 const history = createMemoryHistory();
 
@@ -27,6 +31,8 @@ async function wait(ms = 0) {
     });
   });
 }
+
+beforeEach(cleanup);
 
 test("should load and return error if dataset query fails", async () => {
   (useParams as jest.Mock).mockReturnValue({
@@ -257,21 +263,21 @@ test("should render success screen if on click 'save record' is successful", asy
   const saveButton = screen.getByRole("button", { name: /Save Record/i });
   userEvent.click(saveButton);
 
-  await waitFor(() => {
-    expect(
-      screen.getByText(
-        /Data has been saved succesfully for BBC News | Breakfast Hour/i
-      )
-    ).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Data has been saved succesfully/i)
+  ).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /Add More Data/i }));
-  });
+  expect(await screen.findByRole("button", { name: /Add More Data/i }));
 });
 
 test("should render success message and stay on screen if on click 'save and add another' is successful", async () => {
   (useParams as jest.Mock).mockReturnValue({
     datasetId: "5a8ee1d5-2b5a-49db-b466-68fe50a27cdb",
   });
+
+  // Sets a fixed date of Sunday, 14 June 2015 22:12:05.275
+  // (2015-06-14)
+  MockDate.set(1434319925275);
 
   const client = autoMockedClient();
 
@@ -285,16 +291,42 @@ test("should render success message and stay on screen if on click 'save and add
 
   await wait();
 
-  const saveButton = screen.getByRole("button", {
+  // assert mock date is initialized in form
+  expect(
+    screen.getByLabelText(/publicationDate/, {
+      selector: "input",
+    })
+  ).toHaveValue("2015-06-14");
+
+  const input = screen.getByRole("textbox", {
+    name: /non-binary/i,
+  }) as HTMLInputElement;
+
+  // set non-binary count to 23 and assert expected value
+  fireEvent.change(input, { target: { value: "23" } });
+  expect(input.value).toBe("23");
+
+  const saveAndAddAnotherRecordButton = screen.getByRole("button", {
     name: /save and add another/i,
   });
-  userEvent.click(saveButton);
 
-  await waitFor(() => {
-    expect(
-      screen.getByText(/Success! Your new record has been saved/i)
-    ).toBeInTheDocument();
-  });
+  userEvent.click(saveAndAddAnotherRecordButton);
+
+  // assert success notification
+  expect(
+    await screen.findByText(/Success! Your new record has been saved/i)
+  ).toBeInTheDocument();
+
+  // assert publication date has been cleared
+  expect(await screen.findByLabelText(/publicationDate/)).not.toHaveValue(
+    "2015-06-14"
+  );
+
+  // assert form values have been reset after save and add new
+  expect(input.value).toBe("0");
+
+  // reset to native Date()
+  MockDate.reset();
 });
 
 test("should render error alert if saving a new record is not successful", async () => {
