@@ -119,6 +119,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   records: [Record!]!
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
+  personTypes: [String!]
 }
 
 type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
@@ -126,6 +127,7 @@ type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   dataset: Dataset!
   publicationDate: DateTime!
   entries: [Entry!]!
+  personType: String!
 }
 
 type CategoryValue {
