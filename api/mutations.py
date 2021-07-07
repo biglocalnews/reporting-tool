@@ -296,28 +296,45 @@ def resolve_delete_team(obj, info, id):
     session.commit()
     
     return id
+
+
 @mutation.field("createProgram")
 @convert_kwargs_to_snake_case
 def resolve_create_program(obj, info, input):
     '''GraphQL mutation to create a Program.
         :param input: params for new Program
-        :returns: Program dictionary
+        :returns: Program object
     '''
-
     session = info.context['dbsession']
-    datasets = input.pop('dataset_ids')
-    targets = input.pop('target_ids')
-    tags = input.pop('tag_ids')
+    datasets = input.pop('datasets', [])
+    targets = input.pop('targets', [])
+    tags = input.pop('tags', [])
+    if 'description' not in input:
+        input['description'] = ''
     
     program = Program(**input)
-    program.datasets += [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
-    program.targets += [session.merge(Target(id=target_id)) for target_id in targets]
-    program.tags += [session.merge(Tag(id=tag_id)) for tag_id in tags]
+    program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
+    program.tags = [session.merge(Tag(**tag)) for tag in tags]
+    
+    program = Program(
+            name=input['name'],
+            description=input.get('description', ''),
+            team_id=input['team_id'],
+            )
+        
+    for target_dict in input.get('targets', []):
+        cv_dict = target_dict.pop('category_value')
+        cat_dict = cv_dict.pop('category')
+        cv = session.merge(CategoryValue(**cv_dict))
+        cv.category_id = cat_dict['id']
+        target = Target(target_date=func.now(), category_value=cv, **target_dict)
+        program.targets.append(target)
 
     session.add(program)
     session.commit()
     
     return program
+
 
 @mutation.field("updateProgram")
 @convert_kwargs_to_snake_case
@@ -328,20 +345,37 @@ def resolve_update_program(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    datasets = input.pop('dataset_ids', [])
-    targets = input.pop('target_ids', [])
-    tags = input.pop('tag_ids', [])
-    program = session.query(Program).get(input['id'])
-    if len(datasets) > 0:
-        program.datasets = [session.merge(Dataset(id=uuid.UUID(dataset_id))) for dataset_id in datasets]
-    if len(targets) > 0:
-        program.targets = [session.merge(Target(id=uuid.UUID(target_id))) for target_id in targets]
-    if len(tags) > 0:
-        program.tags = [session.merge(Tag(id=uuid.UUID(tag_id))) for tag_id in tags]
-    for param in input:
-        setattr(program, param, input[param])
-    session.add(program)
+
+    program = session.query(Program).get(input.pop('id'))
+    
+    if 'team_id' in input:
+        program.team = session.merge(Team(id=input.pop('team_id')))
+
+    if 'targets' in input:
+        program.targets = []
+        for target_dict in input.pop('targets'):
+            cv_dict = target_dict.pop('category_value')
+            cat_dict = cv_dict.pop('category')
+            cv = session.merge(CategoryValue(**cv_dict))
+            cv.category_id = cat_dict['id']
+            target = session.merge(Target(target_date=func.now(), **target_dict))
+            target.category_value = cv
+            program.targets.append(target)
+
+    if 'datasets' in input:
+        program.datasets = [session.merge(Dataset(**d)) for d in input.pop('datasets')]
+
+    if 'tags' in input:
+        program.tags = [session.merge(Tag(**t)) for t in input.pop('tags')]
+
+    for key, value in input.items():
+        setattr(program, key, value)
+    
+    session.merge(program)
     session.commit()
+    return program
+
+
 
     return program
 

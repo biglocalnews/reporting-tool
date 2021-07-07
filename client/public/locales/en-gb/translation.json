@@ -12,5 +12,31 @@
   "editData": "Edit",
   "backToDashboard": "Back To Dashboard",
   "noDataAvailable": "No Data Available",
-  "adminSidebarManagePrograms": "Programmes"
+  "adminSidebarManagePrograms": "Programmes",
+  "admin": {
+    "program": {
+      "index": {
+        "title": "Programmes",
+        "subtitle": "Use this page to view and manage programmes",
+        "add": "Create Programme"
+      },
+      "create": {
+        "title": "Create a new programme",
+        "basedOnPlaceholder": "Select a programme to use as a template"
+      },
+      "edit": {
+        "title": "Edit Programme",
+        "form": {
+          "confirmDelete": "Do you really wish to delete this programme?"
+        },
+        "alreadyDeletedTitle": "This programme has been deleted.",
+        "alreadyDeletedInfo": "You cannot edit this programme while it is deleted. You can restore it if you wish.",
+        "validation": {
+          "saveError": "Failed to save changes to programme",
+          "deleteError": "Failed to deactivate programme",
+          "restoreError": "Failed to restore programme"
+        }
+      }
+    }
+  }
 }

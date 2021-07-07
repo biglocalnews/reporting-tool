@@ -72,7 +72,8 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   team: Team!
   datasets: [Dataset!]!
   targets: [Target!]!
-  tags: [Tag!]
+  tags: [Tag!]!
+  deleted: DateTime
 }
 
 type Tag {
@@ -221,25 +222,6 @@ input UpdateTeamInput {
   organizationId: ID
 }
 
-input CreateProgramInput {
-  name: String!
-  description: String!
-  teamId: ID!
-  datasetIds: [ID!]!
-  targetIds: [ID!]!
-  tagIds: [ID!]!
-}
-
-input UpdateProgramInput {
-  id: ID!
-  name: String
-  description: String
-  teamId: ID
-  datasetIds: [ID!]
-  targetIds: [ID!]
-  tagIds: [ID!]
-}
-
 input EntryInput {
   id: ID
   categoryValueId: ID!
@@ -251,6 +233,44 @@ input CategoryInput {
   name: String!
   description: String!
 }
+
+input BaseCategoryInput {
+  id: ID!
+}
+
+input CategoryValueInput {
+  id: ID
+  name: String
+  category: BaseCategoryInput!
+}
+
+input TargetInput {
+  id: ID
+  target: Float!
+  categoryValue: CategoryValueInput!
+}
+
+input CreateProgramInput {
+  name: String!
+  teamId: ID!
+  targets: [TargetInput!]
+}
+
+input UpsertDatasetInput {
+  id: ID
+  name: String
+  description: String
+}
+
+input UpdateProgramInput {
+  id: ID!
+  name: String
+  teamId: ID
+  description: String
+  targets: [TargetInput!]
+  datasets: [UpsertDatasetInput!]
+}
+
 
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
@@ -285,6 +305,12 @@ type Query {
 
   # Retrive list of all roles.
   roles: [Role!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve list of all programs
+  programs: [Program!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of categories
+  categories: [Category!]! @needsPermission(permission: [ADMIN])
 }
 
 type Mutation {
@@ -342,14 +368,15 @@ type Mutation {
 
   # Delete a Team
   deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
   # Create a Program
   createProgram(input: CreateProgramInput!): Program!
-    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+    @needsPermission(permission: [ADMIN])
 
   # Update a Program
   updateProgram(input: UpdateProgramInput!): Program!
     @needsPermission(permission: [ADMIN])
 
   # Delete a Program
-  deleteProgram(id: ID!): ID! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+  deleteProgram(id: ID!): ID! @needsPermission(permission: [ADMIN])
 }
