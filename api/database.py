@@ -31,7 +31,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import text
-from sqlalchemy.sql.sqltypes import TIMESTAMP
+from sqlalchemy.sql.sqltypes import ARRAY, TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from lazy_object_proxy import Proxy
@@ -515,6 +515,7 @@ class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+    person_types = Column(ARRAY(String(255)))
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     program = relationship('Program', back_populates='datasets')
@@ -551,11 +552,12 @@ class Record(Base, PermissionsMixin):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     dataset = relationship('Dataset', back_populates='records')
+    person_type = Column(String(255), nullable=False)
     dataset_id = Column(GUID, ForeignKey(
         'dataset.id'), nullable=False, index=True)
     publication_date = Column(DateTime, index=True)
     entries = relationship('Entry', back_populates='record')
-    __table_args__ = (UniqueConstraint('dataset_id', 'publication_date', name='uix_dataset_id_publication_date'),
+    __table_args__ = (UniqueConstraint('dataset_id', 'publication_date', 'person_type', name='uix_dataset_id_publication_date'),
                      )
 
     created = Column(TIMESTAMP,
@@ -695,8 +697,9 @@ def create_dummy_data(session):
     session.add(admin_user)
     
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
-            description='breakfast hour programming')
-    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
+            description='breakfast hour programming', person_types=['BBC Contributor', 'Non-BBC Contributor'])
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM',
+            description='afternoon programming', person_types=['BBC Contributor', 'Non-BBC Contributor'])
     
     program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming', datasets=[ds1, ds2])
@@ -743,7 +746,8 @@ def create_dummy_data(session):
     
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
     Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S'), 
-           entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8]) 
+           entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8],
+           person_type='BBC Contributor') 
     
     session.add(category_value_white)
     session.add(org)
