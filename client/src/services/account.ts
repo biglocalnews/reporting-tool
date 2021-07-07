@@ -246,3 +246,30 @@ export const requestPasswordReset = async (email: string) => {
       throw new Error(r.statusText);
   }
 };
+
+/**
+ * All the core methods together as a single unit.
+ *
+ * This default client can be swapped out or mocked for testing.
+ */
+const defaultClient = {
+  verify,
+  requestVerifyUser,
+  newRandomPassword,
+  createUser,
+  editUser,
+  deleteUser,
+  restoreUser,
+  resetPassword,
+  requestPasswordReset,
+};
+
+/**
+ * The default user account management client.
+ */
+export default defaultClient;
+
+/**
+ * Expose the client type so it can be replaced and mocked correctly in tests.
+ */
+export type UserAccountManager = typeof defaultClient;

@@ -1,10 +1,5 @@
 import React, { useContext } from "react";
-import * as account from "../services/account";
-
-/**
- * Type of the User Account REST API client.
- */
-export type UserAccountManager = typeof account;
+import account, { UserAccountManager } from "../services/account";
 
 /**
  * Context container for the account client.

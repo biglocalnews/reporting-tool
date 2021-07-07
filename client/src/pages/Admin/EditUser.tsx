@@ -151,7 +151,7 @@ const useSaveUser = (id: string, t: TFunction) => {
 /**
  * Hook for user deletion request and state.
  */
-const useDeleteUser = (userId: string, t: TFunction) => {
+const useDeleteUser = (userId: string, refresh: () => void, t: TFunction) => {
   const history = useHistory();
   const account = useUserAccountManager();
   const [deleting, setDeleting] = useState(false);
@@ -178,7 +178,7 @@ const useDeleteUser = (userId: string, t: TFunction) => {
         onOk: async () => {
           try {
             await account.deleteUser(userId);
-            history.push("/admin/users");
+            refresh();
           } catch (e) {
             setDeleteError(e);
           } finally {
@@ -244,7 +244,11 @@ export const EditUser = () => {
 
   const [teamSelectorOpen, setTeamSelectorOpen] = useState(false);
   const { saving, saveError, saveUser } = useSaveUser(userId, t);
-  const { deleting, deleteError, deleteUser } = useDeleteUser(userId, t);
+  const { deleting, deleteError, deleteUser } = useDeleteUser(
+    userId,
+    refresh,
+    t
+  );
   const { restoring, restoreError, restoreUser } = useRestoreUser(
     userId,
     refresh,
