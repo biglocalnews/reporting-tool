@@ -15,6 +15,8 @@ import {
 import { onError } from "@apollo/client/link/error";
 import { AuthProvider } from "./components/AuthProvider";
 import { Auth } from "./services/auth";
+import { UserAccountManagerProvider } from "./components/UserAccountManagerProvider";
+import * as account from "./services/account";
 import { Loading } from "./components/Loading/Loading";
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -64,7 +66,9 @@ const MainApp = () => {
     <Suspense fallback={<Loading />}>
       <ApolloProvider client={client}>
         <AuthProvider auth={auth}>
-          <App />
+          <UserAccountManagerProvider value={account}>
+            <App />
+          </UserAccountManagerProvider>
         </AuthProvider>
       </ApolloProvider>
     </Suspense>

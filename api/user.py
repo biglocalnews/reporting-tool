@@ -2,6 +2,7 @@ from pydantic import BaseModel, UUID4, EmailStr
 from fastapi_users import models
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.db.sqlalchemy import GUID
+from sqlalchemy.sql import func
 from typing import Optional, List
 import database
 
@@ -65,6 +66,8 @@ class UserUpdateModel(BaseUserCreateUpdate):
     last_name: Optional[str]
     roles: Optional[List[UserRole]]
     teams: Optional[List[UserTeam]]
+    is_active: Optional[bool]
+    is_verified: Optional[bool]
 
 
 class UserDBModel(UserModel, models.BaseUserDB):
@@ -86,6 +89,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         user = UserDBModel.from_orm(ormuser)
         if any(r.name == 'admin' for r in user.roles):
             user.is_superuser = True
+        user.is_active = ormuser.deleted is None
         return user
 
     def __init__(self, session_factory):
@@ -132,9 +136,19 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         dbuser = session.query(database.User).get(user.id)
 
         # Only allow updates of certain columns
-        for k in ['first_name', 'last_name', 'email']:
+        for k in ['first_name', 'last_name', 'email', 'is_active', 'is_verified', 'hashed_password']:
             if k in d:
                 setattr(dbuser, k, d[k])
+
+                # Special handling for deletes, since we use the `deleted`
+                # column while the fastapi-users library uses is_active. We
+                # let queries set `is_active` if they want to delete or restore
+                # and we will set `deleted` automatically.
+                if k == 'is_active':
+                    if d[k]:
+                        dbuser.deleted = None
+                    else:
+                        dbuser.deleted = func.now()
         
         # Update roles and teams separately
         dbuser.roles = session.query(database.Role).filter(
@@ -158,6 +172,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         database.User.delete(session, user.id)
         session.commit()
         session.close()
+        return None
 
 
 user_db = SQLAlchemyORMUserDatabase(database.SessionLocal)

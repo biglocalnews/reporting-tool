@@ -4,6 +4,8 @@ import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { Home } from "../pages/Home/Home";
+import { UserList } from "../pages/Admin/UserList";
+import { EditUser } from "../pages/Admin/EditUser";
 
 interface SubRoute extends BreadcrumbsRoute {
   key?: string;
@@ -80,22 +82,29 @@ export const adminRoutes: IRoute[] = [
         path: "/admin/users",
         key: "users",
         exact: true,
-        component: Todo("manage users"),
-        breadcrumb: "Manage users",
+        component: UserList,
+        breadcrumb: "Manage Users",
+      },
+      {
+        path: "/admin/users/:userId",
+        key: "user",
+        exact: true,
+        component: EditUser,
+        breadcrumb: "Edit User",
       },
       {
         path: "/admin/teams",
         key: "teams",
         exact: true,
         component: Todo("manage teams"),
-        breadcrumb: "Manage teams",
+        breadcrumb: "Manage Teams",
       },
       {
         path: "/admin/programs",
         key: "programs",
         exact: true,
         component: Todo("manage programs"),
-        breadcrumb: "Manage programs",
+        breadcrumb: "Manage Programs",
       },
     ],
   },

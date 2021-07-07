@@ -101,19 +101,19 @@ export const AppNormalUserSidebarMenu = () => {
 export const AppAdminSidebarMenu = () => {
   const { t, i18n } = useTranslation();
   return (
-    <Menu mode="inline">
-      <Menu.Item key="alldata" icon={<DatabaseOutlined />}>
-        <Link to="/">{t("adminSidebarViewAll")}</Link>
+    <Menu mode="inline" role="menubar">
+      <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+        <Link to="/">{t("admin.sidebar.viewAll")}</Link>
       </Menu.Item>
-      <Menu.ItemGroup key="admin" title={t("adminSidebarControlsHeader")}>
-        <Menu.Item key="users" icon={<UserSwitchOutlined />}>
-          <Link to="/admin/users">{t("adminSidebarManageUsers")}</Link>
+      <Menu.ItemGroup key="admin" title={t("admin.sidebar.controlsHeader")}>
+        <Menu.Item key="users" icon={<UserSwitchOutlined />} role="menuitem">
+          <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
         </Menu.Item>
-        <Menu.Item key="teams" icon={<TeamOutlined />}>
-          <Link to="/admin/teams">{t("adminSidebarManageTeams")}</Link>
+        <Menu.Item key="teams" icon={<TeamOutlined />} role="menuitem">
+          <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
         </Menu.Item>
-        <Menu.Item key="programs" icon={<TableOutlined />}>
-          <Link to="/admin/programs">{t("adminSidebarManagePrograms")}</Link>
+        <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
+          <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
         </Menu.Item>
       </Menu.ItemGroup>
     </Menu>

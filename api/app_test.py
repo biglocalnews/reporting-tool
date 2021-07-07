@@ -1,8 +1,9 @@
 import unittest
 import sqlalchemy
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from fastapi_users.utils import generate_jwt, JWT_ALGORITHM
+from fastapi_users.password import verify_and_update_password
 from fastapi.testclient import TestClient
 from ariadne import graphql_sync
 from sqlalchemy import create_engine
@@ -27,10 +28,9 @@ from database import (
 from uuid import UUID
 
 
-def user_cookie(user_id):
-    data = {"aud": "fastapi-users:auth"}
-    if user_id:
-        data["user_id"] = user_id
+def get_valid_token(aud, **kwargs):
+    data = {"aud": aud}
+    data.update(kwargs)
     return generate_jwt(data,
             cookie_authentication.lifetime_seconds,
             cookie_authentication.secret,
@@ -82,6 +82,10 @@ class TestAppUsers(BaseAppTest):
         app.extra['get_db_session'] = self.Session
         user_db.session_factory = self.Session
 
+        # Mock the email sender
+        self.send_email_patch = patch('mailer.send_email')
+        self.mock_send_email = self.send_email_patch.start()
+
         # Set up Starlette test client
         self.client = TestClient(app)
 
@@ -92,6 +96,10 @@ class TestAppUsers(BaseAppTest):
                 'other': 'a47085ba-3d01-46a4-963b-9ffaeda18113',
                 }
 
+    def tearDown(self):
+        super().tearDown()
+        self.send_email_patch.stop()
+
     def test_users_me_not_authed(self):
         """Checks that route returns error when user is not authed."""
         response = self.client.get('/users/me')
@@ -100,7 +108,8 @@ class TestAppUsers(BaseAppTest):
 
     def test_users_me_normal(self):
         """Checks that a user can get info about themselves."""
-        response = self.client.get('/users/me', cookies={'rtauth': user_cookie(self.user_ids['normal'])})
+        response = self.client.get('/users/me',
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['normal'])})
         assert response.status_code == 200
         assert response.json() == {
                 'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
@@ -116,7 +125,8 @@ class TestAppUsers(BaseAppTest):
 
     def test_users_me_admin(self):
         """Checks that an admin user can get info about themselves."""
-        response = self.client.get('/users/me', cookies={'rtauth': user_cookie(self.user_ids['admin'])})
+        response = self.client.get('/users/me',
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])})
         assert response.status_code == 200
         assert response.json() == {
                 'id': 'df6413b4-b910-4f6e-8f3c-8201c9e65af3',
@@ -138,7 +148,7 @@ class TestAppUsers(BaseAppTest):
         """Checks that an admin can create a new user."""
         response = self.client.post(
                 "/auth/register",
-                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])},
                 json={
                     "email": "new@user.org",
                     "first_name": "new",
@@ -160,12 +170,14 @@ class TestAppUsers(BaseAppTest):
                 'roles': [],
                 'teams': [],
                 }
+        self.mock_send_email.assert_called_once()
+        assert self.mock_send_email.call_args[0][0]["Subject"] == "Your new reporting tool account"
 
     def test_users_register_normal(self):
         """Checks that a normal user cannot create a new user."""
         response = self.client.post(
                 "/auth/register",
-                cookies={'rtauth': user_cookie(self.user_ids['normal'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['normal'])},
                 json={
                     "email": "new@user.org",
                     "first_name": "new",
@@ -198,7 +210,7 @@ class TestAppUsers(BaseAppTest):
         """Test that user cannot be added to team / roles on creation."""
         response = self.client.post(
                 "/auth/register",
-                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])},
                 json={
                     "email": "new@user.org",
                     "first_name": "new",
@@ -229,7 +241,7 @@ class TestAppUsers(BaseAppTest):
         """Test that users without permission can't update other users."""
         response = self.client.patch(
                 f"/users/{self.user_ids['normal']}",
-                cookies={'rtauth': user_cookie(None)},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth")},
                 json={
                     "email": "some@updated.email",
                     })
@@ -241,7 +253,7 @@ class TestAppUsers(BaseAppTest):
         for user in ['other', 'normal']:
             response = self.client.patch(
                     f"/users/{self.user_ids['normal']}",
-                    cookies={'rtauth': user_cookie(self.user_ids[user])},
+                    cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids[user])},
                     json={
                         "email": "some@updated.email",
                         })
@@ -252,7 +264,7 @@ class TestAppUsers(BaseAppTest):
         """Test that admins and the user themselves can update their info."""
         response = self.client.patch(
                 f"/users/{self.user_ids['normal']}",
-                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])},
                 json={
                     "email": "some@updated.email",
                     })
@@ -273,9 +285,10 @@ class TestAppUsers(BaseAppTest):
                 }
 
     def test_user_update_grant_admin(self):
+        """Test that the admin can grant other users the admin role."""
         response = self.client.patch(
                 f"/users/{self.user_ids['normal']}",
-                cookies={'rtauth': user_cookie(self.user_ids['admin'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])},
                 json={
                     "roles": [{"id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"}],
                     })
@@ -303,7 +316,7 @@ class TestAppUsers(BaseAppTest):
         """Test that normal users can't escalate privileges."""
         response = self.client.patch(
                 "/users/me",
-                cookies={'rtauth': user_cookie(self.user_ids['normal'])},
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['normal'])},
                 json={
                     "roles": [{"id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"}],
                     })
@@ -322,6 +335,73 @@ class TestAppUsers(BaseAppTest):
                     }],
                 }
         assert response.status_code == 200
+
+    def test_user_can_verify(self):
+        """Test that a user can verify their account through the API."""
+        response = self.client.post(
+                "/auth/verify",
+                json={"token": get_valid_token(
+                    "fastapi-users:verify",
+                    user_id=self.user_ids['normal'],
+                    email="tester@notrealemail.info",
+                    )})
+        assert response.status_code == 200
+        user_response = self.client.get(
+                f"/users/{self.user_ids['normal']}",
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])})
+        assert user_response.json() == {
+                'email': 'tester@notrealemail.info',
+                'first_name': 'Cat',
+                'last_name': 'Berry',
+                'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'is_superuser': False,
+                'is_active': True,
+                'is_verified': True,
+                'roles': [],
+                'teams': [{
+                    'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
+                    'name': 'News Team',
+                    }],
+                }
+        self.mock_send_email.assert_called_once()
+        assert self.mock_send_email.call_args[0][0]["Subject"] == "Your email has been verified!"
+
+    def test_user_can_reset_password(self):
+        """Test that a user can reset their password with a token."""
+        response = self.client.post(
+                "/auth/reset-password",
+                json={
+                    "token": get_valid_token(
+                        "fastapi-users:reset",
+                        user_id=self.user_ids['normal'],
+                        email="tester@notrealemail.info"),
+                    "password": "newpassword",
+                    })
+        assert response.status_code == 200
+        # Check that the password was actually updated
+        s = self.Session()
+        u = s.query(User).get(self.user_ids['normal'])
+        verified, _ = verify_and_update_password("newpassword", u.hashed_password)
+        s.close()
+        assert verified
+
+    def test_request_verify(self):
+        """Test that verification request sends an email."""
+        response = self.client.post(
+                "/auth/request-verify-token",
+                json={"email": "tester@notrealemail.info"})
+        assert response.status_code == 202
+        self.mock_send_email.assert_called_once()
+        assert self.mock_send_email.call_args[0][0]["Subject"] == "Please verify your email address"
+
+    def test_forgot_password(self):
+        """Test that a user can request a password reset token."""
+        response = self.client.post(
+                "/auth/forgot-password",
+                json={"email": "tester@notrealemail.info"})
+        assert response.status_code == 202
+        self.mock_send_email.assert_called_once()
+        assert self.mock_send_email.call_args[0][0]["Subject"] == "Your password reset token"
 
 
 
@@ -412,6 +492,7 @@ class TestGraphQL(BaseAppTest):
                           id
                           firstName
                           lastName
+                          active
                           teams {
                             name
                             programs {
@@ -442,6 +523,7 @@ class TestGraphQL(BaseAppTest):
                         "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
                         "firstName": "Cat",
                         "lastName": "Berry",
+                        "active": True,
                         "teams": [{
                             "name": "News Team",
                             "programs": [{
@@ -1986,6 +2068,115 @@ class TestGraphQL(BaseAppTest):
             query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
             user_teams = self.session.execute(query).fetchall()
             self.assertEqual(len(user_teams), 1)
+
+    def test_get_users(self):
+        """Admins can fetch a full list of users, other users cannot."""
+        # List of users and expected authorization response. True means the
+        # response should succeed, False means it should not be authorized.
+        users = [
+                ["admin", True],
+                ["other", False],
+                ["normal", False],
+                [None, False],
+                ]
+
+        for user_name, should_auth in users:
+            user = self.test_users[user_name] if user_name else None
+            success, result = self.run_graphql_query({
+                "operationName": "GetUsers",
+                "query": """
+                    query GetUsers {
+                        users {
+                            email
+                            active
+                        }
+                    }
+                """,
+            }, user=user)
+            assert success
+            if should_auth:
+                assert result == {
+                        "data": {
+                            "users": [
+                                {"email": "admin@notrealemail.info", "active": True},
+                                {"email": "other@notrealemail.info", "active": True},
+                                {"email": "tester@notrealemail.info", "active": True},
+                                ],
+                            },
+                        }
+            else:
+                self.assertResultWasNotAuthed(result)
+
+    def test_get_teams(self):
+        """Admins can fetch a full list of teams, other users cannot."""
+        # List of users and expected authorization response. True means the
+        # response should succeed, False means it should not be authorized.
+        users = [
+                ["admin", True],
+                ["other", False],
+                ["normal", False],
+                [None, False],
+                ]
+
+        for user_name, should_auth in users:
+            user = self.test_users[user_name] if user_name else None
+            success, result = self.run_graphql_query({
+                "operationName": "GetTeams",
+                "query": """
+                    query GetTeams {
+                        teams {
+                            name
+                        }
+                    }
+                """,
+            }, user=user)
+            assert success
+            if should_auth:
+                assert result == {
+                        "data": {
+                            "teams": [
+                                {"name": "News Team"},
+                                ],
+                            },
+                        }
+            else:
+                self.assertResultWasNotAuthed(result)
+
+    def test_get_roles(self):
+        """Admins can fetch a full list of roles, other users cannot."""
+        # List of users and expected authorization response. True means the
+        # response should succeed, False means it should not be authorized.
+        users = [
+                ["admin", True],
+                ["other", False],
+                ["normal", False],
+                [None, False],
+                ]
+
+        for user_name, should_auth in users:
+            user = self.test_users[user_name] if user_name else None
+            success, result = self.run_graphql_query({
+                "operationName": "GetRoles",
+                "query": """
+                    query GetRoles {
+                        roles {
+                            name
+                        }
+                    }
+                """,
+            }, user=user)
+            assert success
+            if should_auth:
+                assert result == {
+                        "data": {
+                            "roles": [
+                                {"name": "admin"},
+                                ],
+                            },
+                        }
+            else:
+                self.assertResultWasNotAuthed(result)
+
 
 
 if __name__ == '__main__':

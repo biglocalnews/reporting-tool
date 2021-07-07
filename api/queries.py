@@ -1,13 +1,14 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue, Entry, Team
+from database import Dataset, User, Record, Category, CategoryValue, Entry, Team, Role
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
+user = ObjectType("User")
 sum_entries_by_category_value = ObjectType("SumEntriesByCategoryValue")
 
-queries = [query, dataset, sum_entries_by_category_value]
+queries = [query, dataset, user, sum_entries_by_category_value]
 
 '''GraphQL query to find a user based on user ID.
     :param obj: obj is a value returned by a parent resolver
@@ -22,9 +23,23 @@ def resolve_user(obj, info, id):
         :returns: User dictionary OR None if User was soft-deleted
     '''
     session = info.context['dbsession']
-    user = session.query(User).filter(User.id == id, User.deleted == None).first()
+    user = session.query(User).filter(User.id == id).first()
 
     return user
+
+@user.field("active")
+def resolve_user_active(user, info):
+    '''Field indicating whether user is currently active.'''
+    return user.deleted is None
+
+@query.field("users")
+@convert_kwargs_to_snake_case
+def resolve_users(obj, info):
+    '''GraphQL query to fetch list of all users.
+    :returns: List of all users
+    '''
+    session = info.context['dbsession']
+    return session.query(User).order_by(User.email.asc()).all()
 
 @query.field("dataset")
 @convert_kwargs_to_snake_case
@@ -127,9 +142,27 @@ def resolve_category_value(obj, info, id):
 def resolve_team(obj, info, id):
     '''GraphQL query to find a Team based on Team ID.
         :param id: Id for the Team to be fetched 
-        :returns: Team dictionary 
+        :returns: Team object 
     '''
     session = info.context['dbsession']
     team = session.query(Team).get(id)
     
     return team
+
+
+@query.field("teams")
+def resolve_teams(obj, info):
+    '''GraphQL query to fetch full list of teams.
+    :returns: List of team objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Team).filter(Team.deleted == None).order_by(Team.name.asc()).all()
+
+
+@query.field("roles")
+def resolve_roles(obj, info):
+    '''GraphQL query to fetch full list of roles.
+    :returns: List of role objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Role).filter(Role.deleted == None).order_by(Role.name.asc()).all()
