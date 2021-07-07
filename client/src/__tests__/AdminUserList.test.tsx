@@ -127,7 +127,7 @@ it("lets admin create new user", async () => {
     email: "bertha@marigold.net",
   });
   expect(mockUserAccountClient.requestVerifyUser).toHaveBeenCalledTimes(1);
-  expect(mockUserAccountClient.requestVerifyUser).toHaveBeenCalledWith({
-    email: "bertha@marigold.net",
-  });
+  expect(mockUserAccountClient.requestVerifyUser).toHaveBeenCalledWith(
+    "bertha@marigold.net"
+  );
 });

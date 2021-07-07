@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button, Form, Card, Input, Typography, Modal, message } from "antd";
 import { RouteComponentProps } from "react-router-dom";
 import { Auth } from "../../services/auth";
-import * as account from "../../services/account";
 import { useAuth } from "../../components/AuthProvider";
+import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./Login.css";
 
 const { Text } = Typography;
@@ -30,6 +30,7 @@ export type LoginProps = RouteComponentProps;
  */
 export const Login = (props: LoginProps) => {
   const auth = useAuth();
+  const account = useUserAccountManager();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -64,6 +65,7 @@ export const Login = (props: LoginProps) => {
       setShowForgotPassword(false);
       message.success(t("account.resetPassword.reresetSuccess", { email }));
     } catch (e) {
+      console.error(e);
       message.error(
         t("account.resetPassword.reresetError", { message: e.message })
       );
@@ -71,11 +73,6 @@ export const Login = (props: LoginProps) => {
       setResettingPassword(false);
     }
   };
-
-  // Sync the forgot password form with the login form to save user keystrokes.
-  forgotPasswordForm.setFieldsValue({
-    email: loginForm.getFieldValue("email"),
-  });
 
   return (
     <div className="login">
@@ -106,8 +103,9 @@ export const Login = (props: LoginProps) => {
             name="email"
           >
             <Input
+              data-testid="email-reset"
               aria-required={true}
-              aria-label="e-mail"
+              aria-label={t("account.login.enterEmailLabel")}
               disabled={resettingPassword}
             />
           </Form.Item>
@@ -160,7 +158,16 @@ export const Login = (props: LoginProps) => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="link" onClick={() => setShowForgotPassword(true)}>
+            <Button
+              type="link"
+              onClick={() => {
+                // Sync the forgot password form with the login form to save user keystrokes.
+                forgotPasswordForm.setFieldsValue({
+                  email: loginForm.getFieldValue("email"),
+                });
+                setShowForgotPassword(true);
+              }}
+            >
               {t("account.login.forgotPassword")}
             </Button>
           </Form.Item>

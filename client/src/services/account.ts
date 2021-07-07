@@ -45,6 +45,62 @@ export const httpStatus = {
 };
 
 /**
+ * Type of the union of values of an object
+ */
+type ValueOf<T> = T[keyof T];
+
+/**
+ * Any of the acceptable http status codes.
+ */
+type HttpStatusCode = ValueOf<typeof httpStatus>;
+
+/**
+ * Validate the response status, throwing an error if one occurred.
+ */
+const checkError = async (
+  response: Response,
+  expectedCode?: HttpStatusCode
+) => {
+  let json;
+
+  // If there's a specific code specified, make sure that it matches, even if
+  // the response is a 2xx code.
+  const validateCode = () => {
+    if (expectedCode && expectedCode !== response.status) {
+      throw new Error("UNKNOWN_ERROR");
+    }
+  };
+
+  switch (response.status) {
+    case httpStatus.OK:
+      return validateCode();
+    case httpStatus.CREATED:
+      return validateCode();
+    case httpStatus.ACCEPTED:
+      return validateCode();
+    case httpStatus.NO_DATA:
+      return validateCode();
+    case httpStatus.BAD_REQUEST:
+      json = await response.json();
+      if (json.detail && json.detail.code) {
+        // NOTE: there's more detail here that might be interesting to pass
+        // along to the UI.
+        throw new Error(json.detail.code);
+      } else {
+        throw new Error(json.detail || "BAD_REQUEST");
+      }
+    case httpStatus.UNPROCESSABLE:
+      throw new Error("VALIDATION_ERROR");
+    case httpStatus.NOT_AUTHORIZED:
+      throw new Error("NOT_AUTHORIZED");
+    case httpStatus.FORBIDDEN:
+      throw new Error("FORBIDDEN");
+    default:
+      throw new Error("UNKNOWN_ERROR");
+  }
+};
+
+/**
  * Run verification request with the given token.
  */
 export const verify = async (token: string) => {
@@ -55,19 +111,7 @@ export const verify = async (token: string) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  let json;
-
-  switch (r.status) {
-    case httpStatus.OK:
-      return;
-    case httpStatus.BAD_REQUEST:
-      json = await r.json();
-      throw new Error(json.detail);
-    case httpStatus.UNPROCESSABLE:
-      throw new Error("VALIDATION_ERROR");
-    default:
-      throw new Error("UNKNOWN_ERROR");
-  }
+  await checkError(r, httpStatus.OK);
 };
 
 /**
@@ -102,14 +146,7 @@ export const requestVerifyUser = async (email: string) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  if (requestVerifyResponse.status !== httpStatus.ACCEPTED) {
-    const t = await requestVerifyResponse.text();
-    let message = `${requestVerifyResponse.status} - ${requestVerifyResponse.statusText}`;
-    if (t) {
-      message += `: ${t}`;
-    }
-    throw new Error(message);
-  }
+  await checkError(requestVerifyResponse, httpStatus.ACCEPTED);
 };
 
 /**
@@ -126,14 +163,7 @@ export const createUser = async (values: CreateUserFormValues) => {
     }),
   });
 
-  if (r.status !== httpStatus.CREATED) {
-    const t = await r.text();
-    let message = `${r.status} - ${r.statusText}`;
-    if (t) {
-      message += `: ${t}`;
-    }
-    throw new Error(message);
-  }
+  await checkError(r, httpStatus.CREATED);
 
   const data = await r.json();
   return data["id"] as string;
@@ -154,10 +184,7 @@ export const editUser = async (id: string, values: EditUserFormData) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  if (r.status !== httpStatus.OK && r.status !== httpStatus.ACCEPTED) {
-    const t = await r.text();
-    throw new Error(`${r.statusText} - ${t}`);
-  }
+  await checkError(r, httpStatus.OK);
 };
 
 /**
@@ -171,10 +198,7 @@ export const deleteUser = async (userId: string) => {
     credentials: "same-origin",
   });
 
-  if (response.status !== httpStatus.NO_DATA) {
-    const msg = await response.text();
-    throw new Error(`${response.status} - ${msg}`);
-  }
+  await checkError(response, httpStatus.NO_DATA);
 };
 
 /**
@@ -192,9 +216,7 @@ export const restoreUser = async (userId: string) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  if (r.status !== httpStatus.OK) {
-    throw new Error(`${r.status} - ${r.statusText}`);
-  }
+  await checkError(r, httpStatus.OK);
 };
 
 /**
@@ -208,24 +230,7 @@ export const resetPassword = async (params: ResetPasswordRequest) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  let json;
-  switch (r.status) {
-    case httpStatus.OK:
-      return;
-    case httpStatus.UNPROCESSABLE:
-      throw new Error("VALIDATION_ERROR");
-    case httpStatus.BAD_REQUEST:
-      json = await r.json();
-      if (json.detail.code) {
-        // NOTE: there's more detail here that might be interesting to pass
-        // along to the UI.
-        throw new Error(json.detail.code);
-      } else {
-        throw new Error(json.detail);
-      }
-    default:
-      throw new Error("UNKNOWN_ERROR");
-  }
+  await checkError(r, httpStatus.OK);
 };
 
 /**
@@ -239,12 +244,7 @@ export const requestPasswordReset = async (email: string) => {
     headers: [["Content-Type", "application/json"]],
   });
 
-  switch (r.status) {
-    case httpStatus.ACCEPTED:
-      return;
-    default:
-      throw new Error(r.statusText);
-  }
+  await checkError(r, httpStatus.ACCEPTED);
 };
 
 /**

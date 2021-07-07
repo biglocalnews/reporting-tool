@@ -4,7 +4,7 @@ import { UserAccountManager } from "../services/account";
 /**
  * Mock account management REST client
  */
-export const mockUserAccountClient: UserAccountManager = {
+export const mockUserAccountClient = {
   verify: jest.fn(() => Promise.resolve()),
   requestVerifyUser: jest.fn(() => Promise.resolve()),
   newRandomPassword: jest.fn(() => "newpassword"),
