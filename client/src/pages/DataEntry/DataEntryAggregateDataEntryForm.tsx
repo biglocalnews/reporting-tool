@@ -109,6 +109,16 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       already exists for this dataset. Please enter a new date and try again or edit the existing
       record.`;
 
+  // NOTE: Refs cannot be as expected to check against the submitter
+  // in a form event because  Safari browsers do not have a submitter
+  // for synthetic events. As a workaround, we are using refs like
+  // similar to how we would use state hooks but with the tested
+  // guarantee that we could call on this boolean and immediately
+  // get the updated value once it has been set. Our tests failed when
+  // we attempted to do the same with a state hook.
+  // TODO: Replace native HTML form with AntD form and test for accessibility
+  // to see if setting state for button clicks solves this issue using
+  // an AntD form .
   const isSaveAndAddAnotherRecordClicked = useRef(false);
   // set reference when "save and add another" button is clicked
   const setIsSaveAndAddAnotherRecord = (clicked: boolean) => {
