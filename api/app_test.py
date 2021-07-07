@@ -13,18 +13,19 @@ from sqlalchemy.pool import StaticPool
 from app import schema, app, cookie_authentication
 from user import user_db
 from database import (
-        Base,
-        create_tables,
-        create_dummy_data,
-        Record,
-        Entry,
-        Dataset,
-        Category,
-        CategoryValue,
-        User,
-        Team,
-        Program
-        )
+    Base,
+    create_tables,
+    create_dummy_data,
+    Record,
+    Entry,
+    Dataset,
+    Category,
+    CategoryValue,
+    User,
+    Team,
+    Program, 
+    Target
+)
 from uuid import UUID
 
 
@@ -1578,6 +1579,11 @@ class TestGraphQL(BaseAppTest):
         self.assertTrue(success)
         category = Category.get_not_deleted(self.session, category_id)
         self.assertEqual(category, None)
+        
+        # Check that categoryValue was also soft deleted
+        category_value = self.session.query(CategoryValue).filter(CategoryValue.category_id == category_id, CategoryValue.deleted == None).scalar()
+        self.assertEqual(category_value, None)
+        
         self.assertTrue(self.is_valid_uuid(category_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -2435,6 +2441,20 @@ class TestGraphQL(BaseAppTest):
         self.assertTrue(success)
         program = Program.get_not_deleted(self.session, program_id)
         self.assertEqual(program, None)
+        
+        # check that Dataset, Record, Entry, Target were also soft deleted
+        datasets = self.session.query(Dataset).filter(Dataset.program_id == program_id).all()
+        for dataset in datasets: 
+            self.assertNotEqual(dataset.deleted, None)
+            records = self.session.query(Record).filter(Record.dataset_id == dataset.id).all()
+            for record in records:
+                self.assertNotEqual(record.deleted, None)
+                entries = self.session.query(Entry).filter(Entry.record_id == record.id, Entry.deleted == None).first()
+                self.assertEqual(entries, None)
+
+        targets = self.session.query(Target).filter(Target.program_id == program_id, Target.deleted == None).first()
+        self.assertEqual(targets, None)
+
         self.assertTrue(self.is_valid_uuid(program_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -2469,6 +2489,3 @@ class TestGraphQL(BaseAppTest):
 
 if __name__ == '__main__':
     unittest.main()
-
-# TODO CHECK THAT PROGRAM CHILDREN WERE ALSO SOFT DELETED
-# TODO UPDATE TO USE CLASS AND INSTANCE METHODS
