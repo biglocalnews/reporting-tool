@@ -182,10 +182,9 @@ def resolve_delete_category(obj, info, id):
         :returns: UUID of soft deleted Category
     '''
     session = info.context['dbsession']
-    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    Category.get_not_deleted(session, id).soft_delete(session)
     session.commit()
-
+    
     return id
 
 @mutation.field("createCategoryValue")

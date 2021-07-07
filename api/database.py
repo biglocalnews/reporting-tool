@@ -294,6 +294,10 @@ class Category(Base):
         # to override the method.
         return self.__class__.clean_name(name)
     
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        session.query(CategoryValue).filter(CategoryValue.category_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class CategoryValue(Base):
     __tablename__ = 'category_value'
