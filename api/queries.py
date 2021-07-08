@@ -20,7 +20,7 @@ queries = [query, dataset, user, sum_entries_by_category_value]
 def resolve_user(obj, info, id):
     '''GraphQL query to find a user based on user ID.
         :param id: Id for the user to be fetched
-        :returns: User dictionary OR None if User was soft-deleted
+        :returns: User OR None if User was soft-deleted
     '''
     session = info.context['dbsession']
     user = session.query(User).filter(User.id == id).first()
@@ -45,7 +45,7 @@ def resolve_users(obj, info):
 def resolve_program(obj, info, id):
     '''GraphQL query to find a Program based on Program ID.
         :param id: Id for the Program to be fetched
-        :returns: Program dictionary
+        :returns: Program 
     '''
     session = info.context['dbsession']
     program = Program.get_not_deleted(session, id)
@@ -56,7 +56,7 @@ def resolve_program(obj, info, id):
 def resolve_dataset(obj, info, id):
     '''GraphQL query to find a dataset based on dataset ID.
         :param id: Id for the dataset to be fetched
-        :returns: Dataset dictionary OR None if Dataset was soft-deleted
+        :returns: Dataset OR None if Dataset was soft-deleted
     '''
     session = info.context['dbsession']
     dataset = Dataset.get_not_deleted(session, id)
@@ -117,7 +117,7 @@ def resolve_sums_category_relationship(count_obj, info):
 def resolve_record(obj, info, id):
     '''GraphQL query to find a Record based on Record ID.
         :param id: Id for the Record to be fetched 
-        :returns: Record dictionary OR None if Record was soft-deleted
+        :returns: Record OR None if Record was soft-deleted
     '''
     session = info.context['dbsession']
     record = Record.get_not_deleted(session, id)
@@ -127,7 +127,7 @@ def resolve_record(obj, info, id):
 def resolve_category(obj, info, id):
     '''GraphQL query to find a Category based on Category ID.
         :param id: Id for the Category to be fetched 
-        :returns: Category dictionary OR None if Category was soft-deleted
+        :returns: Category OR None if Category was soft-deleted
     '''
     session = info.context['dbsession']
     category = Category.get_not_deleted(session, id)
@@ -137,7 +137,7 @@ def resolve_category(obj, info, id):
 def resolve_category_value(obj, info, id):
     '''GraphQL query to find a CategoryValue based on CategoryValue ID.
         :param id: Id for the CategoryValue to be fetched 
-        :returns: CategoryValue dictionary OR None if CategoryValue was deleted
+        :returns: CategoryValue OR None if CategoryValue was deleted
     '''
     session = info.context['dbsession']
     category_value = CategoryValue.get_not_deleted(session, id)
