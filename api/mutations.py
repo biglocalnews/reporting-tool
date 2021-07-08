@@ -46,7 +46,9 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    Dataset.get_not_deleted(session, id).soft_delete(session) 
+    dataset = Dataset.get_not_deleted(session, id)
+    if dataset is not None:
+        dataset.soft_delete(session) 
     session.commit()
 
     return id
@@ -133,7 +135,9 @@ def resolve_delete_record(obj, info, id):
         :returns: UUID of soft deleted Record
     '''
     session = info.context['dbsession']
-    Record.get_not_deleted(session, id).soft_delete(session)
+    record = Record.get_not_deleted(session, id)
+    if record is not None:
+        record.soft_delete(session)
     session.commit()
     
     return id
@@ -182,7 +186,9 @@ def resolve_delete_category(obj, info, id):
         :returns: UUID of soft deleted Category
     '''
     session = info.context['dbsession']
-    Category.get_not_deleted(session, id).soft_delete(session)
+    category = Category.get_not_deleted(session, id)
+    if category is not None:
+        category.soft_delete(session)
     session.commit()
     
     return id
@@ -226,7 +232,9 @@ def resolve_delete_category_value(obj, info, id):
         :returns: UUID of deleted CategoryValue
     '''
     session = info.context['dbsession']
-    CategoryValue.get_not_deleted(session, id).soft_delete(session)
+    category_value = CategoryValue.get_not_deleted(session, id)
+    if category_value is not None:
+        category_value.soft_delete(session)
     session.commit()
 
     return id
@@ -344,7 +352,9 @@ def resolve_delete_program(obj, info, id):
         :returns: UUID of deleted Program
     '''
     session = info.context['dbsession']
-    Program.get_not_deleted(session, id).soft_delete(session)
+    program = Program.get_not_deleted(session, id)
+    if program is not None:
+        program.soft_delete(session)
     session.commit()
 
     return id
