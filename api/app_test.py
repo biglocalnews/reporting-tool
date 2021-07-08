@@ -2331,8 +2331,8 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
 
     def test_update_program(self):
-        """Test that users on a team / admins can update Programs."""
-        for user_role in ['admin', 'normal']:
+        """Test that users on a admins can update Programs."""
+        for user_role in ['admin']:
             user = self.test_users[user_role]
             success, result = self.run_graphql_query({
                 "operationName": "UpdateProgram",
