@@ -112,6 +112,7 @@
           "description": "Description",
           "save": "Save",
           "delete": "Delete",
+          "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this program?",
           "team": "Assigned team",
           "datasetName": "Dataset name",

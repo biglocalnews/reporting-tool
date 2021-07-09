@@ -9,6 +9,11 @@ import {
   AdminUpdateProgramVariables,
 } from "../../graphql/__generated__/AdminUpdateProgram";
 import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
+import {
+  AdminDeleteProgram,
+  AdminDeleteProgramVariables,
+} from "../../graphql/__generated__/AdminDeleteProgram";
+import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
 
 /**
  * Form values filled out by the UI for editing datasetes.
@@ -122,8 +127,16 @@ const getOpHook = <F extends HandlerFunction>(
  * State and functions related to deactivating a program.
  */
 export const useDeactivate = getOpHook(
-  async (apolloClient: ApolloClient<any>, id: string) => {
-    throw new Error("Deactivate is not implemented");
+  async (apolloClient: ApolloClient<any>, id: string, refresh: () => void) => {
+    const response = await apolloClient.mutate<
+      AdminDeleteProgram,
+      AdminDeleteProgramVariables
+    >({
+      mutation: ADMIN_DELETE_PROGRAM,
+      variables: { input: id },
+    });
+    refresh();
+    return response;
   },
   "deactivateSuccess"
 );

@@ -101,6 +101,7 @@ export const ProgramList = () => {
         ]}
       />
       <Table
+        rowKey={(program) => program.id}
         loading={loading}
         dataSource={loading ? [] : data!.programs!}
         columns={columns}

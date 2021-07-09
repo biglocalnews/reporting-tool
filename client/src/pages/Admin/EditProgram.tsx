@@ -157,8 +157,8 @@ export const EditProgram = () => {
       {inactive && (
         <>
           <Alert
-            message={t("admin.program.edit.alreadyDeletedTitle")}
-            description={t("admin.program.edit.alreadyDeletedInfo")}
+            message={t("admin.program.edit.form.alreadyDeletedTitle")}
+            description={t("admin.program.edit.form.alreadyDeletedInfo")}
             type="warning"
             action={
               <Button
@@ -166,7 +166,7 @@ export const EditProgram = () => {
                 danger
                 onClick={() => restore.run(programId)}
               >
-                {t("admin.program.edit.restore")}
+                {t("admin.program.edit.form.restore")}
               </Button>
             }
             showIcon
@@ -526,6 +526,7 @@ export const EditProgram = () => {
                   ))}
                   <List.Item>
                     <Button
+                      disabled={inactive}
                       onClick={() =>
                         datasetOps.add({ name: "", description: "" })
                       }
@@ -556,7 +557,7 @@ export const EditProgram = () => {
 
           <Popconfirm
             title={t("admin.program.edit.form.confirmDelete")}
-            onConfirm={() => deactivate.run(programId)}
+            onConfirm={() => deactivate.run(programId, programResponse.refetch)}
             okText={t("confirm.yes")}
             cancelText={t("confirm.no")}
           >
