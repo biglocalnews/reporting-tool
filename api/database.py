@@ -190,9 +190,20 @@ class Program(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Program).filter(Program.id == id_, Program.deleted == None).scalar()
+
     def user_is_team_member(self, user):
         return self.team.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        datasets = session.query(Dataset).filter(Dataset.program_id == self.id).all()
+        for dataset in datasets: 
+            dataset.soft_delete(session)
+        session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class Tag(Base):
     __tablename__ = 'tag'
@@ -252,22 +263,6 @@ class Target(Base, PermissionsMixin):
 
 class Category(Base):
     __tablename__ = 'category'
-    @classmethod
-    def get_by_name(cls, session, name):
-        return session.query(cls).filter(cls.name == cls.clean_name(name)).first()
-    
-    @classmethod
-    def clean_name(cls, name):
-        return name.capitalize().strip()
-
-    @validates('name')
-    def capitalize_category(self, key, name):
-        # NOTE: `self.__class__` basically just means `Category` here. It's slightly
-        # better to avoid referencing the class explicitly by name in case a) we change
-        # the name of the class, or b) we extend the class and want to allow the child
-        # to override the method.
-        return self.__class__.clean_name(name)
-    
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
@@ -279,6 +274,30 @@ class Category(Base):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
     
+    @classmethod
+    def get_by_name(cls, session, name):
+        return session.query(cls).filter(cls.name == cls.clean_name(name)).first()
+    
+    @classmethod
+    def clean_name(cls, name):
+        return name.capitalize().strip()
+
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Category).filter(Category.id == id_, Category.deleted == None).scalar()
+
+    @validates('name')
+    def capitalize_category(self, key, name):
+        # NOTE: `self.__class__` basically just means `Category` here. It's slightly
+        # better to avoid referencing the class explicitly by name in case a) we change
+        # the name of the class, or b) we extend the class and want to allow the child
+        # to override the method.
+        return self.__class__.clean_name(name)
+    
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        session.query(CategoryValue).filter(CategoryValue.category_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class CategoryValue(Base):
     __tablename__ = 'category_value'
@@ -305,6 +324,17 @@ class CategoryValue(Base):
         return session.query(CategoryValue).\
             filter(CategoryValue.id == id, CategoryValue.deleted == None).first()
     
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(CategoryValue).filter(CategoryValue.id == id_, CategoryValue.deleted == None).scalar()
+
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        entries = session.query(Entry).filter(Entry.category_value_id == self.id).all()
+        for entry in entries: 
+            entry.soft_delete(session)
+        session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
 class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
@@ -326,11 +356,17 @@ class Dataset(Base, PermissionsMixin):
 
     @classmethod
     def get_not_deleted(cls, session, id_):
-        return session.query(Dataset).filter(Dataset.id == id_, Dataset.deleted == None).first()
+        return session.query(Dataset).filter(Dataset.id == id_, Dataset.deleted == None).scalar()
 
     def user_is_team_member(self, user):
         return self.program.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        records = session.query(Record).filter(Record.dataset_id == self.id).all()
+        for record in records:
+            record.soft_delete(session)
 
 class Record(Base, PermissionsMixin):
     __tablename__ = 'record'
@@ -352,12 +388,18 @@ class Record(Base, PermissionsMixin):
 
     @classmethod
     def get_not_deleted(cls, session, id_):
-        return session.query(Record).filter(Record.id == id_, Record.deleted == None).first()
+        return session.query(Record).filter(Record.id == id_, Record.deleted == None).scalar()
 
     def user_is_team_member(self, user):
         return self.dataset.user_is_team_member(user)
 
-
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
+        entries = session.query(Entry).filter(Entry.record_id == self.id).all()
+        for entry in entries:
+            entry.soft_delete(session)
+        
 class Entry(Base, PermissionsMixin):
     __tablename__ = 'entry'
 
@@ -376,9 +418,16 @@ class Entry(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return session.query(Entry).filter(Entry.id == id_, Entry.deleted == None).scalar()
+
     def user_is_team_member(self, user):
         return self.record.user_is_team_member(user)
 
+    def soft_delete(self, session):
+        self.deleted= func.now()
+        session.add(self)
 
 def create_tables(engine, session):
     print("🍽  Creating tables ...")

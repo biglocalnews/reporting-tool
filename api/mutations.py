@@ -1,3 +1,5 @@
+import uuid
+
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
@@ -44,11 +46,9 @@ def resolve_delete_dataset(obj, info, id):
         :returns: UUID of soft deleted Dataset
     '''
     session = info.context['dbsession']
-    session.query(Dataset).filter(Dataset.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(Record).filter(Record.dataset_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    related_records = session.query(Record).filter(Record.dataset_id == id).all()
-    for record in related_records:
-        session.query(Entry).filter(Entry.record_id == record.id).update({'deleted':func.now()}, synchronize_session='fetch')
+    dataset = Dataset.get_not_deleted(session, id)
+    if dataset is not None:
+        dataset.soft_delete(session) 
     session.commit()
 
     return id
@@ -135,7 +135,9 @@ def resolve_delete_record(obj, info, id):
         :returns: UUID of soft deleted Record
     '''
     session = info.context['dbsession']
-    session.query(Record).filter(Record.id == id).delete()
+    record = Record.get_not_deleted(session, id)
+    if record is not None:
+        record.soft_delete(session)
     session.commit()
     
     return id
@@ -184,10 +186,11 @@ def resolve_delete_category(obj, info, id):
         :returns: UUID of soft deleted Category
     '''
     session = info.context['dbsession']
-    session.query(Category).filter(Category.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(CategoryValue).filter(CategoryValue.category_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    category = Category.get_not_deleted(session, id)
+    if category is not None:
+        category.soft_delete(session)
     session.commit()
-
+    
     return id
 
 @mutation.field("createCategoryValue")
@@ -229,9 +232,9 @@ def resolve_delete_category_value(obj, info, id):
         :returns: UUID of deleted CategoryValue
     '''
     session = info.context['dbsession']
-    session.query(CategoryValue).filter(CategoryValue.id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(Entry).filter(Entry.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
-    session.query(Target).filter(Target.category_value_id == id).update({'deleted':func.now()}, synchronize_session='fetch')
+    category_value = CategoryValue.get_not_deleted(session, id)
+    if category_value is not None:
+        category_value.soft_delete(session)
     session.commit()
 
     return id
@@ -292,4 +295,66 @@ def resolve_delete_team(obj, info, id):
     session.query(Team).filter(Team.id == id).delete()
     session.commit()
     
+    return id
+@mutation.field("createProgram")
+@convert_kwargs_to_snake_case
+def resolve_create_program(obj, info, input):
+    '''GraphQL mutation to create a Program.
+        :param input: params for new Program
+        :returns: Program dictionary
+    '''
+
+    session = info.context['dbsession']
+    datasets = input.pop('dataset_ids')
+    targets = input.pop('target_ids')
+    tags = input.pop('tag_ids')
+    
+    program = Program(**input)
+    program.datasets += [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
+    program.targets += [session.merge(Target(id=target_id)) for target_id in targets]
+    program.tags += [session.merge(Tag(id=tag_id)) for tag_id in tags]
+
+    session.add(program)
+    session.commit()
+    
+    return program
+
+@mutation.field("updateProgram")
+@convert_kwargs_to_snake_case
+def resolve_update_program(obj, info, input):
+    '''GraphQL mutation to update a Program.
+        :param input: params for updated Program
+        :returns: Updated Program dictionary
+    '''
+
+    session = info.context['dbsession']
+    datasets = input.pop('dataset_ids', [])
+    targets = input.pop('target_ids', [])
+    tags = input.pop('tag_ids', [])
+    program = session.query(Program).get(input['id'])
+    if len(datasets) > 0:
+        program.datasets = [session.merge(Dataset(id=uuid.UUID(dataset_id))) for dataset_id in datasets]
+    if len(targets) > 0:
+        program.targets = [session.merge(Target(id=uuid.UUID(target_id))) for target_id in targets]
+    if len(tags) > 0:
+        program.tags = [session.merge(Tag(id=uuid.UUID(tag_id))) for tag_id in tags]
+    for param in input:
+        setattr(program, param, input[param])
+    session.add(program)
+    session.commit()
+
+    return program
+
+@mutation.field("deleteProgram")
+def resolve_delete_program(obj, info, id):
+    '''GraphQL mutation to delete a Program.
+        :param id: UUID of Program to be deleted
+        :returns: UUID of deleted Program
+    '''
+    session = info.context['dbsession']
+    program = Program.get_not_deleted(session, id)
+    if program is not None:
+        program.soft_delete(session)
+    session.commit()
+
     return id

@@ -9,6 +9,7 @@ from database import (
         User,
         Dataset,
         Record,
+        Program
         )
 
 from typing import List, Iterable
@@ -99,7 +100,7 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
                 record = Record.get_not_deleted(session, id_)
                 if record and record.user_is_team_member(current_user):
                     return True
-
+                
         if not checked:
             raise InvalidPermissionError(f"Can't enforce TEAM_MEMBER permission on type {type(obj)}, {info.field_name}")
 

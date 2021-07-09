@@ -13,18 +13,19 @@ from sqlalchemy.pool import StaticPool
 from app import schema, app, cookie_authentication
 from user import user_db
 from database import (
-        Base,
-        create_tables,
-        create_dummy_data,
-        Record,
-        Entry,
-        Dataset,
-        Category,
-        CategoryValue,
-        User,
-        Team,
-        Program
-        )
+    Base,
+    create_tables,
+    create_dummy_data,
+    Record,
+    Entry,
+    Dataset,
+    Category,
+    CategoryValue,
+    User,
+    Team,
+    Program, 
+    Target
+)
 from uuid import UUID
 
 
@@ -958,8 +959,8 @@ class TestGraphQL(BaseAppTest):
     def test_delete_dataset(self):
         # Confirm Dataset exists, then that it does not.
         dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
-        existing_dataset= self.session.query(Dataset).filter(Dataset.id == dataset_id, Dataset.deleted == None)
-        self.assertEqual(existing_dataset.count(), 1)
+        existing_dataset= Dataset.get_not_deleted(self.session, dataset_id)
+        self.assertNotEqual(existing_dataset, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteDataset",
             "query": """
@@ -998,8 +999,8 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             # Confirm Dataset exists, then that it does not.
             dataset_id = "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
-            existing_dataset = self.session.query(Dataset).filter(Dataset.id == dataset_id)
-            self.assertEqual(existing_dataset.count(), 1)
+            existing_dataset = Dataset.get_not_deleted(self.session, dataset_id)
+            self.assertNotEqual(existing_dataset, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteDataset",
                 "query": """
@@ -1015,8 +1016,8 @@ class TestGraphQL(BaseAppTest):
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
             # Verify nothing was deleted
-            existing_dataset = self.session.query(Dataset).filter(Dataset.id == dataset_id)
-            self.assertEqual(existing_dataset.count(), 1)
+            existing_dataset = Dataset.get_not_deleted(self.session, dataset_id)
+            self.assertNotEqual(existing_dataset, None)
 
     def test_query_record(self):
         """Test that dataset records can be queried.
@@ -1351,9 +1352,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             # Confirm Record exists, then that it does not.
             record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
-            existing_record = self.session.query(Record).filter(Record.id == record_id)
-            # Count of non-deleted entries should be zero
-            self.assertEqual(existing_record.count(), 1)
+            existing_record = Record.get_not_deleted(self.session, record_id)
+            # Count of non-deleted records should not be None
+            self.assertNotEqual(existing_record, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteRecord",
                 "query": """
@@ -1367,12 +1368,12 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
 
             self.assertTrue(success)
-            # Query for Record
-            record = self.session.query(Record).filter(Record.id == record_id)
-            # Record count should be zero
-            self.assertEqual(record.count(), 0)
+            # Query for Records that were not deleted
+            record = Record.get_not_deleted(self.session, record_id)
+            # Record should be None
+            self.assertEqual(record, None)
             # Query for all associated Entries
-            associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id)
+            associated_entries = self.session.query(Entry).filter(Entry.record_id == record_id, Entry.deleted == None)
             # Entries count should be zero
             self.assertEqual(associated_entries.count(), 0)
             self.assertTrue(self.is_valid_uuid(record_id), "Invalid UUID")
@@ -1389,9 +1390,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users['other']
         # Confirm Record exists, then that it does not.
         record_id = "742b5971-eeb6-4f7a-8275-6111f2342bb4"
-        existing_record = self.session.query(Record).filter(Record.id == record_id)
-        # Count of non-deleted entries should be zero
-        self.assertEqual(existing_record.count(), 1)
+        existing_record = Record.get_not_deleted(self.session, record_id)
+        # Count of non-deleted records should not be None
+        self.assertNotEqual(existing_record, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteRecord",
             "query": """
@@ -1407,9 +1408,9 @@ class TestGraphQL(BaseAppTest):
         self.assertTrue(success)
         self.assertResultWasNotAuthed(result)
         # Query for Record
-        record = self.session.query(Record).filter(Record.id == record_id)
-        # Record count should still be one
-        self.assertEqual(record.count(), 1)
+        existing_record = Record.get_not_deleted(self.session, record_id)
+        # Count of non-deleted records should still not be None
+        self.assertNotEqual(existing_record, None)
 
     def test_query_category(self):
         """Test that anyone can query a category."""
@@ -1561,9 +1562,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users["admin"]
         category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
         # Confirm Category exists, then that it does not.
-        existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-        # Count of existing Category should be one
-        self.assertEqual(existing_category.count(), 1)
+        existing_category = Category.get_not_deleted(self.session, category_id)
+        # Existing Category should not be None
+        self.assertNotEqual(existing_category, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteCategory",
             "query": """
@@ -1576,8 +1577,13 @@ class TestGraphQL(BaseAppTest):
             },
         }, user=user)
         self.assertTrue(success)
-        category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-        self.assertEqual(category.count(), 0)
+        category = Category.get_not_deleted(self.session, category_id)
+        self.assertEqual(category, None)
+        
+        # Check that categoryValue was also soft deleted
+        category_value = self.session.query(CategoryValue).filter(CategoryValue.category_id == category_id, CategoryValue.deleted == None).scalar()
+        self.assertEqual(category_value, None)
+        
         self.assertTrue(self.is_valid_uuid(category_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -1591,9 +1597,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user_role]
             category_id = "51349e29-290e-4398-a401-5bf7d04af75e"
             # Confirm Category exists, then that it does not.
-            existing_category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-            # Count of existing Category should be one
-            self.assertEqual(existing_category.count(), 1)
+            existing_category = Category.get_not_deleted(self.session, category_id)
+            # Existing Category should not be None
+            self.assertNotEqual(existing_category, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteCategory",
                 "query": """
@@ -1607,8 +1613,8 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
-            category = self.session.query(Category).filter(Category.id == category_id, Category.deleted == None)
-            self.assertEqual(category.count(), 1)
+            category = Category.get_not_deleted(self.session, category_id)
+            self.assertNotEqual(category, None)
 
     def test_query_category_value(self):
         """Test that anyone can query category values"""
@@ -1778,9 +1784,9 @@ class TestGraphQL(BaseAppTest):
         user = self.test_users["admin"]
         category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
         # Confirm Value exists, then that it does not.
-        existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-        # Count of existing CategoryValue should be one
-        self.assertEqual(existing_category_value.count(), 1)
+        existing_category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+        # Existing CategoryValue should not be None
+        self.assertNotEqual(existing_category_value, None)
         success, result = self.run_graphql_query({
             "operationName": "DeleteCategoryValue",
             "query": """
@@ -1793,8 +1799,8 @@ class TestGraphQL(BaseAppTest):
             },
         }, user=user)
         self.assertTrue(success)
-        category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-        self.assertEqual(category_value.count(), 0)
+        category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+        self.assertEqual(category_value, None)
         self.assertTrue(self.is_valid_uuid(category_value_id), "Invalid UUID")
         self.assertEqual(result, {
             "data": {
@@ -1808,9 +1814,9 @@ class TestGraphQL(BaseAppTest):
             user = self.test_users[user]
             category_value_id = "0034d015-0652-497d-ab4a-d42b0bdf08cb"
             # Confirm Value exists, then that it does not.
-            existing_category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-            # Count of existing CategoryValue should be one
-            self.assertEqual(existing_category_value.count(), 1)
+            existing_category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+            # CExisting CategoryValue should not be None
+            self.assertNotEqual(existing_category_value, None)
             success, result = self.run_graphql_query({
                 "operationName": "DeleteCategoryValue",
                 "query": """
@@ -1824,8 +1830,8 @@ class TestGraphQL(BaseAppTest):
             }, user=user)
             self.assertTrue(success)
             self.assertResultWasNotAuthed(result)
-            category_value = self.session.query(CategoryValue).filter(CategoryValue.id == category_value_id, CategoryValue.deleted == None)
-            self.assertEqual(category_value.count(), 1)
+            category_value = CategoryValue.get_not_deleted(self.session, category_value_id)
+            self.assertNotEqual(category_value, None)
 
     def test_query_team(self):
         """Test that anyone can query teams"""
@@ -1837,7 +1843,7 @@ class TestGraphQL(BaseAppTest):
                     query QueryTeam($id: ID!) {
                        team(id: $id) {
                             id
-                            name
+                            name    
                        }
                     }
                 """,
@@ -2177,7 +2183,309 @@ class TestGraphQL(BaseAppTest):
             else:
                 self.assertResultWasNotAuthed(result)
 
+    def test_query_program(self):
+        """Test that programs can be queried.
+        Users on the right team and admins should be able to query programs.
+        """
+        for user_role in ['admin', 'normal']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "QueryProgram",
+                "query": """
+                    query QueryProgram($id: ID!) {
+                       program(id: $id) {
+                            id
+                            description
+                            datasets {
+                                id
+                                name
+                            }
+                       }
+                    }
+                """,
+                "variables": {
+                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                },
+            }, user=user)
 
+            self.assertTrue(success)
+            self.assertEqual(result, {
+                "data": {
+                    "program": {
+                        "id" : "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "description": "All BBC news programming",
+                        "datasets": [
+                            {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89", "name": "Breakfast Hour"}, 
+                            {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"}
+                        ]
+                    },
+                },
+            })
+           
+    def test_query_program_no_perm(self):
+        """Test that programs can't be queried by users on the wrong team."""
+        success, result = self.run_graphql_query({
+            "operationName": "QueryProgram",
+            "query": """
+                query QueryProgram($id: ID!) {
+                   program(id: $id) {
+                        id
+                   }
+                }
+            """,
+            "variables": {
+                "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+            },
+        }, user=self.test_users['other'])
+
+        self.assertTrue(success)
+        self.assertResultWasNotAuthed(result)
+        
+    def test_create_program(self):
+        success, result = self.run_graphql_query({
+            "operationName": "CreateProgram",
+            "query": """
+                mutation CreateProgram($input: CreateProgramInput!) {
+                   createProgram(input: $input) {
+                        id
+                        name
+                        description
+                        team {
+                            name
+                        }
+                        datasets {
+                            name
+                        }
+                        targets {
+                            target
+                        }
+                    }
+                }        
+            """,
+            "variables": {
+                "input": {
+                    "name": "A New Program!",
+                    "description": "A very new program",
+                    "teamId": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                    "datasetIds": ["b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"],
+                    "targetIds": ["b5be10ce-103f-41f2-b4c4-603228724993", "6e6edce5-3d24-4296-b929-5eec26d52afc"],
+                    "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
+                }
+            },
+        }, user=self.test_users['admin'])
+
+        self.assertTrue(success)
+        self.assertTrue(self.is_valid_uuid(result["data"]["createProgram"]["id"]), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "createProgram": {
+                    "id": result["data"]["createProgram"]["id"],
+                    "name": "A New Program!",
+                    "description": "A very new program",
+                    "team": {
+                        "name": "News Team"
+                    },
+                    "datasets": [{"name": "Breakfast Hour"}], 
+                    "targets": [{"target": 0.5}, {"target": 0.5}],
+                },
+            },
+        })
+        
+    def test_create_program_no_perm(self):
+        """Test that program creation fails for normal (non-admin) users."""
+        for user_role in ['other', 'normal']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "CreateProgram",
+                "query": """
+                    mutation CreateProgram($input: CreateProgramInput!) {
+                        createProgram(input: $input) {
+                            id
+                            name
+                            description
+                            team {
+                                name
+                            }
+                            datasets {
+                                name
+                            }
+                            targets {
+                                target
+                            }
+                        }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "name": "An (unsuccessfully) updated program!",
+                        "description": "A very (unsuccessfully) updated program",
+                        "teamId": "2c4cfe21-42b1-4eec-b970-5409449d53a5",
+                        "datasetIds": ["b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"],
+                        "targetIds": ["b5be10ce-103f-41f2-b4c4-603228724993", "6e6edce5-3d24-4296-b929-5eec26d52afc"],
+                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
+                    },
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+
+    def test_update_program(self):
+        """Test that users on a admins can update Programs."""
+        for user_role in ['admin']:
+            user = self.test_users[user_role]
+            success, result = self.run_graphql_query({
+                "operationName": "UpdateProgram",
+                "query": """
+                    mutation UpdateProgram($input: UpdateProgramInput!) {
+                        updateProgram(input: $input) {
+                            id
+                            name
+                            targets {
+                                id
+                                categoryValue {
+                                    name
+                                }
+                            }
+                            tags {
+                                name
+                            }
+                            
+                       }
+                    }
+                """,
+                "variables": {
+                    "input": {
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "An updated new Program",
+                        "targetIds": ["40eaeafc-3311-4294-a639-a826eb6495ab", "2d501688-92e3-455e-9685-01141de3dbaf", "4f7897c2-32a1-4b1e-9749-1a8066faca01"],
+                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
+                    }
+                },
+            }, user=user)
+
+            self.assertTrue(success)
+            self.assertTrue(self.is_valid_uuid(result["data"]["updateProgram"]["id"]), "Invalid UUID")
+            self.assertEqual(result, {
+                "data": {
+                    "updateProgram": {
+                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                        "name": "An updated new Program",
+                        "targets": [
+                            {
+                                "id": "2d501688-92e3-455e-9685-01141de3dbaf", 
+                                "categoryValue": {
+                                    "name": "Cisgender men"}
+                                }, 
+                            {
+                                "id": "4f7897c2-32a1-4b1e-9749-1a8066faca01", 
+                                "categoryValue": {
+                                    "name": "Trans women"}
+                                }, 
+                            {
+                                "id": "40eaeafc-3311-4294-a639-a826eb6495ab", 
+                                "categoryValue": {
+                                    "name": "Non-binary"
+                                }
+                            }
+                        ],
+                        "tags": [
+                            {"name": "News"}
+                        ]
+                    },
+                },
+            })
+
+    def test_update_program_no_perm(self):
+        """Test that users on other teams can't update Programs."""
+        user = self.test_users['other']
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateProgram",
+            "query": """
+                mutation UpdateProgram($input: UpdateProgramInput!) {
+                    updateProgram(input: $input) {
+                        id
+                   }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+                }
+            },
+        }, user=user)
+
+        self.assertTrue(success)
+        self.assertResultWasNotAuthed(result)
+
+
+    def test_delete_program(self):
+        """Only admins can delete programs."""
+        user = self.test_users["admin"]
+        program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+        # Confirm Program exists, then that it does not.
+        existing_program = Program.get_not_deleted(self.session, program_id)
+        # Existing Program should not be None
+        self.assertNotEqual(existing_program, None)
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteProgram",
+            "query": """
+                mutation DeleteProgram($id: ID!) {
+                    deleteProgram(id: $id)
+                }
+            """,
+            "variables": {
+                "id": program_id,
+            },
+        }, user=user)
+        self.assertTrue(success)
+        program = Program.get_not_deleted(self.session, program_id)
+        self.assertEqual(program, None)
+        
+        # check that Dataset, Record, Entry, Target were also soft deleted
+        datasets = self.session.query(Dataset).filter(Dataset.program_id == program_id).all()
+        for dataset in datasets: 
+            self.assertNotEqual(dataset.deleted, None)
+            records = self.session.query(Record).filter(Record.dataset_id == dataset.id).all()
+            for record in records:
+                self.assertNotEqual(record.deleted, None)
+                entries = self.session.query(Entry).filter(Entry.record_id == record.id, Entry.deleted == None).first()
+                self.assertEqual(entries, None)
+
+        targets = self.session.query(Target).filter(Target.program_id == program_id, Target.deleted == None).first()
+        self.assertEqual(targets, None)
+
+        self.assertTrue(self.is_valid_uuid(program_id), "Invalid UUID")
+        self.assertEqual(result, {
+            "data": {
+                "deleteProgram": program_id
+            },
+        })
+
+    def test_delete_program_no_perm(self):
+        """Only admins can delete Programs."""
+        for user in ["normal", "other"]:
+            user = self.test_users[user]
+            program_id = "1e73e788-0808-4ee8-9b25-682b6fa3868b"
+            # Confirm Program exists, then that it does not.
+            existing_program = Program.get_not_deleted(self.session, program_id)
+            # Existing Program should not be None
+            self.assertNotEqual(existing_program, None)
+            success, result = self.run_graphql_query({
+                "operationName": "DeleteProgram",
+                "query": """
+                    mutation DeleteProgram($id: ID!) {
+                        deleteProgram(id: $id)
+                    }
+                """,
+                "variables": {
+                    "id": program_id,
+                },
+            }, user=user)
+            self.assertTrue(success)
+            self.assertResultWasNotAuthed(result)
+            program = Program.get_not_deleted(self.session, program_id)
+            self.assertNotEqual(program, None)
 
 if __name__ == '__main__':
     unittest.main()
