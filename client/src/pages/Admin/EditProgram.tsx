@@ -115,16 +115,23 @@ export const EditProgram = () => {
     AdminGetProgramVariables
   >(ADMIN_GET_PROGRAM, "program", {
     variables: { id: programId },
+    fetchPolicy: "network-only",
   });
 
   const teamsResponse = useQueryWithErrorHandling<AdminGetAllTeams>(
     ADMIN_GET_ALL_TEAMS,
-    "teams"
+    "teams",
+    {
+      fetchPolicy: "network-only",
+    }
   );
 
   const catsResponse = useQueryWithErrorHandling<AdminGetAllCategories>(
     ADMIN_GET_ALL_CATEGORIES,
-    "categories"
+    "categories",
+    {
+      fetchPolicy: "network-only",
+    }
   );
 
   if (
