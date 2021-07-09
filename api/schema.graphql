@@ -271,7 +271,6 @@ input UpdateProgramInput {
   datasets: [UpsertDatasetInput!]
 }
 
-
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -379,4 +378,7 @@ type Mutation {
 
   # Delete a Program
   deleteProgram(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Restore a Program
+  restoreProgram(id: ID!): Program! @needsPermission(permission: [ADMIN])
 }

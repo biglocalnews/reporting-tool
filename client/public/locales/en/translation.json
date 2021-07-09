@@ -81,7 +81,10 @@
         "add": "Create Program",
         "columnTitle": {
           "name": "Name",
-          "categories": "Categories"
+          "categories": "Categories",
+          "active": "Active",
+          "activeFilter": "Active",
+          "inactiveFilter": "Deleted"
         }
       },
       "create": {

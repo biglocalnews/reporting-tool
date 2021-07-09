@@ -164,7 +164,10 @@ export const EditProgram = () => {
               <Button
                 type="primary"
                 danger
-                onClick={() => restore.run(programId)}
+                onClick={() => {
+                  restore.run(programId);
+                  programResponse.refetch();
+                }}
               >
                 {t("admin.program.edit.form.restore")}
               </Button>
@@ -557,7 +560,10 @@ export const EditProgram = () => {
 
           <Popconfirm
             title={t("admin.program.edit.form.confirmDelete")}
-            onConfirm={() => deactivate.run(programId, programResponse.refetch)}
+            onConfirm={() => {
+              deactivate.run(programId);
+              programResponse.refetch();
+            }}
             okText={t("confirm.yes")}
             cancelText={t("confirm.no")}
           >

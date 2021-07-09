@@ -343,9 +343,7 @@ def resolve_update_program(obj, info, input):
         :param input: params for updated Program
         :returns: Updated Program dictionary
     '''
-
     session = info.context['dbsession']
-
     program = session.query(Program).get(input.pop('id'))
     
     if 'team_id' in input:
@@ -376,9 +374,6 @@ def resolve_update_program(obj, info, input):
     return program
 
 
-
-    return program
-
 @mutation.field("deleteProgram")
 def resolve_delete_program(obj, info, id):
     '''GraphQL mutation to delete a Program.
@@ -392,3 +387,19 @@ def resolve_delete_program(obj, info, id):
     session.commit()
 
     return id
+
+
+@mutation.field("restoreProgram")
+def resolve_restore_program(obj, info, id):
+    '''GraphQL mutation to restore a deleted Program.
+        :param id: UUID of Program to be restored
+        :returns: Program object
+    '''
+    session = info.context['dbsession']
+    program = session.query(Program).get(id)
+    if program:
+        program.deleted = None
+        session.merge(program)
+    session.commit()
+
+    return program

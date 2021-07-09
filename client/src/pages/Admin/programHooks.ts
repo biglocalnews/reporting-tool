@@ -14,6 +14,11 @@ import {
   AdminDeleteProgramVariables,
 } from "../../graphql/__generated__/AdminDeleteProgram";
 import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
+import {
+  AdminRestoreProgram,
+  AdminRestoreProgramVariables,
+} from "../../graphql/__generated__/AdminRestoreProgram";
+import { ADMIN_RESTORE_PROGRAM } from "../../graphql/__mutations__/AdminRestoreProgram.gql";
 
 /**
  * Form values filled out by the UI for editing datasetes.
@@ -127,17 +132,11 @@ const getOpHook = <F extends HandlerFunction>(
  * State and functions related to deactivating a program.
  */
 export const useDeactivate = getOpHook(
-  async (apolloClient: ApolloClient<any>, id: string, refresh: () => void) => {
-    const response = await apolloClient.mutate<
-      AdminDeleteProgram,
-      AdminDeleteProgramVariables
-    >({
+  async (apolloClient: ApolloClient<any>, id: string) =>
+    apolloClient.mutate<AdminDeleteProgram, AdminDeleteProgramVariables>({
       mutation: ADMIN_DELETE_PROGRAM,
       variables: { input: id },
-    });
-    refresh();
-    return response;
-  },
+    }),
   "deactivateSuccess"
 );
 
@@ -193,8 +192,12 @@ export const useSave = getOpHook(
  * State and functions related to restoring a deleted program.
  */
 export const useRestore = getOpHook(
-  async (apolloClient: ApolloClient<any>, id: string) => {
-    throw new Error("Restore is not implemented");
-  },
+  async (apolloClient: ApolloClient<any>, id: string) =>
+    apolloClient.mutate<AdminRestoreProgram, AdminRestoreProgramVariables>({
+      mutation: ADMIN_RESTORE_PROGRAM,
+      variables: {
+        input: id,
+      },
+    }),
   "restoreSuccess"
 );

@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import { AppstoreAddOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  AppstoreAddOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import { Button, PageHeader, Table, Form, Modal } from "antd";
 import { ColumnsType } from "antd/lib/table";
 
@@ -50,6 +54,9 @@ export const ProgramList = () => {
   const [newProgramForm] = Form.useForm<CreateProgramFormValues>();
   const [showCreateProgram, setShowCreateProgram] = useState(false);
 
+  const Active = (_: string, record: AdminGetAllPrograms_programs) =>
+    !record.deleted ? <CheckCircleOutlined /> : null;
+
   // Spec for table columns
   const columns: ColumnsType<AdminGetAllPrograms_programs> = [
     {
@@ -62,6 +69,26 @@ export const ProgramList = () => {
       title: t("admin.program.index.columnTitle.categories"),
       key: "categories",
       render: CategoriesCell,
+    },
+    {
+      title: t("admin.program.index.columnTitle.active"),
+      key: "active",
+      render: Active,
+      defaultFilteredValue: ["true"],
+      filters: [
+        {
+          text: t("admin.program.index.columnTitle.activeFilter"),
+          value: true,
+        },
+        {
+          text: t("admin.program.index.columnTitle.inactiveFilter"),
+          value: false,
+        },
+      ],
+      onFilter: (
+        value: boolean | string | number,
+        record: AdminGetAllPrograms_programs
+      ) => (value ? !record.deleted : !!record.deleted),
     },
     {
       title: "",
