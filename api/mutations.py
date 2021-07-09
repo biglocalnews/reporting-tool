@@ -315,14 +315,8 @@ def resolve_create_program(obj, info, input):
     program = Program(**input)
     program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
     program.tags = [session.merge(Tag(**tag)) for tag in tags]
-    
-    program = Program(
-            name=input['name'],
-            description=input.get('description', ''),
-            team_id=input['team_id'],
-            )
-        
-    for target_dict in input.get('targets', []):
+
+    for target_dict in targets:
         cv_dict = target_dict.pop('category_value')
         cat_dict = cv_dict.pop('category')
         cv = session.merge(CategoryValue(**cv_dict))
