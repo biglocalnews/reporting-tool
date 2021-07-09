@@ -23,6 +23,11 @@ import {
   AdminGetAllPrograms_programs,
 } from "../../graphql/__generated__/AdminGetAllPrograms";
 import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
+import { CreateProgramInput } from "../../graphql/__generated__/globalTypes";
+import {
+  AdminCreateProgram,
+  AdminCreateProgramVariables,
+} from "../../graphql/__generated__/AdminCreateProgram";
 import { ADMIN_CREATE_PROGRAM } from "../../graphql/__mutations__/AdminCreateProgram.gql";
 
 /**
@@ -32,22 +37,6 @@ export type CreateProgramFormValues = {
   name: string;
   team: string;
   basedOn?: string;
-};
-
-export type TargetInput = {
-  categoryValue: {
-    id: string;
-    category: {
-      id: string;
-    };
-  };
-  target: number;
-};
-
-export type NewProgramInput = {
-  name: string;
-  teamId: string;
-  targets?: TargetInput[];
 };
 
 export type CreateProgramProps = {
@@ -91,7 +80,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
   const saveNewProgram = async (values: CreateProgramFormValues) => {
     setSaving(true);
 
-    const newProgram: NewProgramInput = {
+    let newProgram: CreateProgramInput = {
       name: values.name,
       teamId: values.team,
     };
@@ -110,21 +99,25 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         // this will create entirely new targets as copies, so that in the
         // future updates to each program / target will have to be made
         // independently.
-        newProgram.targets = progResponse.data.program.targets.map(
-          (target) => ({
-            categoryValue: {
-              id: target.categoryValue.id,
-              category: {
-                id: target.categoryValue.category.id,
-              },
+        const targets = progResponse.data.program.targets.map((target) => ({
+          categoryValue: {
+            id: target.categoryValue.id,
+            category: {
+              id: target.categoryValue.category.id,
             },
-            target: target.target,
-          })
-        );
+          },
+          target: target.target,
+        }));
+
+        // Revise the program input to include the targets.
+        newProgram = { ...newProgram, targets };
       }
 
-      // TODO(jnu): types
-      const createResponse = await apolloClient.mutate({
+      // Issue the creation request and handle errors.
+      const createResponse = await apolloClient.mutate<
+        AdminCreateProgram,
+        AdminCreateProgramVariables
+      >({
         mutation: ADMIN_CREATE_PROGRAM,
         variables: {
           input: newProgram,

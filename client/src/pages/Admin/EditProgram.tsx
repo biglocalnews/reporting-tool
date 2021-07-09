@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
-import { useApolloClient, ApolloClient, FetchResult } from "@apollo/client";
 
 import {
   PlusCircleOutlined,
@@ -29,6 +28,7 @@ import {
 
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 
+import { NewStringInput } from "../../components/NewStringInput";
 import { Loading } from "../../components/Loading/Loading";
 import {
   AdminGetProgram,
@@ -44,33 +44,21 @@ import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.
 
 import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
-import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
+
+import {
+  ProgramUpdateFormValues,
+  CategoryTarget,
+  CategoryTargetSegment,
+  useSave,
+  useRestore,
+  useDeactivate,
+} from "./programHooks";
 
 /**
  * URL parameters expected for this page.
  */
 export type EditProgramRouteParams = Readonly<{
   programId: string;
-}>;
-
-/**
- * Represent a single target in a category, like  "non-binary" in Gender.
- */
-export type CategoryTargetSegment = Readonly<{
-  categoryValueId: string;
-  categoryValueName: string;
-  targetId: string;
-  targetValue: number;
-}>;
-
-/**
- * Represent a single category such as Gender.
- */
-export type CategoryTarget = Readonly<{
-  categoryId: string;
-  categoryName: string;
-  categoryDescription: string;
-  segments: CategoryTargetSegment[];
 }>;
 
 /**
@@ -109,230 +97,6 @@ const getGroupedTargets = (
 
   return asList;
 };
-
-/**
- * Props for the NewStringInput component.
- */
-export type NewStringInputProps = {
-  onAdd: (value: string, e: React.MouseEvent | React.KeyboardEvent) => void;
-  icon?: React.ReactNode;
-  placeholder?: string;
-  disabled?: boolean;
-};
-
-/**
- * Text input with a button to submit a new string and then clear the input.
- */
-export const NewStringInput = (props: NewStringInputProps) => {
-  const [value, setValue] = useState("");
-  const icon = props.icon || <PlusCircleOutlined />;
-
-  const submit = (e: React.MouseEvent | React.KeyboardEvent) => {
-    props.onAdd(value, e);
-    setValue("");
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  };
-
-  return (
-    <Input
-      disabled={props.disabled}
-      value={value}
-      placeholder={props.placeholder}
-      onChange={(e) => setValue(e.target.value)}
-      onPressEnter={submit}
-      suffix={
-        <Button
-          disabled={props.disabled}
-          type="text"
-          icon={icon}
-          onClick={submit}
-        />
-      }
-    />
-  );
-};
-
-/**
- * Type of an async function that accepts the apollo client and any number of
- * other parameters.
- */
-export type HandlerFunction<
-  A extends [ApolloClient<any>] = any,
-  R extends FetchResult = FetchResult
-> = (...args: A) => Promise<R>;
-
-/**
- * Type of the "other" parameters that can be passed through to a handler
- * function when it's called.
- */
-export type HandlerArgs<F extends HandlerFunction> = F extends (
-  a: ApolloClient<any>,
-  ...args: infer U
-) => Promise<any>
-  ? U
-  : never;
-
-/**
- * Higher-order hook factory for network operations.
- *
- * Generates a hook that runs the given handler and manages loading and error
- * handling. This is similar to just using the useMutation hook, but gives
- * more error handling and also lets us use a full function rather than just
- * the mutation itself.
- */
-const getOpHook = <F extends HandlerFunction>(
-  handler: F,
-  successKey: string
-) => {
-  return () => {
-    const apolloClient = useApolloClient();
-    const { t } = useTranslation();
-    const [inFlight, setInFlight] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-    return {
-      inFlight,
-      error,
-      run: async (...args: HandlerArgs<F>) => {
-        setInFlight(true);
-        setError(null);
-
-        try {
-          const result = await handler(apolloClient, ...args);
-          if (result.errors) {
-            result.errors.map((error) => {
-              console.error(error);
-            });
-            throw new Error("MUTATION_ERROR");
-          }
-
-          if (!result.data) {
-            throw new Error("MUTATION_ERROR_MISSING_DATA");
-          }
-
-          message.success(t(`admin.program.edit.${successKey}`));
-        } catch (e) {
-          setError(e);
-        } finally {
-          setInFlight(false);
-        }
-      },
-    };
-  };
-};
-
-export type TargetUpdateInput = Readonly<{
-  id?: string;
-  target: number;
-  categoryValue: {
-    id?: string;
-    name?: string;
-    category: {
-      id: string;
-    };
-  };
-}>;
-
-export type NewDatasetInput = Readonly<{
-  name: string;
-  description?: string;
-}>;
-
-export type UpdatedDatasetInput = Readonly<{
-  id: string;
-  name?: string;
-  description?: string;
-}>;
-
-export type ProgramUpdateInput = Readonly<{
-  id: string;
-  name?: string;
-  description?: string;
-  teamId?: string;
-  targets?: TargetUpdateInput[];
-  datasets?: Array<NewDatasetInput | UpdatedDatasetInput>;
-}>;
-
-export type DatasetFormValues = Readonly<{
-  id?: string;
-  name: string;
-  description: string | null;
-}>;
-
-export type ProgramUpdateFormValues = Readonly<{
-  name: string;
-  description: string;
-  teamId: string;
-  datasets: DatasetFormValues[];
-  targets: CategoryTarget[];
-}>;
-
-/**
- * State and functions related to deactivating a program.
- */
-const useDeactivate = getOpHook(
-  async (apolloClient: ApolloClient<any>, id: string) => {
-    throw new Error("Deactivate is not implemented");
-  },
-  "deactivateSuccess"
-);
-
-/**
- * State and functions related to saving a program.
- */
-const useSave = getOpHook(
-  async (
-    apolloClient: ApolloClient<any>,
-    programId: string,
-    input: ProgramUpdateFormValues
-  ) => {
-    const targets = input.targets.reduce((allTargets, current) => {
-      current.segments.forEach((segment) => {
-        allTargets.push({
-          id: segment.targetId,
-          target: segment.targetValue,
-          categoryValue: {
-            id: segment.categoryValueId,
-            name: segment.categoryValueName,
-            category: {
-              id: current.categoryId,
-            },
-          },
-        });
-      });
-      return allTargets;
-    }, [] as TargetUpdateInput[]);
-
-    return apolloClient.mutate({
-      mutation: ADMIN_UPDATE_PROGRAM,
-      variables: {
-        input: {
-          id: programId,
-          name: input.name,
-          description: input.description,
-          datasets: input.datasets.map((dataset) => ({
-            id: dataset.id,
-            name: dataset.name,
-            description: dataset.description,
-          })),
-          targets,
-        },
-      },
-    });
-  },
-  "saveSuccess"
-);
-
-/**
- * State and functions related to restoring a deleted program.
- */
-const useRestore = getOpHook(
-  async (apolloClient: ApolloClient<any>, id: string) => {
-    throw new Error("Restore is not implemented");
-  },
-  "restoreSuccess"
-);
 
 /**
  * Form to edit or delete a program.

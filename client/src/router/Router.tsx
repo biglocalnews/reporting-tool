@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
+import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
@@ -95,7 +96,10 @@ export function RenderRoutes({
   const WrappedPrivate = (props: AnyRouteProps) =>
     auth.isLoggedIn() ? (
       <Container>
-        <ProtectedRoutes routes={protectedRoutes} />
+        <BreadCrumb />
+        <ErrorBoundary>
+          <ProtectedRoutes routes={protectedRoutes} />
+        </ErrorBoundary>
       </Container>
     ) : (
       <Redirect
