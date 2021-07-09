@@ -180,7 +180,11 @@ class Program(Base, PermissionsMixin):
     team_id = Column(GUID, ForeignKey('team.id', ondelete='SET NULL'), index=True)
     team = relationship('Team', back_populates='programs')
     datasets = relationship('Dataset')
-    targets = relationship('Target')
+    # Targets only returns active targets, but keeps the relationship intact
+    # for old ones.
+    targets = relationship('Target',
+            primaryjoin='and_(Program.id == Target.program_id, Target.deleted == None)',
+            )
     tags = relationship('Tag', secondary=program_tags,
                         back_populates='programs')
 
@@ -246,7 +250,7 @@ class Target(Base, PermissionsMixin):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     program = relationship('Program', back_populates='targets')
-    target_date = Column(DateTime, nullable=False)
+    target_date = Column(DateTime, nullable=False, server_default=func.now())
     target = Column(Float, nullable=False)
     category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
     category_value = relationship('CategoryValue', back_populates='targets')

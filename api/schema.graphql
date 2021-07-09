@@ -87,9 +87,9 @@ type Tag {
 
 input TagInput {
   id: ID
-  name: String!
+  name: String
   description: String
-  tagType: String!
+  tagType: String
 }
 
 type Target @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
@@ -246,14 +246,17 @@ input CategoryValueInput {
 
 input TargetInput {
   id: ID
-  target: Float!
-  categoryValue: CategoryValueInput!
+  target: Float
+  categoryValue: CategoryValueInput
 }
 
 input CreateProgramInput {
   name: String!
+  description: String
   teamId: ID!
   targets: [TargetInput!]
+  tags: [TagInput!]
+  datasets: [UpsertDatasetInput!]
 }
 
 input UpsertDatasetInput {
@@ -268,6 +271,7 @@ input UpdateProgramInput {
   teamId: ID
   description: String
   targets: [TargetInput!]
+  tags: [TagInput!]
   datasets: [UpsertDatasetInput!]
 }
 

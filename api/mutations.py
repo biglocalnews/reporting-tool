@@ -345,20 +345,41 @@ def resolve_update_program(obj, info, input):
 
     if 'targets' in input:
         program.targets = []
+        # TODO: We want to keep a record of all changes to targets so we can
+        # view changes over time.
+        # The actual update procedure should be a little more complicated:
+        #  1) Find existing target with the same category_value
+        #  2) If the target % hasn't changed, keep it intact
+        #  3) If the target did change, mark the old as `deleted` and create
+        #     a new Target with the new %
+        #  4) Make sure that the old target keeps the program_id even though
+        #     it is not active. This can be configured in the relationship join
+        #     parameters in the database objects.
         for target_dict in input.pop('targets'):
-            cv_dict = target_dict.pop('category_value')
-            cat_dict = cv_dict.pop('category')
-            cv = session.merge(CategoryValue(**cv_dict))
-            cv.category_id = cat_dict['id']
-            target = session.merge(Target(target_date=func.now(), **target_dict))
-            target.category_value = cv
+            cv_dict = target_dict.pop('category_value', None)
+            target = session.merge(Target(**target_dict))
+            if cv_dict:
+                cat_dict = cv_dict.pop('category')
+                cv = session.merge(CategoryValue(**cv_dict))
+                cv.category_id = cat_dict['id']
+                target.category_value = cv
             program.targets.append(target)
 
     if 'datasets' in input:
-        program.datasets = [session.merge(Dataset(**d)) for d in input.pop('datasets')]
+        program.datasets = []
+        for ds_dict in input.pop('datasets'):
+            if 'id' in ds_dict:
+                ds_dict['id'] = uuid.UUID(ds_dict['id'])
+            program.datasets.append(session.merge(Dataset(**ds_dict)))
 
     if 'tags' in input:
-        program.tags = [session.merge(Tag(**t)) for t in input.pop('tags')]
+        program.tags = []
+        for tag_dict in input.pop('tags'):
+            if 'id' in tag_dict:
+                tag_dict['id'] = uuid.UUID(tag_dict['id'])
+            elif 'tag_type' not in tag_dict:
+                tag_dict['tag_type'] = 'custom'
+            program.tags.append(session.merge(Tag(**tag_dict)))
 
     for key, value in input.items():
         setattr(program, key, value)

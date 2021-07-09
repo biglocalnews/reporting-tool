@@ -2242,64 +2242,21 @@ class TestGraphQL(BaseAppTest):
         self.assertResultWasNotAuthed(result)
         
     def test_create_program(self):
-        success, result = self.run_graphql_query({
-            "operationName": "CreateProgram",
-            "query": """
-                mutation CreateProgram($input: CreateProgramInput!) {
-                   createProgram(input: $input) {
-                        id
-                        name
-                        description
-                        team {
-                            name
-                        }
-                        datasets {
-                            name
-                        }
-                        targets {
-                            target
-                        }
-                    }
-                }        
-            """,
-            "variables": {
-                "input": {
-                    "name": "A New Program!",
-                    "description": "A very new program",
-                    "teamId": "472d17da-ff8b-4743-823f-3f01ea21a349",
-                    "datasetIds": ["b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"],
-                    "targetIds": ["b5be10ce-103f-41f2-b4c4-603228724993", "6e6edce5-3d24-4296-b929-5eec26d52afc"],
-                    "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
-                }
-            },
-        }, user=self.test_users['admin'])
+        """Admins should be able to create new programs."""
+        users = [
+                ['other', False],
+                ['normal', False],
+                ['admin', True],
+                [None, False],
+            ]
 
-        self.assertTrue(success)
-        self.assertTrue(self.is_valid_uuid(result["data"]["createProgram"]["id"]), "Invalid UUID")
-        self.assertEqual(result, {
-            "data": {
-                "createProgram": {
-                    "id": result["data"]["createProgram"]["id"],
-                    "name": "A New Program!",
-                    "description": "A very new program",
-                    "team": {
-                        "name": "News Team"
-                    },
-                    "datasets": [{"name": "Breakfast Hour"}], 
-                    "targets": [{"target": 0.5}, {"target": 0.5}],
-                },
-            },
-        })
-        
-    def test_create_program_no_perm(self):
-        """Test that program creation fails for normal (non-admin) users."""
-        for user_role in ['other', 'normal']:
-            user = self.test_users[user_role]
+        for user_id, should_auth in users:
+            user = self.test_users.get(user_id)
             success, result = self.run_graphql_query({
                 "operationName": "CreateProgram",
                 "query": """
                     mutation CreateProgram($input: CreateProgramInput!) {
-                        createProgram(input: $input) {
+                       createProgram(input: $input) {
                             id
                             name
                             description
@@ -2312,28 +2269,74 @@ class TestGraphQL(BaseAppTest):
                             targets {
                                 target
                             }
+                            tags {
+                                name
+                            }
                         }
-                    }
+                    }        
                 """,
                 "variables": {
                     "input": {
-                        "name": "An (unsuccessfully) updated program!",
-                        "description": "A very (unsuccessfully) updated program",
-                        "teamId": "2c4cfe21-42b1-4eec-b970-5409449d53a5",
-                        "datasetIds": ["b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"],
-                        "targetIds": ["b5be10ce-103f-41f2-b4c4-603228724993", "6e6edce5-3d24-4296-b929-5eec26d52afc"],
-                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
-                    },
+                        "name": "A New Program!",
+                        "description": "A very new program",
+                        "teamId": "472d17da-ff8b-4743-823f-3f01ea21a349",
+                        "datasets": [{
+                            "name": "A new dataset",
+                            "description": "Some new dataset",
+                            }],
+                        "targets": [
+                            {
+                                "categoryValue": {
+                                    "name": "gender1",
+                                    "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e"},
+                                },
+                                "target": 0.5,
+                            },
+                            {
+                                "categoryValue": {
+                                    "name": "gender2",
+                                    "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e"},
+                                },
+                                "target": 0.5,
+                            },
+                        ],
+                        "tags": [{"id": "4a2142c0-5416-431d-b62f-0dbfe7574688"}]
+                    }
                 },
             }, user=user)
 
             self.assertTrue(success)
-            self.assertResultWasNotAuthed(result)
+            if not should_auth:
+                self.assertResultWasNotAuthed(result)
+            else:
+                self.assertTrue(self.is_valid_uuid(result["data"]["createProgram"]["id"]), "Invalid UUID")
+                self.assertEqual(result, {
+                    "data": {
+                        "createProgram": {
+                            "id": result["data"]["createProgram"]["id"],
+                            "name": "A New Program!",
+                            "description": "A very new program",
+                            "team": {
+                                "name": "News Team"
+                            },
+                            "tags": [{"name": "News"}],
+                            "datasets": [{"name": "A new dataset"}], 
+                            "targets": [{"target": 0.5}, {"target": 0.5}],
+                        },
+                    },
+                })
 
     def test_update_program(self):
-        """Test that users on a admins can update Programs."""
-        for user_role in ['admin']:
-            user = self.test_users[user_role]
+        """Test that admins can update Programs."""
+        users = [
+                ['other', False],
+                ['normal', False],
+                ['admin', True],
+                [None, False],
+            ]
+
+        for user_id, should_auth in users:
+            user = self.test_users.get(user_id)
             success, result = self.run_graphql_query({
                 "operationName": "UpdateProgram",
                 "query": """
@@ -2342,10 +2345,13 @@ class TestGraphQL(BaseAppTest):
                             id
                             name
                             targets {
-                                id
+                                target
                                 categoryValue {
                                     name
                                 }
+                            }
+                            datasets {
+                                name
                             }
                             tags {
                                 name
@@ -2358,66 +2364,69 @@ class TestGraphQL(BaseAppTest):
                     "input": {
                         "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                         "name": "An updated new Program",
-                        "targetIds": ["40eaeafc-3311-4294-a639-a826eb6495ab", "2d501688-92e3-455e-9685-01141de3dbaf", "4f7897c2-32a1-4b1e-9749-1a8066faca01"],
-                        "tagIds": ["4a2142c0-5416-431d-b62f-0dbfe7574688"]
-                    }
-                },
-            }, user=user)
+                        "targets": [
+                            {"id": "40eaeafc-3311-4294-a639-a826eb6495ab", "target": 0.17}, # NonBinary
+                            {"id": "2d501688-92e3-455e-9685-01141de3dbaf", "target": 0.16}, # CisMen
+                            {"id": "4f7897c2-32a1-4b1e-9749-1a8066faca01", "target": 0.17}, # TransWomen
+                            {
+                                "categoryValue": {
+                                    "name": "new gender",
+                                    "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e"},
+                                },
+                                "target": 0.5,
+                            },
+                            ],
+                        "datasets": [
+                            {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"}, # Existing dataset 'Breakfast Hour'
+                            {"name": "Some new dataset", "description": "for testing"}, # New one 
+                            ],
+                        "tags": [
+                            {"id": "4a2142c0-5416-431d-b62f-0dbfe7574688"}, # Existing tag 'news'
+                            {"name": "new tag", "description": "my new tag"}, # New tag
+                            ],
+                        }
+                    },
+                }, user=user)
 
             self.assertTrue(success)
-            self.assertTrue(self.is_valid_uuid(result["data"]["updateProgram"]["id"]), "Invalid UUID")
-            self.assertEqual(result, {
-                "data": {
-                    "updateProgram": {
-                        "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
-                        "name": "An updated new Program",
-                        "targets": [
-                            {
-                                "id": "2d501688-92e3-455e-9685-01141de3dbaf", 
-                                "categoryValue": {
-                                    "name": "Cisgender men"}
-                                }, 
-                            {
-                                "id": "4f7897c2-32a1-4b1e-9749-1a8066faca01", 
-                                "categoryValue": {
-                                    "name": "Trans women"}
-                                }, 
-                            {
-                                "id": "40eaeafc-3311-4294-a639-a826eb6495ab", 
-                                "categoryValue": {
-                                    "name": "Non-binary"
-                                }
-                            }
-                        ],
-                        "tags": [
-                            {"name": "News"}
-                        ]
+            if not should_auth:
+                self.assertResultWasNotAuthed(result)
+            else:
+                self.assertTrue(self.is_valid_uuid(result["data"]["updateProgram"]["id"]), "Invalid UUID")
+                self.assertEqual(result, {
+                    "data": {
+                        "updateProgram": {
+                            "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                            "name": "An updated new Program",
+                            "targets": [
+                                {
+                                    "categoryValue": {"name": "Cisgender men"},
+                                    "target": 0.16,
+                                },
+                                {
+                                    "categoryValue": {"name": "Trans women"},
+                                    "target": 0.17,
+                                },
+                                {
+                                    "categoryValue": {"name": "Non-binary"},
+                                    "target": 0.17,
+                                },
+                                {
+                                    "categoryValue": {"name": "New gender"},
+                                    "target": 0.5,
+                                },
+                            ],
+                            "datasets": [
+                                {"name": "Breakfast Hour"},
+                                {"name": "Some new dataset"},
+                            ],
+                            "tags": [
+                                {"name": "News"},
+                                {"name": "New tag"},
+                            ]
+                        },
                     },
-                },
-            })
-
-    def test_update_program_no_perm(self):
-        """Test that users on other teams can't update Programs."""
-        user = self.test_users['other']
-        success, result = self.run_graphql_query({
-            "operationName": "UpdateProgram",
-            "query": """
-                mutation UpdateProgram($input: UpdateProgramInput!) {
-                    updateProgram(input: $input) {
-                        id
-                   }
-                }
-            """,
-            "variables": {
-                "input": {
-                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b"
-                }
-            },
-        }, user=user)
-
-        self.assertTrue(success)
-        self.assertResultWasNotAuthed(result)
-
+                })
 
     def test_delete_program(self):
         """Only admins can delete programs."""
