@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Form, Select, Input, FormInstance, message } from "antd";
+import { Alert, Form, Select, Input, FormInstance, message } from "antd";
 
 import { Loading } from "../../components/Loading/Loading";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
@@ -48,6 +48,7 @@ export type CreateProgramProps = {
 
 export const CreateProgram = ({ form }: CreateProgramProps) => {
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<Error | null>(null);
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
   const history = useHistory();
@@ -79,6 +80,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
    */
   const saveNewProgram = async (values: CreateProgramFormValues) => {
     setSaving(true);
+    setSaveError(null);
 
     let newProgram: CreateProgramInput = {
       name: values.name,
@@ -93,6 +95,8 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         >({
           query: ADMIN_GET_PROGRAM,
           variables: { id: values.basedOn },
+          // Make sure to get the latest version
+          fetchPolicy: "network-only",
         });
 
         // Copy the Targets configuration from the given program. Note that
@@ -133,9 +137,10 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         throw new Error("FAILED_SAVE_NO_RESPONSE");
       }
 
+      message.success(t(`admin.program.create.success`));
       history.push(`/admin/programs/${createResponse.data!.createProgram.id}`);
     } catch (e) {
-      message.error(t(`admin.program.create.error.${e.message}`));
+      setSaveError(e.message);
     } finally {
       setSaving(false);
     }
@@ -149,6 +154,15 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
       wrapperCol={{ span: 14 }}
       onFinish={saveNewProgram}
     >
+      {saveError && (
+        <Alert
+          type="error"
+          message={t(`admin.program.edit.form.validation.saveError`)}
+          description={t(`admin.program.create.error.${saveError.message}`)}
+          showIcon
+        />
+      )}
+
       <Form.Item
         label={t("admin.program.create.name")}
         name="name"

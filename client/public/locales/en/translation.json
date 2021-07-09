@@ -98,6 +98,7 @@
         "teamRequired": "You must select a team",
         "basedOn": "Template",
         "basedOnPlaceholder": "Select a program to use as a template",
+        "success": "Created successfully!",
         "error": {
           "FAILED_SAVE": "The server rejected your request",
           "FAILED_SAVE_NO_RESPONSE": "The server did not send a proper response to your request"
