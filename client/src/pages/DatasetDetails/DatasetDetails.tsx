@@ -1,7 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, PageHeader, Typography } from "antd";
+import { Button, Typography } from "antd";
 import { useTranslation } from "react-i18next";
+import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import {
   GetDataset,
@@ -10,6 +11,7 @@ import {
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
+import { PageTitleBar } from "../../components/PageTitleBar/PageTitleBar";
 
 interface RouteParams {
   datasetId: string;
@@ -36,16 +38,9 @@ const DatasetDetails = (): JSX.Element => {
 
   return (
     <div className="dataset-details_container">
-      <PageHeader
-        style={{ padding: 0 }}
-        title={
-          <Text style={{ fontSize: "xx-large" }}>
-            {queryData?.dataset?.program.name}
-          </Text>
-        }
-        subTitle={
-          <Text style={{ fontSize: "large" }}>{queryData?.dataset?.name}</Text>
-        }
+      <PageTitleBar
+        title={queryData?.dataset?.program.name}
+        subtitle={queryData?.dataset?.name}
         extra={[
           <Button
             key="1"
@@ -56,7 +51,7 @@ const DatasetDetails = (): JSX.Element => {
             {t("addData")}
           </Button>,
         ]}
-      ></PageHeader>
+      />
 
       {queryData!.dataset.records.length > 0 && (
         <DatasetDetailsScoreCard data={queryData} datasetId={datasetId} />
