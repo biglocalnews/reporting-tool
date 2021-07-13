@@ -250,7 +250,7 @@ class Target(Base, PermissionsMixin):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     program = relationship('Program', back_populates='targets')
-    target_date = Column(DateTime, nullable=False, server_default=func.now())
+    target_date = Column(DateTime, nullable=True)
     target = Column(Float, nullable=False)
     category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
     category_value = relationship('CategoryValue', back_populates='targets')

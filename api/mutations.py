@@ -355,6 +355,7 @@ def resolve_update_program(obj, info, input):
         #  4) Make sure that the old target keeps the program_id even though
         #     it is not active. This can be configured in the relationship join
         #     parameters in the database objects.
+        # https://app.clubhouse.io/stanford-computational-policy-lab/story/324/keep-historical-record-of-targets-in-the-database
         for target_dict in input.pop('targets'):
             cv_dict = target_dict.pop('category_value', None)
             target = session.merge(Target(**target_dict))
