@@ -366,6 +366,13 @@ export const EditProgram = () => {
                                 >
                                   <InputNumber
                                     disabled={inactive}
+                                    aria-label={editForm.getFieldValue([
+                                      "targets",
+                                      targetField.name,
+                                      "segments",
+                                      segmentField.name,
+                                      "categoryValueName",
+                                    ])}
                                     min={0 as number}
                                     max={1 as number}
                                     step={0.01}
@@ -408,7 +415,14 @@ export const EditProgram = () => {
                                 <NewStringInput
                                   disabled={inactive}
                                   placeholder={t(
-                                    "admin.program.edit.form.addNewSegment"
+                                    "admin.program.edit.form.addNewSegment",
+                                    {
+                                      category: editForm.getFieldValue([
+                                        "targets",
+                                        targetField.name,
+                                        "categoryName",
+                                      ]),
+                                    }
                                   )}
                                   onAdd={(newSegment, event) => {
                                     if (newSegment) {
@@ -515,9 +529,23 @@ export const EditProgram = () => {
                           <Form.Item
                             label={t("admin.program.edit.form.datasetName")}
                             wrapperCol={{ span: 24 }}
+                            rules={[
+                              {
+                                required: true,
+                                message: t(
+                                  "admin.program.edit.form.validation.datasetNameRequired"
+                                ),
+                              },
+                            ]}
                             name={[datasetField.name, "name"]}
                           >
-                            <Input disabled={inactive} />
+                            <Input
+                              aria-label={t(
+                                "admin.program.edit.form.datasetName"
+                              )}
+                              aria-required="true"
+                              disabled={inactive}
+                            />
                           </Form.Item>
                         }
                         description={
@@ -525,10 +553,24 @@ export const EditProgram = () => {
                             label={t(
                               "admin.program.edit.form.datasetDescription"
                             )}
+                            rules={[
+                              {
+                                required: true,
+                                message: t(
+                                  "admin.program.edit.form.validation.datasetDescriptionRequired"
+                                ),
+                              },
+                            ]}
                             wrapperCol={{ span: 24 }}
                             name={[datasetField.name, "description"]}
                           >
-                            <Input.TextArea disabled={inactive} />
+                            <Input.TextArea
+                              aria-required="true"
+                              aria-label={t(
+                                "admin.program.edit.form.datasetDescription"
+                              )}
+                              disabled={inactive}
+                            />
                           </Form.Item>
                         }
                       />

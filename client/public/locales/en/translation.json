@@ -126,7 +126,7 @@
           "stopTrackingCategory": "Stop tracking",
           "stopTrackingCategoryConfirm": "Do you really wish to stop tracking this category?",
           "confirmStopTrackingSegment": "Do you really wish to stop tracking this demographic segment?",
-          "addNewSegment": "Add a new target",
+          "addNewSegment": "Add new target for {{ category }}",
           "addDataset": "Add a new dataset",
           "confirmRemoveDataset": "Do you really wish to delete this dataset?",
           "alreadyDeletedTitle": "This program has been deleted.",
@@ -139,7 +139,9 @@
             "needSegments": "You must add at least one segment to track in a category.",
             "saveError": "Failed to save changes to program",
             "deleteError": "Failed to deactivate program",
-            "restoreError": "Failed to restore program"
+            "restoreError": "Failed to restore program",
+            "datasetNameRequired": "Datasets are required to have names",
+            "datasetDescriptionRequired": "Datasets are required to have descriptions"
           }
         }
       }

@@ -119,6 +119,7 @@ const getOpHook = <F extends HandlerFunction>(
 
           message.success(t(`admin.program.edit.${successKey}`));
         } catch (e) {
+          console.error(e);
           setError(e);
         } finally {
           setInFlight(false);

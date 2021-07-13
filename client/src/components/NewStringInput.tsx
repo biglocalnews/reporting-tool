@@ -31,6 +31,7 @@ export const NewStringInput = (props: NewStringInputProps) => {
     <Input
       disabled={props.disabled}
       value={value}
+      aria-label={props.placeholder}
       placeholder={props.placeholder}
       onChange={(e) => setValue(e.target.value)}
       onPressEnter={submit}
