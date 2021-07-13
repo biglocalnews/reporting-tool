@@ -260,3 +260,15 @@ it("can set new target values for existing targets", async () => {
   await tick();
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
 });
+
+it("can remove tracked targets");
+it("can add new tracked targets");
+it("can remove a tracked category");
+it("can add a new category");
+it("can edit a dataset");
+it("can add a new dataset");
+it("can remove a dataset");
+it("can edit basic info like name and description");
+it("can assign to a different team");
+it("can deactivate a program");
+it("can restore a deactivated program");
