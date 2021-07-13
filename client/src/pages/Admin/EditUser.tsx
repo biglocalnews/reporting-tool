@@ -232,6 +232,7 @@ const useRestoreUser = (userId: string, refresh: () => void, t: TFunction) => {
 export const EditUser = () => {
   const { userId } = useParams<{ userId: string }>();
   const { t } = useTranslation();
+  const history = useHistory();
 
   const {
     rolesResponse,
@@ -283,7 +284,7 @@ export const EditUser = () => {
   return (
     <div className="admin user-edituser_container">
       <PageHeader
-        onBack={() => window.history.back()}
+        onBack={() => history.push("/admin/users")}
         title={t("admin.user.title")}
       />
       {inactive && (

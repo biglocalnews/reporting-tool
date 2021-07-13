@@ -41,11 +41,16 @@ exports[`renders App correctly 1`] = `
                   "path": "/admin/teams",
                 },
                 Object {
-                  "breadcrumb": "Manage Programs",
                   "component": [Function],
                   "exact": true,
                   "key": "programs",
                   "path": "/admin/programs",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "program",
+                  "path": "/admin/programs/:programId",
                 },
               ],
             },
@@ -112,7 +117,6 @@ exports[`renders ProtectedAppContainer correctly 1`] = `
       <Content
         className="site-layout-background"
       >
-        <BreadCrumb />
         <div />
       </Content>
       <Footer
@@ -170,11 +174,16 @@ exports[`renders admin stuff when authed as admin 1`] = `
                   "path": "/admin/teams",
                 },
                 Object {
-                  "breadcrumb": "Manage Programs",
                   "component": [Function],
                   "exact": true,
                   "key": "programs",
                   "path": "/admin/programs",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "program",
+                  "path": "/admin/programs/:programId",
                 },
               ],
             },

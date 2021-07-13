@@ -4,7 +4,6 @@ import { Layout } from "antd";
 import AppHeader from "./layout/AppHeader";
 import { AppSidebar } from "./layout/AppSidebar";
 import "./App.css";
-import BreadCrumb from "./components/Breadcrumb/Breadcrumbs";
 import { Login } from "./pages/Login/Login";
 import { Loading } from "./components/Loading/Loading";
 
@@ -18,8 +17,10 @@ const { Footer, Content } = Layout;
  */
 export function ProtectedAppContainer({
   children,
+  crumbs,
 }: {
   children?: React.ReactNode;
+  crumbs?: boolean;
 }) {
   return (
     <>
@@ -27,10 +28,7 @@ export function ProtectedAppContainer({
       <Layout>
         <AppSidebar />
         <Layout style={{ padding: "0 24px 24px" }}>
-          <Content className="site-layout-background">
-            <BreadCrumb />
-            {children}
-          </Content>
+          <Content className="site-layout-background">{children}</Content>
           <Footer style={{ textAlign: "center" }}>Footer content</Footer>
         </Layout>
       </Layout>

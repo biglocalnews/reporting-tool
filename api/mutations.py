@@ -296,28 +296,39 @@ def resolve_delete_team(obj, info, id):
     session.commit()
     
     return id
+
+
 @mutation.field("createProgram")
 @convert_kwargs_to_snake_case
 def resolve_create_program(obj, info, input):
     '''GraphQL mutation to create a Program.
         :param input: params for new Program
-        :returns: Program dictionary
+        :returns: Program object
     '''
-
     session = info.context['dbsession']
-    datasets = input.pop('dataset_ids')
-    targets = input.pop('target_ids')
-    tags = input.pop('tag_ids')
+    datasets = input.pop('datasets', [])
+    targets = input.pop('targets', [])
+    tags = input.pop('tags', [])
+    if 'description' not in input:
+        input['description'] = ''
     
     program = Program(**input)
-    program.datasets += [session.merge(Dataset(id=dataset_id)) for dataset_id in datasets]
-    program.targets += [session.merge(Target(id=target_id)) for target_id in targets]
-    program.tags += [session.merge(Tag(id=tag_id)) for tag_id in tags]
+    program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
+    program.tags = [session.merge(Tag(**tag)) for tag in tags]
+
+    for target_dict in targets:
+        cv_dict = target_dict.pop('category_value')
+        cat_dict = cv_dict.pop('category')
+        cv = session.merge(CategoryValue(**cv_dict))
+        cv.category_id = cat_dict['id']
+        target = Target(target_date=func.now(), category_value=cv, **target_dict)
+        program.targets.append(target)
 
     session.add(program)
     session.commit()
     
     return program
+
 
 @mutation.field("updateProgram")
 @convert_kwargs_to_snake_case
@@ -326,24 +337,58 @@ def resolve_update_program(obj, info, input):
         :param input: params for updated Program
         :returns: Updated Program dictionary
     '''
-
     session = info.context['dbsession']
-    datasets = input.pop('dataset_ids', [])
-    targets = input.pop('target_ids', [])
-    tags = input.pop('tag_ids', [])
-    program = session.query(Program).get(input['id'])
-    if len(datasets) > 0:
-        program.datasets = [session.merge(Dataset(id=uuid.UUID(dataset_id))) for dataset_id in datasets]
-    if len(targets) > 0:
-        program.targets = [session.merge(Target(id=uuid.UUID(target_id))) for target_id in targets]
-    if len(tags) > 0:
-        program.tags = [session.merge(Tag(id=uuid.UUID(tag_id))) for tag_id in tags]
-    for param in input:
-        setattr(program, param, input[param])
-    session.add(program)
-    session.commit()
+    program = session.query(Program).get(input.pop('id'))
+    
+    if 'team_id' in input:
+        program.team = session.merge(Team(id=input.pop('team_id')))
 
+    if 'targets' in input:
+        program.targets = []
+        # TODO: We want to keep a record of all changes to targets so we can
+        # view changes over time.
+        # The actual update procedure should be a little more complicated:
+        #  1) Find existing target with the same category_value
+        #  2) If the target % hasn't changed, keep it intact
+        #  3) If the target did change, mark the old as `deleted` and create
+        #     a new Target with the new %
+        #  4) Make sure that the old target keeps the program_id even though
+        #     it is not active. This can be configured in the relationship join
+        #     parameters in the database objects.
+        # https://app.clubhouse.io/stanford-computational-policy-lab/story/324/keep-historical-record-of-targets-in-the-database
+        for target_dict in input.pop('targets'):
+            cv_dict = target_dict.pop('category_value', None)
+            target = session.merge(Target(**target_dict))
+            if cv_dict:
+                cat_dict = cv_dict.pop('category')
+                cv = session.merge(CategoryValue(**cv_dict))
+                cv.category_id = cat_dict['id']
+                target.category_value = cv
+            program.targets.append(target)
+
+    if 'datasets' in input:
+        program.datasets = []
+        for ds_dict in input.pop('datasets'):
+            if 'id' in ds_dict:
+                ds_dict['id'] = uuid.UUID(ds_dict['id'])
+            program.datasets.append(session.merge(Dataset(**ds_dict)))
+
+    if 'tags' in input:
+        program.tags = []
+        for tag_dict in input.pop('tags'):
+            if 'id' in tag_dict:
+                tag_dict['id'] = uuid.UUID(tag_dict['id'])
+            elif 'tag_type' not in tag_dict:
+                tag_dict['tag_type'] = 'custom'
+            program.tags.append(session.merge(Tag(**tag_dict)))
+
+    for key, value in input.items():
+        setattr(program, key, value)
+    
+    session.merge(program)
+    session.commit()
     return program
+
 
 @mutation.field("deleteProgram")
 def resolve_delete_program(obj, info, id):
@@ -358,3 +403,19 @@ def resolve_delete_program(obj, info, id):
     session.commit()
 
     return id
+
+
+@mutation.field("restoreProgram")
+def resolve_restore_program(obj, info, id):
+    '''GraphQL mutation to restore a deleted Program.
+        :param id: UUID of Program to be restored
+        :returns: Program object
+    '''
+    session = info.context['dbsession']
+    program = session.query(Program).get(id)
+    if program:
+        program.deleted = None
+        session.merge(program)
+    session.commit()
+
+    return program

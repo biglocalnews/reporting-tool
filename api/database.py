@@ -180,7 +180,11 @@ class Program(Base, PermissionsMixin):
     team_id = Column(GUID, ForeignKey('team.id', ondelete='SET NULL'), index=True)
     team = relationship('Team', back_populates='programs')
     datasets = relationship('Dataset')
-    targets = relationship('Target')
+    # Targets only returns active targets, but keeps the relationship intact
+    # for old ones.
+    targets = relationship('Target',
+            primaryjoin='and_(Program.id == Target.program_id, Target.deleted == None)',
+            )
     tags = relationship('Tag', secondary=program_tags,
                         back_populates='programs')
 
@@ -246,7 +250,7 @@ class Target(Base, PermissionsMixin):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     program = relationship('Program', back_populates='targets')
-    target_date = Column(DateTime, nullable=False)
+    target_date = Column(DateTime, nullable=True)
     target = Column(Float, nullable=False)
     category_value_id = Column(GUID, ForeignKey('category_value.id'), index=True)
     category_value = relationship('CategoryValue', back_populates='targets')
@@ -491,12 +495,12 @@ def create_dummy_data(session):
     category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
     category_disability = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='disability', description='A disability is any condition of the body or mind (impairment) that makes it more difficult for the person with the condition to do certain activities (activity limitation) and interact with the world around them (participation restrictions). Some disabilities may be hidden or not easy to see.')
     
-    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
-    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16666666666))
+    target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
+    target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
+    target_cis_men = Target(id='2d501688-92e3-455e-9685-01141de3dbaf', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16))
+    target_trans_women = Target(id='4f7897c2-32a1-4b1e-9749-1a8066faca01', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
+    target_trans_men = Target(id='9352b16b-2607-4f7d-a272-fe6dedd8165a', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
+    target_gender_non_conforming = Target(id='a459ed7f-5573-4d5b-ade6-3070bc8bd2db', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.16))
     target_disabed = Target(id='b5be10ce-103f-41f2-b4c4-603228724993', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
     target_non_disabled = Target(id='6e6edce5-3d24-4296-b929-5eec26d52afc', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
 

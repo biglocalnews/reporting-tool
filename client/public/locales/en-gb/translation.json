@@ -1,16 +1,6 @@
 {
-  "teamsSideBarTitle": "My Programmes",
   "program": "programme",
-  "aboutAttribute": "About {{attribute}}",
-  "attributeDescription": "{{description}}",
-  "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
-  "datasetRecordsTableTitle": "{{title}}",
-  "saveRecord": "{{buttonTitle}} Record",
-  "goToDataset": "Go to Dataset",
-  "addMoreData": "Add More Data",
-  "addData": "Add Data",
-  "editData": "Edit",
-  "backToDashboard": "Back To Dashboard",
-  "noDataAvailable": "No Data Available",
-  "adminSidebarManagePrograms": "Programmes"
+  "program_plural": "programmes",
+  "Program": "Programme",
+  "Program_plural": "Programmes"
 }

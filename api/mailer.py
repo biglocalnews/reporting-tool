@@ -30,6 +30,8 @@ def make_url(path: str, **kwargs) -> str:
             else:
                 url += "&"
             url += f"{k}={urllib.parse.quote_plus(v)}"
+    if settings.debug:
+        print("[Formatted URL for email]", url)
     return url
 
 

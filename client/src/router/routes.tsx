@@ -6,6 +6,8 @@ import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { Home } from "../pages/Home/Home";
 import { UserList } from "../pages/Admin/UserList";
 import { EditUser } from "../pages/Admin/EditUser";
+import { ProgramList } from "../pages/Admin/ProgramList";
+import { EditProgram } from "../pages/Admin/EditProgram";
 
 interface SubRoute extends BreadcrumbsRoute {
   key?: string;
@@ -103,8 +105,13 @@ export const adminRoutes: IRoute[] = [
         path: "/admin/programs",
         key: "programs",
         exact: true,
-        component: Todo("manage programs"),
-        breadcrumb: "Manage Programs",
+        component: ProgramList,
+      },
+      {
+        path: "/admin/programs/:programId",
+        key: "program",
+        exact: true,
+        component: EditProgram,
       },
     ],
   },

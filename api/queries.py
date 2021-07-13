@@ -1,6 +1,6 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue, Program, Entry, Team, Role
+from database import Dataset, User, Record, Category, CategoryValue, Entry, Team, Role, Program
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
@@ -39,17 +39,6 @@ def resolve_users(obj, info):
     '''
     session = info.context['dbsession']
     return session.query(User).order_by(User.email.asc()).all()
-
-@query.field("program")
-@convert_kwargs_to_snake_case
-def resolve_program(obj, info, id):
-    '''GraphQL query to find a Program based on Program ID.
-        :param id: Id for the Program to be fetched
-        :returns: Program 
-    '''
-    session = info.context['dbsession']
-    program = Program.get_not_deleted(session, id)
-    return program
 
 @query.field("dataset")
 @convert_kwargs_to_snake_case
@@ -172,3 +161,36 @@ def resolve_roles(obj, info):
     session = info.context['dbsession']
     return session.query(Role).filter(Role.deleted == None).order_by(Role.name.asc()).all()
 
+
+@query.field("program")
+def resolve_program(obj, info, id):
+    '''GraphQL query to fetch a specific program
+
+    :returns: Program object
+    '''
+    session = info.context['dbsession']
+    return session.query(Program).get(id)
+
+
+@query.field("programs")
+def resolve_programs(obj, info):
+    '''GraphQL query to fetch full list of programs.
+
+    Response includes both active and inactive programs.
+
+    :returns: List of program objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Program).order_by(Program.name.asc()).all()
+
+
+@query.field("categories")
+def resolve_categories(obj, info):
+    '''GraphQL query to fetch full list of categories.
+
+    Response includes only active categories.
+
+    :returns: List of category objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Category).filter(Category.deleted == None).order_by(Category.name.asc()).all()

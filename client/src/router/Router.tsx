@@ -1,9 +1,11 @@
 import React from "react";
 import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
+import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
 import { Auth } from "../services/auth";
 import { useAuth } from "../components/AuthProvider";
+import { ErrorBoundary } from "../components/Error/ErrorBoundary";
 import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
 import { LoginProps } from "../pages/Login/Login";
 import { useTranslation } from "react-i18next";
@@ -94,7 +96,10 @@ export function RenderRoutes({
   const WrappedPrivate = (props: AnyRouteProps) =>
     auth.isLoggedIn() ? (
       <Container>
-        <ProtectedRoutes routes={protectedRoutes} />
+        <BreadCrumb />
+        <ErrorBoundary>
+          <ProtectedRoutes routes={protectedRoutes} />
+        </ErrorBoundary>
       </Container>
     ) : (
       <Redirect
@@ -113,11 +118,13 @@ export function RenderRoutes({
   const WrappedPrivateAdmin = (props: AnyRouteProps) =>
     auth.isLoggedIn() ? (
       <Container>
-        {auth.isAdmin() ? (
-          <ProtectedRoutes routes={adminRoutes} />
-        ) : (
-          <div>{t("notAuthorized")}</div>
-        )}
+        <ErrorBoundary>
+          {auth.isAdmin() ? (
+            <ProtectedRoutes routes={adminRoutes} />
+          ) : (
+            <div>{t("notAuthorized")}</div>
+          )}
+        </ErrorBoundary>
       </Container>
     ) : (
       <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
