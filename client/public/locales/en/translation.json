@@ -1,6 +1,9 @@
 {
-  "teamsSideBarTitle": "My Programs",
   "program": "program",
+  "program_plural": "programs",
+  "Program": "Program",
+  "Program_plural": "Programs",
+  "teamsSideBarTitle": "My $t(Program_plural)",
   "aboutAttribute": "About {{attribute}}",
   "attributeDescription": "{{description}}",
   "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
@@ -71,14 +74,14 @@
       "controlsHeader": "Manage application",
       "manageUsers": "Users",
       "manageTeams": "Teams",
-      "managePrograms": "Programs",
+      "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets"
     },
     "program": {
       "index": {
-        "title": "Programs",
-        "subtitle": "Use this page to view and manage programs",
-        "add": "Create Program",
+        "title": "$t(Program_plural)",
+        "subtitle": "Use this page to view and manage $t(program_plural)",
+        "add": "Create $t(Program)",
         "columnTitle": {
           "name": "Name",
           "categories": "Categories",
@@ -92,12 +95,12 @@
         "nameRequired": "You must enter a name",
         "save": "Save",
         "cancel": "Cancel",
-        "title": "Create a new program",
+        "title": "Create a new $t(program)",
         "team": "Team",
         "teamPlaceholder": "Assign to a team",
         "teamRequired": "You must select a team",
         "basedOn": "Template",
-        "basedOnPlaceholder": "Select a program to use as a template",
+        "basedOnPlaceholder": "Select a $t(program) to use as a template",
         "success": "Created successfully!",
         "error": {
           "FAILED_SAVE": "The server rejected your request",
@@ -105,7 +108,7 @@
         }
       },
       "edit": {
-        "title": "Edit Program",
+        "title": "Edit $t(Program)",
         "targetTitle": "Representation targets",
         "datasetTitle": "Datasets",
         "deactivateSuccess": "Successfully deleted",
@@ -117,7 +120,7 @@
           "save": "Save",
           "delete": "Delete",
           "restore": "Restore",
-          "confirmDelete": "Do you really wish to delete this program?",
+          "confirmDelete": "Do you really wish to delete this $t(program)?",
           "team": "Assigned team",
           "datasetName": "Dataset name",
           "datasetDescription": "Dataset description",
@@ -131,17 +134,17 @@
           "addDataset": "Add a new dataset",
           "deleteDataset": "Delete this dataset",
           "confirmRemoveDataset": "Do you really wish to delete this dataset?",
-          "alreadyDeletedTitle": "This program has been deleted.",
-          "alreadyDeletedInfo": "You cannot edit this program while it is deleted. You can restore it if you wish.",
+          "alreadyDeletedTitle": "This $t(program) has been deleted.",
+          "alreadyDeletedInfo": "You cannot edit this $t(program) while it is deleted. You can restore it if you wish.",
           "restore": "Restore",
           "validation": {
             "nameRequired": "You must enter a name",
             "teamRequired": "You must assign a team",
             "100%": "Targets within a category must sum to 100%.",
             "needSegments": "You must add at least one segment to track in a category.",
-            "saveError": "Failed to save changes to program",
-            "deleteError": "Failed to deactivate program",
-            "restoreError": "Failed to restore program",
+            "saveError": "Failed to save changes to $t(program)",
+            "deleteError": "Failed to deactivate $t(program)",
+            "restoreError": "Failed to restore $t(program)",
             "datasetNameRequired": "Datasets are required to have names",
             "datasetDescriptionRequired": "Datasets are required to have descriptions"
           }
