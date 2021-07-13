@@ -175,6 +175,7 @@ export const useSave = getOpHook(
             id: programId,
             name: input.name,
             description: input.description,
+            teamId: input.teamId,
             datasets: input.datasets.map((dataset) => ({
               id: dataset.id,
               name: dataset.name,

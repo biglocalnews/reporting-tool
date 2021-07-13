@@ -38,6 +38,7 @@ export const NewStringInput = (props: NewStringInputProps) => {
       suffix={
         <Button
           disabled={props.disabled}
+          aria-label={props.placeholder}
           type="text"
           icon={icon}
           onClick={submit}

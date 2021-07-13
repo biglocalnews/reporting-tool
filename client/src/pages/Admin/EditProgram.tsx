@@ -256,7 +256,7 @@ export const EditProgram = () => {
               option?.children.toLowerCase().indexOf(input?.toLowerCase()) >= 0
             }
             filterSort={(a, b) =>
-              a.children.toLowerCase().localCompare(b.children.toLowerCase())
+              a.children.toLowerCase().localeCompare(b.children.toLowerCase())
             }
           >
             {teamsResponse.data!.teams.map((t) => (
@@ -404,6 +404,20 @@ export const EditProgram = () => {
                                   <Button
                                     disabled={inactive}
                                     danger
+                                    aria-label={t(
+                                      "admin.program.edit.form.stopTrackingSegment",
+                                      {
+                                        segment: editForm
+                                          .getFieldValue([
+                                            "targets",
+                                            targetField.name,
+                                            "segments",
+                                            segmentField.name,
+                                            "categoryValueName",
+                                          ])
+                                          .toLowerCase(),
+                                      }
+                                    )}
                                     icon={<CloseCircleOutlined />}
                                     type="text"
                                   />
@@ -454,6 +468,7 @@ export const EditProgram = () => {
                   </Divider>
                   <Select
                     disabled={inactive}
+                    aria-label={t("admin.program.edit.form.addNewCategory")}
                     value={t("admin.program.edit.form.addCategoryPlaceholder")}
                     onSelect={(newId) => {
                       const newCategory = catsResponse.data!.categories.find(
@@ -516,6 +531,9 @@ export const EditProgram = () => {
                         >
                           <Button
                             icon={<CloseCircleOutlined />}
+                            aria-label={t(
+                              "admin.program.edit.form.deleteDataset"
+                            )}
                             disabled={inactive}
                             danger
                             type="text"
@@ -579,6 +597,7 @@ export const EditProgram = () => {
                   <List.Item>
                     <Button
                       disabled={inactive}
+                      aria-label={t("admin.program.edit.form.addDataset")}
                       onClick={() =>
                         datasetOps.add({ name: "", description: "" })
                       }
