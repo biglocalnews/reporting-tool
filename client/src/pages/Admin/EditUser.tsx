@@ -1,31 +1,30 @@
-import React, { useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
-import { useQuery, ApolloQueryResult } from "@apollo/client";
-import { useTranslation, TFunction } from "react-i18next";
 import { DeleteOutlined, SaveOutlined } from "@ant-design/icons";
+import { ApolloQueryResult, useQuery } from "@apollo/client";
 import {
   Alert,
-  Form,
   Button,
-  Input,
-  Divider,
   Checkbox,
-  Select,
-  Row,
-  PageHeader,
-  Modal,
+  Divider,
+  Form,
+  Input,
   message,
+  Modal,
+  PageHeader,
+  Row,
+  Select,
 } from "antd";
-
-import { ADMIN_GET_USER } from "../../graphql/__queries__/AdminGetUser.gql";
-import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
-import { ADMIN_GET_ALL_ROLES } from "../../graphql/__queries__/AdminGetAllRoles.gql";
-import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
-import { AdminGetAllRoles } from "../../graphql/__generated__/AdminGetAllRoles";
-import { AdminGetUser } from "../../graphql/__generated__/AdminGetUser";
+import React, { useState } from "react";
+import { TFunction, useTranslation } from "react-i18next";
+import { useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
-import { EditUserFormData } from "../../services/account";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
+import { AdminGetAllRoles } from "../../graphql/__generated__/AdminGetAllRoles";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
+import { AdminGetUser } from "../../graphql/__generated__/AdminGetUser";
+import { ADMIN_GET_ALL_ROLES } from "../../graphql/__queries__/AdminGetAllRoles.gql";
+import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
+import { ADMIN_GET_USER } from "../../graphql/__queries__/AdminGetUser.gql";
+import { EditUserFormData } from "../../services/account";
 
 /**
  * Check that GraphQL query response doesn't contain an error.

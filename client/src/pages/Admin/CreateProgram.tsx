@@ -1,27 +1,25 @@
-import { useState } from "react";
 import { useApolloClient } from "@apollo/client";
-import { useHistory } from "react-router-dom";
+import { Alert, Form, FormInstance, Input, message, Select } from "antd";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Form, Select, Input, FormInstance, message } from "antd";
-
+import { useHistory } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
-
-import {
-  AdminGetProgram,
-  AdminGetProgramVariables,
-} from "../../graphql/__generated__/AdminGetProgram";
-import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
-import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
-import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
-import { AdminGetAllPrograms } from "../../graphql/__generated__/AdminGetAllPrograms";
-import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
-import { CreateProgramInput } from "../../graphql/__generated__/globalTypes";
 import {
   AdminCreateProgram,
   AdminCreateProgramVariables,
 } from "../../graphql/__generated__/AdminCreateProgram";
+import { AdminGetAllPrograms } from "../../graphql/__generated__/AdminGetAllPrograms";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
+import {
+  AdminGetProgram,
+  AdminGetProgramVariables,
+} from "../../graphql/__generated__/AdminGetProgram";
+import { CreateProgramInput } from "../../graphql/__generated__/globalTypes";
 import { ADMIN_CREATE_PROGRAM } from "../../graphql/__mutations__/AdminCreateProgram.gql";
+import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
+import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
+import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
 
 /**
  * Values set by the UI form.

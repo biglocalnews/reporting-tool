@@ -1,8 +1,8 @@
 import { Card, Col, Row } from "antd";
+import _ from "lodash";
 import { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
-import _ from "lodash";
 
 interface DataEntryCategorySectionProps {
   entries: Entry[];

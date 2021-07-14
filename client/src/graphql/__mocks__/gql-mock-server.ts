@@ -1,7 +1,7 @@
 import { ApolloServer, UserInputError } from "apollo-server";
+import fake from "casual";
 import { buildClientSchema } from "graphql";
 import introspectedSchema from "../../schema.json";
-import fake from "casual";
 
 fake.seed(123);
 

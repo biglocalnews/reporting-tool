@@ -1,7 +1,7 @@
+import { Alert, Button, Card, Form, Input, message, PageHeader } from "antd";
 import { useState } from "react";
-import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { PageHeader, Card, Form, Input, Alert, Button, message } from "antd";
+import { useHistory, useLocation } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./ResetAccountPassword.css";
 

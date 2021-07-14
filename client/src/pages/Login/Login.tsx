@@ -1,6 +1,6 @@
+import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Form, Card, Input, Typography, Modal, message } from "antd";
 import { RouteComponentProps } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";

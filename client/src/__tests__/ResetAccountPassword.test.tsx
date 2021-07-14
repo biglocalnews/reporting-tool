@@ -1,11 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-
 import { UserAccountManagerProvider } from "../components/UserAccountManagerProvider";
-import { tick, mockUserAccountClient } from "./utils";
-
 import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
+import { mockUserAccountClient, tick } from "./utils";
 
 it("allows user to reset their password with a valid token", async () => {
   render(

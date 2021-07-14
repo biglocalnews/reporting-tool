@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Tag, Button, Table, Space } from "antd";
-import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
-import { PlusOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
-import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
+import { Button, Space, Table, Tag } from "antd";
+import { ColumnsType } from "antd/lib/table";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 import { ErrorFallback } from "../../components/Error/ErrorFallback";
 import { Loading } from "../../components/Loading/Loading";
-import { ColumnsType } from "antd/lib/table";
+import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
+import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 
 dayjs.extend(localizedFormat);
 

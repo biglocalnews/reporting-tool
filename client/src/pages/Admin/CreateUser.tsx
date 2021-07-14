@@ -1,8 +1,8 @@
-import { useHistory } from "react-router-dom";
+import { Form, FormInstance, Input, message } from "antd";
 import { useTranslation } from "react-i18next";
-import { Form, Input, FormInstance, message } from "antd";
-import { CreateUserFormValues } from "../../services/account";
+import { useHistory } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
+import { CreateUserFormValues } from "../../services/account";
 
 export type CreateUserProps = {
   /**

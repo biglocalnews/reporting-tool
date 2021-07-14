@@ -1,17 +1,17 @@
-import { Layout, Menu } from "antd";
 import {
-  DatabaseOutlined,
-  TeamOutlined,
   BarChartOutlined,
-  UserSwitchOutlined,
+  DatabaseOutlined,
   TableOutlined,
+  TeamOutlined,
+  UserSwitchOutlined,
 } from "@ant-design/icons";
+import { useQuery } from "@apollo/client";
+import { Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
-import { useQuery } from "@apollo/client";
-import { useAuth } from "../components/AuthProvider";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;

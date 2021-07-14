@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { useQuery } from "@apollo/client";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { Button, Modal, Table, Form, PageHeader } from "antd";
-import { ColumnsType } from "antd/lib/table";
 import {
-  EditOutlined,
   CheckCircleOutlined,
+  EditOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
+import { useQuery } from "@apollo/client";
+import { Button, Form, Modal, PageHeader, Table } from "antd";
+import { ColumnsType } from "antd/lib/table";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { Loading } from "../../components/Loading/Loading";
 import {
   GetUserList,
   GetUserList_users,
 } from "../../graphql/__generated__/GetUserList";
-import { Loading } from "../../components/Loading/Loading";
-import { CreateUser } from "./CreateUser";
+import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
 import { CreateUserFormValues } from "../../services/account";
+import { CreateUser } from "./CreateUser";
 
 /**
  * Index of all users in the organization.

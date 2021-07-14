@@ -1,14 +1,14 @@
-import { MemoryRouter } from "react-router-dom";
-import { shallow, mount } from "enzyme";
+import { mount, shallow } from "enzyme";
 import toJson from "enzyme-to-json";
+import { MemoryRouter } from "react-router-dom";
 import App, { ProtectedAppContainer } from "../App";
+import { AuthProvider } from "../components/AuthProvider";
 import {
   mockUserLoggedIn,
   mockUserNotLoggedIn,
 } from "../graphql/__mocks__/auth";
-import { AuthProvider } from "../components/AuthProvider";
+import { AppAdminSidebarMenu, AppSidebar } from "../layout/AppSidebar";
 import { Login } from "../pages/Login/Login";
-import { AppSidebar, AppAdminSidebarMenu } from "../layout/AppSidebar";
 
 it("renders App correctly", async () => {
   const { auth } = mockUserLoggedIn();

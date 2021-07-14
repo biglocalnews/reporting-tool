@@ -1,3 +1,4 @@
+import { ApolloProvider } from "@apollo/client";
 import {
   act,
   fireEvent,
@@ -6,13 +7,12 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
-import { GraphQLError } from "graphql";
-import { ApolloProvider } from "@apollo/client";
+import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 
 const history = createMemoryHistory();
 

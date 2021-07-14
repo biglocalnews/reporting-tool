@@ -1,11 +1,11 @@
+import { Pie } from "@ant-design/charts";
+import { PieConfig } from "@ant-design/charts/es/pie";
+import { Card, Col, Row } from "antd";
 import _ from "lodash";
 import {
   GetDataset,
   GetDataset_dataset_sumOfCategoryValueCounts_categoryValue,
 } from "../../graphql/__generated__/GetDataset";
-import { Pie } from "@ant-design/charts";
-import { PieConfig } from "@ant-design/charts/es/pie";
-import { Card, Col, Row } from "antd";
 import "./DatasetDetailsScoreCard.css";
 
 interface ScoreCardProps {

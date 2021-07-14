@@ -1,7 +1,7 @@
 import i18next from "i18next";
-import { initReactI18next } from "react-i18next";
-import HttpBackendApi from "i18next-http-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
+import HttpBackendApi from "i18next-http-backend";
+import { initReactI18next } from "react-i18next";
 
 i18next
   // pass the i18n instance to react-i18next

@@ -1,7 +1,7 @@
 import { shallow } from "enzyme";
 import App, { ProtectedAppContainer } from "../App";
-import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
 import { AuthProvider } from "../components/AuthProvider";
+import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
 
 describe("App Component", () => {
   test("renders correctly", async () => {
