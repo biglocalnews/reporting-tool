@@ -39,7 +39,7 @@ const autoMockedClient = (
   addMockFunctionsToSchema({ schema, mocks });
 
   // Define errors
-  const errorLink = new ApolloLink((operation) => {
+  const errorLink = new ApolloLink(() => {
     return new Observable((observer) => {
       observer.next({
         errors: graphQLError,

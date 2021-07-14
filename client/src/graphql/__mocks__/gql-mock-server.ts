@@ -70,15 +70,15 @@ const mockTypes = {
   Query: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    dataset: (parent, args, ctx, info) => datasets.get(args.id) || {},
+    dataset: (parent, args) => datasets.get(args.id) || {},
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    user: (parent, args, ctx, info) => users.get(args.id) || {},
+    user: (parent, args) => users.get(args.id) || {},
   }),
   Mutation: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    upsertRecord: (parent, args, ctx, info) => {
+    upsertRecord: (parent, args) => {
       args.input.id = fake.uuid;
       args.input.data.forEach((element: { id: string }) => {
         element.id = fake.uuid;
@@ -92,7 +92,7 @@ const mockTypes = {
     },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    deleteRecord: (parent, args, ctx, info) => {
+    deleteRecord: (parent, args) => {
       const recordToRemove = recordsData
         .map((item) => item.id)
         .indexOf(args.id);

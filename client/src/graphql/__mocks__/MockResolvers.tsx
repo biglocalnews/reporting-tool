@@ -171,19 +171,18 @@ export const mockResolvers = {
   Query: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    dataset: (parent, args, ctx, info) => datasets.get(args.id),
+    dataset: (parent, args) => datasets.get(args.id),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     user: () => users.get("1"),
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    record: (parent, args, ctx, info) =>
-      recordsData.find((item) => item.id === args.id),
+    record: (parent, args) => recordsData.find((item) => item.id === args.id),
   }),
   Mutation: () => ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    deleteRecord: (parent, args, ctx, info) => {
+    deleteRecord: (parent, args) => {
       const recordToRemove = recordsData
         .map((item) => item.id)
         .indexOf(args.id);
@@ -198,7 +197,7 @@ export const mockResolvers = {
     },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    updateRecord: (parent, args, ctx, info) => {
+    updateRecord: () => {
       const recordToUpdate = recordsData[0];
 
       return { input: recordToUpdate };
