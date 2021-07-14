@@ -120,7 +120,7 @@ export const TeamList = () => {
     useMutation<AdminCreateTeam>(ADMIN_CREATE_TEAM, {
       onCompleted: (data) => {
         messageSuccess(tp("createSuccess"));
-        history.push(`/admin/team/${data.createTeam.id}`);
+        history.push(`/admin/teams/${data.createTeam.id}`);
       },
       onError: (error) => {
         messageError(error.message);
@@ -148,7 +148,7 @@ export const TeamList = () => {
     {
       title: "",
       key: "edit",
-      render: EditLink((record) => `/admin/team/${record.id}`),
+      render: EditLink((record) => `/admin/teams/${record.id}`),
     },
   ];
 
