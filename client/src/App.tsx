@@ -17,7 +17,6 @@ const { Footer, Content } = Layout;
  */
 export function ProtectedAppContainer({
   children,
-  crumbs,
 }: {
   children?: React.ReactNode;
   crumbs?: boolean;

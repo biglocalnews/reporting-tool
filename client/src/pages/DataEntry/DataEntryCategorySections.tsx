@@ -1,5 +1,5 @@
 import { Card, Col, Row } from "antd";
-import React, { ChangeEvent } from "react";
+import { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
 import _ from "lodash";

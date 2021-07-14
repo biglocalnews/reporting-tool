@@ -6,7 +6,6 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import React from "react";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";

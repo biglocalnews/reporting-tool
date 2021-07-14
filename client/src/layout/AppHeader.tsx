@@ -1,4 +1,3 @@
-import React from "react";
 import "./AppHeader.css";
 import logo from "../assets/5050logo.jpg";
 import { Layout, Avatar, Col, Row, Button } from "antd";

@@ -3,7 +3,6 @@ import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
 import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
-import { Auth } from "../services/auth";
 import { useAuth } from "../components/AuthProvider";
 import { ErrorBoundary } from "../components/Error/ErrorBoundary";
 import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";

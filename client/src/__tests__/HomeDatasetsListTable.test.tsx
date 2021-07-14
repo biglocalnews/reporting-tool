@@ -1,4 +1,3 @@
-import React from "react";
 import { render } from "@testing-library/react";
 import { HomeDatasetsListTable } from "../pages/Home/HomeDatasetsListTable";
 import { axe } from "jest-axe";

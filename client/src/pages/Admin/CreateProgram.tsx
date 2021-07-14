@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -9,19 +9,12 @@ import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithError
 
 import {
   AdminGetProgram,
-  AdminGetProgram_program_targets,
   AdminGetProgramVariables,
 } from "../../graphql/__generated__/AdminGetProgram";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
-import {
-  AdminGetAllTeams,
-  AdminGetAllTeams_teams,
-} from "../../graphql/__generated__/AdminGetAllTeams";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
-import {
-  AdminGetAllPrograms,
-  AdminGetAllPrograms_programs,
-} from "../../graphql/__generated__/AdminGetAllPrograms";
+import { AdminGetAllPrograms } from "../../graphql/__generated__/AdminGetAllPrograms";
 import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
 import { CreateProgramInput } from "../../graphql/__generated__/globalTypes";
 import {
@@ -71,7 +64,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
     }
   );
 
-  if (teamsResponse.loading) {
+  if (teamsResponse.loading || saving) {
     return <Loading />;
   }
 

@@ -1,7 +1,6 @@
 import { Radio, Typography } from "antd";
-import React from "react";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 // TODO: Replace with data for person types from query for dataset
 const personTypeOptions = [

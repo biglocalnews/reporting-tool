@@ -1,10 +1,4 @@
-import {
-  FetchResult,
-  MutationFunction,
-  MutationFunctionOptions,
-  MutationResult,
-  useMutation,
-} from "@apollo/client";
+import { MutationFunction, MutationResult, useMutation } from "@apollo/client";
 import { GetRecord } from "../../graphql/__generated__/GetRecord";
 import { UpdateRecord } from "../../graphql/__generated__/UpdateRecord";
 import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord";

@@ -1,5 +1,4 @@
 import { act } from "@testing-library/react";
-import { UserAccountManager } from "../services/account";
 
 /**
  * Mock account management REST client

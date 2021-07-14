@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Form, Card, Input, Typography, Modal, message } from "antd";
 import { RouteComponentProps } from "react-router-dom";
-import { Auth } from "../../services/auth";
 import { useAuth } from "../../components/AuthProvider";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./Login.css";
@@ -31,8 +30,7 @@ export type LoginProps = RouteComponentProps;
 export const Login = (props: LoginProps) => {
   const auth = useAuth();
   const account = useUserAccountManager();
-  const { t, i18n } = useTranslation();
-  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   const [error, setError] = useState<Error | null>(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resettingPassword, setResettingPassword] = useState(false);

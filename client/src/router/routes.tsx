@@ -1,4 +1,3 @@
-import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
 import { DataEntry } from "../pages/DataEntry/DataEntry";

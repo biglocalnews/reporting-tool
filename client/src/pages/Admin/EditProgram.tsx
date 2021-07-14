@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
 
@@ -11,7 +11,6 @@ import {
 import {
   Alert,
   List,
-  Space,
   Col,
   Row,
   Typography,
@@ -23,7 +22,6 @@ import {
   InputNumber,
   Button,
   Popconfirm,
-  message,
 } from "antd";
 
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
@@ -36,10 +34,7 @@ import {
   AdminGetProgramVariables,
 } from "../../graphql/__generated__/AdminGetProgram";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
-import {
-  AdminGetAllTeams,
-  AdminGetAllTeams_teams,
-} from "../../graphql/__generated__/AdminGetAllTeams";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 
 import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
@@ -274,7 +269,7 @@ export const EditProgram = () => {
         <Form.List name="targets">
           {(targetFields, targetOps) => (
             <>
-              {targetFields.map((targetField, index) => (
+              {targetFields.map((targetField) => (
                 <React.Fragment key={targetField.key}>
                   <Row>
                     <Col offset={2} span={20}>
@@ -438,7 +433,7 @@ export const EditProgram = () => {
                                       ]),
                                     }
                                   )}
-                                  onAdd={(newSegment, event) => {
+                                  onAdd={(newSegment) => {
                                     if (newSegment) {
                                       segmentOps.add({
                                         categoryValueName: newSegment,

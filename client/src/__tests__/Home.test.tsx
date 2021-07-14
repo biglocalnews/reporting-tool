@@ -1,4 +1,3 @@
-import React from "react";
 import { act, render, screen, within } from "@testing-library/react";
 import { Home } from "../pages/Home/Home";
 import { createMemoryHistory } from "history";
@@ -25,7 +24,7 @@ async function wait(ms = 0) {
 }
 
 test("should render home page datasets and formatted 'last updated' date", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const mockDateTime = {
@@ -57,7 +56,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 });
 
 test("should render No Data Available for 'last updated' date when no records exist", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const mockDateTime = {

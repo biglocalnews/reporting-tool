@@ -1,4 +1,3 @@
-import React from "react";
 import { shallow } from "enzyme";
 import App, { ProtectedAppContainer } from "../App";
 import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
@@ -6,7 +5,7 @@ import { AuthProvider } from "../components/AuthProvider";
 
 describe("App Component", () => {
   test("renders correctly", async () => {
-    const { auth, mock } = mockUserLoggedIn();
+    const { auth } = mockUserLoggedIn();
     await auth.init();
 
     const tree = shallow(<App />, {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { useQuery, ApolloQueryResult } from "@apollo/client";
 import { useTranslation, TFunction } from "react-i18next";
@@ -9,7 +9,6 @@ import {
   Button,
   Input,
   Divider,
-  List,
   Checkbox,
   Select,
   Row,
@@ -21,19 +20,9 @@ import {
 import { ADMIN_GET_USER } from "../../graphql/__queries__/AdminGetUser.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_ALL_ROLES } from "../../graphql/__queries__/AdminGetAllRoles.gql";
-import {
-  AdminGetAllTeams,
-  AdminGetAllTeams_teams,
-} from "../../graphql/__generated__/AdminGetAllTeams";
-import {
-  AdminGetAllRoles,
-  AdminGetAllRoles_roles,
-} from "../../graphql/__generated__/AdminGetAllRoles";
-import {
-  AdminGetUser,
-  AdminGetUser_user,
-  AdminGetUser_user_teams,
-} from "../../graphql/__generated__/AdminGetUser";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
+import { AdminGetAllRoles } from "../../graphql/__generated__/AdminGetAllRoles";
+import { AdminGetUser } from "../../graphql/__generated__/AdminGetUser";
 import { Loading } from "../../components/Loading/Loading";
 import { EditUserFormData } from "../../services/account";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
@@ -109,7 +98,7 @@ const useAdminUserQueries = (id: string, t: TFunction) => {
     /**
      * Container for any error that occurred while running queries.
      */
-    error: userResponse.error || teamsResponse.error || rolesResponse.error,
+    error: userError || teamsError || rolesError,
   };
 };
 
@@ -152,7 +141,6 @@ const useSaveUser = (id: string, t: TFunction) => {
  * Hook for user deletion request and state.
  */
 const useDeleteUser = (userId: string, refresh: () => void, t: TFunction) => {
-  const history = useHistory();
   const account = useUserAccountManager();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<Error | null>(null);
@@ -194,7 +182,7 @@ const useDeleteUser = (userId: string, refresh: () => void, t: TFunction) => {
 /**
  * Hook for the query to restore a user, with associated state.
  */
-const useRestoreUser = (userId: string, refresh: () => void, t: TFunction) => {
+const useRestoreUser = (userId: string, refresh: () => void) => {
   const account = useUserAccountManager();
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<Error | null>(null);
@@ -250,11 +238,7 @@ export const EditUser = () => {
     refresh,
     t
   );
-  const { restoring, restoreError, restoreUser } = useRestoreUser(
-    userId,
-    refresh,
-    t
-  );
+  const { restoreError, restoreUser } = useRestoreUser(userId, refresh);
 
   // TODO: update error and loading components
   if (loading) {
@@ -264,10 +248,6 @@ export const EditUser = () => {
   if (error) {
     return <div>An error occurred: {error}</div>;
   }
-
-  // Get the team object given its ID.
-  const getTeamById = (id: string) =>
-    teamsResponse.data!.teams.find((t) => t.id === id);
 
   // Initial values of the form fields.
   const initialFormState: EditUserFormData = {

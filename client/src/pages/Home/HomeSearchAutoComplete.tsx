@@ -1,4 +1,3 @@
-import React from "react";
 import { AutoComplete, Input } from "antd";
 import { useTranslation } from "react-i18next";
 import "./HomeSearchAutoComplete.css";

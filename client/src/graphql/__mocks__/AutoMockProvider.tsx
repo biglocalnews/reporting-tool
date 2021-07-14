@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ApolloClient,
   ApolloLink,
@@ -6,7 +5,7 @@ import {
   Observable,
   split,
 } from "@apollo/client";
-import { makeExecutableSchema, IMocks, mergeResolvers } from "graphql-tools";
+import { makeExecutableSchema, mergeResolvers } from "graphql-tools";
 import { printSchema, buildClientSchema } from "graphql/utilities";
 import introspectionResult from "../../schema.json";
 import { GraphQLError } from "graphql";

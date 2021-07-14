@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader, Card, Form, Input, Alert, Button, message } from "antd";
-import { Loading } from "../../components/Loading/Loading";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./ResetAccountPassword.css";
 
@@ -90,7 +89,11 @@ export const ResetAccountPassword = () => {
             <br />
           </>
         )}
-        <Form onFinish={saveNewPassword}>
+        <Form
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 14 }}
+          onFinish={saveNewPassword}
+        >
           <PageHeader
             title={t("account.resetPassword.title")}
             subTitle={t("account.resetPassword.subtitle")}
@@ -112,8 +115,41 @@ export const ResetAccountPassword = () => {
             />
           </Form.Item>
 
+          <Form.Item
+            label={t("account.resetPassword.retypePasswordLabel")}
+            rules={[
+              {
+                required: true,
+                message: t("account.resetPassword.missingPassword"),
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  } else {
+                    return Promise.reject(
+                      new Error(t("account.resetPassword.passwordsDoNotMatch"))
+                    );
+                  }
+                },
+              }),
+            ]}
+            name="confirmPassword"
+          >
+            <Input.Password
+              aria-required="true"
+              aria-label={t("account.resetPassword.retypePasswordLabel")}
+              disabled={!canSubmit}
+            />
+          </Form.Item>
+
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button htmlType="submit" type="primary" disabled={!canSubmit}>
+            <Button
+              loading={resetting}
+              htmlType="submit"
+              type="primary"
+              disabled={!canSubmit}
+            >
               {t("account.resetPassword.submit")}
             </Button>
           </Form.Item>

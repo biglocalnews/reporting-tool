@@ -1,5 +1,5 @@
 import { Button, Result, Typography } from "antd";
-import React, { useState } from "react";
+import { useState } from "react";
 import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
 import { Link, useHistory, useParams } from "react-router-dom";

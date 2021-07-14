@@ -1,5 +1,4 @@
 import { Button, PageHeader, Typography } from "antd";
-import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";

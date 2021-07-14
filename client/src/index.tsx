@@ -10,7 +10,6 @@ import {
   InMemoryCache,
   HttpLink,
   from,
-  ApolloLink,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { AuthProvider } from "./components/AuthProvider";
@@ -41,9 +40,7 @@ const cache = new InMemoryCache({
     Dataset: {
       fields: {
         records: {
-          merge(existing = [], incoming: any[]) {
-            return [...incoming];
-          },
+          merge: false,
         },
       },
     },
