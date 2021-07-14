@@ -1,15 +1,9 @@
-import {
-  CheckCircleOutlined,
-  EditOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
+import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Form, Modal, PageHeader, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { Loading } from "../../components/Loading/Loading";
 import {
   GetUserList,
   GetUserList_users,
@@ -17,6 +11,7 @@ import {
 import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
 import { CreateUserFormValues } from "../../services/account";
 import { CreateUser } from "./CreateUser";
+import { EditLink } from "./EditLink";
 
 /**
  * Index of all users in the organization.
@@ -29,13 +24,12 @@ export const UserList = () => {
     fetchPolicy: "network-only",
   });
 
-  // TODO: update error and loading components
-  if (loading) {
-    return <Loading />;
+  if (error) {
+    throw error;
   }
 
-  if (error || !data || !data.users) {
-    return <div>An error occurred: {error}</div>;
+  if (!loading && !(data && data.users)) {
+    throw new Error(t("admin.user.malformedData"));
   }
 
   const columns: ColumnsType<GetUserList_users> = (
@@ -68,16 +62,10 @@ export const UserList = () => {
     render: Active,
   });
 
-  const ActionLink = (text: string, record: GetUserList_users) => (
-    <Link to={`/admin/users/${record.id}`}>
-      <EditOutlined />
-    </Link>
-  );
-
   columns.push({
     title: "",
     key: "action",
-    render: ActionLink,
+    render: EditLink((record) => `/admin/users/${record.id}`),
   });
 
   return (
@@ -111,8 +99,9 @@ export const UserList = () => {
         <CreateUser form={createUserForm} />
       </Modal>
       <Table
+        loading={loading}
         rowKey={(user) => user.id}
-        dataSource={data.users}
+        dataSource={data?.users}
         columns={columns}
       />
     </div>

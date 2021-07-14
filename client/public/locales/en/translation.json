@@ -79,6 +79,11 @@
       "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets"
     },
+    "team": {
+      "index": {
+        "malformedData": "Failed to load teams data from server"
+      }
+    },
     "program": {
       "index": {
         "title": "$t(Program_plural)",
@@ -154,6 +159,7 @@
       }
     },
     "user": {
+      "malformedData": "Failed to load users from the server",
       "userListTitle": "Manage users",
       "userListSubTitle": "Use this page to add and edit users",
       "createNew": "Add user",
