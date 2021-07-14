@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useHistory } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Alert, Button, message } from "antd";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory, useLocation } from "react-router-dom";
 import { Loading } from "../components/Loading/Loading";
 import { useUserAccountManager } from "../components/UserAccountManagerProvider";
 

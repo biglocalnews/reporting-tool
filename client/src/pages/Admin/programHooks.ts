@@ -1,24 +1,23 @@
-import { useState } from "react";
-import { useApolloClient, ApolloClient, FetchResult } from "@apollo/client";
-import { TargetInput } from "../../graphql/__generated__/globalTypes";
-import { useTranslation } from "react-i18next";
+import { ApolloClient, FetchResult, useApolloClient } from "@apollo/client";
 import { message } from "antd";
-
-import {
-  AdminUpdateProgram,
-  AdminUpdateProgramVariables,
-} from "../../graphql/__generated__/AdminUpdateProgram";
-import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AdminDeleteProgram,
   AdminDeleteProgramVariables,
 } from "../../graphql/__generated__/AdminDeleteProgram";
-import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
 import {
   AdminRestoreProgram,
   AdminRestoreProgramVariables,
 } from "../../graphql/__generated__/AdminRestoreProgram";
+import {
+  AdminUpdateProgram,
+  AdminUpdateProgramVariables,
+} from "../../graphql/__generated__/AdminUpdateProgram";
+import { TargetInput } from "../../graphql/__generated__/globalTypes";
+import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
 import { ADMIN_RESTORE_PROGRAM } from "../../graphql/__mutations__/AdminRestoreProgram.gql";
+import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
 
 /**
  * Form values filled out by the UI for editing datasetes.

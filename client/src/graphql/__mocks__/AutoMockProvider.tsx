@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ApolloClient,
   ApolloLink,
@@ -6,12 +5,12 @@ import {
   Observable,
   split,
 } from "@apollo/client";
-import { makeExecutableSchema, IMocks, mergeResolvers } from "graphql-tools";
-import { printSchema, buildClientSchema } from "graphql/utilities";
-import introspectionResult from "../../schema.json";
-import { GraphQLError } from "graphql";
 import { SchemaLink } from "@apollo/client/link/schema";
 import { addMockFunctionsToSchema } from "apollo-server";
+import { GraphQLError } from "graphql";
+import { makeExecutableSchema, mergeResolvers } from "graphql-tools";
+import { buildClientSchema, printSchema } from "graphql/utilities";
+import introspectionResult from "../../schema.json";
 import { mockResolvers } from "./MockResolvers";
 
 /**
@@ -40,7 +39,7 @@ const autoMockedClient = (
   addMockFunctionsToSchema({ schema, mocks });
 
   // Define errors
-  const errorLink = new ApolloLink((operation) => {
+  const errorLink = new ApolloLink(() => {
     return new Observable((observer) => {
       observer.next({
         errors: graphQLError,

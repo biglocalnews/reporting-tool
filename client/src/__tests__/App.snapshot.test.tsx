@@ -1,18 +1,17 @@
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import { shallow, mount } from "enzyme";
+import { mount, shallow } from "enzyme";
 import toJson from "enzyme-to-json";
+import { MemoryRouter } from "react-router-dom";
 import App, { ProtectedAppContainer } from "../App";
+import { AuthProvider } from "../components/AuthProvider";
 import {
   mockUserLoggedIn,
   mockUserNotLoggedIn,
 } from "../graphql/__mocks__/auth";
-import { AuthProvider } from "../components/AuthProvider";
+import { AppAdminSidebarMenu, AppSidebar } from "../layout/AppSidebar";
 import { Login } from "../pages/Login/Login";
-import { AppSidebar, AppAdminSidebarMenu } from "../layout/AppSidebar";
 
 it("renders App correctly", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const tree = shallow(<App />, {
@@ -24,7 +23,7 @@ it("renders App correctly", async () => {
 });
 
 it("renders Login when not authed", async () => {
-  const { auth, mock } = mockUserNotLoggedIn();
+  const { auth } = mockUserNotLoggedIn();
   await auth.init();
 
   const tree = mount(<App />, {
@@ -46,7 +45,7 @@ test("renders ProtectedAppContainer correctly", async () => {
 });
 
 it("renders admin stuff when authed as admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({
+  const { auth } = mockUserLoggedIn({
     roles: [{ name: "admin", description: "" }],
   });
   await auth.init();
@@ -60,7 +59,7 @@ it("renders admin stuff when authed as admin", async () => {
 });
 
 it("renders custom sidebar for admin", async () => {
-  const { auth, mock } = mockUserLoggedIn({
+  const { auth } = mockUserLoggedIn({
     roles: [{ name: "admin", description: "" }],
   });
   await auth.init();

@@ -1,17 +1,17 @@
 import "@testing-library/jest-dom";
-import { configure } from "enzyme";
+import "@testing-library/jest-dom/extend-expect";
 // Replaced enzyme-adapter-react-16 with @wojtekmaj/enzyme-adapter-react-17
 // since there's no enzyme-adapter-react-17 yet.
 // See: https://github.com/enzymejs/enzyme/pull/2430
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
-import "@testing-library/jest-dom/extend-expect";
+import { configure } from "enzyme";
 import { toHaveNoViolations } from "jest-axe";
+// Mock HTTP requests via the `fetchMock` global.
+import jestFetchMock from "jest-fetch-mock";
 import i18nextTest from "../src/services/i18next-test";
 
 i18nextTest.createInstance();
 
-// Mock HTTP requests via the `fetchMock` global.
-import jestFetchMock from "jest-fetch-mock";
 // Mocks are enabled to get global objects like Response. Note that it's
 // usually better to avoid the fetchMock global and use dependency injection!
 jestFetchMock.enableMocks();

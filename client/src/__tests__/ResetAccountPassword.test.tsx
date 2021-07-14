@@ -1,12 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
-import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-
 import { UserAccountManagerProvider } from "../components/UserAccountManagerProvider";
-import { tick, mockUserAccountClient } from "./utils";
-
 import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
+import { mockUserAccountClient, tick } from "./utils";
 
 it("allows user to reset their password with a valid token", async () => {
   render(
@@ -19,6 +16,7 @@ it("allows user to reset their password with a valid token", async () => {
 
   await tick();
 
+  // With no password entered, form validation fails with the required field
   const saveButton = screen.getByRole("button", { name: /submit/i });
   fireEvent.click(saveButton);
 
@@ -26,13 +24,42 @@ it("allows user to reset their password with a valid token", async () => {
 
   expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(0);
 
-  fireEvent.change(screen.getByLabelText(/password/i), {
+  fireEvent.change(screen.getByLabelText(/newPasswordLabel/), {
     target: { value: "newpass" },
   });
+  await tick();
+
   fireEvent.click(saveButton);
 
   await tick();
 
+  // With only one password entered, form validation fails with the required field
+  expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(0);
+
+  fireEvent.change(screen.getByLabelText(/retypePasswordLabel/), {
+    target: { value: "mismatch" },
+  });
+
+  await tick();
+
+  fireEvent.click(saveButton);
+
+  await tick();
+
+  // Mismatched passwords should also fail validation
+  expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(0);
+
+  fireEvent.change(screen.getByLabelText(/retypePasswordLabel/), {
+    target: { value: "newpass" },
+  });
+
+  await tick();
+
+  fireEvent.click(saveButton);
+
+  await tick();
+
+  // When both passwords match, form should be submitted
   expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(1);
   expect(mockUserAccountClient.resetPassword).toHaveBeenCalledWith({
     token: "foo",
@@ -55,7 +82,10 @@ it("shows an error if the token wasn't validated", async () => {
 
   await tick();
 
-  fireEvent.change(screen.getByLabelText(/password/i), {
+  fireEvent.change(screen.getByLabelText(/newPassword/), {
+    target: { value: "newpass" },
+  });
+  fireEvent.change(screen.getByLabelText(/retypePassword/), {
     target: { value: "newpass" },
   });
 

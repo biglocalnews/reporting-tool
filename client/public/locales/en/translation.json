@@ -35,6 +35,8 @@
       "subtitle": "Enter a new password and press \"save\"",
       "submit": "Save",
       "newPasswordLabel": "New password",
+      "retypePasswordLabel": "Re-type password",
+      "passwordsDoNotMatch": "These two passwords do not match",
       "success": "You have successfully reset your password!",
       "error": "Failed to reset password",
       "action": "Request new link",

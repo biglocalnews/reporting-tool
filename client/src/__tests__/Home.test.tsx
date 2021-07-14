@@ -1,13 +1,12 @@
-import React from "react";
-import { act, render, screen, within } from "@testing-library/react";
-import { Home } from "../pages/Home/Home";
-import { createMemoryHistory } from "history";
 import { ApolloProvider } from "@apollo/client";
-import { Router } from "react-router-dom";
-import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
-import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
-import { AuthProvider } from "../components/AuthProvider";
+import { act, render, screen, within } from "@testing-library/react";
+import { createMemoryHistory } from "history";
 import { axe } from "jest-axe";
+import { Router } from "react-router-dom";
+import { AuthProvider } from "../components/AuthProvider";
+import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
+import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
+import { Home } from "../pages/Home/Home";
 
 const history = createMemoryHistory();
 
@@ -25,7 +24,7 @@ async function wait(ms = 0) {
 }
 
 test("should render home page datasets and formatted 'last updated' date", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const mockDateTime = {
@@ -57,7 +56,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 });
 
 test("should render No Data Available for 'last updated' date when no records exist", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const mockDateTime = {

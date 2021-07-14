@@ -1,13 +1,12 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { AppSidebar } from "../layout/AppSidebar";
 import { MockedProvider } from "@apollo/client/testing";
+import { render } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { GET_USER } from "../graphql/__queries__/GetUser.gql";
-import React from "react";
-import i18nextTest from "../services/i18next-test";
 import { AuthProvider } from "../components/AuthProvider";
 import { mockUserLoggedIn } from "../graphql/__mocks__/auth";
-import { render } from "@testing-library/react";
+import { GET_USER } from "../graphql/__queries__/GetUser.gql";
+import { AppSidebar } from "../layout/AppSidebar";
+import i18nextTest from "../services/i18next-test";
 
 describe("UK English internationalization", () => {
   const mocks = [

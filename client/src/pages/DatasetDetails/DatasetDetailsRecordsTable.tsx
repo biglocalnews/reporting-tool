@@ -1,21 +1,20 @@
-import { Button, Popconfirm, Space, Table } from "antd";
-import React from "react";
-import "./DatasetDetailsRecordsTable.css";
-import {
-  GetDataset,
-  GetDataset_dataset_records,
-} from "../../graphql/__generated__/GetDataset";
-import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
-import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
-import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
+import { Button, Popconfirm, Space, Table } from "antd";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
   messageError,
   messageInfo,
   messageSuccess,
 } from "../../components/Message";
-import dayjs from "dayjs";
+import {
+  GetDataset,
+  GetDataset_dataset_records,
+} from "../../graphql/__generated__/GetDataset";
+import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+import "./DatasetDetailsRecordsTable.css";
 
 interface DatasetRecordsTableProps {
   datasetId: string;
@@ -55,23 +54,23 @@ const DatasetDetailsRecordsTable = ({
     }, {});
   }) as TableData[];
 
-  const [
-    deleteRecord,
-    { loading: deleteRecordLoader, error: deleteRecordError },
-  ] = useMutation(DELETE_RECORD, {
-    onError: (error) => {
-      messageError(`${error.message}. Please try again later.`);
-    },
-    onCompleted: (deleted) => {
-      if (deleted) messageSuccess("Succesfully deleted record!");
-    }, // TODO: update cache instead of refetching
-    refetchQueries: [
-      {
-        query: GET_DATASET,
-        variables: { id: datasetId },
+  const [deleteRecord, { loading: deleteRecordLoader }] = useMutation(
+    DELETE_RECORD,
+    {
+      onError: (error) => {
+        messageError(`${error.message}. Please try again later.`);
       },
-    ],
-  });
+      onCompleted: (deleted) => {
+        if (deleted) messageSuccess("Succesfully deleted record!");
+      }, // TODO: update cache instead of refetching
+      refetchQueries: [
+        {
+          query: GET_DATASET,
+          variables: { id: datasetId },
+        },
+      ],
+    }
+  );
 
   const confirmDelete = (recordId: string) => {
     deleteRecord({ variables: { id: recordId } });
@@ -91,7 +90,7 @@ const DatasetDetailsRecordsTable = ({
       sticky
       title={() => t("datasetRecordsTableTitle", { title: "Records" })}
       pagination={{ hideOnSinglePage: true }}
-      loading={isLoading}
+      loading={isLoading || deleteRecordLoader}
       rowKey={(record) => record.id}
     >
       <Table.Column<TableData>

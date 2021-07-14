@@ -1,10 +1,9 @@
-import React from "react";
-import "./AppHeader.css";
-import logo from "../assets/5050logo.jpg";
-import { Layout, Avatar, Col, Row, Button } from "antd";
-import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Col, Layout, Row } from "antd";
 import { Link, useHistory } from "react-router-dom";
+import logo from "../assets/5050logo.jpg";
 import { useAuth } from "../components/AuthProvider";
+import "./AppHeader.css";
 
 const { Header } = Layout;
 

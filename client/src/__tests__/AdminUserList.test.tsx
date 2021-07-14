@@ -1,14 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider } from "@apollo/client/testing";
-
+import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { UserAccountManagerProvider } from "../components/UserAccountManagerProvider";
-import { tick, mockUserAccountClient } from "./utils";
-
-import { UserList } from "../pages/Admin/UserList";
 import { GET_USER_LIST } from "../graphql/__queries__/GetUserList.gql";
+import { UserList } from "../pages/Admin/UserList";
+import { mockUserAccountClient, tick } from "./utils";
 
 it("renders list of users for the admin", async () => {
   const apolloMocks = [

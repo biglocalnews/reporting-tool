@@ -1,4 +1,7 @@
-import React, {
+import { CloseSquareFilled, SaveOutlined } from "@ant-design/icons";
+import { Alert, Button, Col, Row, Space, Typography } from "antd";
+import dayjs from "dayjs";
+import {
   ChangeEvent,
   Dispatch,
   FormEvent,
@@ -6,16 +9,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Alert, Button, Col, Row, Space, Typography } from "antd";
-import { SaveOutlined, CloseSquareFilled } from "@ant-design/icons";
-import "./DataEntryAggregateDataEntryForm.css";
-import dayjs from "dayjs";
-import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { GetRecord } from "../../graphql/__generated__/GetRecord";
-import { formMessageHandler } from "./DataEntryMessageHandler";
+import { useHistory } from "react-router-dom";
 import { GetDataset } from "../../graphql/__generated__/GetDataset";
+import { GetRecord } from "../../graphql/__generated__/GetRecord";
+import "./DataEntryAggregateDataEntryForm.css";
 import { DataEntryCategorySections } from "./DataEntryCategorySections";
+import { formMessageHandler } from "./DataEntryMessageHandler";
 import { useCreateRecordMutation, useUpdateRecordMutation } from "./hooks";
 
 const { Text } = Typography;

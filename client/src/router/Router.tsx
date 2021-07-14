@@ -1,14 +1,13 @@
 import React from "react";
-import { Route, Switch, RouteComponentProps, Redirect } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Redirect, Route, RouteComponentProps, Switch } from "react-router-dom";
+import { useAuth } from "../components/AuthProvider";
 import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
+import { ErrorBoundary } from "../components/Error/ErrorBoundary";
+import { LoginProps } from "../pages/Login/Login";
+import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
-import { Auth } from "../services/auth";
-import { useAuth } from "../components/AuthProvider";
-import { ErrorBoundary } from "../components/Error/ErrorBoundary";
-import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
-import { LoginProps } from "../pages/Login/Login";
-import { useTranslation } from "react-i18next";
 
 /**
  * Flatten routes to render components for a subroute

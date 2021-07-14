@@ -1,14 +1,13 @@
+import { Layout } from "antd";
 import React, { Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { Layout } from "antd";
+import "./App.css";
+import { Loading } from "./components/Loading/Loading";
 import AppHeader from "./layout/AppHeader";
 import { AppSidebar } from "./layout/AppSidebar";
-import "./App.css";
 import { Login } from "./pages/Login/Login";
-import { Loading } from "./components/Loading/Loading";
-
-import { normalRoutes, adminRoutes } from "./router/routes";
 import { RenderRoutes } from "./router/Router";
+import { adminRoutes, normalRoutes } from "./router/routes";
 
 const { Footer, Content } = Layout;
 
@@ -17,7 +16,6 @@ const { Footer, Content } = Layout;
  */
 export function ProtectedAppContainer({
   children,
-  crumbs,
 }: {
   children?: React.ReactNode;
   crumbs?: boolean;

@@ -1,57 +1,47 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useParams, useHistory } from "react-router-dom";
-
 import {
-  PlusCircleOutlined,
   CloseCircleOutlined,
-  SaveOutlined,
   DeleteOutlined,
+  PlusCircleOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import {
   Alert,
-  List,
-  Space,
+  Button,
   Col,
-  Row,
-  Typography,
-  Select,
   Divider,
-  PageHeader,
   Form,
   Input,
   InputNumber,
-  Button,
+  List,
+  PageHeader,
   Popconfirm,
-  message,
+  Row,
+  Select,
+  Typography,
 } from "antd";
-
-import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
-
-import { NewStringInput } from "../../components/NewStringInput";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
+import { NewStringInput } from "../../components/NewStringInput";
+import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
+import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
+import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
 import {
   AdminGetProgram,
-  AdminGetProgram_program_targets,
   AdminGetProgramVariables,
+  AdminGetProgram_program_targets,
 } from "../../graphql/__generated__/AdminGetProgram";
+import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
+import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
 import {
-  AdminGetAllTeams,
-  AdminGetAllTeams_teams,
-} from "../../graphql/__generated__/AdminGetAllTeams";
-import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
-
-import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
-import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
-
-import {
-  ProgramUpdateFormValues,
   CategoryTarget,
   CategoryTargetSegment,
-  useSave,
-  useRestore,
+  ProgramUpdateFormValues,
   useDeactivate,
+  useRestore,
+  useSave,
 } from "./programHooks";
 
 /**
@@ -274,7 +264,7 @@ export const EditProgram = () => {
         <Form.List name="targets">
           {(targetFields, targetOps) => (
             <>
-              {targetFields.map((targetField, index) => (
+              {targetFields.map((targetField) => (
                 <React.Fragment key={targetField.key}>
                   <Row>
                     <Col offset={2} span={20}>
@@ -438,7 +428,7 @@ export const EditProgram = () => {
                                       ]),
                                     }
                                   )}
-                                  onAdd={(newSegment, event) => {
+                                  onAdd={(newSegment) => {
                                     if (newSegment) {
                                       segmentOps.add({
                                         categoryValueName: newSegment,

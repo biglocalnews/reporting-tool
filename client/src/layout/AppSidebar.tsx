@@ -1,19 +1,17 @@
-import React from "react";
-import { Layout, Menu } from "antd";
 import {
-  DatabaseOutlined,
-  TeamOutlined,
   BarChartOutlined,
-  UserSwitchOutlined,
+  DatabaseOutlined,
   TableOutlined,
+  TeamOutlined,
+  UserSwitchOutlined,
 } from "@ant-design/icons";
+import { useQuery } from "@apollo/client";
+import { Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
-import { useQuery } from "@apollo/client";
-import { useAuth } from "../components/AuthProvider";
-import { ErrorFallback } from "../components/Error/ErrorFallback";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
@@ -27,15 +25,12 @@ interface Dataset {
  * Sidebar content for normal (non-admin) users.
  */
 export const AppNormalUserSidebarMenu = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const userId = useAuth().getUserId();
 
-  const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
-    GET_USER,
-    {
-      variables: { id: userId },
-    }
-  );
+  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+    variables: { id: userId },
+  });
 
   const sidebarPrograms = data?.user?.teams.flatMap((team) =>
     team.programs.map((program) => {
@@ -99,7 +94,7 @@ export const AppNormalUserSidebarMenu = () => {
  * Sidebar content for admin users.
  */
 export const AppAdminSidebarMenu = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Menu mode="inline" role="menubar">
       <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">

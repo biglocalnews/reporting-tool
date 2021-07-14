@@ -1,6 +1,5 @@
-import { ApolloError } from "apollo-server";
-import React from "react";
 import { Alert } from "antd";
+import { ApolloError } from "apollo-server";
 import "./ErrorFallback.css";
 
 interface ErrorProps {

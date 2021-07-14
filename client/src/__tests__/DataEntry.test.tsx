@@ -1,21 +1,20 @@
+import { ApolloProvider } from "@apollo/client";
+import "@testing-library/jest-dom/extend-expect";
 import {
   act,
+  cleanup,
+  fireEvent,
   render,
   screen,
   waitFor,
-  cleanup,
-  fireEvent,
 } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
-import React from "react";
-import { createMemoryHistory } from "history";
-import { Router, useParams } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { GraphQLError } from "graphql";
-import { ApolloProvider } from "@apollo/client";
-import { DataEntry } from "../pages/DataEntry/DataEntry";
+import { createMemoryHistory } from "history";
 import MockDate from "mockdate";
+import { Router, useParams } from "react-router-dom";
+import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
+import { DataEntry } from "../pages/DataEntry/DataEntry";
 
 const history = createMemoryHistory();
 

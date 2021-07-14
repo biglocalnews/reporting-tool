@@ -1,13 +1,12 @@
-import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
+import { EditProgram } from "../pages/Admin/EditProgram";
+import { EditUser } from "../pages/Admin/EditUser";
+import { ProgramList } from "../pages/Admin/ProgramList";
+import { UserList } from "../pages/Admin/UserList";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { Home } from "../pages/Home/Home";
-import { UserList } from "../pages/Admin/UserList";
-import { EditUser } from "../pages/Admin/EditUser";
-import { ProgramList } from "../pages/Admin/ProgramList";
-import { EditProgram } from "../pages/Admin/EditProgram";
 
 interface SubRoute extends BreadcrumbsRoute {
   key?: string;

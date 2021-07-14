@@ -1,16 +1,13 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
-import React from "react";
-import { MemoryRouter, Route } from "react-router-dom";
 import { MockedProvider } from "@apollo/client/testing";
-
-import { tick, mockUserAccountClient } from "./utils";
+import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route } from "react-router-dom";
 import { UserAccountManagerProvider } from "../components/UserAccountManagerProvider";
-
-import { EditUser } from "../pages/Admin/EditUser";
-import { ADMIN_GET_USER } from "../graphql/__queries__/AdminGetUser.gql";
 import { ADMIN_GET_ALL_ROLES } from "../graphql/__queries__/AdminGetAllRoles.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
+import { ADMIN_GET_USER } from "../graphql/__queries__/AdminGetUser.gql";
+import { EditUser } from "../pages/Admin/EditUser";
+import { mockUserAccountClient, tick } from "./utils";
 
 const allRolesMock = {
   request: { query: ADMIN_GET_ALL_ROLES },

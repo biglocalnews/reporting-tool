@@ -1,7 +1,6 @@
-import React from "react";
 import { render } from "@testing-library/react";
-import { HomeDatasetsListTable } from "../pages/Home/HomeDatasetsListTable";
 import { axe } from "jest-axe";
+import { HomeDatasetsListTable } from "../pages/Home/HomeDatasetsListTable";
 
 describe("accessibility", () => {
   it("should not have basic accessibility issues", async () => {

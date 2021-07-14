@@ -1,9 +1,9 @@
 import {
-  useQuery,
   ApolloQueryResult,
-  OperationVariables,
   DocumentNode,
+  OperationVariables,
   QueryHookOptions,
+  useQuery,
 } from "@apollo/client";
 
 /**

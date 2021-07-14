@@ -1,17 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom/extend-expect";
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider } from "@apollo/client/testing";
-
-import { tick } from "./utils";
-
-import { ProgramList } from "../pages/Admin/ProgramList";
+import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
+import { ADMIN_CREATE_PROGRAM } from "../graphql/__mutations__/AdminCreateProgram.gql";
 import { ADMIN_GET_ALL_PROGRAMS } from "../graphql/__queries__/AdminGetAllPrograms.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
-import { ADMIN_CREATE_PROGRAM } from "../graphql/__mutations__/AdminCreateProgram.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
+import { ProgramList } from "../pages/Admin/ProgramList";
+import { tick } from "./utils";
 
 const TEAMS = {
   data: {

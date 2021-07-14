@@ -1,21 +1,21 @@
-import { Button, Result, Typography } from "antd";
-import React, { useState } from "react";
-import "./DataEntry.css";
-import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
-import { Link, useHistory, useParams } from "react-router-dom";
-import { PlusCircleTwoTone, DashboardTwoTone } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
+import { DashboardTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import {
-  GetRecord,
-  GetRecordVariables,
-} from "../../graphql/__generated__/GetRecord";
-import { GET_RECORD } from "../../graphql/__queries__/GetRecord.gql";
+import { Button, Result, Typography } from "antd";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useHistory, useParams } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
 } from "../../graphql/__generated__/GetDataset";
+import {
+  GetRecord,
+  GetRecordVariables,
+} from "../../graphql/__generated__/GetRecord";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+import { GET_RECORD } from "../../graphql/__queries__/GetRecord.gql";
+import "./DataEntry.css";
+import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
 
 const { Title } = Typography;
 

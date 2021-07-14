@@ -1,7 +1,7 @@
 import i18nextTest from "i18next";
 import { initReactI18next } from "react-i18next";
-import translationEnglish from "../../public/locales/en/translation.json";
 import translationUKEnglish from "../../public/locales/en-gb/translation.json";
+import translationEnglish from "../../public/locales/en/translation.json";
 
 i18nextTest.use(initReactI18next).init({
   lng: "en",

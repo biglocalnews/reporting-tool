@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Input, Button } from "antd";
+import { Button, Input } from "antd";
+import { useState } from "react";
 
 /**
  * Props for the NewStringInput component.

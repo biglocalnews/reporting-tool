@@ -1,15 +1,14 @@
-import { Button, PageHeader, Typography } from "antd";
-import React from "react";
-import { useHistory, useParams } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
-import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
+import { useQuery } from "@apollo/client";
+import { Button, PageHeader, Typography } from "antd";
+import { useTranslation } from "react-i18next";
+import { useHistory, useParams } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
-import { useQuery } from "@apollo/client";
-import { useTranslation } from "react-i18next";
+import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 
 interface RouteParams {

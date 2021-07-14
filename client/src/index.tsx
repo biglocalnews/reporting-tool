@@ -1,23 +1,22 @@
-import React, { Suspense } from "react";
-import ReactDOM from "react-dom";
-import "./services/i18next";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import {
   ApolloClient,
   ApolloProvider,
-  NormalizedCacheObject,
-  InMemoryCache,
-  HttpLink,
   from,
-  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+  NormalizedCacheObject,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import React, { Suspense } from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
 import { AuthProvider } from "./components/AuthProvider";
-import { Auth } from "./services/auth";
-import { UserAccountManagerProvider } from "./components/UserAccountManagerProvider";
-import * as account from "./services/account";
 import { Loading } from "./components/Loading/Loading";
+import { UserAccountManagerProvider } from "./components/UserAccountManagerProvider";
+import reportWebVitals from "./reportWebVitals";
+import * as account from "./services/account";
+import { Auth } from "./services/auth";
+import "./services/i18next";
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
@@ -41,9 +40,7 @@ const cache = new InMemoryCache({
     Dataset: {
       fields: {
         records: {
-          merge(existing = [], incoming: any[]) {
-            return [...incoming];
-          },
+          merge: false,
         },
       },
     },

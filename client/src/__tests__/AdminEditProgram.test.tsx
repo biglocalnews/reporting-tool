@@ -1,19 +1,16 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom/extend-expect";
-import React from "react";
-import { Route, MemoryRouter } from "react-router-dom";
 import { MockedProvider } from "@apollo/client/testing";
-
-import { tick } from "./utils";
-
-import { EditProgram } from "../pages/Admin/EditProgram";
-import { ADMIN_GET_ALL_CATEGORIES } from "../graphql/__queries__/AdminGetAllCategories.gql";
-import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
-import { ADMIN_UPDATE_PROGRAM } from "../graphql/__mutations__/AdminUpdateProgram.gql";
+import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route } from "react-router-dom";
 import { ADMIN_DELETE_PROGRAM } from "../graphql/__mutations__/AdminDeleteProgram.gql";
 import { ADMIN_RESTORE_PROGRAM } from "../graphql/__mutations__/AdminRestoreProgram.gql";
+import { ADMIN_UPDATE_PROGRAM } from "../graphql/__mutations__/AdminUpdateProgram.gql";
+import { ADMIN_GET_ALL_CATEGORIES } from "../graphql/__queries__/AdminGetAllCategories.gql";
+import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
+import { EditProgram } from "../pages/Admin/EditProgram";
+import { tick } from "./utils";
 
 const PROGRAM = {
   data: {
