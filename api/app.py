@@ -83,11 +83,11 @@ def admin_user(request: Request):
 
 # Add restful routers for user management
 app.include_router(
-    fastapi_users.get_auth_router(cookie_authentication), prefix="/auth/cookie", tags=["auth"]
+    fastapi_users.get_auth_router(cookie_authentication), prefix="/api/auth/cookie", tags=["auth"]
 )
 app.include_router(
     fastapi_users.get_register_router(on_after_register),
-    prefix="/auth",
+    prefix="/api/auth",
     dependencies=[Depends(admin_user)],
     tags=["auth"],
 )
@@ -95,7 +95,7 @@ app.include_router(
     fastapi_users.get_reset_password_router(
         settings.secret, after_forgot_password=on_after_forgot_password
     ),
-    prefix="/auth",
+    prefix="/api/auth",
     tags=["auth"],
 )
 
@@ -105,7 +105,7 @@ app.include_router(
         after_verification_request=after_verification_request,
         after_verification=after_verify,
     ),
-    prefix="/auth",
+    prefix="/api/auth",
     tags=["auth"],
 )
 
@@ -129,7 +129,7 @@ delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
 delete_route.response_class = Response
 app.include_router(
     users_router,
-    prefix="/users",
+    prefix="/api/users",
     tags=["users"],
 )
 
@@ -201,7 +201,7 @@ async def get_context(request: Request):
             }
 
 # Mount ariadne to fastapi
-app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
+app.mount("/api/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
 @app.on_event("startup")
 async def startup():

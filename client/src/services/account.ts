@@ -104,7 +104,7 @@ const checkError = async (
  * Run verification request with the given token.
  */
 export const verify = async (token: string) => {
-  const r = await fetch("/auth/verify", {
+  const r = await fetch("/api/auth/verify", {
     method: "POST",
     credentials: "same-origin",
     body: JSON.stringify({ token }),
@@ -139,7 +139,7 @@ export const requestVerifyUser = async (email: string) => {
   // NOTE: the response from the token request is not super interesting, since
   // it always returns 202 regardless of whether the payload was incorrect.
   // Still worry about 500s, though.
-  const requestVerifyResponse = await fetch("/auth/request-verify-token", {
+  const requestVerifyResponse = await fetch("/api/auth/request-verify-token", {
     method: "POST",
     credentials: "same-origin",
     body: JSON.stringify({ email: email }),
@@ -153,7 +153,7 @@ export const requestVerifyUser = async (email: string) => {
  * Function to submit user creation request to server.
  */
 export const createUser = async (values: CreateUserFormValues) => {
-  const r = await fetch("/auth/register", {
+  const r = await fetch("/api/auth/register", {
     method: "POST",
     credentials: "same-origin",
     headers: [["Content-Type", "application/json"]],
@@ -173,7 +173,7 @@ export const createUser = async (values: CreateUserFormValues) => {
  * Function to edit an existing user.
  */
 export const editUser = async (id: string, values: EditUserFormData) => {
-  const r = await fetch(`/users/${id}`, {
+  const r = await fetch(`/api/users/${id}`, {
     method: "PATCH",
     body: JSON.stringify({
       ...values,
@@ -193,7 +193,7 @@ export const editUser = async (id: string, values: EditUserFormData) => {
  * This will fail if the user doesn't have permission.
  */
 export const deleteUser = async (userId: string) => {
-  const response = await fetch(`/users/${userId}`, {
+  const response = await fetch(`/api/users/${userId}`, {
     method: "DELETE",
     credentials: "same-origin",
   });
@@ -207,7 +207,7 @@ export const deleteUser = async (userId: string) => {
  * This will fail if the user doesn't have permission.
  */
 export const restoreUser = async (userId: string) => {
-  const r = await fetch(`/users/${userId}`, {
+  const r = await fetch(`/api/users/${userId}`, {
     method: "PATCH",
     body: JSON.stringify({
       is_active: true,
@@ -223,7 +223,7 @@ export const restoreUser = async (userId: string) => {
  * Reset a user's password with the given token.
  */
 export const resetPassword = async (params: ResetPasswordRequest) => {
-  const r = await fetch("/auth/reset-password", {
+  const r = await fetch("/api/auth/reset-password", {
     method: "POST",
     body: JSON.stringify(params),
     credentials: "same-origin",
@@ -237,7 +237,7 @@ export const resetPassword = async (params: ResetPasswordRequest) => {
  * Request that a password reset email be sent to the given user, if they exist.
  */
 export const requestPasswordReset = async (email: string) => {
-  const r = await fetch("/auth/forgot-password", {
+  const r = await fetch("/api/auth/forgot-password", {
     method: "POST",
     body: JSON.stringify({ email }),
     credentials: "same-origin",

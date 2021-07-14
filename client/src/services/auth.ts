@@ -180,7 +180,7 @@ export class Auth {
     formData.append("username", email);
     formData.append("password", password);
 
-    const response = await this.fetcher("/auth/cookie/login", {
+    const response = await this.fetcher("/api/auth/cookie/login", {
       credentials: "same-origin",
       method: "POST",
       body: formData,
@@ -201,7 +201,7 @@ export class Auth {
    * Returns any error that occurred as a string.
    */
   public async logout() {
-    const response = await this.fetcher("/auth/cookie/logout", {
+    const response = await this.fetcher("/api/auth/cookie/logout", {
       method: "POST",
       credentials: "same-origin",
     });
@@ -218,7 +218,7 @@ export class Auth {
    * Update current user profile. Return any error that occurs as a string.
    */
   private async refreshCurrentUser() {
-    const response = await this.fetcher("/users/me", {
+    const response = await this.fetcher("/api/users/me", {
       credentials: "same-origin",
     });
 

@@ -33,7 +33,7 @@ const httpLink = new HttpLink({
   uri:
     process.env.REACT_APP_ENV === "mock"
       ? "http://localhost:4000"
-      : "/graphql/",
+      : "/api/graphql/",
 });
 
 const cache = new InMemoryCache({
