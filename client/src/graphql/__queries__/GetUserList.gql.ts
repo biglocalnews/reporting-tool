@@ -11,6 +11,9 @@ export const GET_USER_LIST = gql`
       roles {
         name
       }
+      teams {
+        id
+      }
     }
   }
 `;

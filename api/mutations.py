@@ -248,10 +248,16 @@ def resolve_create_team(obj, info, input):
     '''
 
     session = info.context['dbsession']
-    users = input.pop('user_ids')
-    programs = input.pop('program_ids')
+    current_user = info.context['current_user']
+
+    users = input.pop('user_ids', [])
+    programs = input.pop('program_ids', [])
     
+    # TODO: https://app.clubhouse.io/stanford-computational-policy-lab/story/329/give-admin-option-to-select-which-organization-a-team-should-be-a-part-of
+    # Should check and make sure that the user has permission to create the team
+    # in the provided organization.
     team = Team(**input)
+
     team.programs += [session.merge(Program(id=program_id)) for program_id in programs]
     team.users += [session.merge(User(id=user_id)) for user_id in users]
 

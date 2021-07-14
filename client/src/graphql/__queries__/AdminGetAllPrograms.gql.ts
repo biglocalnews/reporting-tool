@@ -6,6 +6,10 @@ export const ADMIN_GET_ALL_PROGRAMS = gql`
       id
       name
       deleted
+      team {
+        id
+        name
+      }
       tags {
         id
         name

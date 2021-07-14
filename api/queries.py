@@ -1,6 +1,17 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
-from database import Dataset, User, Record, Category, CategoryValue, Entry, Team, Role, Program
+from database import (
+        Dataset,
+        User,
+        Record,
+        Category,
+        CategoryValue,
+        Entry,
+        Team,
+        Role,
+        Program,
+        Organization,
+        )
 from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
@@ -194,3 +205,15 @@ def resolve_categories(obj, info):
     '''
     session = info.context['dbsession']
     return session.query(Category).filter(Category.deleted == None).order_by(Category.name.asc()).all()
+
+
+@query.field("organizations")
+def resolve_organizations(obj, info):
+    '''GraphQL query to fetch all organizations.
+
+    This only returns non-deleted organizations.
+
+    :returns: List of Organization objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Organization).filter(Organization.deleted == None).order_by(Organization.name.asc()).all()

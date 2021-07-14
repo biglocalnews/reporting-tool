@@ -81,7 +81,12 @@
     },
     "team": {
       "index": {
-        "malformedData": "Failed to load teams data from server"
+        "malformedData": "Failed to load teams data from server",
+        "column": {
+          "name": "Name",
+          "userCount": "Members",
+          "programCount": "$t(Program_plural)"
+        }
       }
     },
     "program": {

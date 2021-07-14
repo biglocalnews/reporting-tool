@@ -7,6 +7,12 @@
 // GraphQL query operation: AdminGetAllPrograms
 // ====================================================
 
+export interface AdminGetAllPrograms_programs_team {
+  readonly __typename: "Team";
+  readonly id: string;
+  readonly name: string;
+}
+
 export interface AdminGetAllPrograms_programs_tags {
   readonly __typename: "Tag";
   readonly id: string;
@@ -33,6 +39,7 @@ export interface AdminGetAllPrograms_programs {
   readonly id: string;
   readonly name: string;
   readonly deleted: any | null;
+  readonly team: AdminGetAllPrograms_programs_team;
   readonly tags: ReadonlyArray<AdminGetAllPrograms_programs_tags>;
   readonly targets: ReadonlyArray<AdminGetAllPrograms_programs_targets>;
 }
