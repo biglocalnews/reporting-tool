@@ -2,10 +2,12 @@ import { useMutation } from "@apollo/client";
 import {
   Alert,
   Button,
+  Col,
   Divider,
   Form,
   Input,
   PageHeader,
+  Row,
   Transfer,
 } from "antd";
 import { useHistory, useParams } from "react-router-dom";
@@ -123,8 +125,9 @@ export const EditTeam = () => {
         messageSuccess(tp("saveSuccess"));
         refresh();
       },
-      onError() {
+      onError(e) {
         messageError(tp("saveError"));
+        console.error(e);
       },
     });
   const history = useHistory();
@@ -152,87 +155,101 @@ export const EditTeam = () => {
           <br />
         </>
       )}
-      <Form
-        form={form}
-        scrollToFirstError
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 14 }}
-        initialValues={team}
-        onFinish={(values) =>
-          saveTeam({
-            variables: {
-              input: {
-                ...values,
-                id: teamId,
-              },
-            },
-          })
-        }
-      >
-        <Form.Item
-          label={tp("name")}
-          rules={[
-            {
-              required: true,
-              message: tp("nameRequired"),
-            },
-          ]}
-          name="name"
-        >
-          <Input aria-label={tp("name")} aria-required="true" />
-        </Form.Item>
-
-        <Divider>{tp("users")}</Divider>
-
-        <Form.Item
-          label={tp("usersInfo")}
-          valuePropName="targetKeys"
-          name="userIds"
-        >
-          <Transfer
-            pagination
-            showSearch
-            filterOption={(input, option) =>
-              `${option.firstName} ${option.lastName}`
-                .toLowerCase()
-                .indexOf(input.toLowerCase()) >= 0
+      <Row>
+        <Col offset={2} span={20}>
+          <Form
+            form={form}
+            scrollToFirstError
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+            initialValues={team}
+            onFinish={(values) =>
+              saveTeam({
+                variables: {
+                  input: {
+                    ...values,
+                    id: teamId,
+                  },
+                },
+              })
             }
-            titles={[tp("nonTeamMembers"), tp("teamMembers")]}
-            dataSource={allUsers}
-            onChange={(keys) => form.setFieldsValue({ userIds: keys })}
-            render={(user) => `${user.firstName} ${user.lastName}`}
-          />
-        </Form.Item>
+          >
+            <Form.Item
+              label={tp("name")}
+              rules={[
+                {
+                  required: true,
+                  message: tp("nameRequired"),
+                },
+              ]}
+              name="name"
+            >
+              <Input aria-label={tp("name")} aria-required="true" />
+            </Form.Item>
 
-        <Divider>{tp("programs")}</Divider>
+            <Divider orientation="left">{tp("users")}</Divider>
 
-        <Form.Item
-          label={tp("programsInfo")}
-          valuePropName="targetKeys"
-          name="programIds"
-        >
-          <Transfer
-            pagination
-            showSearch
-            filterOption={(input, option) =>
-              option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            titles={[tp("otherPrograms"), tp("teamPrograms")]}
-            dataSource={allPrograms}
-            onChange={(keys) => form.setFieldsValue({ programIds: keys })}
-            render={(program) => program.name}
-          />
-        </Form.Item>
+            <Form.Item
+              label={tp("usersInfo")}
+              valuePropName="targetKeys"
+              name="userIds"
+              wrapperCol={{ offset: 1, span: 22 }}
+            >
+              <Transfer
+                pagination
+                operations={[tp("add"), tp("remove")]}
+                showSearch
+                listStyle={{ width: 420 }}
+                filterOption={(input, option) =>
+                  `${option.firstName} ${option.lastName}`
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
+                titles={[tp("nonTeamMembers"), tp("teamMembers")]}
+                dataSource={allUsers}
+                onChange={(keys) => form.setFieldsValue({ userIds: keys })}
+                render={(user) => `${user.firstName} ${user.lastName}`}
+              />
+            </Form.Item>
 
-        <Form.Item
-          style={{ paddingTop: 48 }}
-          wrapperCol={{ offset: 8, span: 16 }}
-        >
-          <Button htmlType="submit" type="primary" loading={saveTeamLoading}>
-            {tp("submit")}
-          </Button>
-        </Form.Item>
-      </Form>
+            <Divider orientation="left">{tp("programs")}</Divider>
+
+            <Form.Item
+              label={tp("programsInfo")}
+              valuePropName="targetKeys"
+              name="programIds"
+              wrapperCol={{ offset: 1, span: 22 }}
+            >
+              <Transfer
+                pagination
+                operations={[tp("add"), tp("remove")]}
+                showSearch
+                listStyle={{ width: 420 }}
+                filterOption={(input, option) =>
+                  option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                titles={[tp("otherPrograms"), tp("teamPrograms")]}
+                dataSource={allPrograms}
+                onChange={(keys) => form.setFieldsValue({ programIds: keys })}
+                render={(program) => program.name}
+              />
+            </Form.Item>
+
+            <Form.Item
+              style={{ paddingTop: 48 }}
+              wrapperCol={{ offset: 8, span: 16 }}
+            >
+              <Button
+                htmlType="submit"
+                type="primary"
+                loading={saveTeamLoading}
+              >
+                {tp("submit")}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Col>
+      </Row>
     </div>
   );
 };

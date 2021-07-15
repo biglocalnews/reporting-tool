@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { UserAccountManagerProvider } from "../components/UserAccountManagerProvider";
 import { GET_USER_LIST } from "../graphql/__queries__/GetUserList.gql";
 import { UserList } from "../pages/Admin/UserList";
+import { USERS } from "./fixtures";
 import { mockUserAccountClient, tick } from "./utils";
 
 it("renders list of users for the admin", async () => {
@@ -13,36 +14,7 @@ it("renders list of users for the admin", async () => {
       request: {
         query: GET_USER_LIST,
       },
-      result: {
-        data: {
-          users: [
-            {
-              id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
-              firstName: "Daisy",
-              lastName: "Carrot",
-              active: true,
-              email: "admin@notrealemail.info",
-              roles: [{ name: "admin", description: "" }],
-            },
-            {
-              id: "a47085ba-3d01-46a4-963b-9ffaeda18113",
-              firstName: "Penelope",
-              lastName: "Pineapple",
-              active: true,
-              email: "other@notrealemail.info",
-              roles: [],
-            },
-            {
-              id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
-              firstName: "Cat",
-              lastName: "Berry",
-              active: true,
-              email: "tester@notrealemail.info",
-              roles: [],
-            },
-          ],
-        },
-      },
+      result: USERS,
     },
   ];
 
