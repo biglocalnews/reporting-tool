@@ -456,7 +456,4 @@ it("does not allow admins to delete team if it has users or programs", async () 
 
   expect(screen.queryByText(/Error/)).not.toBeInTheDocument();
   expect(document.querySelector(".ant-message-error")).toBeInTheDocument();
-  expect(
-    document.querySelector(".ant-message-success")
-  ).not.toBeInTheDocument();
 });
