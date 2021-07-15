@@ -39,7 +39,7 @@ export interface AdminGetAllPrograms_programs {
   readonly id: string;
   readonly name: string;
   readonly deleted: any | null;
-  readonly team: AdminGetAllPrograms_programs_team;
+  readonly team: AdminGetAllPrograms_programs_team | null;
   readonly tags: ReadonlyArray<AdminGetAllPrograms_programs_tags>;
   readonly targets: ReadonlyArray<AdminGetAllPrograms_programs_targets>;
 }
