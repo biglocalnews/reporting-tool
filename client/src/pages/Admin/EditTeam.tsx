@@ -191,6 +191,13 @@ export const EditTeam = () => {
         >
           <Transfer
             pagination
+            showSearch
+            filterOption={(input, option) =>
+              `${option.firstName} ${option.lastName}`
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
+            }
+            titles={[tp("nonTeamMembers"), tp("teamMembers")]}
             dataSource={allUsers}
             onChange={(keys) => form.setFieldsValue({ userIds: keys })}
             render={(user) => `${user.firstName} ${user.lastName}`}
@@ -206,6 +213,11 @@ export const EditTeam = () => {
         >
           <Transfer
             pagination
+            showSearch
+            filterOption={(input, option) =>
+              option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            titles={[tp("otherPrograms"), tp("teamPrograms")]}
             dataSource={allPrograms}
             onChange={(keys) => form.setFieldsValue({ programIds: keys })}
             render={(program) => program.name}

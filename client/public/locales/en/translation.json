@@ -115,7 +115,11 @@
         "submit": "$t(submitUpdate)",
         "saveSuccess": "$t(submitUpdateSuccess)",
         "saveError": "$t(submitUpdateFail)",
-        "saveTeamError": "An error occurred trying to update this team."
+        "saveTeamError": "An error occurred trying to update this team.",
+        "nonTeamMembers": "Other users",
+        "teamMembers": "Team members",
+        "otherPrograms": "Other $t(program_plural)",
+        "teamPrograms": "Assigned $t(program_plural)"
       }
     },
     "program": {

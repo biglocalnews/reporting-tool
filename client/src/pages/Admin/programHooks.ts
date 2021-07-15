@@ -34,7 +34,7 @@ export type DatasetFormValues = Readonly<{
 export type ProgramUpdateFormValues = Readonly<{
   name: string;
   description: string;
-  teamId: string;
+  teamId?: string;
   datasets: DatasetFormValues[];
   targets: CategoryTarget[];
 }>;
