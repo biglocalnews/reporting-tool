@@ -1,6 +1,6 @@
 import { UsergroupAddOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import { Button, Form, Modal, PageHeader, Table } from "antd";
+import { Alert, Button, Form, Modal, PageHeader, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { TFunction } from "react-i18next";
@@ -120,7 +120,7 @@ export const TeamList = () => {
   const { tp } = useTranslationWithPrefix("admin.team.index");
   const { loading, data } = useTeamsListData(tp);
   const [createTeamForm] = Form.useForm();
-  const [createTeam, { loading: createTeamLoading }] =
+  const [createTeam, { loading: createTeamLoading, error: createTeamError }] =
     useMutation<AdminCreateTeam>(ADMIN_CREATE_TEAM, {
       onCompleted: (data) => {
         messageSuccess(tp("createSuccess"));
@@ -128,6 +128,7 @@ export const TeamList = () => {
       },
       onError: (error) => {
         messageError(error.message);
+        console.error(error);
       },
     });
 
@@ -185,6 +186,16 @@ export const TeamList = () => {
         cancelText={tp("cancel")}
         title={tp("createTitle")}
       >
+        {createTeamError && (
+          <Alert
+            message={tp("createTeamError")}
+            showIcon
+            closable
+            description={createTeamError!.message}
+            type="error"
+          />
+        )}
+
         <CreateTeam
           form={createTeamForm}
           onFinish={(values) =>

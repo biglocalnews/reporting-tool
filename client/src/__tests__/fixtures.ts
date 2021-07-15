@@ -1,8 +1,11 @@
 export const TEAMS = {
   data: {
     teams: [
-      { name: "Team1", id: "eeeeeee4-b910-4f6e-8f3c-8201c9999999" },
-      { name: "Team2", id: "fffffff4-b910-4f6e-8f3c-8201c9999999" },
+      {
+        name: "Team1",
+        id: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+      },
+      { name: "Team2", id: "472d17da-ff8b-4743-823f-3f01ea21a349" },
     ],
   },
 };
@@ -78,9 +81,11 @@ export const USERS = {
         active: true,
         email: "admin@notrealemail.info",
         roles: [{ name: "admin", description: "" }],
-        team: {
-          id: "472d17da-ff8b-4743-823f-3f01ea21a349",
-        },
+        teams: [
+          {
+            id: "472d17da-ff8b-4743-823f-3f01ea21a349",
+          },
+        ],
       },
       {
         id: "a47085ba-3d01-46a4-963b-9ffaeda18113",
@@ -89,9 +94,11 @@ export const USERS = {
         active: true,
         email: "other@notrealemail.info",
         roles: [],
-        team: {
-          id: "472d17da-ff8b-4743-823f-3f01ea21a349",
-        },
+        teams: [
+          {
+            id: "472d17da-ff8b-4743-823f-3f01ea21a349",
+          },
+        ],
       },
       {
         id: "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
@@ -100,9 +107,11 @@ export const USERS = {
         active: true,
         email: "tester@notrealemail.info",
         roles: [],
-        team: {
-          id: "472d17da-ff8b-4743-823f-3f01ea21a349",
-        },
+        teams: [
+          {
+            id: "472d17da-ff8b-4743-823f-3f01ea21a349",
+          },
+        ],
       },
     ],
   },

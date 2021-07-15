@@ -90,6 +90,7 @@
         "createTitle": "New Team",
         "malformedData": "Failed to load teams data from server",
         "createNew": "Add a new team",
+        "createTeamError": "Error creating team",
         "column": {
           "name": "Name",
           "userCount": "Members",
