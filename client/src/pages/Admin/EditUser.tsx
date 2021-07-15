@@ -402,27 +402,29 @@ export const EditUser = () => {
           </Checkbox.Group>
         </Form.Item>
 
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            htmlType="submit"
-            disabled={deleting || inactive}
-            loading={saving}
-          >
-            {t("admin.user.save")}
-          </Button>
+        <Row justify="center">
+          <Form.Item wrapperCol={{ span: 24 }}>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              htmlType="submit"
+              disabled={deleting || inactive}
+              loading={saving}
+            >
+              {t("admin.user.save")}
+            </Button>
 
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            disabled={saving || inactive}
-            loading={deleting}
-            onClick={deleteUser}
-          >
-            {t("admin.user.delete")}
-          </Button>
-        </Form.Item>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              disabled={saving || inactive}
+              loading={deleting}
+              onClick={deleteUser}
+            >
+              {t("admin.user.delete")}
+            </Button>
+          </Form.Item>
+        </Row>
       </Form>
     </div>
   );

@@ -602,39 +602,38 @@ export const EditProgram = () => {
           </Col>
         </Row>
 
-        <Form.Item
-          style={{ paddingTop: 48 }}
-          wrapperCol={{ offset: 8, span: 16 }}
-        >
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            htmlType="submit"
-            disabled={deactivate.inFlight || inactive}
-            loading={save.inFlight}
-          >
-            {t("admin.program.edit.form.save")}
-          </Button>
-
-          <Popconfirm
-            title={t("admin.program.edit.form.confirmDelete")}
-            onConfirm={() => {
-              deactivate.run(programId);
-              programResponse.refetch();
-            }}
-            okText={t("confirm.yes")}
-            cancelText={t("confirm.no")}
-          >
+        <Row justify="center">
+          <Form.Item style={{ paddingTop: 48 }} wrapperCol={{ span: 24 }}>
             <Button
-              danger
-              icon={<DeleteOutlined />}
-              disabled={save.inFlight || inactive}
-              loading={deactivate.inFlight}
+              type="primary"
+              icon={<SaveOutlined />}
+              htmlType="submit"
+              disabled={deactivate.inFlight || inactive}
+              loading={save.inFlight}
             >
-              {t("admin.program.edit.form.delete")}
+              {t("admin.program.edit.form.save")}
             </Button>
-          </Popconfirm>
-        </Form.Item>
+
+            <Popconfirm
+              title={t("admin.program.edit.form.confirmDelete")}
+              onConfirm={() => {
+                deactivate.run(programId);
+                programResponse.refetch();
+              }}
+              okText={t("confirm.yes")}
+              cancelText={t("confirm.no")}
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={save.inFlight || inactive}
+                loading={deactivate.inFlight}
+              >
+                {t("admin.program.edit.form.delete")}
+              </Button>
+            </Popconfirm>
+          </Form.Item>
+        </Row>
       </Form>
     </div>
   );

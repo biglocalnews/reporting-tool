@@ -155,25 +155,25 @@ export const EditTeam = () => {
           <br />
         </>
       )}
-      <Row>
-        <Col offset={2} span={20}>
-          <Form
-            form={form}
-            scrollToFirstError
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={team}
-            onFinish={(values) =>
-              saveTeam({
-                variables: {
-                  input: {
-                    ...values,
-                    id: teamId,
-                  },
-                },
-              })
-            }
-          >
+      <Form
+        form={form}
+        scrollToFirstError
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 16 }}
+        initialValues={team}
+        onFinish={(values) =>
+          saveTeam({
+            variables: {
+              input: {
+                ...values,
+                id: teamId,
+              },
+            },
+          })
+        }
+      >
+        <Row>
+          <Col offset={2} span={20}>
             <Form.Item
               label={tp("name")}
               rules={[
@@ -234,22 +234,16 @@ export const EditTeam = () => {
                 render={(program) => program.name}
               />
             </Form.Item>
-
-            <Form.Item
-              style={{ paddingTop: 48 }}
-              wrapperCol={{ offset: 8, span: 16 }}
-            >
-              <Button
-                htmlType="submit"
-                type="primary"
-                loading={saveTeamLoading}
-              >
-                {tp("submit")}
-              </Button>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+        <Row justify="center">
+          <Form.Item style={{ paddingTop: 48 }} wrapperCol={{ span: 24 }}>
+            <Button htmlType="submit" type="primary" loading={saveTeamLoading}>
+              {tp("submit")}
+            </Button>
+          </Form.Item>
+        </Row>
+      </Form>
     </div>
   );
 };
