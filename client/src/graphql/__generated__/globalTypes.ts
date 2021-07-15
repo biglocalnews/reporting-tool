@@ -75,6 +75,13 @@ export interface UpdateRecordInput {
   readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
+export interface UpdateTeamInput {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly userIds?: ReadonlyArray<string> | null;
+  readonly programIds?: ReadonlyArray<string> | null;
+}
+
 export interface UpsertDatasetInput {
   readonly id?: string | null;
   readonly name?: string | null;

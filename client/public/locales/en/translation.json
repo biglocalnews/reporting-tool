@@ -16,6 +16,10 @@
   "backToDashboard": "Back To Dashboard",
   "noDataAvailable": "No Data Available",
   "notAuthorized": "You do not have permission to view this page.",
+  "submitUpdate": "Save changes",
+  "submitUpdateSuccess": "Successfully saved changes!",
+  "submitUpdateFail": "Failed to save changes.",
+  "cancel": "Cancel",
   "account": {
     "login": {
       "action": "Login!",
@@ -81,12 +85,37 @@
     },
     "team": {
       "index": {
+        "title": "Teams",
+        "subtitle": "Use this page to view and manage teams",
+        "createTitle": "New Team",
         "malformedData": "Failed to load teams data from server",
+        "createNew": "Add a new team",
         "column": {
           "name": "Name",
           "userCount": "Members",
           "programCount": "$t(Program_plural)"
-        }
+        },
+        "cancel": "$t(cancel)",
+        "save": "Create team"
+      },
+      "create": {
+        "name": "Name",
+        "nameRequired": "You must enter a name.",
+        "organization": "Organization",
+        "organizationRequired": "You must select an organization."
+      },
+      "edit": {
+        "title": "Edit Team",
+        "name": "Team name",
+        "nameRequired": "You must enter a team name.",
+        "users": "Team members",
+        "usersInfo": "Manage users on this team",
+        "programs": "$t(Program_plural)",
+        "programsInfo": "Assign this team $t(program_plural)",
+        "submit": "$t(submitUpdate)",
+        "saveSuccess": "$t(submitUpdateSuccess)",
+        "saveError": "$t(submitUpdateFail)",
+        "saveTeamError": "An error occurred trying to update this team."
       }
     },
     "program": {
@@ -105,8 +134,8 @@
       "create": {
         "name": "Name",
         "nameRequired": "You must enter a name",
-        "save": "Save",
-        "cancel": "Cancel",
+        "save": "Create $t(program)",
+        "cancel": "$t(cancel)",
         "title": "Create a new $t(program)",
         "team": "Team",
         "teamPlaceholder": "Assign to a team",
@@ -124,12 +153,12 @@
         "targetTitle": "Representation targets",
         "datasetTitle": "Datasets",
         "deactivateSuccess": "Successfully deleted",
-        "saveSuccess": "Successfully updated",
+        "saveSuccess": "$t(submitUpdateSuccess)",
         "restoreSuccess": "Successfully restored",
         "form": {
           "name": "Name",
           "description": "Description",
-          "save": "Save",
+          "save": "$t(submitUpdate)",
           "delete": "Delete",
           "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this $t(program)?",
@@ -172,10 +201,10 @@
       "noQueryData": "query did not return any data",
       "queryMissingKey": "query did not return the expected {{expectedKey}} key",
       "title": "Edit user",
-      "save": "Save",
-      "cancel": "Cancel",
+      "save": "$t(submitUpdate)",
+      "saveSuccess": "$t(submitUpdateSuccess)",
+      "cancel": "$t(cancel)",
       "restore": "Reactivate user",
-      "saveSuccess": "Successfully saved changes!",
       "delete": "Deactivate",
       "deleteTitle": "Deactivate user",
       "deleteInfo": "You are about to deactive this user. Please confirm you really wish to do this. You can reactivate them later if needed.",

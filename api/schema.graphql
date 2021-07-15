@@ -69,7 +69,7 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   description: String!
-  team: Team!
+  team: Team
   datasets: [Dataset!]!
   targets: [Target!]!
   tags: [Tag!]!

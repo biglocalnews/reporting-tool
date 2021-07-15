@@ -54,11 +54,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
     ADMIN_GET_ALL_PROGRAMS,
     "programs",
     {
-      // In practice the programs are probably already fetched and up-to-date
-      // given that this component is *probably* mounted from the programs list.
-      // However that's not certain and could change in the future, so
-      // compromise with a cache-and-network query.
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "network-only",
     }
   );
 

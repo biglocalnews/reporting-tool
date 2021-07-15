@@ -33,7 +33,7 @@ type TeamRow = {
  *
  * Includes error handling and loading state.
  */
-const useGetTeamsData = (tp: TFunction) => {
+const useTeamsListData = (tp: TFunction) => {
   const {
     error: teamsError,
     loading: teamsLoading,
@@ -78,16 +78,20 @@ const useGetTeamsData = (tp: TFunction) => {
   const data: TeamRow[] = [];
   if (!loading) {
     const userCountByTeam = usersData!.users.reduce((map, user) => {
-      for (const { id: teamId } of user.teams) {
-        const count = map.get(teamId) || 0;
-        map.set(teamId, count + 1);
+      for (const team of user.teams) {
+        if (!team) {
+          continue;
+        }
+
+        const count = map.get(team.id) || 0;
+        map.set(team.id, count + 1);
       }
       return map;
     }, new Map());
 
     const programCountByTeam = programsData!.programs.reduce((map, program) => {
-      const count = map.get(program.team.id) || 0;
-      map.set(program.team.id, count + 1);
+      const count = map.get(program.team?.id) || 0;
+      map.set(program.team?.id, count + 1);
       return map;
     }, new Map());
 
@@ -114,7 +118,7 @@ export const TeamList = () => {
   const history = useHistory();
   const [showCreate, setShowCreate] = useState(false);
   const { tp } = useTranslationWithPrefix("admin.team.index");
-  const { loading, data } = useGetTeamsData(tp);
+  const { loading, data } = useTeamsListData(tp);
   const [createTeamForm] = Form.useForm();
   const [createTeam, { loading: createTeamLoading }] =
     useMutation<AdminCreateTeam>(ADMIN_CREATE_TEAM, {
