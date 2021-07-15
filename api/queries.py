@@ -11,6 +11,7 @@ from database import (
         Role,
         Program,
         Organization,
+        Tag,
         )
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -142,6 +143,17 @@ def resolve_category_value(obj, info, id):
     session = info.context['dbsession']
     category_value = CategoryValue.get_not_deleted(session, id)
     return category_value
+
+
+@query.field("tags")
+def resolve_tags(obj, info):
+    '''GraphQL query to return all tags.
+
+    :returns: List of tag objects
+    '''
+    session = info.context['dbsession']
+    return session.query(Tag).filter(Tag.deleted == None).order_by(Tag.name.asc()).all()
+
 
 @query.field("team")
 def resolve_team(obj, info, id):

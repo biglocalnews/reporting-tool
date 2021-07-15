@@ -2461,6 +2461,44 @@ class TestGraphQL(BaseAppTest):
                     },
                 })
 
+    def test_update_program_dedupes_tag_names(self):
+        """Make sure tags are never duplicated even if they are passed as new."""
+        success, result = self.run_graphql_query({
+            "operationName": "UpdateProgram",
+            "query": """
+                mutation UpdateProgram($input: UpdateProgramInput!) {
+                    updateProgram(input: $input) {
+                        tags {
+                            id
+                            name
+                        }
+                    }
+                }
+            """,
+            "variables": {
+                "input": {
+                    "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
+                    # "News" tag already exists with a different case. This
+                    # should be caught by the API and re-used.
+                    "tags": [{"name": "news"}],
+                    }
+                },
+            }, user=self.test_users['admin'])
+
+        assert success
+        assert result == {
+            "data": {
+                "updateProgram": {
+                    "tags": [
+                        {
+                            "id": "4a2142c0-5416-431d-b62f-0dbfe7574688",
+                            "name": "News",
+                        },
+                    ]
+                },
+            },
+        }
+
     def test_delete_program(self):
         """Only admins can delete programs."""
         user = self.test_users["admin"]
