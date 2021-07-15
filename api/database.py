@@ -367,6 +367,9 @@ class Dataset(Base, PermissionsMixin):
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
 
+    # Datasets must be unique within a program to avoid ambiguity.
+    UniqueConstraint('name', 'program_id')
+
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP,
