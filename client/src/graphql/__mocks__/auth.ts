@@ -71,7 +71,7 @@ export const mockUserLogIn = (email: string, password: string) => {
   const mock = jest.fn(
     async (uri: string, props?: RequestInit): Promise<Response> => {
       switch (uri) {
-        case "/users/me":
+        case "/api/users/me":
           if (!loggedIn) {
             return createUnauthorizedProfileResponse();
           }
@@ -87,7 +87,7 @@ export const mockUserLogIn = (email: string, password: string) => {
               status: 200,
             }
           );
-        case "/auth/cookie/login":
+        case "/api/auth/cookie/login":
           expect(props?.method).toEqual("POST");
           expect(props?.credentials).toEqual("same-origin");
 
@@ -103,7 +103,7 @@ export const mockUserLogIn = (email: string, password: string) => {
           }
           loggedIn = true;
           return new Response("", { status: 200 });
-        case "/auth/cookie/logout":
+        case "/api/auth/cookie/logout":
           expect(props).toEqual({ method: "POST", credentials: "same-origin" });
           loggedIn = false;
           return new Response("", { status: 200 });
@@ -123,7 +123,7 @@ export const mockUserLogIn = (email: string, password: string) => {
  */
 export const mockUserLoggedIn = (user?: Partial<UserProfile>) => {
   const mock = jest.fn(async (uri: string): Promise<Response> => {
-    if (uri === "/users/me") {
+    if (uri === "/api/users/me") {
       return createAuthorizedProfileResponse(user);
     }
 
@@ -140,7 +140,7 @@ export const mockUserLoggedIn = (user?: Partial<UserProfile>) => {
  */
 export const mockUserNotLoggedIn = () => {
   const mock = jest.fn(async (uri: string): Promise<Response> => {
-    if (uri === "/users/me") {
+    if (uri === "/api/users/me") {
       return createUnauthorizedProfileResponse();
     }
 
