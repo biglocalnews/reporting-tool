@@ -158,6 +158,9 @@ def resolve_team(obj, info, id):
 @query.field("teams")
 def resolve_teams(obj, info):
     '''GraphQL query to fetch full list of teams.
+
+    Only returns non-deleted teams.
+
     :returns: List of team objects
     '''
     session = info.context['dbsession']

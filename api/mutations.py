@@ -276,11 +276,11 @@ def resolve_update_team(obj, info, input):
 
     session = info.context['dbsession']
     team = session.query(Team).get(input['id'])
-    users = input.pop('user_ids', [])
-    programs = input.pop('program_ids', [])
-    if len(users) > 0:
+    if 'user_ids' in input:
+        users = input.pop('user_ids')
         team.users = [session.merge(User(id=user_id)) for user_id in users]
-    if len(programs) > 0:
+    if 'program_ids' in input:
+        programs = input.pop('program_ids')
         team.programs = [session.merge(Program(id=program_id)) for program_id in programs]
     for param in input:
         setattr(team, param, input[param])
@@ -289,15 +289,26 @@ def resolve_update_team(obj, info, input):
     
     return team
 
+
 @mutation.field("deleteTeam")
 @convert_kwargs_to_snake_case
 def resolve_delete_team(obj, info, id):
     '''GraphQL mutation to delete a Team
-        :param id: UUID of Team to be deleted
-        :returns: UUID of deleted Team
+
+    Unlike most operations, this does a *hard* delete. Deleted teams cannot be
+    restored. This operation verifies that the team is empty before allowing
+    the delete to proceed (so no users or programs get orphaned).
+
+    :param id: UUID of Team to be deleted
+    :returns: UUID of deleted Team
     '''
     
     session = info.context['dbsession']
+    team = session.query(Team).get(id)
+    if not team:
+        raise Exception("Team not found")
+    if team.programs or team.users:
+        raise Exception("Cannot delete non-empty team")
     session.query(Team).filter(Team.id == id).delete()
     session.commit()
     
