@@ -8,14 +8,14 @@ import {
   Form,
   Input,
   message,
-  Modal,
   PageHeader,
+  Popconfirm,
   Row,
   Select,
 } from "antd";
 import React, { useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { Prompt, useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import { AdminGetAllRoles } from "../../graphql/__generated__/AdminGetAllRoles";
@@ -37,15 +37,15 @@ const validateResponse = <T extends Record<string, any>>(
   t: TFunction
 ) => {
   if (response.error) {
-    return response.error.message;
+    return response.error;
   }
 
   if (!response.data) {
-    return t("admin.user.noQueryData");
+    return new Error(t("admin.user.noQueryData"));
   }
 
   if (!response.data[expectedKey]) {
-    return t("admin.user.queryMissingKey", { expectedKey });
+    return new Error(t("admin.user.queryMissingKey", { expectedKey }));
   }
 
   return null;
@@ -120,6 +120,8 @@ const useSaveUser = (id: string, t: TFunction) => {
     saveError,
     /**
      * Save user data to server.
+     *
+     * Returns boolean indicating whether save succeeded.
      */
     saveUser: async (formData: EditUserFormData) => {
       setSaving(true);
@@ -129,8 +131,10 @@ const useSaveUser = (id: string, t: TFunction) => {
       try {
         await account.editUser(id, formData);
         message.success(t("admin.user.saveSuccess"));
+        return true;
       } catch (e) {
         setSaveError(e);
+        return false;
       }
     },
   };
@@ -139,7 +143,7 @@ const useSaveUser = (id: string, t: TFunction) => {
 /**
  * Hook for user deletion request and state.
  */
-const useDeleteUser = (userId: string, refresh: () => void, t: TFunction) => {
+const useDeleteUser = (userId: string, refresh: () => void) => {
   const account = useUserAccountManager();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<Error | null>(null);
@@ -154,26 +158,19 @@ const useDeleteUser = (userId: string, refresh: () => void, t: TFunction) => {
      */
     deleteError,
     /**
-     * Delete a user (with confirmation)
+     * Delete a user
      */
-    deleteUser: () => {
+    deleteUser: async () => {
       setDeleting(true);
       setDeleteError(null);
-      Modal.confirm({
-        title: t("admin.user.deleteTitle"),
-        content: t("admin.user.deleteInfo"),
-        onOk: async () => {
-          try {
-            await account.deleteUser(userId);
-            refresh();
-          } catch (e) {
-            setDeleteError(e);
-          } finally {
-            setDeleting(false);
-          }
-        },
-        onCancel: () => setDeleting(false),
-      });
+      try {
+        await account.deleteUser(userId);
+        refresh();
+      } catch (e) {
+        setDeleteError(e);
+      } finally {
+        setDeleting(false);
+      }
     },
   };
 };
@@ -217,6 +214,7 @@ const useRestoreUser = (userId: string, refresh: () => void) => {
  * Form to edit information about a user.
  */
 export const EditUser = () => {
+  const [dirty, setDirty] = useState(false);
   const { userId } = useParams<{ userId: string }>();
   const { t } = useTranslation();
   const history = useHistory();
@@ -232,20 +230,15 @@ export const EditUser = () => {
 
   const [teamSelectorOpen, setTeamSelectorOpen] = useState(false);
   const { saving, saveError, saveUser } = useSaveUser(userId, t);
-  const { deleting, deleteError, deleteUser } = useDeleteUser(
-    userId,
-    refresh,
-    t
-  );
+  const { deleting, deleteError, deleteUser } = useDeleteUser(userId, refresh);
   const { restoreError, restoreUser } = useRestoreUser(userId, refresh);
 
-  // TODO: update error and loading components
   if (loading) {
     return <Loading />;
   }
 
   if (error) {
-    return <div>An error occurred: {error}</div>;
+    throw error;
   }
 
   // Initial values of the form fields.
@@ -262,10 +255,13 @@ export const EditUser = () => {
 
   return (
     <div className="admin user-edituser_container">
+      <Prompt when={dirty} message={t("confirmLeavePage")} />
+
       <PageHeader
         onBack={() => history.push("/admin/users")}
         title={t("admin.user.title")}
       />
+
       {inactive && (
         <>
           <Alert
@@ -304,10 +300,15 @@ export const EditUser = () => {
 
       <Form
         scrollToFirstError
+        onFieldsChange={() => setDirty(true)}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
         initialValues={initialFormState}
-        onFinish={saveUser}
+        onFinish={async (values) => {
+          if (await saveUser(values)) {
+            setDirty(false);
+          }
+        }}
       >
         <Form.Item
           rules={[
@@ -408,21 +409,28 @@ export const EditUser = () => {
               type="primary"
               icon={<SaveOutlined />}
               htmlType="submit"
-              disabled={deleting || inactive}
+              disabled={deleting || inactive || !dirty}
               loading={saving}
             >
               {t("admin.user.save")}
             </Button>
 
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              disabled={saving || inactive}
-              loading={deleting}
-              onClick={deleteUser}
+            <Popconfirm
+              title={t("admin.user.deleteInfo")}
+              onConfirm={deleteUser}
+              disabled={saving || dirty || inactive}
+              okText={t("confirm.yes")}
+              cancelText={t("confirm.no")}
             >
-              {t("admin.user.delete")}
-            </Button>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={saving || inactive || dirty}
+                loading={deleting}
+              >
+                {t("admin.user.delete")}
+              </Button>
+            </Popconfirm>
           </Form.Item>
         </Row>
       </Form>

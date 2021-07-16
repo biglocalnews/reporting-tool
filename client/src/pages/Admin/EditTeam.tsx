@@ -12,7 +12,7 @@ import {
   Transfer,
 } from "antd";
 import { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { Prompt, useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { messageError, messageSuccess } from "../../components/Message";
 import { useTranslationWithPrefix } from "../../components/useTranslationWithPrefix";
@@ -149,6 +149,8 @@ export const EditTeam = () => {
 
   return (
     <div className="admin team-editteam_container">
+      <Prompt when={dirty} message={t("confirmLeavePage")} />
+
       <PageHeader
         onBack={() => history.push("/admin/teams")}
         title={tp("title")}

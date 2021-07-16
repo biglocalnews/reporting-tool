@@ -119,9 +119,14 @@ const getOpHook = <F extends HandlerFunction>(
     return {
       inFlight,
       error,
+      /**
+       * Function to run the operation and manage state around it. Returns a
+       * boolean indicating whether operation succeeded without error.
+       */
       run: async (...args: HandlerArgs<F>) => {
         setInFlight(true);
         setError(null);
+        let success = false;
 
         try {
           const result = await handler(apolloClient, ...args);
@@ -137,12 +142,14 @@ const getOpHook = <F extends HandlerFunction>(
           }
 
           message.success(t(`admin.program.edit.${successKey}`));
+          success = true;
         } catch (e) {
           console.error(e);
           setError(e);
         } finally {
           setInFlight(false);
         }
+        return success;
       },
     };
   };
