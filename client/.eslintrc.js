@@ -22,6 +22,7 @@ module.exports = {
     "prettier", // Turns off all rules that are unnecessary or might conflict with Prettier
   ],
   plugins: ["react-hooks"],
+  ignorePatterns: ["src/setupProxy.js"],
   rules: {
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
