@@ -8,69 +8,8 @@ import { ADMIN_GET_ALL_PROGRAMS } from "../graphql/__queries__/AdminGetAllProgra
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
 import { ProgramList } from "../pages/Admin/ProgramList";
+import { PROGRAMS, TEAMS } from "./fixtures";
 import { tick } from "./utils";
-
-const TEAMS = {
-  data: {
-    teams: [
-      { name: "Team1", id: "eeeeeee4-b910-4f6e-8f3c-8201c9999999" },
-      { name: "Team2", id: "fffffff4-b910-4f6e-8f3c-8201c9999999" },
-    ],
-  },
-};
-
-const PROGRAMS = {
-  data: {
-    programs: [
-      {
-        id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
-        name: "Some Program",
-        deleted: null,
-        tags: [
-          {
-            id: "aaaa13b4-b910-4f6e-8f3c-8201c9999999",
-            name: "MyTag",
-          },
-        ],
-        targets: [
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "disability" } } },
-          { categoryValue: { category: { name: "disability" } } },
-        ],
-      },
-      {
-        id: "bbbbb3b4-b910-4f6e-8f3c-8201c9e00000",
-        name: "Other Program",
-        deleted: null,
-        tags: [
-          {
-            id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999",
-            name: "OtherTag",
-          },
-        ],
-        targets: [
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "gender" } } },
-          { categoryValue: { category: { name: "disability" } } },
-          { categoryValue: { category: { name: "disability" } } },
-          { categoryValue: { category: { name: "race" } } },
-          { categoryValue: { category: { name: "race" } } },
-          { categoryValue: { category: { name: "race" } } },
-          { categoryValue: { category: { name: "race" } } },
-          { categoryValue: { category: { name: "race" } } },
-          { categoryValue: { category: { name: "race" } } },
-        ],
-      },
-    ],
-  },
-};
 
 const TEMPLATE_PROGRAM = {
   data: {

@@ -12,6 +12,11 @@ export interface GetUserList_users_roles {
   readonly name: string;
 }
 
+export interface GetUserList_users_teams {
+  readonly __typename: "Team";
+  readonly id: string;
+}
+
 export interface GetUserList_users {
   readonly __typename: "User";
   readonly id: string;
@@ -20,6 +25,7 @@ export interface GetUserList_users {
   readonly email: string;
   readonly active: boolean;
   readonly roles: ReadonlyArray<GetUserList_users_roles>;
+  readonly teams: ReadonlyArray<GetUserList_users_teams>;
 }
 
 export interface GetUserList {

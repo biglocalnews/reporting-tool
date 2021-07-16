@@ -1,13 +1,8 @@
-import {
-  AppstoreAddOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { AppstoreAddOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { Button, Form, Modal, PageHeader, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import {
   AdminGetAllPrograms,
@@ -15,6 +10,7 @@ import {
 } from "../../graphql/__generated__/AdminGetAllPrograms";
 import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
 import { CreateProgram, CreateProgramFormValues } from "./CreateProgram";
+import { EditLink } from "./EditLink";
 
 /**
  * Render a cell in the table for categories tracked by a dataset.
@@ -27,15 +23,6 @@ const CategoriesCell = (_: string, record: AdminGetAllPrograms_programs) => {
   const categories = Array.from(uniqCategories).sort();
   return <div>{categories.join(", ")}</div>;
 };
-
-/**
- * Render a cell to display action buttons for the program row.
- */
-const ActionCell = (_: string, record: AdminGetAllPrograms_programs) => (
-  <Link to={`/admin/programs/${record.id}`}>
-    <EditOutlined />
-  </Link>
-);
 
 /**
  * Index of all programs for the admin to manage.
@@ -91,7 +78,7 @@ export const ProgramList = () => {
     {
       title: "",
       key: "action",
-      render: ActionCell,
+      render: EditLink((record) => `/admin/programs/${record.id}`),
     },
   ];
 

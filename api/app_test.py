@@ -2009,13 +2009,15 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
 
     def test_delete_team(self):
-        """Only admins can delete teams."""
+        """Admin can delete teams after removing users and programs."""
         user = self.test_users["admin"]
         team_id = "472d17da-ff8b-4743-823f-3f01ea21a349"
-        # Confirm Team exists, then that it does not.
-        existing_team = self.session.query(Team).filter(Team.id == team_id)
-        # Count of existing Team should be one
-        self.assertEqual(existing_team.count(), 1)
+        team = self.session.query(Team).get(team_id)
+        team.users = []
+        team.programs = [self.session.query(Program).get("1e73e788-0808-4ee8-9b25-682b6fa3868b")]
+        self.session.add(team)
+        self.session.commit()
+
         success, result = self.run_graphql_query({
             "operationName": "DeleteTeam",
             "query": """
@@ -2025,24 +2027,55 @@ class TestGraphQL(BaseAppTest):
             """,
             "variables": {
                 "id": team_id,
-            },
-        }, user=user)
-        self.assertTrue(success)
-        team = self.session.query(Team).filter(Team.id == team_id)
-        self.assertEqual(team.count(), 0)
-        program = self.session.query(Program).filter(Program.team_id == team_id)
-        self.assertEqual(program.count(), 0)
-        # Adding raw SQL query to hit join table
-        query = sqlalchemy.text(f'SELECT * FROM user_team WHERE team_id = "{team_id}"')
-        user_teams = self.session.execute(query).fetchall()
-        self.assertEqual(len(user_teams), 0)
-        
-        self.assertTrue(self.is_valid_uuid(team_id), "Invalid UUID")
-        self.assertEqual(result, {
-            "data": {
-                "deleteTeam": team_id
-            },
-        })
+                },
+            }, user=user)
+        assert success
+        assert len(result['errors']) == 1
+
+        team = self.session.query(Team).get(team_id)
+        assert team
+        team.users = [self.test_users['normal']]
+        team.programs = []
+        self.session.add(team)
+        self.session.commit()
+    
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteTeam",
+            "query": """
+                mutation DeleteTeam($id: ID!) {
+                    deleteTeam(id: $id)
+                }
+            """,
+            "variables": {
+                "id": team_id,
+                },
+            }, user=user)
+
+        assert success
+        assert len(result['errors']) == 1
+        team = self.session.query(Team).get(team_id)
+        assert team
+        team.users = []
+        team.programs = []
+        self.session.add(team)
+        self.session.commit()
+
+        # Finally should work!
+        success, result = self.run_graphql_query({
+            "operationName": "DeleteTeam",
+            "query": """
+                mutation DeleteTeam($id: ID!) {
+                    deleteTeam(id: $id)
+                }
+            """,
+            "variables": {
+                "id": team_id,
+                },
+            }, user=user)
+
+        assert success
+        assert result['data']['deleteTeam'] == team_id
+        assert not self.session.query(Team).get(team_id)
 
     def test_delete_team_no_perm(self):
         """Only admins can delete teams."""

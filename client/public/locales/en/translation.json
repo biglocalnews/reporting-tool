@@ -16,6 +16,10 @@
   "backToDashboard": "Back To Dashboard",
   "noDataAvailable": "No Data Available",
   "notAuthorized": "You do not have permission to view this page.",
+  "submitUpdate": "Save changes",
+  "submitUpdateSuccess": "Successfully saved changes!",
+  "submitUpdateFail": "Failed to save changes.",
+  "cancel": "Cancel",
   "account": {
     "login": {
       "action": "Login!",
@@ -79,6 +83,57 @@
       "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets"
     },
+    "team": {
+      "index": {
+        "title": "Teams",
+        "subtitle": "Use this page to view and manage teams",
+        "createTitle": "New Team",
+        "malformedData": "Failed to load teams data from server",
+        "createNew": "Add a new team",
+        "createTeamError": "Error creating team",
+        "createSuccess": "Successfully created team!",
+        "column": {
+          "name": "Name",
+          "userCount": "Members",
+          "programCount": "$t(Program_plural)"
+        },
+        "cancel": "$t(cancel)",
+        "save": "Create team"
+      },
+      "create": {
+        "name": "Name",
+        "nameRequired": "You must enter a name.",
+        "organization": "Organization",
+        "organizationRequired": "You must select an organization."
+      },
+      "edit": {
+        "title": "Edit Team",
+        "name": "Team name",
+        "nameRequired": "You must enter a team name.",
+        "users": "Team members",
+        "usersInfo": "",
+        "programs": "$t(Program_plural)",
+        "programsInfo": "",
+        "add": "Add",
+        "delete": "Delete team",
+        "confirmDelete": "Do you really wish to delete this team? This cannot be undone!",
+        "dirtyFormDeleteError": "You have unsaved changes to this team. Please save your changes before deleting.",
+        "deleteTeamError": "An error occurred trying to delete this team.",
+        "deleteFail": "Failed to delete this team.",
+        "deleteSuccess": "Team was successfully deleted!",
+        "deleteProgramIds": "Please re-assign all $t(program_plural) from this team before deleting.",
+        "deleteUserIds": "Please remove / re-assign all users on this team before deleting.",
+        "remove": "Remove",
+        "submit": "$t(submitUpdate)",
+        "saveSuccess": "$t(submitUpdateSuccess)",
+        "saveError": "$t(submitUpdateFail)",
+        "saveTeamError": "An error occurred trying to update this team.",
+        "nonTeamMembers": "Other users",
+        "teamMembers": "Team members",
+        "otherPrograms": "Other $t(program_plural)",
+        "teamPrograms": "Assigned $t(program_plural)"
+      }
+    },
     "program": {
       "index": {
         "title": "$t(Program_plural)",
@@ -95,8 +150,8 @@
       "create": {
         "name": "Name",
         "nameRequired": "You must enter a name",
-        "save": "Save",
-        "cancel": "Cancel",
+        "save": "Create $t(program)",
+        "cancel": "$t(cancel)",
         "title": "Create a new $t(program)",
         "team": "Team",
         "teamPlaceholder": "Assign to a team",
@@ -114,12 +169,12 @@
         "targetTitle": "Representation targets",
         "datasetTitle": "Datasets",
         "deactivateSuccess": "Successfully deleted",
-        "saveSuccess": "Successfully updated",
+        "saveSuccess": "$t(submitUpdateSuccess)",
         "restoreSuccess": "Successfully restored",
         "form": {
           "name": "Name",
           "description": "Description",
-          "save": "Save",
+          "save": "$t(submitUpdate)",
           "delete": "Delete",
           "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this $t(program)?",
@@ -154,6 +209,7 @@
       }
     },
     "user": {
+      "malformedData": "Failed to load users from the server",
       "userListTitle": "Manage users",
       "userListSubTitle": "Use this page to add and edit users",
       "createNew": "Add user",
@@ -161,10 +217,10 @@
       "noQueryData": "query did not return any data",
       "queryMissingKey": "query did not return the expected {{expectedKey}} key",
       "title": "Edit user",
-      "save": "Save",
-      "cancel": "Cancel",
+      "save": "$t(submitUpdate)",
+      "saveSuccess": "$t(submitUpdateSuccess)",
+      "cancel": "$t(cancel)",
       "restore": "Reactivate user",
-      "saveSuccess": "Successfully saved changes!",
       "delete": "Deactivate",
       "deleteTitle": "Deactivate user",
       "deleteInfo": "You are about to deactive this user. Please confirm you really wish to do this. You can reactivate them later if needed.",

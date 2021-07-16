@@ -19,8 +19,11 @@ export interface CategoryValueInput {
 
 export interface CreateProgramInput {
   readonly name: string;
+  readonly description?: string | null;
   readonly teamId: string;
   readonly targets?: ReadonlyArray<TargetInput> | null;
+  readonly tags?: ReadonlyArray<TagInput> | null;
+  readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
 }
 
 export interface CreateRecordInput {
@@ -29,16 +32,30 @@ export interface CreateRecordInput {
   readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
+export interface CreateTeamInput {
+  readonly name: string;
+  readonly organizationId: string;
+  readonly userIds?: ReadonlyArray<string> | null;
+  readonly programIds?: ReadonlyArray<string> | null;
+}
+
 export interface EntryInput {
   readonly id?: string | null;
   readonly categoryValueId: string;
   readonly count: number;
 }
 
+export interface TagInput {
+  readonly id?: string | null;
+  readonly name?: string | null;
+  readonly description?: string | null;
+  readonly tagType?: string | null;
+}
+
 export interface TargetInput {
   readonly id?: string | null;
-  readonly target: number;
-  readonly categoryValue: CategoryValueInput;
+  readonly target?: number | null;
+  readonly categoryValue?: CategoryValueInput | null;
 }
 
 export interface UpdateProgramInput {
@@ -47,6 +64,7 @@ export interface UpdateProgramInput {
   readonly teamId?: string | null;
   readonly description?: string | null;
   readonly targets?: ReadonlyArray<TargetInput> | null;
+  readonly tags?: ReadonlyArray<TagInput> | null;
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
 }
 
@@ -55,6 +73,13 @@ export interface UpdateRecordInput {
   readonly datasetId?: string | null;
   readonly publicationDate?: any | null;
   readonly entries?: ReadonlyArray<EntryInput> | null;
+}
+
+export interface UpdateTeamInput {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly userIds?: ReadonlyArray<string> | null;
+  readonly programIds?: ReadonlyArray<string> | null;
 }
 
 export interface UpsertDatasetInput {

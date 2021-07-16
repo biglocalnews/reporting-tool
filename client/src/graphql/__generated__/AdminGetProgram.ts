@@ -51,7 +51,7 @@ export interface AdminGetProgram_program {
   readonly __typename: "Program";
   readonly name: string;
   readonly description: string;
-  readonly team: AdminGetProgram_program_team;
+  readonly team: AdminGetProgram_program_team | null;
   readonly deleted: any | null;
   readonly tags: ReadonlyArray<AdminGetProgram_program_tags>;
   readonly datasets: ReadonlyArray<AdminGetProgram_program_datasets>;

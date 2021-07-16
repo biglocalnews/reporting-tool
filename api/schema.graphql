@@ -69,7 +69,7 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   description: String!
-  team: Team!
+  team: Team
   datasets: [Dataset!]!
   targets: [Target!]!
   tags: [Tag!]!
@@ -209,9 +209,9 @@ input UpdateCategoryValueInput {
 
 input CreateTeamInput {
   name: String!
-  userIds: [ID!]!
-  programIds: [ID!]!
-  organizationId: ID
+  organizationId: ID!
+  userIds: [ID!]
+  programIds: [ID!]
 }
 
 input UpdateTeamInput {
@@ -219,7 +219,6 @@ input UpdateTeamInput {
   name: String
   userIds: [ID!]
   programIds: [ID!]
-  organizationId: ID
 }
 
 input EntryInput {
@@ -314,6 +313,9 @@ type Query {
 
   # Retrieve full list of categories
   categories: [Category!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of organizations
+  organizations: [Organization!]! @needsPermission(permission: [ADMIN])
 }
 
 type Mutation {

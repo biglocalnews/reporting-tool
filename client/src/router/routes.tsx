@@ -1,8 +1,10 @@
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
 import { EditProgram } from "../pages/Admin/EditProgram";
+import { EditTeam } from "../pages/Admin/EditTeam";
 import { EditUser } from "../pages/Admin/EditUser";
 import { ProgramList } from "../pages/Admin/ProgramList";
+import { TeamList } from "../pages/Admin/TeamList";
 import { UserList } from "../pages/Admin/UserList";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
@@ -63,15 +65,6 @@ export const normalRoutes: IRoute[] = [
 ];
 
 /**
- * Placeholder for development.
- * TODO: remove when we've built everything :)
- */
-const Todo = (what: string) => {
-  const TodoCmp = () => <div>TODO: {what}</div>;
-  return TodoCmp;
-};
-
-/**
  * Routes that are only visible to admins.
  */
 export const adminRoutes: IRoute[] = [
@@ -97,8 +90,15 @@ export const adminRoutes: IRoute[] = [
         path: "/admin/teams",
         key: "teams",
         exact: true,
-        component: Todo("manage teams"),
+        component: TeamList,
         breadcrumb: "Manage Teams",
+      },
+      {
+        path: "/admin/teams/:teamId",
+        key: "team",
+        exact: true,
+        component: EditTeam,
+        breadcrumb: "Edit Team",
       },
       {
         path: "/admin/programs",
