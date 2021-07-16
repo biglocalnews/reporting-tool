@@ -11,7 +11,19 @@ import uuid
 
 import click
 from datetime import datetime
-from sqlalchemy import create_engine, Table, Boolean, Column, Integer, Float, String, DateTime, Text, ForeignKey, UniqueConstraint
+from sqlalchemy import (
+        create_engine,
+        Table,
+        Boolean,
+        Column,
+        Integer,
+        Float,
+        String,
+        DateTime,
+        Text,
+        ForeignKey,
+        UniqueConstraint,
+        )
 from sqlalchemy.orm import relationship, sessionmaker, validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
@@ -93,7 +105,7 @@ class Team(Base, PermissionsMixin):
     __tablename__ = 'team'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False, unique=True)
     users = relationship('User', secondary=user_teams, backref='Team')
     programs = relationship('Program', back_populates='team')
     organization_id = Column(GUID, ForeignKey(
@@ -193,6 +205,9 @@ class Program(Base, PermissionsMixin):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    # Programs have to have a unique name within their respective team.
+    UniqueConstraint('name', 'team_id')
 
     @classmethod
     def get_not_deleted(cls, session, id_):
@@ -351,6 +366,9 @@ class Dataset(Base, PermissionsMixin):
     records = relationship('Record')
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
+
+    # Datasets must be unique within a program to avoid ambiguity.
+    UniqueConstraint('name', 'program_id')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
