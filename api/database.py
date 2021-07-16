@@ -224,9 +224,34 @@ class Program(Base, PermissionsMixin):
             dataset.soft_delete(session)
         session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
+
 class Tag(Base):
     __tablename__ = 'tag'
     
+    @classmethod
+    def get_or_create_tag(cls, session, tag_dict) -> "Tag":
+        '''Upsert partially-specified tags.
+
+        :param session: Database session
+        :param tag_dict: Partially specified tag input
+        :returns: Tag object that might be novel
+        '''
+        if 'id' in tag_dict:
+            tag_dict['id'] = uuid.UUID(tag_dict['id'])
+        else:
+            # If the tag exists, avoid name conflicts.
+            existing_tag = cls.get_by_name(session, tag_dict['name'])
+            if existing_tag:
+                tag_dict = {'id': existing_tag.id}
+            else:
+                # Make sure defaults are set for a new tag
+                if 'tag_type' not in tag_dict:
+                    tag_dict['tag_type'] = 'custom'
+                if 'description' not in tag_dict:
+                    tag_dict['description'] = ''
+
+        return session.merge(cls(**tag_dict))
+
     @classmethod
     def get_by_name(cls, session, name):
         return session.query(cls).filter(cls.name == cls.clean_name(name)).first()

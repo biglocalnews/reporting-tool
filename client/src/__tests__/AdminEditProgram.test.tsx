@@ -9,6 +9,7 @@ import { ADMIN_UPDATE_PROGRAM } from "../graphql/__mutations__/AdminUpdateProgra
 import { ADMIN_GET_ALL_CATEGORIES } from "../graphql/__queries__/AdminGetAllCategories.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
+import { GET_ALL_TAGS } from "../graphql/__queries__/GetAllTags.gql";
 import { EditProgram } from "../pages/Admin/EditProgram";
 import { tick } from "./utils";
 
@@ -103,6 +104,31 @@ const CATEGORIES = {
   },
 };
 
+const TAGS = {
+  data: {
+    tags: [
+      {
+        id: "7295229a-696f-431e-b682-65dc468be857",
+        name: "tag1",
+        tagType: "custom",
+        description: "First test tag",
+      },
+      {
+        id: "04facfdd-6cdf-4481-895d-f7116014607c",
+        name: "tag2",
+        tagType: "custom",
+        description: "Second test tag",
+      },
+      {
+        id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999",
+        name: "Existing tag",
+        tagType: "custom",
+        description: "The one the program uses by default",
+      },
+    ],
+  },
+};
+
 const apolloMocks = [
   {
     request: {
@@ -120,6 +146,10 @@ const apolloMocks = [
   {
     request: { query: ADMIN_GET_ALL_CATEGORIES },
     result: CATEGORIES,
+  },
+  {
+    request: { query: GET_ALL_TAGS },
+    result: TAGS,
   },
 ];
 
@@ -185,6 +215,7 @@ it("can set new target values for existing targets", async () => {
                 description: "first dataset",
               },
             ],
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             targets: [
               {
                 id: "00000004-b910-4f6e-8f3c-8201c9999999",
@@ -282,6 +313,7 @@ it("can remove tracked targets", async () => {
                 description: "first dataset",
               },
             ],
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             targets: [
               {
                 id: "00000004-b910-4f6e-8f3c-8201c9999999",
@@ -371,6 +403,7 @@ it("can add new tracked targets", async () => {
                 description: "first dataset",
               },
             ],
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             targets: [
               {
                 id: "00000004-b910-4f6e-8f3c-8201c9999999",
@@ -517,6 +550,7 @@ it("can add and remove tracked categories", async () => {
             name: "My Program",
             description: "whatever",
             teamId: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             datasets: [
               {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
@@ -545,6 +579,7 @@ it("can add and remove tracked categories", async () => {
             name: "My Program",
             description: "whatever",
             teamId: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             datasets: [
               {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
@@ -649,6 +684,7 @@ it("can edit a dataset", async () => {
                 description: "first dataset - edited",
               },
             ],
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             targets: [
               {
                 id: "00000004-b910-4f6e-8f3c-8201c9999999",
@@ -737,6 +773,7 @@ it("can add and remove datasets", async () => {
             name: "My Program",
             description: "whatever",
             teamId: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             datasets: [
               {
                 name: "DS2",
@@ -839,6 +876,7 @@ it("can edit basic info: name and description and team", async () => {
             name: "new name",
             description: "new description",
             teamId: "fffffff4-b910-4f6e-8f3c-8201c9999999",
+            tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
             datasets: [
               {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
@@ -1019,4 +1057,218 @@ it("can deactivate and reactivate a program", async () => {
 
   expect(screen.queryByText(/Error/)).not.toBeInTheDocument();
   expect(screen.queryByText(/alreadyDeletedTitle/)).not.toBeInTheDocument();
+});
+
+it("lets user add custom and existing tags", async () => {
+  const mocks = [
+    ...apolloMocks,
+    {
+      request: {
+        query: ADMIN_UPDATE_PROGRAM,
+        variables: {
+          input: {
+            id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            name: "My Program",
+            description: "whatever",
+            teamId: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+            tags: [
+              { id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" },
+              { name: "newtag" },
+              { id: "04facfdd-6cdf-4481-895d-f7116014607c" },
+            ],
+            datasets: [
+              {
+                id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
+                name: "DS1",
+                description: "first dataset",
+              },
+            ],
+            targets: [
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9999999",
+                target: 0.33,
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000000",
+                  name: "g1",
+                  category: { id: "00000004-b910-4f6e-8f3c-8201c1111111" },
+                },
+              },
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9555555",
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000001",
+                  name: "g2",
+                  category: {
+                    id: "00000004-b910-4f6e-8f3c-8201c1111111",
+                  },
+                },
+                target: 0.34,
+              },
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9555556",
+                target: 0.33,
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000002",
+                  name: "g3",
+                  category: { id: "00000004-b910-4f6e-8f3c-8201c1111111" },
+                },
+              },
+            ],
+          },
+        },
+      },
+      result: {
+        data: {
+          updateProgram: {
+            id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+          },
+        },
+      },
+    },
+  ];
+
+  render(
+    <MockedProvider mocks={mocks}>
+      <MemoryRouter initialEntries={["/df6413b4-b910-4f6e-8f3c-8201c9e65af3"]}>
+        <Route path="/:programId">
+          <EditProgram />
+        </Route>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+
+  await tick();
+
+  const tagBox = screen.getByRole("combobox", { name: /tag/ });
+  userEvent.type(tagBox, "newtag");
+
+  await tick();
+
+  fireEvent.keyDown(tagBox, {
+    key: "enter",
+    code: 13,
+    charCode: 13,
+    keyCode: 13,
+  });
+
+  await tick();
+
+  userEvent.type(tagBox, "tag2");
+
+  await tick();
+
+  fireEvent.keyDown(tagBox, {
+    key: "arrowdown",
+    code: 40,
+    charCode: 40,
+    keyCode: 40,
+  });
+
+  await tick();
+
+  fireEvent.keyDown(tagBox, {
+    key: "enter",
+    code: 13,
+    charCode: 13,
+    keyCode: 13,
+  });
+
+  await tick();
+
+  fireEvent.click(screen.getByRole("button", { name: /save/ }));
+
+  // form validation
+  await tick();
+
+  // network request
+  await tick();
+
+  expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+});
+
+it("lets user remove tags", async () => {
+  const mocks = [
+    ...apolloMocks,
+    {
+      request: {
+        query: ADMIN_UPDATE_PROGRAM,
+        variables: {
+          input: {
+            id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            name: "My Program",
+            description: "whatever",
+            teamId: "eeeeeee4-b910-4f6e-8f3c-8201c9999999",
+            tags: [],
+            datasets: [
+              {
+                id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
+                name: "DS1",
+                description: "first dataset",
+              },
+            ],
+            targets: [
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9999999",
+                target: 0.33,
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000000",
+                  name: "g1",
+                  category: { id: "00000004-b910-4f6e-8f3c-8201c1111111" },
+                },
+              },
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9555555",
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000001",
+                  name: "g2",
+                  category: {
+                    id: "00000004-b910-4f6e-8f3c-8201c1111111",
+                  },
+                },
+                target: 0.34,
+              },
+              {
+                id: "00000004-b910-4f6e-8f3c-8201c9555556",
+                target: 0.33,
+                categoryValue: {
+                  id: "00000004-b910-4f6e-8f3c-8201c0000002",
+                  name: "g3",
+                  category: { id: "00000004-b910-4f6e-8f3c-8201c1111111" },
+                },
+              },
+            ],
+          },
+        },
+      },
+      result: {
+        data: {
+          updateProgram: {
+            id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+          },
+        },
+      },
+    },
+  ];
+
+  render(
+    <MockedProvider mocks={mocks}>
+      <MemoryRouter initialEntries={["/df6413b4-b910-4f6e-8f3c-8201c9e65af3"]}>
+        <Route path="/:programId">
+          <EditProgram />
+        </Route>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+
+  await tick();
+
+  fireEvent.click(document.querySelector(".ant-select-selection-item-remove")!);
+
+  // form validation
+  await tick();
+
+  // network request
+  await tick();
+
+  expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
 });

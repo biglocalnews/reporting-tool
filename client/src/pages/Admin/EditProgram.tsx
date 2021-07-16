@@ -32,9 +32,11 @@ import {
   AdminGetProgramVariables,
   AdminGetProgram_program_targets,
 } from "../../graphql/__generated__/AdminGetProgram";
+import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
+import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 import {
   CategoryTarget,
   CategoryTargetSegment,
@@ -124,6 +126,11 @@ export const EditProgram = () => {
     }
   );
 
+  const tagsResponse = useQueryWithErrorHandling<GetAllTags>(
+    GET_ALL_TAGS,
+    "tags"
+  );
+
   if (
     teamsResponse.loading ||
     programResponse.loading ||
@@ -140,6 +147,10 @@ export const EditProgram = () => {
     name: programResponse.data!.program.name,
     description: programResponse.data!.program.description,
     teamId: programResponse.data!.program.team?.id,
+    tags: programResponse.data!.program.tags.map(({ id, name }) => ({
+      label: name,
+      value: id,
+    })),
     targets: getGroupedTargets(programResponse.data!.program.targets),
     datasets: programResponse.data!.program.datasets.slice(),
   };
@@ -252,6 +263,23 @@ export const EditProgram = () => {
             {teamsResponse.data!.teams.map((t) => (
               <Select.Option key={t.id} value={t.id}>
                 {t.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label={t("admin.program.edit.form.tags")} name="tags">
+          <Select
+            mode="tags"
+            labelInValue
+            placeholder={t("admin.program.edit.newTagPrompt")}
+            filterOption={(input, option) =>
+              option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {tagsResponse.data?.tags.map((tag) => (
+              <Select.Option key={tag.id} value={tag.id}>
+                {tag.name}
               </Select.Option>
             ))}
           </Select>

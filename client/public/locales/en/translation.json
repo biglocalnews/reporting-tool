@@ -171,6 +171,7 @@
         "deactivateSuccess": "Successfully deleted",
         "saveSuccess": "$t(submitUpdateSuccess)",
         "restoreSuccess": "Successfully restored",
+        "newTagPrompt": "Create a new tag",
         "form": {
           "name": "Name",
           "description": "Description",
@@ -179,6 +180,7 @@
           "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this $t(program)?",
           "team": "Assigned team",
+          "tags": "Tags",
           "datasetName": "Dataset name",
           "datasetDescription": "Dataset description",
           "addCategoryPlaceholder": "Select a new category to track",

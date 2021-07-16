@@ -299,6 +299,9 @@ type Query {
   categoryValue(id: ID!): CategoryValue!
     @needsPermission(permission: [LOGGED_IN])
 
+  # Retrieve all tags. Server-side search not currently supported.
+  tags: [Tag!]! @needsPermission(permission: [LOGGED_IN])
+
   # Retrieve a team.
   team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
 

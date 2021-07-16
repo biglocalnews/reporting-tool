@@ -331,7 +331,9 @@ def resolve_create_program(obj, info, input):
     
     program = Program(**input)
     program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
-    program.tags = [session.merge(Tag(**tag)) for tag in tags]
+    for tag_dict in tags:
+        tag = Tag.get_or_create_tag(session, tag_dict)
+        program.tags.append(tag)
 
     for target_dict in targets:
         cv_dict = target_dict.pop('category_value')
@@ -392,12 +394,10 @@ def resolve_update_program(obj, info, input):
 
     if 'tags' in input:
         program.tags = []
+
         for tag_dict in input.pop('tags'):
-            if 'id' in tag_dict:
-                tag_dict['id'] = uuid.UUID(tag_dict['id'])
-            elif 'tag_type' not in tag_dict:
-                tag_dict['tag_type'] = 'custom'
-            program.tags.append(session.merge(Tag(**tag_dict)))
+            tag = Tag.get_or_create_tag(session, tag_dict)
+            program.tags.append(tag)
 
     for key, value in input.items():
         setattr(program, key, value)

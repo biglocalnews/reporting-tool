@@ -29,12 +29,21 @@ export type DatasetFormValues = Readonly<{
 }>;
 
 /**
+ * Form values to represent a tag for a program.
+ */
+export type TagFormValues = Readonly<{
+  value: string;
+  label: string;
+}>;
+
+/**
  * Form values filled out by the UI for updating the program.
  */
 export type ProgramUpdateFormValues = Readonly<{
   name: string;
   description: string;
   teamId?: string;
+  tags: TagFormValues[];
   datasets: DatasetFormValues[];
   targets: CategoryTarget[];
 }>;
@@ -78,6 +87,17 @@ export type HandlerArgs<F extends HandlerFunction> = F extends (
 ) => Promise<any>
   ? U
   : never;
+
+/**
+ * Check if the tag is a new custom tag that needs to be created on the server.
+ *
+ * This checks that the value is a UUIDv4. Test taken from here:
+ * https://stackoverflow.com/a/38191104
+ */
+export const isCustomTag = (tag: TagFormValues) =>
+  !/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(
+    tag.value
+  );
 
 /**
  * Higher-order hook factory for network operations.
@@ -175,6 +195,9 @@ export const useSave = getOpHook(
             name: input.name,
             description: input.description,
             teamId: input.teamId,
+            tags: input.tags.map((tag) =>
+              isCustomTag(tag) ? { name: tag.value } : { id: tag.value }
+            ),
             datasets: input.datasets.map((dataset) => ({
               id: dataset.id,
               name: dataset.name,
