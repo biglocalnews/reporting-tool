@@ -96,7 +96,6 @@ export const renderFormEntries = (
       });
     }
   } else {
-    console.log("new data no person type");
     metadata?.dataset?.program?.targets.map((target, index) => {
       form.push({
         index: index,
