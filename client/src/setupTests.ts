@@ -35,3 +35,9 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 beforeEach(() => jest.clearAllMocks());
+
+// The default timeout of 5000ms is too short for the number of tests we have,
+// which causes an erratic cascade of test failures due to timeouts when
+// running the full suite of tests. The 30s timeout is good for now, it may
+// have to be increased again later.
+jest.setTimeout(30000);
