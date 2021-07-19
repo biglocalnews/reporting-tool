@@ -87,6 +87,7 @@ export interface GetDataset_dataset {
   readonly id: string;
   readonly name: string;
   readonly lastUpdated: any | null;
+  readonly personTypes: ReadonlyArray<string> | null;
   readonly sumOfCategoryValueCounts: ReadonlyArray<GetDataset_dataset_sumOfCategoryValueCounts>;
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;

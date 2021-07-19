@@ -10,6 +10,7 @@ export const GET_RECORD = gql`
       }
       entries {
         id
+        personType
         categoryValue {
           id
           name

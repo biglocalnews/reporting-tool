@@ -29,6 +29,7 @@ export interface GetRecord_record_entries_categoryValue {
 export interface GetRecord_record_entries {
   readonly __typename: "Entry";
   readonly id: string;
+  readonly personType: string | null;
   readonly categoryValue: GetRecord_record_entries_categoryValue;
   readonly count: number;
 }

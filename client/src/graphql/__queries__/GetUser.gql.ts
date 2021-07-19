@@ -14,6 +14,7 @@ export const GET_USER = gql`
             name
             description
             lastUpdated
+            personTypes
             records {
               id
               publicationDate
