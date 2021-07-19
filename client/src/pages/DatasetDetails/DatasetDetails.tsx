@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import React from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -16,8 +16,6 @@ import { PageTitleBar } from "../../components/PageTitleBar/PageTitleBar";
 interface RouteParams {
   datasetId: string;
 }
-
-const { Text } = Typography;
 
 const DatasetDetails = (): JSX.Element => {
   const { datasetId } = useParams<RouteParams>();

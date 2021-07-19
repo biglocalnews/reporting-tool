@@ -56,7 +56,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 });
 
 test("should render No Data Available Yet for 'last updated' date when no records exist", async () => {
-  const { auth, mock } = mockUserLoggedIn();
+  const { auth } = mockUserLoggedIn();
   await auth.init();
 
   const mockDateTime = {
