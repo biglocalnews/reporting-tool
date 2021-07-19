@@ -160,13 +160,6 @@ dataset_person_types = Table('dataset_person_type', Base.metadata,
                             'person_type.id'), index=True),
                         )
 
-entry_person_types = Table('entry_person_type', Base.metadata,
-                            Column('entry_id', GUID, ForeignKey(
-                                'entry.id'), index=True),
-                            Column('person_type_id', GUID, ForeignKey(
-                            'person_type.id'), index=True),
-                        )
-
 
 class PermissionsMixin:
     """Base class defining some common permissions checks."""
@@ -605,7 +598,7 @@ class Entry(Base, PermissionsMixin):
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
     inputter = relationship('User')
     inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
-    person_types = relationship('PersonType', back_populates='entries')
+    person_type = relationship('PersonType', back_populates='entries')
     person_type_id = Column(GUID, ForeignKey('person_type.id'), index=True)
 
     created = Column(TIMESTAMP,
@@ -633,8 +626,7 @@ class PersonType(Base, PermissionsMixin):
     description = Column(String(255), nullable=True)
     datasets = relationship('Dataset', secondary=dataset_person_types,
                             back_populates='person_types')
-    entries = relationship('Entry', secondary=entry_person_types,
-                        back_populates='person_types')
+    entries = relationship('Entry', back_populates='person_type')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
