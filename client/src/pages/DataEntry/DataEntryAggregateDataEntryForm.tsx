@@ -37,22 +37,23 @@ export interface Entry {
   categoryValueLabel: string;
   description: string;
   count: number | any;
+  personType?: string | null;
 }
 
 /**
  * Function creates a new dataset record input object with entries.
- * @param {GetDataset} dataset object
- * @param {GetRecord} record and entried object
- * @returns form for rendering data entry fields
+ * @param {GetDataset} metadata - dataset metadata object
+ * @param {GetRecord} existingRecord - entries object for editing
  */
-export const renderForm = (
+export const renderFormEntries = (
   metadata: GetDataset | undefined,
   existingRecord?: GetRecord | undefined
-) => {
-  let form: Array<Entry>;
+): Array<Entry> => {
+  const form: Array<Entry> = [];
 
+  /* Entries for editing a record */
   if (existingRecord) {
-    form = existingRecord?.record?.entries.map((entry, index) => ({
+    return existingRecord?.record?.entries.map((entry, index) => ({
       entryId: entry.id,
       index: index,
       category: entry.categoryValue.category.name,
@@ -61,20 +62,55 @@ export const renderForm = (
       categoryValue: entry.categoryValue.name,
       categoryValueLabel: entry.categoryValue.name.replace(/\s+/g, "-"),
       count: entry.count,
+      personType: entry.personType,
     }));
-  } else {
-    form = metadata?.dataset?.program?.targets.map((target, index) => ({
-      index: index,
-      category: target.categoryValue.category.name,
-      description: target.categoryValue.category.description,
-      categoryValueId: target.categoryValue.id,
-      categoryValue: target.categoryValue.name,
-      categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
-      count: 0,
-    })) as Array<Entry>;
   }
 
-  return form;
+  /* Entries for adding a record */
+
+  // Check if personTypes exist as metadata in dataset and return
+  // collection of default entries with person type
+  if (
+    Array.isArray(metadata?.dataset.personTypes) &&
+    metadata?.dataset.personTypes?.length
+  ) {
+    let startIndex = 0;
+    const addDataEntriesCollectionLen =
+      metadata?.dataset?.personTypes?.length *
+      metadata?.dataset?.program?.targets.length;
+
+    while (startIndex < addDataEntriesCollectionLen) {
+      metadata?.dataset.personTypes.map((type) => {
+        metadata?.dataset?.program?.targets.map((target) => {
+          form.push({
+            index: startIndex++,
+            category: target.categoryValue.category.name,
+            description: target.categoryValue.category.description,
+            categoryValueId: target.categoryValue.id,
+            categoryValue: target.categoryValue.name,
+            categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
+            count: 0,
+            personType: type,
+          });
+        });
+      });
+    }
+  } else {
+    console.log("new data no person type");
+    metadata?.dataset?.program?.targets.map((target, index) => {
+      form.push({
+        index: index,
+        category: target.categoryValue.category.name,
+        description: target.categoryValue.category.description,
+        categoryValueId: target.categoryValue.id,
+        categoryValue: target.categoryValue.name,
+        categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
+        count: 0,
+      });
+    });
+  }
+
+  return form as Array<Entry>;
 };
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
@@ -83,7 +119,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
 
   const isEditMode = props.recordId ? true : false;
 
-  const entries = renderForm(props.datasetData, props.existingRecord);
+  const entries = renderFormEntries(props.datasetData, props.existingRecord);
   const [values, setValues] = useState<Entry[]>(entries);
 
   const [formPublicationDate, setFormPublicationDate] = useState<string>(
@@ -106,15 +142,15 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       record.`;
 
   // NOTE: Refs cannot be as expected to check against the submitter
-  // in a form event because  Safari browsers do not have a submitter
-  // for synthetic events. As a workaround, we are using refs like
+  // in a form event because Safari browser does not have a submitter property
+  // for synthetic events. As a workaround, we are using refs
   // similar to how we would use state hooks but with the tested
   // guarantee that we could call on this boolean and immediately
   // get the updated value once it has been set. Our tests failed when
   // we attempted to do the same with a state hook.
   // TODO: Replace native HTML form with AntD form and test for accessibility
   // to see if setting state for button clicks solves this issue using
-  // an AntD form .
+  // an AntD form.
   const isSaveAndAddAnotherRecordClicked = useRef(false);
   // set reference when "save and add another" button is clicked
   const setIsSaveAndAddAnotherRecord = (clicked: boolean) => {
@@ -133,6 +169,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         entries: values?.map((newEntry) => ({
           categoryValueId: newEntry.categoryValueId,
           count: newEntry.count,
+          personType: newEntry.personType,
         })),
       },
     };
@@ -155,6 +192,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           id: updatedEntry.entryId,
           categoryValueId: updatedEntry.categoryValueId,
           count: updatedEntry.count,
+          personType: updatedEntry.personType,
         })),
       },
     };
@@ -223,6 +261,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   return (
     <form
       onSubmit={handleSubmit}
+      name="data-entry-form"
       id="data-entry-form"
       aria-label="data-entry-form"
     >
@@ -272,6 +311,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
       <DataEntryCategorySections
         entries={values}
         onValueChange={handleChange}
+        personTypes={props.datasetData?.dataset?.personTypes}
       />
       <Row className="data-entry-form_buttons">
         <Col span={16} offset={8}>
