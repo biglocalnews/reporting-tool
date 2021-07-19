@@ -153,6 +153,20 @@ program_tags = Table('program_tag', Base.metadata,
                          'tag.id'), index=True),
                      )
 
+dataset_person_types = Table('dataset_person_type', Base.metadata,
+                            Column('dataset_id', GUID, ForeignKey(
+                                'dataset.id'), index=True),
+                            Column('person_type_id', GUID, ForeignKey(
+                            'person_type.id'), index=True),
+                        )
+
+entry_person_types = Table('entry_person_type', Base.metadata,
+                            Column('entry_id', GUID, ForeignKey(
+                                'entry.id'), index=True),
+                            Column('person_type_id', GUID, ForeignKey(
+                            'person_type.id'), index=True),
+                        )
+
 
 class PermissionsMixin:
     """Base class defining some common permissions checks."""
@@ -515,13 +529,14 @@ class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
-    person_types = Column(ARRAY(String(255)))
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     program = relationship('Program', back_populates='datasets')
     program_id = Column(GUID, ForeignKey('program.id'), index=True)
     records = relationship('Record')
     tags = relationship('Tag', secondary=dataset_tags,
+                        back_populates='datasets')
+    person_types = relationship('PersonType', secondary=dataset_person_types,
                         back_populates='datasets')
 
     # Datasets must be unique within a program to avoid ambiguity.
@@ -590,7 +605,8 @@ class Entry(Base, PermissionsMixin):
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
     inputter = relationship('User')
     inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
-    person_type = Column(String(255), nullable=True)
+    person_types = relationship('PersonType', back_populates='entries')
+    person_type_id = Column(GUID, ForeignKey('person_type.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -608,6 +624,23 @@ class Entry(Base, PermissionsMixin):
     def soft_delete(self, session):
         self.deleted= func.now()
         session.add(self)
+
+class PersonType(Base, PermissionsMixin):
+    __tablename__ = 'person_type'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    person_type_name = Column(String(255), nullable=False)
+    description = Column(String(255), nullable=True)
+    datasets = relationship('Dataset', secondary=dataset_person_types,
+                            back_populates='person_types')
+    entries = relationship('Entry', secondary=entry_person_types,
+                        back_populates='person_types')
+
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 def create_tables(session):
@@ -697,9 +730,9 @@ def create_dummy_data(session):
     session.add(admin_user)
     
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
-            description='breakfast hour programming', person_types=['BBC Contributor', 'Non-BBC Contributor'])
+            description='breakfast hour programming')
     ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM',
-            description='afternoon programming', person_types=[])
+            description='afternoon programming')
     
     program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming', datasets=[ds1, ds2])
@@ -724,22 +757,22 @@ def create_dummy_data(session):
     target_disabed = Target(id='b5be10ce-103f-41f2-b4c4-603228724993', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
     target_non_disabled = Target(id='6e6edce5-3d24-4296-b929-5eec26d52afc', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.50))
 
-    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter=user, person_type='BBC Contributor') 
-    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter=user, person_type='BBC Contributor') 
-    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter=user, person_type='BBC Contributor') 
-    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1, inputter=user, person_type='BBC Contributor') 
-    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter=user, person_type='BBC Contributor') 
-    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter=user, person_type='BBC Contributor') 
-    entry7 = Entry(id='335b3680-13a1-4d8f-a917-01e1e7e1311a', count=1, inputter=user, person_type='BBC Contributor')
-    entry8 = Entry(id='fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a', count=1, inputter=user, person_type='BBC Contributor')
-    entry1_b = Entry(id='9a323df8-15cf-45c2-a8c6-755b7d98332b', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry2_b = Entry(id='4c672b25-02da-4d48-bece-26b45fff9a03', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry3_b = Entry(id='21d12404-a1b7-40c0-9598-5dc853adbb9b', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry4_b = Entry(id='98aecacd-9eea-4d08-9b0d-a80c57db3b74', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry5_b = Entry(id='0ef0e83a-81b2-4c05-82d5-2fc5d8714368', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry6_b = Entry(id='4f07ef7f-70ec-4c04-9f57-fd692ab430d2', count=1, inputter=user, person_type='Non-BBC Contributor') 
-    entry7_b = Entry(id='201d163a-873c-4196-9056-18e66eab37c7', count=1, inputter=user, person_type='Non-BBC Contributor')
-    entry8_b = Entry(id='d7f57989-cf6e-4384-93d4-773d71137e0d', count=1, inputter=user, person_type='Non-BBC Contributor')
+    entry1 = Entry(id='64677dc1-a1cd-4cd3-965d-6565832d307a', count=1, inputter=user) 
+    entry2 = Entry(id='a37a5fe2-1493-4cb9-bcd0-a87688ffa409', count=1, inputter=user) 
+    entry3 = Entry(id='423dc42f-4628-40e4-b9cd-4e6e9e384d61', count=1, inputter=user) 
+    entry4 = Entry(id='407f24d0-c5eb-4297-9495-90e325a00a1d', count=1, inputter=user) 
+    entry5 = Entry(id='4adcb9f9-c1eb-41ba-b9aa-ed0947311a24', count=1, inputter=user) 
+    entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter=user) 
+    entry7 = Entry(id='335b3680-13a1-4d8f-a917-01e1e7e1311a', count=1, inputter=user)
+    entry8 = Entry(id='fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a', count=1, inputter=user)
+    entry1_b = Entry(id='9a323df8-15cf-45c2-a8c6-755b7d98332b', count=1, inputter=user) 
+    entry2_b = Entry(id='4c672b25-02da-4d48-bece-26b45fff9a03', count=1, inputter=user) 
+    entry3_b = Entry(id='21d12404-a1b7-40c0-9598-5dc853adbb9b', count=1, inputter=user) 
+    entry4_b = Entry(id='98aecacd-9eea-4d08-9b0d-a80c57db3b74', count=1, inputter=user) 
+    entry5_b = Entry(id='0ef0e83a-81b2-4c05-82d5-2fc5d8714368', count=1, inputter=user) 
+    entry6_b = Entry(id='4f07ef7f-70ec-4c04-9f57-fd692ab430d2', count=1, inputter=user) 
+    entry7_b = Entry(id='201d163a-873c-4196-9056-18e66eab37c7', count=1, inputter=user)
+    entry8_b = Entry(id='d7f57989-cf6e-4384-93d4-773d71137e0d', count=1, inputter=user)
     
     CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1, entry1_b])
     CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women', category=category_gender, targets=[target_cis_women], entries=[entry2, entry2_b])
@@ -756,6 +789,11 @@ def create_dummy_data(session):
     Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S'), 
            entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8,
            entry1_b, entry2_b, entry3_b, entry4_b, entry5_b, entry6_b, entry7_b, entry8_b]) 
+
+    PersonType(id='1c9b9573-726f-46c4-86a8-ed6412eb0c35', person_type_name='BBC Contributor', datasets=[ds1], 
+                entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8])
+    PersonType(id='59bf75ad-f5b9-4b21-94e5-659896ebe2b5', person_type_name='Non-BBC Contributor', datasets=[ds1],
+                entries=[entry1_b, entry2_b, entry3_b, entry4_b, entry5_b, entry6_b, entry7_b, entry8_b])
     
     session.add(category_value_white)
     session.add(org)
