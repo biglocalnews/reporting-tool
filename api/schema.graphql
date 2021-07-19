@@ -127,7 +127,6 @@ type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   dataset: Dataset!
   publicationDate: DateTime!
   entries: [Entry!]!
-  personType: String!
 }
 
 type CategoryValue {
@@ -141,6 +140,7 @@ type Entry @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   categoryValue: CategoryValue!
   count: Int!
   inputter: User!
+  personType: String
 }
 
 type Description {
@@ -231,6 +231,7 @@ input EntryInput {
   id: ID
   categoryValueId: ID!
   count: Int!
+  personType: String
 }
 
 input CategoryInput {
