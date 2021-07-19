@@ -109,7 +109,7 @@ export const renderFormEntries = (
     });
   }
 
-  return form as Array<Entry>;
+  return form;
 };
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
