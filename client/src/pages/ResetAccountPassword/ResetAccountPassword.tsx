@@ -111,8 +111,12 @@ export const ResetAccountPassword = () => {
                 },
                 () => ({
                   validator(_, value) {
+                    if (!value) {
+                      return Promise.resolve();
+                    }
+
                     const analysis = strength.analyze(value);
-                    if (value && analysis.score < 3) {
+                    if (analysis.score < 3) {
                       return Promise.reject(
                         new Error(
                           analysis.feedback.warning ||
@@ -121,6 +125,7 @@ export const ResetAccountPassword = () => {
                         )
                       );
                     }
+
                     return Promise.resolve();
                   },
                 }),
