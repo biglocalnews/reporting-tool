@@ -5,7 +5,6 @@ import { useAuth } from "../components/AuthProvider";
 import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { ErrorBoundary } from "../components/Error/ErrorBoundary";
 import { LoginProps } from "../pages/Login/Login";
-import { ResetAccountPassword } from "../pages/ResetAccountPassword/ResetAccountPassword";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
 
@@ -136,7 +135,9 @@ export function RenderRoutes({
       <Route
         exact
         path="/account/reset-password"
-        component={ResetAccountPassword}
+        component={React.lazy(
+          () => import("../pages/ResetAccountPassword/ResetAccountPassword")
+        )}
       />
       <Route path="/admin/" component={WrappedPrivateAdmin} />
       <Route path="/" component={WrappedPrivate} />

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useLocation } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
+import { usePasswordStrength } from "./PasswordStrength";
 import "./ResetAccountPassword.css";
 
 /**
@@ -13,6 +14,7 @@ export const ResetAccountPassword = () => {
   const account = useUserAccountManager();
   const history = useHistory();
   const location = useLocation();
+  const strength = usePasswordStrength();
   const [resetError, setResetError] = useState<Error | null>(null);
   const [resetting, setResetting] = useState(false);
 
@@ -98,21 +100,41 @@ export const ResetAccountPassword = () => {
             title={t("account.resetPassword.title")}
             subTitle={t("account.resetPassword.subtitle")}
           />
-          <Form.Item
-            label={t("account.resetPassword.newPasswordLabel")}
-            rules={[
-              {
-                required: true,
-                message: t("account.resetPassword.missingPassword"),
-              },
-            ]}
-            name="password"
-          >
-            <Input.Password
-              aria-required="true"
-              aria-label={t("account.resetPassword.newPasswordLabel")}
-              disabled={!canSubmit}
-            />
+          <Form.Item label={t("account.resetPassword.newPasswordLabel")}>
+            <Form.Item
+              noStyle
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: t("account.resetPassword.missingPassword"),
+                },
+                () => ({
+                  validator(_, value) {
+                    const analysis = strength.analyze(value);
+                    if (value && analysis.score < 3) {
+                      return Promise.reject(
+                        new Error(
+                          analysis.feedback.warning ||
+                            analysis.feedback.suggestions[0] ||
+                            t("account.resetPassword.weakPassword")
+                        )
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
+              name="password"
+            >
+              <Input.Password
+                onChange={(e) => strength.analyze(e.target.value)}
+                aria-required="true"
+                aria-label={t("account.resetPassword.newPasswordLabel")}
+                disabled={!canSubmit}
+              />
+            </Form.Item>
+            {strength.meter}
           </Form.Item>
 
           <Form.Item
@@ -124,13 +146,13 @@ export const ResetAccountPassword = () => {
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  } else {
+                  if (value && getFieldValue("password") !== value) {
                     return Promise.reject(
                       new Error(t("account.resetPassword.passwordsDoNotMatch"))
                     );
                   }
+
+                  return Promise.resolve();
                 },
               }),
             ]}
@@ -158,3 +180,5 @@ export const ResetAccountPassword = () => {
     </div>
   );
 };
+
+export default ResetAccountPassword;
