@@ -2283,6 +2283,13 @@ class TestGraphQL(BaseAppTest):
                 [None, False],
             ]
 
+        # Add a gender to the database before the query to ensure it gets
+        # properly gets deduped.
+        s = self.Session()
+        s.add(CategoryValue(name="gender1"))
+        s.commit()
+        s.close()
+
         for user_id, should_auth in users:
             user = self.test_users.get(user_id)
             success, result = self.run_graphql_query({
@@ -2359,6 +2366,11 @@ class TestGraphQL(BaseAppTest):
                     },
                 })
 
+        # Ensure gender1 was deduped
+        s = self.Session()
+        assert s.query(CategoryValue).filter(CategoryValue.name == "Gender1").count() == 1
+        s.close()
+
     def test_update_program(self):
         """Test that admins can update Programs."""
         users = [
@@ -2367,6 +2379,13 @@ class TestGraphQL(BaseAppTest):
                 ['admin', True],
                 [None, False],
             ]
+
+        # Add a gender to the database before the query to ensure it gets
+        # properly gets deduped.
+        s = self.Session()
+        s.add(CategoryValue(name="existing gender"))
+        s.commit()
+        s.close()
 
         for user_id, should_auth in users:
             user = self.test_users.get(user_id)
@@ -2406,7 +2425,14 @@ class TestGraphQL(BaseAppTest):
                                     "name": "new gender",
                                     "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e"},
                                 },
-                                "target": 0.5,
+                                "target": 0.3,
+                            },
+                            {
+                                "categoryValue": {
+                                    "name": "existing gender",
+                                    "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e"},
+                                },
+                                "target": 0.2,
                             },
                             ],
                         "datasets": [
@@ -2446,7 +2472,11 @@ class TestGraphQL(BaseAppTest):
                                 },
                                 {
                                     "categoryValue": {"name": "New gender"},
-                                    "target": 0.5,
+                                    "target": 0.3,
+                                },
+                                {
+                                    "categoryValue": {"name": "Existing gender"},
+                                    "target": 0.2,
                                 },
                             ],
                             "datasets": [
@@ -2460,6 +2490,11 @@ class TestGraphQL(BaseAppTest):
                         },
                     },
                 })
+
+        # Ensure existing gender was deduped
+        s = self.Session()
+        assert s.query(CategoryValue).filter(CategoryValue.name == "Existing gender").count() == 1
+        s.close()
 
     def test_update_program_dedupes_tag_names(self):
         """Make sure tags are never duplicated even if they are passed as new."""
