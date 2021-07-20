@@ -11,7 +11,10 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { GetDataset } from "../../graphql/__generated__/GetDataset";
+import {
+  GetDataset,
+  GetDataset_dataset_personTypes,
+} from "../../graphql/__generated__/GetDataset";
 import { GetRecord } from "../../graphql/__generated__/GetRecord";
 import "./DataEntryAggregateDataEntryForm.css";
 import { DataEntryCategorySections } from "./DataEntryCategorySections";
@@ -37,7 +40,7 @@ export interface Entry {
   categoryValueLabel: string;
   description: string;
   count: number | any;
-  personType?: string | null;
+  personType?: GetDataset_dataset_personTypes | null;
 }
 
 /**
@@ -70,30 +73,22 @@ export const renderFormEntries = (
 
   // Check if personTypes exist as metadata in dataset and return
   // collection of default entries with person type
-  if (
-    Array.isArray(metadata?.dataset.personTypes) &&
-    metadata?.dataset.personTypes?.length
-  ) {
-    let startIndex = 0;
-    const addDataEntriesCollectionLen =
-      metadata?.dataset?.personTypes?.length *
-      metadata?.dataset?.program?.targets.length;
+  if (metadata?.dataset.personTypes?.length) {
+    let addIndex = 0;
 
-    while (startIndex < addDataEntriesCollectionLen) {
-      metadata?.dataset.personTypes.map((type) => {
-        metadata?.dataset?.program?.targets.map((target) => {
-          form.push({
-            index: startIndex++,
-            category: target.categoryValue.category.name,
-            description: target.categoryValue.category.description,
-            categoryValueId: target.categoryValue.id,
-            categoryValue: target.categoryValue.name,
-            categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
-            count: 0,
-            personType: type,
-          });
+    for (const personType of metadata?.dataset.personTypes) {
+      for (const target of metadata?.dataset.program.targets) {
+        form.push({
+          index: addIndex++,
+          category: target.categoryValue.category.name,
+          description: target.categoryValue.category.description,
+          categoryValueId: target.categoryValue.id,
+          categoryValue: target.categoryValue.name,
+          categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
+          count: 0,
+          personType: personType,
         });
-      });
+      }
     }
   } else {
     metadata?.dataset?.program?.targets.map((target, index) => {
@@ -168,7 +163,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         entries: values?.map((newEntry) => ({
           categoryValueId: newEntry.categoryValueId,
           count: newEntry.count,
-          personType: newEntry.personType,
+          personTypeId: newEntry.personType?.id,
         })),
       },
     };
@@ -191,7 +186,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
           id: updatedEntry.entryId,
           categoryValueId: updatedEntry.categoryValueId,
           count: updatedEntry.count,
-          personType: updatedEntry.personType,
+          personTypeId: updatedEntry.personType?.id,
         })),
       },
     };
@@ -251,7 +246,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     const newValues = [...values];
     newValues[index] = {
       ...newValues[index],
-      count: isNaN(+event.target.value) ? "" : +event.target.value,
+      count: +event,
     };
     setValues(newValues);
   };
