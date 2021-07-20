@@ -7,11 +7,17 @@
 // GraphQL query operation: AdminGetAllCategories
 // ====================================================
 
+export interface AdminGetAllCategories_categories_categoryValues {
+  readonly __typename: "CategoryValue";
+  readonly name: string;
+}
+
 export interface AdminGetAllCategories_categories {
   readonly __typename: "Category";
   readonly id: string;
   readonly name: string;
   readonly description: string;
+  readonly categoryValues: ReadonlyArray<AdminGetAllCategories_categories_categoryValues>;
 }
 
 export interface AdminGetAllCategories {

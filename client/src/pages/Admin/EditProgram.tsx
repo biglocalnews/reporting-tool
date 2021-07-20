@@ -342,6 +342,7 @@ export const EditProgram = () => {
                                   )
                                 );
                               }
+
                               const sum = segments.reduce(
                                 (total, segment) => total + segment.targetValue,
                                 0
@@ -349,6 +350,19 @@ export const EditProgram = () => {
                               if (sum !== 1) {
                                 throw new Error(
                                   t("admin.program.edit.form.validation.100%")
+                                );
+                              }
+
+                              const uniqueNames = new Set(
+                                segments.map((segment) =>
+                                  segment.categoryValueName.toLowerCase().trim()
+                                )
+                              );
+                              if (uniqueNames.size !== segments.length) {
+                                throw new Error(
+                                  t(
+                                    "admin.program.edit.form.validation.uniqueTargets"
+                                  )
                                 );
                               }
                             },
@@ -446,6 +460,29 @@ export const EditProgram = () => {
                               <Col offset={5} span={16}>
                                 <NewStringInput
                                   disabled={inactive}
+                                  options={(() => {
+                                    const category: CategoryTarget =
+                                      editForm.getFieldValue([
+                                        "targets",
+                                        targetField.name,
+                                      ]);
+                                    const values =
+                                      catsResponse
+                                        .data!.categories.find(
+                                          (cat) =>
+                                            cat.name === category.categoryName
+                                        )
+                                        ?.categoryValues.map((cv) => cv.name) ||
+                                      [];
+                                    return values.filter(
+                                      (value) =>
+                                        !category.segments.some(
+                                          (segment) =>
+                                            segment.categoryValueName.toLowerCase() ===
+                                            value.toLowerCase()
+                                        )
+                                    );
+                                  })()}
                                   placeholder={t(
                                     "admin.program.edit.form.addNewSegment",
                                     {

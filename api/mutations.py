@@ -332,14 +332,12 @@ def resolve_create_program(obj, info, input):
     program = Program(**input)
     program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
     for tag_dict in tags:
-        tag = Tag.get_or_create_tag(session, tag_dict)
+        tag = Tag.get_or_create(session, tag_dict)
         program.tags.append(tag)
 
     for target_dict in targets:
         cv_dict = target_dict.pop('category_value')
-        cat_dict = cv_dict.pop('category')
-        cv = session.merge(CategoryValue(**cv_dict))
-        cv.category_id = cat_dict['id']
+        cv = CategoryValue.get_or_create(session, cv_dict)
         target = Target(target_date=func.now(), category_value=cv, **target_dict)
         program.targets.append(target)
 
@@ -379,9 +377,7 @@ def resolve_update_program(obj, info, input):
             cv_dict = target_dict.pop('category_value', None)
             target = session.merge(Target(**target_dict))
             if cv_dict:
-                cat_dict = cv_dict.pop('category')
-                cv = session.merge(CategoryValue(**cv_dict))
-                cv.category_id = cat_dict['id']
+                cv = CategoryValue.get_or_create(session, cv_dict)
                 target.category_value = cv
             program.targets.append(target)
 
@@ -396,7 +392,7 @@ def resolve_update_program(obj, info, input):
         program.tags = []
 
         for tag_dict in input.pop('tags'):
-            tag = Tag.get_or_create_tag(session, tag_dict)
+            tag = Tag.get_or_create(session, tag_dict)
             program.tags.append(tag)
 
     for key, value in input.items():

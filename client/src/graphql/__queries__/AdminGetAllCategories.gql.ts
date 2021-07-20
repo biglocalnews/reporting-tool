@@ -6,6 +6,9 @@ export const ADMIN_GET_ALL_CATEGORIES = gql`
       id
       name
       description
+      categoryValues {
+        name
+      }
     }
   }
 `;

@@ -160,6 +160,7 @@
         "basedOnPlaceholder": "Select a $t(program) to use as a template",
         "success": "Created successfully!",
         "error": {
+          "undefined": "An unknown error occurred",
           "FAILED_SAVE": "The server rejected your request",
           "FAILED_SAVE_NO_RESPONSE": "The server did not send a proper response to your request"
         }
@@ -200,6 +201,7 @@
             "nameRequired": "You must enter a name",
             "teamRequired": "You must assign a team",
             "100%": "Targets within a category must sum to 100%.",
+            "uniqueTargets": "Targets must all be unique.",
             "needSegments": "You must add at least one segment to track in a category.",
             "saveError": "Failed to save changes to $t(program)",
             "deleteError": "Failed to deactivate $t(program)",
