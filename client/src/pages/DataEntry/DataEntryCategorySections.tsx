@@ -1,13 +1,14 @@
-import { Card, Col, Row } from "antd";
+import { Card, Col, Row, InputNumber, Form } from "antd";
 import _ from "lodash";
 import { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { GetDataset_dataset_personTypes } from "../../graphql/__generated__/GetDataset";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
 
 interface DataEntryCategorySectionProps {
   entries: Entry[];
   onValueChange: (event: ChangeEvent<HTMLInputElement>, index: number) => void;
-  personTypes?: readonly string[] | null | undefined;
+  personTypes?: ReadonlyArray<GetDataset_dataset_personTypes> | null;
 }
 
 const groupByCategory = (entries: Entry[]) => {
@@ -29,8 +30,8 @@ const groupByCategory = (entries: Entry[]) => {
 // when person type exists in the dataset as metadata
 const groupByCategoryAndPersonType = (entries: Entry[]) => {
   const categoryAndPersonTypeGroups = _.mapValues(
-    _.groupBy(entries, (i) => i.category),
-    (app) => _.groupBy(app, (i) => i.personType)
+    _.groupBy(entries, (entry) => entry.category),
+    (app) => _.groupBy(app, (entry) => entry.personType?.person_type_name)
   );
 
   const output = _.map(
@@ -60,23 +61,20 @@ const DataEntryCategorySections = ({
   const categoriesAndPersonTypes = groupByCategoryAndPersonType(entries);
 
   const inputs = (entries: any) => {
-    return entries.values.map((item: any, index: number) => (
-      <label
+    return entries.values.map((item: any) => (
+      <Form.Item
         key={item.index}
         id={item.categoryValueLabel}
         htmlFor={item.categoryValue}
         className="data-entry-form_label"
       >
-        <input
-          key={index}
+        <InputNumber
+          id={item.categoryValue}
           name={item.categoryValue}
-          required
+          required={true}
+          aria-required
           aria-labelledby={item.categoryValueLabel}
-          aria-required="true"
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          placeholder="0"
+          min={0}
           value={item.count}
           onChange={(e) => onValueChange(e, item.index)}
         />
@@ -87,23 +85,23 @@ const DataEntryCategorySections = ({
         >
           *
         </span>
-      </label>
+      </Form.Item>
     ));
   };
 
   // returns person type groups if personTypes array
-  if (Array.isArray(personTypes) && !personTypes?.length) {
+  if (!personTypes?.length) {
     return (
       <div className="data-entry_category_groups">
         {categories.map((category, index) => (
           <Row
+            key={index}
             role="group"
             aria-labelledby={category.categoryName}
-            key={category.categoryName}
             gutter={[16, 16]}
             className="data-entry"
           >
-            <Col key={index} span={7}>
+            <Col span={7}>
               <h3 className="data-entry_category-descr-header">
                 {t("aboutAttribute", { attribute: category.categoryName })}
               </h3>
