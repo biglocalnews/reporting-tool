@@ -184,14 +184,14 @@ test("should render add entry form with today's date when a record id does not e
     })
   ).toHaveValue("2015-06-14");
 
-  expect(screen.getAllByRole("textbox")).toHaveLength(8);
+  expect(screen.getAllByRole("spinbutton")).toHaveLength(8);
 
-  screen.getByRole("textbox", { name: /cisgender women/i });
-  screen.getByRole("textbox", { name: /cisgender men/i });
-  screen.getByRole("textbox", { name: /trans men/i });
-  screen.getByRole("textbox", { name: /trans women/i });
-  screen.getByRole("textbox", { name: /non-binary/i });
-  screen.getByRole("textbox", { name: /gender non-conforming/i });
+  screen.getByRole("spinbutton", { name: /cisgender-women/i });
+  screen.getByRole("spinbutton", { name: /cisgender-men/i });
+  screen.getByRole("spinbutton", { name: /trans-men/i });
+  screen.getByRole("spinbutton", { name: /trans-women/i });
+  screen.getByRole("spinbutton", { name: /non-binary/i });
+  screen.getByRole("spinbutton", { name: /gender-non-conforming/i });
 
   screen.getByRole("button", { name: /Save Record/i });
   screen.getByRole("button", { name: /Save and Add Another Record/i });
@@ -234,7 +234,7 @@ test("should render edit entry form with record's date when a record id exists i
     })
   ).toHaveValue("2020-12-20");
 
-  expect(screen.getAllByRole("textbox")).toHaveLength(8);
+  expect(screen.getAllByRole("spinbutton")).toHaveLength(8);
 
   screen.getByRole("button", { name: /Update Record/i });
   screen.getByRole("button", {
@@ -297,7 +297,7 @@ test("should render success message and stay on screen if on click 'save and add
     })
   ).toHaveValue("2015-06-14");
 
-  const input = screen.getByRole("textbox", {
+  const input = screen.getByRole("spinbutton", {
     name: /non-binary/i,
   }) as HTMLInputElement;
 
