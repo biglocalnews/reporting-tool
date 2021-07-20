@@ -67,6 +67,9 @@ const DataEntryCategorySections = ({
         id={item.categoryValueLabel}
         htmlFor={item.categoryValue}
         className="data-entry-form_label"
+        rules={[
+          { required: true, message: "Please input a count for this value!" },
+        ]}
       >
         <InputNumber
           id={item.categoryValue}
