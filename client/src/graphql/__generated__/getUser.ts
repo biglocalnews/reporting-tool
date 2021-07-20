@@ -24,7 +24,6 @@ export interface GetUser_user_teams_programs_datasets {
   readonly name: string;
   readonly description: string | null;
   readonly lastUpdated: any | null;
-  readonly personTypes: ReadonlyArray<string> | null;
   readonly records: ReadonlyArray<GetUser_user_teams_programs_datasets_records>;
   readonly tags: ReadonlyArray<GetUser_user_teams_programs_datasets_tags>;
 }

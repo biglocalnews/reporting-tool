@@ -119,7 +119,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   records: [Record!]!
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
-  personTypes: [PersonType!]
+  personTypes: [PersonType!]!
 }
 
 type PersonType {

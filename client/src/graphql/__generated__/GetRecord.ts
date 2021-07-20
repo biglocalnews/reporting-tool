@@ -26,12 +26,18 @@ export interface GetRecord_record_entries_categoryValue {
   readonly category: GetRecord_record_entries_categoryValue_category;
 }
 
+export interface GetRecord_record_entries_personType {
+  readonly __typename: "PersonType";
+  readonly id: string;
+  readonly person_type_name: string;
+}
+
 export interface GetRecord_record_entries {
   readonly __typename: "Entry";
   readonly id: string;
-  readonly personType: string | null;
   readonly categoryValue: GetRecord_record_entries_categoryValue;
   readonly count: number;
+  readonly personType: GetRecord_record_entries_personType | null;
 }
 
 export interface GetRecord_record {
