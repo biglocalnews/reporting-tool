@@ -1,6 +1,5 @@
 import { PageHeader, PageHeaderProps, Typography } from "antd";
 import React from "react";
-import "./PageTitleBar.css";
 
 const { Text } = Typography;
 
