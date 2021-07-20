@@ -31,7 +31,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import text
-from sqlalchemy.sql.sqltypes import ARRAY, TIMESTAMP
+from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from lazy_object_proxy import Proxy
