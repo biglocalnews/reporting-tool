@@ -61,22 +61,41 @@ const DataEntryCategorySections = ({
   const categoriesAndPersonTypes = groupByCategoryAndPersonType(entries);
 
   const inputs = (entries: any) => {
-    return entries.values.map((item: any) => (
+    return entries.values.map((item: Entry) => (
       <Form.Item
-        key={item.index}
-        id={item.categoryValueLabel}
-        htmlFor={item.categoryValue}
+        key={
+          item.personType
+            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            : item.categoryValueLabel
+        }
+        id={
+          item.personType
+            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            : item.categoryValueLabel
+        }
+        htmlFor={
+          item.personType
+            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            : item.categoryValueLabel
+        }
         className="data-entry-form_label"
         rules={[
           { required: true, message: "Please input a count for this value!" },
         ]}
       >
         <InputNumber
-          id={item.categoryValue}
-          name={item.categoryValue}
+          aria-label={
+            item.personType
+              ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+              : item.categoryValueLabel
+          }
+          aria-labelledby={
+            item.personType
+              ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+              : item.categoryValueLabel
+          }
           required={true}
           aria-required
-          aria-labelledby={item.categoryValueLabel}
           min={0}
           value={item.count}
           onChange={(e) => onValueChange(e, item.index)}
@@ -96,9 +115,9 @@ const DataEntryCategorySections = ({
   if (!personTypes?.length) {
     return (
       <div className="data-entry_category_groups">
-        {categories.map((category, index) => (
+        {categories.map((category) => (
           <Row
-            key={index}
+            key={category.categoryName}
             role="group"
             aria-labelledby={category.categoryName}
             gutter={[16, 16]}
@@ -113,11 +132,7 @@ const DataEntryCategorySections = ({
               })}
             </Col>
             <Col span={17}>
-              <Card
-                type="inner"
-                id={category.categoryName}
-                title={category.categoryName}
-              >
+              <Card type="inner" title={category.categoryName}>
                 <div className="data-entry-form_input-grid">
                   {inputs(category)}
                 </div>
