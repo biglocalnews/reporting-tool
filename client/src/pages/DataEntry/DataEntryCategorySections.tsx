@@ -60,6 +60,11 @@ const DataEntryCategorySections = ({
 
   const categoriesAndPersonTypes = groupByCategoryAndPersonType(entries);
 
+  const groups = !personTypes?.length
+    ? groupByCategory(entries)
+    : groupByCategoryAndPersonType(entries);
+  console.log(groups);
+
   const inputs = (entries: any) => {
     return entries.values.map((item: Entry) => (
       <Form.Item
@@ -118,8 +123,8 @@ const DataEntryCategorySections = ({
         {categories.map((category) => (
           <Row
             key={category.categoryName}
+            aria-label={category.categoryName}
             role="group"
-            aria-labelledby={category.categoryName}
             gutter={[16, 16]}
             className="data-entry"
           >
@@ -132,7 +137,11 @@ const DataEntryCategorySections = ({
               })}
             </Col>
             <Col span={17}>
-              <Card type="inner" title={category.categoryName}>
+              <Card
+                key={category.categoryName}
+                type="inner"
+                title={category.categoryName}
+              >
                 <div className="data-entry-form_input-grid">
                   {inputs(category)}
                 </div>
@@ -149,8 +158,8 @@ const DataEntryCategorySections = ({
       {categoriesAndPersonTypes.map((category, index) => (
         <Row
           role="group"
-          aria-labelledby={category.categoryName}
           key={category.categoryName}
+          aria-label={category.categoryName}
           gutter={[16, 16]}
           className="data-entry"
         >
@@ -164,6 +173,7 @@ const DataEntryCategorySections = ({
           </Col>
           <Col span={17}>
             <Card
+              key={category.categoryName}
               type="inner"
               id={category.categoryName}
               title={category.categoryName}
