@@ -34,7 +34,7 @@
     "zxcvbn": "^4.4.2"
   },
   "scripts": {
-    "start": "react-scripts --expose-gc --max-old-space-size=8192 start",
+    "start": "react-scripts start",
     "start-env": "sh -ac '. .env.${REACT_APP_ENV}; react-scripts start'",
     "start:mock": "REACT_APP_ENV=mock yarn run start-env",
     "build": "react-scripts build",
