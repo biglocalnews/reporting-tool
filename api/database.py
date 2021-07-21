@@ -131,6 +131,8 @@ class User(Base, SQLAlchemyBaseUserTable):
     last_name = Column(String(50), nullable=False)
     roles = relationship('Role', secondary=user_roles, backref='User')
     teams = relationship('Team', secondary=user_teams, backref='User')
+    last_login = Column(TIMESTAMP, nullable=True)
+    last_changed_password = Column(TIMESTAMP, nullable=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)

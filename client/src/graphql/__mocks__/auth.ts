@@ -15,6 +15,8 @@ const defaultUser: UserProfile = {
   first_name: "Penelope",
   last_name: "Pomegranate",
   email: "penelope@pomegran.ate",
+  last_login: "2021-03-05T10:10:10Z",
+  last_changed_password: "2021-03-05T10:10:10Z",
   is_active: true,
   is_verified: true,
   id: "cb1aa2f7-2b27-4649-ba0d-f5c1e60fbb92",
@@ -65,7 +67,11 @@ const createAuthorizedProfileResponse = (user?: Partial<UserProfile>) =>
 /**
  * Simulate logging in with a correct username and password.
  */
-export const mockUserLogIn = (email: string, password: string) => {
+export const mockUserLogIn = (
+  email: string,
+  password: string,
+  firstTime = false
+) => {
   let loggedIn = false;
 
   const mock = jest.fn(
@@ -78,6 +84,10 @@ export const mockUserLogIn = (email: string, password: string) => {
           return new Response(
             JSON.stringify({
               ...defaultUser,
+              last_login: firstTime ? null : defaultUser.last_login,
+              last_changed_password: firstTime
+                ? null
+                : defaultUser.last_changed_password,
               email,
             }),
             {
@@ -87,6 +97,13 @@ export const mockUserLogIn = (email: string, password: string) => {
               status: 200,
             }
           );
+        case "/api/reset-my-password":
+          return new Response(JSON.stringify({ token: "resettoken" }), {
+            headers: new Headers({
+              "Content-Type": "application/json",
+            }),
+            status: 200,
+          });
         case "/api/auth/cookie/login":
           expect(props?.method).toEqual("POST");
           expect(props?.credentials).toEqual("same-origin");

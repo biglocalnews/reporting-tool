@@ -14,6 +14,8 @@ export type UserProfile = Readonly<{
   email: string;
   is_active: boolean;
   is_verified: boolean;
+  last_changed_password: string | null;
+  last_login: string | null;
   first_name: string;
   last_name: string;
   roles: UserRole[];
@@ -187,12 +189,30 @@ export class Auth {
     });
 
     if (response.ok) {
-      return this.refreshCurrentUser();
+      await this.refreshCurrentUser();
+      if (!this.currentUser) {
+        return "UNKNOWN_ERROR";
+      }
+
+      if (!this.currentUser.last_changed_password) {
+        return "CHANGE_PASSWORD";
+      }
+
+      return null;
     }
 
     const json = await response.json();
 
     return (json && json["detail"]) || "An unknown error occurred";
+  }
+
+  /**
+   * Get a password reset token
+   */
+  public async getResetToken() {
+    const resetResponse = await this.fetcher("/api/reset-my-password");
+    const resetJson = await resetResponse.json();
+    return resetJson["token"];
   }
 
   /**

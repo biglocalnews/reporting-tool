@@ -42,6 +42,22 @@ export const Login = (props: LoginProps) => {
 
     const error = await auth.login(email, password);
     if (error) {
+      // If the error tells us to reset the password, then redirect
+      if (error === "CHANGE_PASSWORD") {
+        const token = await auth.getResetToken();
+        const params = new URLSearchParams({
+          email,
+          token,
+        });
+
+        props.history.push({
+          pathname: "/account/reset-password",
+          search: `?${params.toString()}`,
+        });
+        return;
+      }
+
+      // Otherwise a bad error happened
       setError(new Error(error));
     } else {
       const state = props.location.state;
