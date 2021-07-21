@@ -26,6 +26,9 @@ enum Permission {
   # belongs to the team that owns the object in question (e.g., they are on
   # the team that owns the Program they are querying).
   TEAM_MEMBER
+  # When the app has not been configured yet, it is in the blank slate mode
+  # that allows any visitor to configure it.
+  BLANK_SLATE
 }
 
 schema {
@@ -275,6 +278,13 @@ input UpdateProgramInput {
   datasets: [UpsertDatasetInput!]
 }
 
+input FirstTimeAppConfigurationInput {
+  organization: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -391,4 +401,8 @@ type Mutation {
 
   # Restore a Program
   restoreProgram(id: ID!): Program! @needsPermission(permission: [ADMIN])
+
+  # First-time app configuration
+  configureApp(input: FirstTimeAppConfigurationInput!): ID!
+    @needsPermission(permission: [BLANK_SLATE])
 }

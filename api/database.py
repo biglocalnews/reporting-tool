@@ -613,10 +613,44 @@ def create_tables(session):
     engine = session.bind
     Base.metadata.create_all(engine)
 
+    # Default roles
     session.add(Role(
         id="be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
         name="admin",
         description="User is an admin and has administrative privileges"))
+    
+    # Default demographic categories
+    session.add(Category(
+        id='51349e29-290e-4398-a401-5bf7d04af75e',
+        name='gender', 
+        description=(
+            'Gender: A social construct based on a group of emotional and '
+            'psychological characteristics that classify an individual as '
+            'feminine, masculine, androgynous or other. Gender can be '
+            'understood to have several components, including gender identity, '
+            'gender expression and gender role.'
+            )))
+    session.add(Category(
+        id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41',
+        name='race / ethnicity',
+        description=(
+            'Race & Ethnicity: Social constructs that categorize groups of '
+            'people based on shared social and physical qualities. Definitions '
+            'of race and ethnicity are not universally agreed upon and vary '
+            'over time and place. Individuals may identify as belonging to '
+            'multiple racial and ethnic groups.'
+            )))
+    session.add(Category(
+        id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd',
+        name='disability',
+        description=(
+            'A disability is any condition of the body or mind (impairment) '
+            'that makes it more difficult for the person with the condition '
+            'to do certain activities (activity limitation) and interact with '
+            'the world around them (participation restrictions). Some '
+            'disabilities may be hidden or not easy to see.'
+            )))
+
     session.commit()
 
 
@@ -670,10 +704,9 @@ def create_dummy_data(session):
     Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news', programs=[program], datasets=[ds1, ds2])
     
-    category_gender = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', name='gender', 
-                               description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
-    category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
-    category_disability = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='disability', description='A disability is any condition of the body or mind (impairment) that makes it more difficult for the person with the condition to do certain activities (activity limitation) and interact with the world around them (participation restrictions). Some disabilities may be hidden or not easy to see.')
+    category_gender = session.query(Category).get('51349e29-290e-4398-a401-5bf7d04af75e')
+    category_disability = session.query(Category).get('55119215-71e9-43ca-b2c1-7e7fb8cec2fd')
+    category_race = session.query(Category).get('2f98f223-417f-41ea-8fdb-35f0c5fe5b41')
     
     target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
     target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
