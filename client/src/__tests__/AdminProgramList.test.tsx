@@ -276,7 +276,9 @@ it("lets admin create new programs based on other programs", async () => {
   const progBox = screen.getByRole("combobox", { name: /based/ });
   userEvent.type(progBox, "Other");
   await tick();
-  expect(screen.getByRole("option", { name: /Other/ })).toBeInTheDocument();
+  expect(
+    screen.getByRole("option", { name: /News Team: Other/ })
+  ).toBeInTheDocument();
   fireEvent.keyDown(progBox, {
     key: "enter",
     code: 13,

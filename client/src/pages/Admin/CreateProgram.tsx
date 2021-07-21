@@ -223,6 +223,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
             <Select.Option
               key={p.id}
               value={p.id}
+              aria-label={`${p.team?.name}: ${p.name}`}
               title={`${p.team?.name}: ${p.name}`}
             >
               <Row justify="space-between">
