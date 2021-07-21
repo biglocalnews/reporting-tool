@@ -1,5 +1,13 @@
 import { useApolloClient } from "@apollo/client";
-import { Alert, Form, FormInstance, Input, message, Select } from "antd";
+import {
+  Alert,
+  Form,
+  FormInstance,
+  Input,
+  message,
+  Select,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -211,7 +219,8 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         >
           {programsResponse.data?.programs.map((p) => (
             <Select.Option key={p.id} value={p.id}>
-              {p.name}
+              {p.name}{" "}
+              <Typography.Text type="secondary">{p.team?.name}</Typography.Text>
             </Select.Option>
           ))}
         </Select>
