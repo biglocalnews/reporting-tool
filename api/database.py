@@ -766,12 +766,12 @@ def create_dummy_data(session):
     entry7_b = Entry(id='201d163a-873c-4196-9056-18e66eab37c7', count=1, inputter=user)
     entry8_b = Entry(id='d7f57989-cf6e-4384-93d4-773d71137e0d', count=1, inputter=user)
     
-    CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1, entry1_b])
     CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women', category=category_gender, targets=[target_cis_women], entries=[entry2, entry2_b])
     CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men', category=category_gender, targets=[target_cis_men], entries=[entry3, entry3_b])
     CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women', category=category_gender, targets=[target_trans_women], entries=[entry4, entry4_b])
     CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men', category=category_gender, targets=[target_trans_men], entries=[entry5, entry5_b])
     CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming', category=category_gender, targets=[target_gender_non_conforming], entries=[entry6, entry6_b])
+    CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1, entry1_b])
     CategoryValue(id='c36958cb-cc62-479e-ab61-eb03896a981c', name='disabled', category=category_disability, targets=[target_disabed], entries=[entry7, entry7_b])
     CategoryValue(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='non-disabled', category=category_disability, targets=[target_non_disabled], entries=[entry8, entry8_b])
     
