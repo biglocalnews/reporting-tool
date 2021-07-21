@@ -143,9 +143,9 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # Only allow updates of certain columns
         for k in ['first_name', 'last_name', 'email', 'is_active', 'is_verified', 'hashed_password']:
             if k in d:
-                setattr(dbuser, k, d[k])
-                if k == 'hashed_password':
+                if k == 'hashed_password' and dbuser.hashed_password != d[k]:
                     dbuser.last_changed_password = func.now()
+                setattr(dbuser, k, d[k])
 
                 # Special handling for deletes, since we use the `deleted`
                 # column while the fastapi-users library uses is_active. We

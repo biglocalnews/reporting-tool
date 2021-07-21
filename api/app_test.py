@@ -120,6 +120,8 @@ class TestAppUsers(BaseAppTest):
                 'is_active': True,
                 'is_verified': False,
                 'is_superuser': False,
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [],
                 'teams': [{'id': '472d17da-ff8b-4743-823f-3f01ea21a349', 'name': 'News Team'}],
                 }
@@ -137,6 +139,8 @@ class TestAppUsers(BaseAppTest):
                 'is_active': True,
                 'is_verified': False,
                 'is_superuser': True,
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [{
                     "id": "be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
                     'description': 'User is an admin and has administrative privileges',
@@ -168,6 +172,8 @@ class TestAppUsers(BaseAppTest):
                 'is_superuser': False,
                 'first_name': 'new',
                 'last_name': 'user',
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [],
                 'teams': [],
                 }
@@ -232,6 +238,8 @@ class TestAppUsers(BaseAppTest):
                 'is_active': True,
                 'is_verified': False,
                 'is_superuser': False,
+                'last_login': None,
+                'last_changed_password': None,
                 'first_name': 'new',
                 'last_name': 'user',
                 'roles': [],
@@ -278,6 +286,8 @@ class TestAppUsers(BaseAppTest):
                 'is_superuser': False,
                 'is_active': True,
                 'is_verified': False,
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [],
                 'teams': [{
                     'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
@@ -302,6 +312,8 @@ class TestAppUsers(BaseAppTest):
                 'is_superuser': True,
                 'is_active': True,
                 'is_verified': False,
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [{
                     'id': 'be5f8cac-ac65-4f75-8052-8d1b5d40dffe',
                     'name': 'admin',
@@ -329,6 +341,8 @@ class TestAppUsers(BaseAppTest):
                 'is_superuser': False,
                 'is_active': True,
                 'is_verified': False,
+                'last_login': None,
+                'last_changed_password': None,
                 'roles': [],
                 'teams': [{
                     'id': '472d17da-ff8b-4743-823f-3f01ea21a349',
@@ -355,6 +369,8 @@ class TestAppUsers(BaseAppTest):
                 'first_name': 'Cat',
                 'last_name': 'Berry',
                 'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                'last_login': None,
+                'last_changed_password': None,
                 'is_superuser': False,
                 'is_active': True,
                 'is_verified': True,
@@ -376,15 +392,19 @@ class TestAppUsers(BaseAppTest):
                         "fastapi-users:reset",
                         user_id=self.user_ids['normal'],
                         email="tester@notrealemail.info"),
-                    "password": "newpassword",
+                    "password": "mynewpassword",
                     })
         assert response.status_code == 200
         # Check that the password was actually updated
         s = self.Session()
         u = s.query(User).get(self.user_ids['normal'])
-        verified, _ = verify_and_update_password("newpassword", u.hashed_password)
+        verified, _ = verify_and_update_password("mynewpassword", u.hashed_password)
         s.close()
         assert verified
+        # Check that the password appears as changed in the API response
+        me = self.client.get("/users/me",
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['normal'])})
+        assert me.json()['last_changed_password'] is not None
 
     def test_request_verify(self):
         """Test that verification request sends an email."""
@@ -403,6 +423,26 @@ class TestAppUsers(BaseAppTest):
         assert response.status_code == 202
         self.mock_send_email.assert_called_once()
         assert self.mock_send_email.call_args[0][0]["Subject"] == "Your password reset token"
+
+    def test_login(self):
+        """Test that a user can log in."""
+        response = self.client.post(
+                "/auth/cookie/login",
+                data={
+                    "username": "admin@notrealemail.info",
+                    "password": "adminpassword",
+                    })
+        assert response.status_code == 200
+        me = self.client.get("/users/me", cookies=response.cookies)
+        assert me.json()['last_login'] is not None
+
+    def test_get_my_reset_token(self):
+        """Test that a user can get a reset token for themselves."""
+        response = self.client.get(
+                "/reset-my-password",
+                cookies={'rtauth': get_valid_token("fastapi-users:auth", user_id=self.user_ids['admin'])})
+        assert response.status_code == 200
+        assert response.json()['token'] is not None
 
 
 
