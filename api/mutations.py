@@ -2,7 +2,7 @@ import uuid
 import secrets
 
 import mailer
-from user import fastapi_users, UserCreateModel, UserRole, generate_token
+from user import fastapi_users, UserCreateModel, UserRole, get_valid_token
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import (
@@ -485,13 +485,11 @@ async def resolve_configure_app(obj, info, input):
     # TODO: Unify the email to streamline this process
     # https://app.clubhouse.io/stanford-computational-policy-lab/story/334/unify-registration-emails
     await mailer.send_register_email(user, temp_password)
-    token = generate_token(
-            data={
-                'user_id': str(user.id),
-                'email': user.email,
-                },
-            type_=VERIFY_USER_TOKEN_AUDIENCE,
-            )
+    token = get_valid_token(
+                VERIFY_USER_TOKEN_AUDIENCE,
+                user_id=str(user.id),
+                email=user.email,
+                )
     await mailer.send_verify_request_email(user, token)
 
     session.commit()

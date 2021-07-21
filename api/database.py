@@ -94,7 +94,7 @@ connection = Proxy(init_db)
 
 
 _blank_slate = True
-def is_blank_slate():
+def is_blank_slate(session):
     """Check if the app has been initialized at all.
 
     If the app has been initialized, this returns False and future lookups are
@@ -106,9 +106,7 @@ def is_blank_slate():
     if not _blank_slate:
         return False
 
-    session = connection()
     org_count = session.query(Organization).count()
-    session.close()
 
     if org_count > 0:
         _blank_slate = False

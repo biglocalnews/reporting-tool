@@ -48,7 +48,7 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
 
     if 'BLANK_SLATE' in permissions:
         # Any user has this permission if the app has not been configured yet.
-        if is_blank_slate():
+        if is_blank_slate(info.context['dbsession']):
             return True
 
     # The rest of the permissions assume LOGGED_IN is true, since they

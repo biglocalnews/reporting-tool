@@ -94,8 +94,10 @@ app.include_router(
 @app.get("/reset-my-password")
 def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_user)):
     """Get a token to reset one's own password."""
-    token_data = {"user_id": str(dbuser.id)}
-    token = user.generate_token(data=token_data, type_=RESET_PASSWORD_TOKEN_AUDIENCE, lifetime_seconds=120)
+    token = user.get_valid_token(
+        RESET_PASSWORD_TOKEN_AUDIENCE,
+        user_id=str(dbuser.id),
+        )
     return {
         "token": token,
         }
@@ -122,8 +124,8 @@ delete_route.response_class = Response
 
 # Separately, to implement "blank slate" mode, use a dependency that returns
 # a 418 code when the app is not yet configured.
-async def blank_slate():
-    if is_blank_slate():
+async def blank_slate(request: Request):
+    if is_blank_slate(request.scope.get('dbsession')):
         raise HTTPException(status_code=418, detail="App is not yet configured")
 
 app.include_router(

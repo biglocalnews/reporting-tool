@@ -230,16 +230,16 @@ fastapi_users = FastAPIUsers(
 )
 
 
-def generate_token(data: Dict, type_: str, lifetime_seconds: int = 3600) -> str:
+def get_valid_token(type_: str, **kwargs) -> str:
     """Get a valid JWT for fastapi-users.
 
-    :param data: Data to encode in the token
-    :param type_: Audience constant (see fastapi-users for details)
-    :param lifetime_seconds: Token lifetime
+    :param type_: Token audience (see fastapi-users for constants)
+    :param **kwargs: Data to encode in the token
     :returns: Encoded JWT
     """
-    token_data = {
-            'aud': type_,
-            }
-    token_data.update(data)
-    return generate_jwt(data=token_data, secret=settings.secret, lifetime_seconds=lifetime_seconds)
+    token_data = {'aud': type_}
+    token_data.update(kwargs)
+    return generate_jwt(
+            data=token_data,
+            secret=cookie_authentication.secret,
+            lifetime_seconds=cookie_authentication.lifetime_seconds)

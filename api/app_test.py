@@ -10,8 +10,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import schema, app, cookie_authentication
-from user import user_db
+from app import schema, app
+from user import user_db, cookie_authentication, get_valid_token
 from database import (
     Base,
     create_tables,
@@ -28,14 +28,6 @@ from database import (
 )
 from uuid import UUID
 
-
-def get_valid_token(aud, **kwargs):
-    data = {"aud": aud}
-    data.update(kwargs)
-    return generate_jwt(data,
-            cookie_authentication.lifetime_seconds,
-            cookie_authentication.secret,
-            JWT_ALGORITHM)
 
 
 class BaseAppTest(unittest.TestCase):
@@ -59,7 +51,7 @@ class BaseAppTest(unittest.TestCase):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
-        create_tables(self.engine, session)
+        create_tables(session)
         create_dummy_data(session)
 
         session.close()
@@ -689,18 +681,6 @@ class TestGraphQL(BaseAppTest):
                             "publicationDate": "2020-12-21T00:00:00",
                             "entries": [
                                 {
-                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a',
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "categoryValue": {
-                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                        "name": "Non-binary"
-                                    }
-                                },
-                                {
                                     'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409',
                                     'count': 1,
                                     'inputter': {
@@ -757,6 +737,18 @@ class TestGraphQL(BaseAppTest):
                                     'categoryValue': {
                                         "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                         "name": "Gender non-conforming"
+                                    }
+                                },
+                                {
+                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a',
+                                    'count': 1,
+                                    'inputter': {
+                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                        'firstName': 'Cat'
+                                    },
+                                    "categoryValue": {
+                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                        "name": "Non-binary"
                                     }
                                 },
                                 {
@@ -1099,10 +1091,6 @@ class TestGraphQL(BaseAppTest):
                         "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
                         "entries": [
                             {"categoryValue": {
-                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                "name": "Non-binary"
-                            }},
-                            {"categoryValue": {
                                 "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                 "name": "Cisgender women"
                             }},
@@ -1121,6 +1109,10 @@ class TestGraphQL(BaseAppTest):
                             {'categoryValue': {
                                 "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                 "name": "Gender non-conforming"
+                            }},
+                            {"categoryValue": {
+                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                "name": "Non-binary"
                             }},
                             {"categoryValue": {
                                 "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
@@ -1324,12 +1316,12 @@ class TestGraphQL(BaseAppTest):
                         "publicationDate": "2020-12-25T00:00:00",
                         "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                         "entries": [
-                            {"count": 0, "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                            {"count": 0, "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                             {"count": 1, "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                         ]
@@ -2499,15 +2491,15 @@ class TestGraphQL(BaseAppTest):
                             "name": "An updated new Program",
                             "targets": [
                                 {
+                                    "categoryValue": {"name": "Non-binary"},
+                                    "target": 0.17,
+                                },
+                                {
                                     "categoryValue": {"name": "Cisgender men"},
                                     "target": 0.16,
                                 },
                                 {
                                     "categoryValue": {"name": "Trans women"},
-                                    "target": 0.17,
-                                },
-                                {
-                                    "categoryValue": {"name": "Non-binary"},
                                     "target": 0.17,
                                 },
                                 {
