@@ -15,6 +15,8 @@ const defaultUser: UserProfile = {
   first_name: "Penelope",
   last_name: "Pomegranate",
   email: "penelope@pomegran.ate",
+  last_login: "2021-03-05T10:10:10Z",
+  last_changed_password: "2021-03-05T10:10:10Z",
   is_active: true,
   is_verified: true,
   id: "cb1aa2f7-2b27-4649-ba0d-f5c1e60fbb92",

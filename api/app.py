@@ -6,6 +6,7 @@ import datetime
 from fastapi import FastAPI, Request, Depends, HTTPException, Response
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
+from fastapi_users.utils import generate_jwt
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 import dateutil.parser
 
@@ -108,6 +109,16 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+
+@app.get("/reset-my-password")
+def get_reset_password_token(user = Depends(fastapi_users.get_current_user)):
+    """Get a token to reset one's own password."""
+    token_data = {"user_id": str(user.id), "aud": "fastapi-users:reset"}
+    token = generate_jwt(data=token_data, secret=settings.secret, lifetime_seconds=120)
+    return {
+        "token": token,
+    }
+
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
 # None value for a 204 response. FastAPI chooses the JSONResponse class if no

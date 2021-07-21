@@ -1,4 +1,5 @@
 from pydantic import BaseModel, UUID4, EmailStr
+from datetime import datetime
 from fastapi_users import models
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.db.sqlalchemy import GUID
@@ -18,6 +19,8 @@ class BaseUserCreateUpdate(BaseModel):
                 "is_superuser",
                 "is_active",
                 "is_verified",
+                "last_login",
+                "last_changed_password",
                 "oauth_accounts",
                 "roles",
                 "teams",
@@ -50,6 +53,8 @@ class UserModel(models.BaseUser):
     last_name: str
     roles: Optional[List[UserRole]]
     teams: Optional[List[UserTeam]]
+    last_login: Optional[datetime]
+    last_changed_password: Optional[datetime]
 
 
 class UserCreateModel(BaseUserCreateUpdate):
@@ -139,6 +144,8 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         for k in ['first_name', 'last_name', 'email', 'is_active', 'is_verified', 'hashed_password']:
             if k in d:
                 setattr(dbuser, k, d[k])
+                if k == 'hashed_password':
+                    dbuser.last_changed_password = func.now()
 
                 # Special handling for deletes, since we use the `deleted`
                 # column while the fastapi-users library uses is_active. We
@@ -174,5 +181,19 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         session.close()
         return None
 
+    async def authenticate(self, credentials) -> Optional[UserDBModel]:
+        user = await super().authenticate(credentials)
+        # Mark this as the most recent login.
+        # The user object we return will have the last login, not this one.
+        session = self.session_factory()
+        session.query(database.User).filter(
+            database.User.id == user.id
+            ).update({
+                "last_login": func.now(),
+                }, synchronize_session=False)
+        session.commit()
+        session.close()
+
+        return user
 
 user_db = SQLAlchemyORMUserDatabase(database.SessionLocal)
