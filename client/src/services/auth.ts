@@ -24,7 +24,21 @@ export type UserProfile = Readonly<{
 /**
  * Initialization status of the Auth instance.
  */
-type AuthInitState = "created" | "initializing" | "ready" | "error";
+type AuthInitState =
+  | "created"
+  | "initializing"
+  | "ready"
+  | "error"
+  | "blank_slate";
+
+/**
+ * Known error conditions.
+ */
+export const errors = {
+  BLANK_SLATE: "BLANK_SLATE",
+  CHANGE_PASSWORD: "CHANGE_PASSWORD",
+  UNKNOWN_ERROR: "UNKNOWN_ERROR",
+};
 
 /**
  * Class to implement authentication protocol and store state about current
@@ -68,6 +82,13 @@ export class Auth {
    */
   public isLoggedIn() {
     return !!this.currentUser;
+  }
+
+  /**
+   * Test if app needs to be configured.
+   */
+  public isBlankSlate() {
+    return this.initState === "blank_slate";
   }
 
   /**
@@ -122,10 +143,14 @@ export class Auth {
         this.initState = "initializing";
         this.initPromise = this.refreshCurrentUser()
           .then((error) => {
+            this.initState = "ready";
             if (error) {
+              if (error === errors.BLANK_SLATE) {
+                this.initState = "blank_slate";
+                return;
+              }
               console.warn("Dropping auth info error", error);
             }
-            this.initState = "ready";
           })
           .catch((e) => {
             console.error("Error loading auth info", e);
@@ -189,13 +214,17 @@ export class Auth {
     });
 
     if (response.ok) {
-      await this.refreshCurrentUser();
+      const error = await this.refreshCurrentUser();
+      if (error) {
+        return error;
+      }
+
       if (!this.currentUser) {
-        return "UNKNOWN_ERROR";
+        return errors.UNKNOWN_ERROR;
       }
 
       if (!this.currentUser.last_changed_password) {
-        return "CHANGE_PASSWORD";
+        return errors.CHANGE_PASSWORD;
       }
 
       return null;
@@ -203,7 +232,7 @@ export class Auth {
 
     const json = await response.json();
 
-    return (json && json["detail"]) || "An unknown error occurred";
+    return (json && json["detail"]) || errors.UNKNOWN_ERROR;
   }
 
   /**
@@ -243,6 +272,9 @@ export class Auth {
     });
 
     if (!response.ok) {
+      if (response.status === 418) {
+        return errors.BLANK_SLATE;
+      }
       return "Error fetching user profile";
     }
 

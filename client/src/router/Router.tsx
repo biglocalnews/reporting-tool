@@ -89,6 +89,18 @@ export function RenderRoutes({
   const auth = useAuth();
   const Container = protectedContainer;
 
+  // First time login requires the user to configure the app.
+  if (auth.isBlankSlate()) {
+    return (
+      <Switch>
+        <Route
+          path="/"
+          component={React.lazy(() => import("../pages/Configure"))}
+        />
+      </Switch>
+    );
+  }
+
   // Routes that a normal authed user can visit.
   // If the user is not logged in, they will be redirected to the login screen.
   const WrappedPrivate = (props: AnyRouteProps) =>

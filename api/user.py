@@ -196,4 +196,5 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
 
         return user
 
-user_db = SQLAlchemyORMUserDatabase(database.SessionLocal)
+
+user_db = SQLAlchemyORMUserDatabase(database.connection)

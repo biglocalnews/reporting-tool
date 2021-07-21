@@ -2,7 +2,7 @@ import uuid
 
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
+from database import User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func

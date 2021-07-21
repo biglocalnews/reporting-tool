@@ -13,7 +13,7 @@ import dateutil.parser
 from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType, ScalarType
 from ariadne.asgi import GraphQL
 
-from database import database, SessionLocal, User
+from database import connection, User, is_blank_slate
 from queries import queries
 from mutations import mutation
 from settings import settings
@@ -27,8 +27,7 @@ app = FastAPI(
         # NOTE: the following dependencies are available in the `extra` dict
         # on the app object. They're injected here so they can be patched
         # easier in testing.
-        db=database,
-        get_db_session=SessionLocal,
+        get_db_session=connection,
         )
 
 # remove cookie_secure=False later for production
@@ -110,6 +109,7 @@ app.include_router(
     tags=["auth"],
 )
 
+
 @app.get("/reset-my-password")
 def get_reset_password_token(user = Depends(fastapi_users.get_current_user)):
     """Get a token to reset one's own password."""
@@ -138,10 +138,18 @@ def get_reset_password_token(user = Depends(fastapi_users.get_current_user)):
 users_router = fastapi_users.get_users_router()
 delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
 delete_route.response_class = Response
+
+# Separately, to implement "blank slate" mode, use a dependency that returns
+# a 418 code when the app is not yet configured.
+async def blank_slate():
+    if is_blank_slate():
+        raise HTTPException(status_code=418, detail="App is not yet configured")
+
 app.include_router(
     users_router,
     prefix="/users",
     tags=["users"],
+    dependencies=[Depends(blank_slate)],
 )
 
 
@@ -214,18 +222,10 @@ async def get_context(request: Request):
 # Mount ariadne to fastapi
 app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
-@app.on_event("startup")
-async def startup():
-    await app.extra['db'].connect()
-    pass
-
-@app.on_event("shutdown")
-async def shutdown():
-    await app.extra['db'].disconnect()
-    pass
 
 def home():
     return "Ahh!! Aliens!"
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app")
