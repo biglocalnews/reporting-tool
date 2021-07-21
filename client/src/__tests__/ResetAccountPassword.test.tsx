@@ -59,11 +59,27 @@ it("allows user to reset their password with a valid token", async () => {
 
   await tick();
 
-  // When both passwords match, form should be submitted
+  // Simple passwords should fail validation
+  expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(0);
+
+  fireEvent.change(screen.getByLabelText(/newPasswordLabel/), {
+    target: { value: "c0mpl1cat3dPa55w0rd!!" },
+  });
+  fireEvent.change(screen.getByLabelText(/retypePasswordLabel/), {
+    target: { value: "c0mpl1cat3dPa55w0rd!!" },
+  });
+
+  await tick();
+
+  fireEvent.click(saveButton);
+
+  await tick();
+
+  // Finally should have been accepted
   expect(mockUserAccountClient.resetPassword).toHaveBeenCalledTimes(1);
   expect(mockUserAccountClient.resetPassword).toHaveBeenCalledWith({
     token: "foo",
-    password: "newpass",
+    password: "c0mpl1cat3dPa55w0rd!!",
   });
 });
 
@@ -83,10 +99,10 @@ it("shows an error if the token wasn't validated", async () => {
   await tick();
 
   fireEvent.change(screen.getByLabelText(/newPassword/), {
-    target: { value: "newpass" },
+    target: { value: "c0mpl1cat3dPa55w0rd!!" },
   });
   fireEvent.change(screen.getByLabelText(/retypePassword/), {
-    target: { value: "newpass" },
+    target: { value: "c0mpl1cat3dPa55w0rd!!" },
   });
 
   const saveButton = screen.getByRole("button", { name: /submit/i });
