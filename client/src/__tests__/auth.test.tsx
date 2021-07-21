@@ -29,6 +29,17 @@ it("logs a user in and out correctly", async () => {
   expect(auth.isLoggedIn()).toBe(false);
 });
 
+it("returns a special error if user has never changed password", async () => {
+  const user = "tester@notrealemail.info";
+  const password = "password";
+  const { auth } = mockUserLogIn(user, password, true);
+  await auth.init();
+
+  expect(await auth.login(user, password)).toEqual("CHANGE_PASSWORD");
+  expect(auth.isLoggedIn()).toBe(true);
+  expect(auth.getFullName()).toEqual("Penelope Pomegranate");
+});
+
 it("reports an error if user is not authed", async () => {
   const user = "tester@notrealemail.info";
   const password = "password";

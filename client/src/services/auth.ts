@@ -198,7 +198,7 @@ export class Auth {
         return "CHANGE_PASSWORD";
       }
 
-      return;
+      return null;
     }
 
     const json = await response.json();
