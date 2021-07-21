@@ -19,9 +19,9 @@ import {
   Select,
   Typography,
 } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { Prompt, useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { NewStringInput } from "../../components/NewStringInput";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
@@ -94,6 +94,7 @@ const getGroupedTargets = (
  * Form to edit or delete a program.
  */
 export const EditProgram = () => {
+  const [dirty, setDirty] = useState(false);
   const { t } = useTranslation();
   const history = useHistory();
   const { programId } = useParams<EditProgramRouteParams>();
@@ -157,6 +158,8 @@ export const EditProgram = () => {
 
   return (
     <div className="admin program-editprogram_container">
+      <Prompt when={dirty} message={t("confirmLeavePage")} />
+
       <PageHeader
         onBack={() => history.push("/admin/programs")}
         title={t("admin.program.edit.title")}
@@ -208,10 +211,15 @@ export const EditProgram = () => {
       <Form
         form={editForm}
         scrollToFirstError
+        onFieldsChange={() => setDirty(true)}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
         initialValues={initialFormValues}
-        onFinish={(values) => save.run(programId, values)}
+        onFinish={async (values) => {
+          if (await save.run(programId, values)) {
+            setDirty(false);
+          }
+        }}
       >
         <Form.Item
           rules={[
@@ -270,6 +278,7 @@ export const EditProgram = () => {
 
         <Form.Item label={t("admin.program.edit.form.tags")} name="tags">
           <Select
+            disabled={inactive}
             mode="tags"
             labelInValue
             placeholder={t("admin.program.edit.newTagPrompt")}
@@ -321,6 +330,7 @@ export const EditProgram = () => {
                         onConfirm={() => targetOps.remove(targetField.name)}
                         okText={t("confirm.yes")}
                         cancelText={t("confirm.no")}
+                        disabled={inactive}
                       >
                         <Button danger disabled={inactive}>
                           {t("admin.program.edit.form.stopTrackingCategory")}
@@ -432,6 +442,7 @@ export const EditProgram = () => {
                                   }
                                   okText={t("confirm.yes")}
                                   cancelText={t("confirm.no")}
+                                  disabled={inactive}
                                 >
                                   <Button
                                     disabled={inactive}
@@ -583,6 +594,7 @@ export const EditProgram = () => {
                           onConfirm={() => datasetOps.remove(datasetField.key)}
                           okText={t("confirm.yes")}
                           cancelText={t("confirm.no")}
+                          disabled={inactive}
                         >
                           <Button
                             icon={<CloseCircleOutlined />}
@@ -673,7 +685,7 @@ export const EditProgram = () => {
               type="primary"
               icon={<SaveOutlined />}
               htmlType="submit"
-              disabled={deactivate.inFlight || inactive}
+              disabled={deactivate.inFlight || !dirty || inactive}
               loading={save.inFlight}
             >
               {t("admin.program.edit.form.save")}
@@ -685,13 +697,14 @@ export const EditProgram = () => {
                 deactivate.run(programId);
                 programResponse.refetch();
               }}
+              disabled={dirty || inactive}
               okText={t("confirm.yes")}
               cancelText={t("confirm.no")}
             >
               <Button
                 danger
                 icon={<DeleteOutlined />}
-                disabled={save.inFlight || inactive}
+                disabled={dirty || inactive}
                 loading={deactivate.inFlight}
               >
                 {t("admin.program.edit.form.delete")}

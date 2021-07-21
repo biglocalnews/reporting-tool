@@ -201,6 +201,11 @@ it("renders a program for editing", async () => {
   expect(
     screen.getByRole("textbox", { name: /datasetDescription/ })
   ).toHaveValue("first dataset");
+
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });
 
 it("can set new target values for existing targets", async () => {
@@ -299,6 +304,12 @@ it("can set new target values for existing targets", async () => {
   // save request should be sent
   await tick();
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });
 
 it("can remove tracked targets", async () => {
@@ -372,13 +383,18 @@ it("can remove tracked targets", async () => {
   fireEvent.click(g2Stop);
   await tick();
 
+  const confirmRemove = screen.getByRole("button", { name: /confirm.yes/ });
+  fireEvent.click(confirmRemove);
+  await tick();
+
+  const g1 = screen.getByLabelText(/g1/);
+  fireEvent.change(g1, { target: { value: "50%" } });
   const g3 = screen.getByLabelText(/g3/);
   fireEvent.change(g3, { target: { value: "50%" } });
   await tick();
 
-  const confirmRemove = screen.getByRole("button", { name: /confirm.yes/ });
-  fireEvent.click(confirmRemove);
-  await tick();
+  expect(screen.getByRole("button", { name: /form.delete$/ })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /save/ })).not.toBeDisabled();
 
   const submit = screen.getByRole("button", { name: /save/ });
   fireEvent.click(submit);
@@ -389,6 +405,13 @@ it("can remove tracked targets", async () => {
   await tick();
 
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
 });
 
 it("can add new tracked targets", async () => {
@@ -522,6 +545,12 @@ it("can add new tracked targets", async () => {
   await tick();
 
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });
 
 it("can add and remove tracked categories", async () => {
@@ -691,6 +720,9 @@ it("can add and remove tracked categories", async () => {
   // Submit the form and get the response
   await tick();
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(submit).toBeDisabled();
 });
 
 it("can edit a dataset", async () => {
@@ -787,6 +819,9 @@ it("can edit a dataset", async () => {
   await tick();
 
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
 });
 
 it("can add and remove datasets", async () => {
@@ -890,6 +925,9 @@ it("can add and remove datasets", async () => {
   // save request should be sent
   await tick();
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
 });
 
 it("can edit basic info: name and description and team", async () => {
@@ -968,6 +1006,13 @@ it("can edit basic info: name and description and team", async () => {
 
   await tick();
 
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
+
+  await tick();
+
   fireEvent.change(screen.getByRole("textbox", { name: /form.name/ }), {
     target: { value: "new name" },
   });
@@ -977,6 +1022,9 @@ it("can edit basic info: name and description and team", async () => {
   });
 
   await tick();
+
+  expect(screen.getByRole("button", { name: /save/ })).not.toBeDisabled();
+  expect(screen.getByRole("button", { name: /form.delete$/ })).toBeDisabled();
 
   const teamBox = screen.getByRole("combobox", { name: /form.team/ });
   userEvent.type(teamBox, "Team2");
@@ -998,6 +1046,12 @@ it("can edit basic info: name and description and team", async () => {
   // save request should be sent
   await tick();
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });
 
 it("can deactivate and reactivate a program", async () => {
@@ -1085,6 +1139,12 @@ it("can deactivate and reactivate a program", async () => {
 
   expect(screen.queryByText(/Error/)).not.toBeInTheDocument();
   expect(screen.queryByText(/alreadyDeletedTitle/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });
 
 it("lets user add custom and existing tags", async () => {
@@ -1292,6 +1352,11 @@ it("lets user remove tags", async () => {
 
   fireEvent.click(document.querySelector(".ant-select-selection-item-remove")!);
 
+  await tick();
+
+  expect(screen.getByRole("button", { name: /save/ })).not.toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: /save/ }));
+
   // form validation
   await tick();
 
@@ -1299,4 +1364,10 @@ it("lets user remove tags", async () => {
   await tick();
 
   expect(screen.queryByText(/saveError/)).not.toBeInTheDocument();
+
+  await tick();
+  expect(screen.getByRole("button", { name: /save/ })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /form.delete$/ })
+  ).not.toBeDisabled();
 });

@@ -93,6 +93,9 @@ it("renders a user for editing", async () => {
   );
   expect(screen.getByText(/News Team/)).toBeInTheDocument();
   expect(screen.getByRole("checkbox", { name: /admin/i })).not.toBeChecked();
+
+  expect(screen.getByRole("button", { name: /save/i })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /delete/i })).not.toBeDisabled();
 });
 
 it("renders a user with disabled form fields if they are inactive, allows admin to restore", async () => {
@@ -147,7 +150,7 @@ it("renders a user with disabled form fields if they are inactive, allows admin 
   expect(screen.getByRole("textbox", { name: /lastName/i })).not.toBeDisabled();
   expect(screen.getByRole("textbox", { name: /email/i })).not.toBeDisabled();
   expect(screen.getByRole("checkbox", { name: /admin/i })).not.toBeDisabled();
-  expect(screen.getByRole("button", { name: /save/i })).not.toBeDisabled();
+  expect(screen.getByRole("button", { name: /save/i })).toBeDisabled();
   expect(screen.getByRole("button", { name: /delete/i })).not.toBeDisabled();
 });
 
@@ -222,7 +225,7 @@ it("allows admin to disable user", async () => {
   await tick();
 
   // click through the confirmation modal
-  fireEvent.click(screen.getByRole("button", { name: /ok/i }));
+  fireEvent.click(screen.getByRole("button", { name: /confirm.yes/i }));
 
   await tick();
 

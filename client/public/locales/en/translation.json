@@ -20,6 +20,7 @@
   "submitUpdateSuccess": "Successfully saved changes!",
   "submitUpdateFail": "Failed to save changes.",
   "cancel": "Cancel",
+  "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
   "account": {
     "login": {
       "action": "Login!",
@@ -226,7 +227,6 @@
       "cancel": "$t(cancel)",
       "restore": "Reactivate user",
       "delete": "Deactivate",
-      "deleteTitle": "Deactivate user",
       "deleteInfo": "You are about to deactive this user. Please confirm you really wish to do this. You can reactivate them later if needed.",
       "alreadyDeletedTitle": "This user is inactive.",
       "alreadyDeletedInfo": "You cannot edit this user because they have been deactivated. Please reactive them if you wish to edit their information.",
