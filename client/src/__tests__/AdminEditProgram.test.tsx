@@ -94,11 +94,18 @@ const CATEGORIES = {
         name: "gender",
         id: "00000004-b910-4f6e-8f3c-8201c1111111",
         description: "test cat 1: gender",
+        categoryValues: [
+          { name: "g1" },
+          { name: "g2" },
+          { name: "g3" },
+          { name: "g4" },
+        ],
       },
       {
         name: "Cat2",
         id: "hhhhhhh4-b910-4f6e-8f3c-8201c9999999",
         description: "test cat 2: something else",
+        categoryValues: [{ name: "c1" }, { name: "c2" }, { name: "c3" }],
       },
     ],
   },
@@ -186,7 +193,7 @@ it("renders a program for editing", async () => {
   expect(screen.getByLabelText(/g2/)).toHaveValue("34%");
   expect(screen.getByLabelText(/g3/)).toHaveValue("33%");
   expect(
-    screen.getByRole("textbox", { name: /addNewSegment/ })
+    screen.getByRole("combobox", { name: /addNewSegment/ })
   ).toBeInTheDocument();
   expect(screen.getByRole("textbox", { name: /datasetName/ })).toHaveValue(
     "DS1"
@@ -475,7 +482,7 @@ it("can add new tracked targets", async () => {
   fireEvent.change(g3, { target: { value: "25%" } });
   await tick();
 
-  const addNew = screen.getByRole("textbox", { name: /addNewSegment/ });
+  const addNew = screen.getByRole("combobox", { name: /addNewSegment/ });
   fireEvent.change(addNew, { target: { value: "g4" } });
   await tick();
   fireEvent.click(screen.getByRole("button", { name: /addNewSegment/ }));
@@ -485,11 +492,32 @@ it("can add new tracked targets", async () => {
   fireEvent.change(g4, { target: { value: "25%" } });
   await tick();
 
+  // Duplicated target should fail validation
+  fireEvent.change(addNew, { target: { value: "g2" } });
+  await tick();
+  fireEvent.click(screen.getByRole("button", { name: /addNewSegment/ }));
+  await tick();
+
   const submit = screen.getByRole("button", { name: /save/ });
   fireEvent.click(submit);
 
+  await tick();
+
+  // Remove the duplicate target
+  const g2Stop = screen.getAllByRole("button", {
+    name: /stopTrackingSegment/,
+  })[4];
+  fireEvent.click(g2Stop);
+  await tick();
+
+  const confirmRemove = screen.getByRole("button", { name: /confirm.yes/ });
+  fireEvent.click(confirmRemove);
+  await tick();
+
+  fireEvent.click(submit);
   // Validate the form
   await tick();
+
   // Submit the form and get the response
   await tick();
 
@@ -627,7 +655,7 @@ it("can add and remove tracked categories", async () => {
   fireEvent.click(cat!);
   await tick();
 
-  const addNew = screen.getAllByRole("textbox", { name: /addNewSegment/ })[1];
+  const addNew = screen.getAllByRole("combobox", { name: /addNewSegment/ })[1];
   fireEvent.change(addNew, { target: { value: "c1" } });
   await tick();
 

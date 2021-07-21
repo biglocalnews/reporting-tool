@@ -229,7 +229,7 @@ class Tag(Base):
     __tablename__ = 'tag'
     
     @classmethod
-    def get_or_create_tag(cls, session, tag_dict) -> "Tag":
+    def get_or_create(cls, session, tag_dict) -> "Tag":
         '''Upsert partially-specified tags.
 
         :param session: Database session
@@ -258,7 +258,7 @@ class Tag(Base):
     
     @classmethod
     def clean_name(cls, name):
-        return name.capitalize().strip()
+        return name.strip().capitalize()
 
     @validates('name')
     def capitalize_tag_name(self, key, name):
@@ -310,7 +310,7 @@ class Category(Base):
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-    category_value = relationship('CategoryValue', back_populates='category')
+    category_values = relationship('CategoryValue', back_populates='category')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -324,7 +324,7 @@ class Category(Base):
     
     @classmethod
     def clean_name(cls, name):
-        return name.capitalize().strip()
+        return name.strip().capitalize()
 
     @classmethod
     def get_not_deleted(cls, session, id_):
@@ -343,15 +343,18 @@ class Category(Base):
         session.add(self)
         session.query(CategoryValue).filter(CategoryValue.category_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
 
+
 class CategoryValue(Base):
     __tablename__ = 'category_value'
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False) 
-    category = relationship('Category', back_populates='category_value')
+    category = relationship('Category', back_populates='category_values')
     category_id = Column(GUID, ForeignKey('category.id'), index=True)
     targets = relationship('Target', back_populates='category_value')
     entries = relationship('Entry', back_populates='category_value')
+
+    UniqueConstraint('category_id', 'name')
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -361,7 +364,53 @@ class CategoryValue(Base):
     
     @validates('name')
     def capitalize_name(self, key, name):
-        return name.capitalize().strip()
+        return self.clean_name(name)
+
+    @classmethod
+    def clean_name(cls, name):
+        """Normalize the category value name
+
+        :param name: string
+        :returns: Normalized string
+        """
+        return name.strip().capitalize()
+
+    @classmethod
+    def get_or_create(cls, session, spec):
+        """Idempotently create the category value.
+
+        :session: Database session
+        :spec: Dict containing category value parameters
+        :returns: CategoryValue object
+        """
+        if 'id' in spec:
+            spec = {
+                    'id': uuid.UUID(spec['id']),
+                    }
+        else:
+            # Ensure that if the value exists it is not duplicated
+            existing = cls.get_by_name(session, spec['name'])
+            if existing:
+                return existing
+            else:
+                spec = {
+                    'name': spec['name'],
+                    'category_id': spec['category']['id'],
+                    }
+
+        return session.merge(cls(**spec))
+
+    @classmethod
+    def get_by_name(cls, session, name):
+        """Get a category value given its name.
+
+        Normalizes the name for the query.
+
+        :param session: Database session
+        :param name: String name
+        :returns: CategoryValue if found, or None
+        """
+        return session.query(cls).filter(cls.name == cls.clean_name(name)).first()
 
     @classmethod
     def get_not_deleted(cls, session, id):
@@ -379,6 +428,7 @@ class CategoryValue(Base):
         for entry in entries: 
             entry.soft_delete(session)
         session.query(Target).filter(Target.program_id == self.id).update({'deleted':func.now()}, synchronize_session='fetch')
+
 
 class Dataset(Base, PermissionsMixin):
     __tablename__ = 'dataset'

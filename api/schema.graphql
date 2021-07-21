@@ -104,6 +104,7 @@ type Category {
   id: ID!
   name: String!
   description: String!
+  categoryValues: [CategoryValue!]!
 }
 
 type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
