@@ -153,6 +153,33 @@ export const mockUserLoggedIn = (user?: Partial<UserProfile>) => {
 };
 
 /**
+ * Mock the API in "blank slate" mode.
+ */
+export const mockBlankSlate = () => {
+  const mock = jest.fn(async (uri: string): Promise<Response> => {
+    if (uri === "/api/users/me") {
+      return new Response(
+        JSON.stringify({
+          details: "App is not configured",
+        }),
+        {
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
+          status: 418,
+        }
+      );
+    }
+
+    throw new Error("Unexpected request: " + JSON.stringify(uri));
+  }) as typeof fetch;
+
+  const auth = new Auth(mock);
+
+  return { auth, mock } as AuthMockReturnValue;
+};
+
+/**
  * Simulate not being logged in.
  */
 export const mockUserNotLoggedIn = () => {

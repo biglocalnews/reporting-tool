@@ -4,16 +4,14 @@ import sqlalchemy
 import datetime
 
 from fastapi import FastAPI, Request, Depends, HTTPException, Response
-from fastapi_users.authentication import CookieAuthentication
-from fastapi_users import FastAPIUsers
-from fastapi_users.utils import generate_jwt
+from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 import dateutil.parser
 
 from ariadne import load_schema_from_path, make_executable_schema, snake_case_fallback_resolvers, ObjectType, ScalarType
 from ariadne.asgi import GraphQL
 
-from database import database, SessionLocal, User
+from database import connection, User, is_blank_slate
 from queries import queries
 from mutations import mutation
 from settings import settings
@@ -27,26 +25,8 @@ app = FastAPI(
         # NOTE: the following dependencies are available in the `extra` dict
         # on the app object. They're injected here so they can be patched
         # easier in testing.
-        db=database,
-        get_db_session=SessionLocal,
+        get_db_session=connection,
         )
-
-# remove cookie_secure=False later for production
-cookie_authentication = CookieAuthentication(
-        secret=settings.secret,
-        lifetime_seconds=3600,
-        cookie_secure=False,
-        cookie_name='rtauth')
-
-
-fastapi_users = FastAPIUsers(
-    user.user_db,
-    [cookie_authentication],
-    user.UserModel,
-    user.UserCreateModel,
-    user.UserUpdateModel,
-    user.UserDBModel,
-)
 
 
 async def on_after_register(user: user.UserDBModel, request: Request):
@@ -84,16 +64,16 @@ def admin_user(request: Request):
 
 # Add restful routers for user management
 app.include_router(
-    fastapi_users.get_auth_router(cookie_authentication), prefix="/auth/cookie", tags=["auth"]
+    user.fastapi_users.get_auth_router(user.cookie_authentication), prefix="/auth/cookie", tags=["auth"]
 )
 app.include_router(
-    fastapi_users.get_register_router(on_after_register),
+    user.fastapi_users.get_register_router(on_after_register),
     prefix="/auth",
     dependencies=[Depends(admin_user)],
     tags=["auth"],
 )
 app.include_router(
-    fastapi_users.get_reset_password_router(
+    user.fastapi_users.get_reset_password_router(
         settings.secret, after_forgot_password=on_after_forgot_password
     ),
     prefix="/auth",
@@ -101,7 +81,7 @@ app.include_router(
 )
 
 app.include_router(
-    fastapi_users.get_verify_router(
+    user.fastapi_users.get_verify_router(
         settings.secret,
         after_verification_request=after_verification_request,
         after_verification=after_verify,
@@ -110,14 +90,17 @@ app.include_router(
     tags=["auth"],
 )
 
+
 @app.get("/reset-my-password")
-def get_reset_password_token(user = Depends(fastapi_users.get_current_user)):
+def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_user)):
     """Get a token to reset one's own password."""
-    token_data = {"user_id": str(user.id), "aud": "fastapi-users:reset"}
-    token = generate_jwt(data=token_data, secret=settings.secret, lifetime_seconds=120)
+    token = user.get_valid_token(
+        RESET_PASSWORD_TOKEN_AUDIENCE,
+        user_id=str(dbuser.id),
+        )
     return {
         "token": token,
-    }
+        }
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
@@ -135,13 +118,21 @@ def get_reset_password_token(user = Depends(fastapi_users.get_current_user)):
 # When the PR is merged, bump the fastapi-users version and remove the hack.
 # For now, reach into the router's delete_user route and set the response class
 # explicitly to the bare Response class to avoid issues.
-users_router = fastapi_users.get_users_router()
+users_router = user.fastapi_users.get_users_router()
 delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
 delete_route.response_class = Response
+
+# Separately, to implement "blank slate" mode, use a dependency that returns
+# a 418 code when the app is not yet configured.
+async def blank_slate(request: Request):
+    if is_blank_slate(request.scope.get('dbsession')):
+        raise HTTPException(status_code=418, detail="App is not yet configured")
+
 app.include_router(
     users_router,
     prefix="/users",
     tags=["users"],
+    dependencies=[Depends(blank_slate)],
 )
 
 
@@ -177,16 +168,16 @@ async def add_user(request: Request, call_next):
 
     # allow for manual specification of user in request header by email
     if settings.debug and "X-User" in request.headers:
-        user = User.get_by_email(session=dbsession, email=request.headers['X-User'])
+        dbuser = User.get_by_email(session=dbsession, email=request.headers['X-User'])
     else:
         # NOTE(jnu): fastapi_users.current_user is meant to be called with
         # FastAPI's `Depends`. We have to hook into their "blood magic" here
         # to call it outside of Depends.
-        user_db = await fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
+        user_db = await user.fastapi_users.current_user(active=True, optional=True)(cookie=request.cookies.get('rtauth'))
         # The permissions checks use the ORM object, not the Pydantic model. 
-        user = dbsession.query(User).get(user_db.id) if user_db else None
+        dbuser = dbsession.query(User).get(user_db.id) if user_db else None
 
-    request.scope["dbuser"] = user
+    request.scope["dbuser"] = dbuser
     return await call_next(request)
 
 
@@ -214,18 +205,10 @@ async def get_context(request: Request):
 # Mount ariadne to fastapi
 app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
-@app.on_event("startup")
-async def startup():
-    await app.extra['db'].connect()
-    pass
-
-@app.on_event("shutdown")
-async def shutdown():
-    await app.extra['db'].disconnect()
-    pass
 
 def home():
     return "Ahh!! Aliens!"
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app")

@@ -11,6 +11,7 @@ import uuid
 
 import click
 from datetime import datetime
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import (
         create_engine,
         Table,
@@ -25,6 +26,7 @@ from sqlalchemy import (
         UniqueConstraint,
         )
 from sqlalchemy.orm import relationship, sessionmaker, validates
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
@@ -32,15 +34,92 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
+from lazy_object_proxy import Proxy
 
 from settings import settings
 
 
-DATABASE_URL = f"{settings.db_user}:{settings.db_pw}@{settings.db_host}/{settings.db_name}"
-database = databases.Database("postgres://" + DATABASE_URL)
 
-engine = create_engine('postgresql+psycopg2://' + DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def init_db():
+    """Get a connection to the database.
+
+    When this method is run, if the database does not exist, it will create
+    the database and all of the required tables.
+
+    :returns: Session factory
+    """
+    db_url_tpl = f"{settings.db_user}:{settings.db_pw}@{settings.db_host}/%s"
+    db_driver = 'postgresql+psycopg2://'
+    db_args = {
+            'pool_pre_ping': True,
+            }
+
+    db_url = db_url_tpl % settings.db_name
+    needs_tables = False
+    try:
+        engine = create_engine(db_driver + db_url, **db_args)
+        with engine.connect():
+            pass
+    except OperationalError:
+        # If the database doesn't exist, connect to the DB without specifying
+        # a database and create it.
+        engine = create_engine(db_driver + db_url_tpl % "", **db_args)
+        with engine.connect() as conn:
+            conn.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            conn.execute("""
+                CREATE DATABASE %s ENCODING 'utf8'
+            """ % settings.db_name)
+        engine.dispose()
+        # Now try to connect to the new database again.
+        engine = create_engine(db_driver + db_url, **db_args)
+        needs_tables = True
+
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    # Create all of the tables if this is a new DB.
+    if needs_tables:
+        s = SessionLocal()
+        create_tables(s)
+        s.close()
+
+    return SessionLocal
+
+
+# Get a connection to the database. This connection is lazily initialized the
+# first time it's needed, and will ensure the existence of the database and
+# tables.
+# TODO: upgrade to use async database:
+# https://app.clubhouse.io/stanford-computational-policy-lab/story/302/use-async-db-calls
+connection = Proxy(init_db)
+
+
+_blank_slate = True
+def is_blank_slate(session):
+    """Check if the app has been initialized at all.
+
+    If the app has been initialized, this returns False and future lookups are
+    cached. Otherwise it checks each time and returns True.
+
+    :returns: True if app needs to be initialized.
+    """
+    global _blank_slate
+    if not _blank_slate:
+        return False
+
+    org_count = session.query(Organization).count()
+
+    if org_count > 0:
+        _blank_slate = False
+        return False
+
+    return True
+
+
+def clear_cached_state():
+    """Reset cached state. (Useful for testing.)"""
+    global _blank_slate
+    _blank_slate = True
+
 
 
 Base = declarative_base()
@@ -145,7 +224,7 @@ class User(Base, SQLAlchemyBaseUserTable):
         return f"{user.first_name} {user.last_name}"
 
     @classmethod
-    def get_by_email(cls, session: SessionLocal, email: str) -> "Optional[User]":
+    def get_by_email(cls, session, email: str) -> "Optional[User]":
         """Get a user by their email address.
 
         :param email:
@@ -157,7 +236,7 @@ class User(Base, SQLAlchemyBaseUserTable):
                 ).first()
 
     @classmethod
-    def delete(cls, session: SessionLocal, id) -> None:
+    def delete(cls, session, id) -> None:
         """Delete a user by their ID.
 
         This is a soft delete; the record will stay in the database.
@@ -528,18 +607,62 @@ class Entry(Base, PermissionsMixin):
         self.deleted= func.now()
         session.add(self)
 
-def create_tables(engine, session):
+
+def create_tables(session):
+    """Initialize the database with tables and objects.
+
+    :param session: Database session
+    """
     print("🍽  Creating tables ...")
+    engine = session.bind
     Base.metadata.create_all(engine)
 
+    # Default roles
     session.add(Role(
         id="be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
         name="admin",
         description="User is an admin and has administrative privileges"))
+    
+    # Default demographic categories
+    session.add(Category(
+        id='51349e29-290e-4398-a401-5bf7d04af75e',
+        name='gender', 
+        description=(
+            'Gender: A social construct based on a group of emotional and '
+            'psychological characteristics that classify an individual as '
+            'feminine, masculine, androgynous or other. Gender can be '
+            'understood to have several components, including gender identity, '
+            'gender expression and gender role.'
+            )))
+    session.add(Category(
+        id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41',
+        name='race / ethnicity',
+        description=(
+            'Race & Ethnicity: Social constructs that categorize groups of '
+            'people based on shared social and physical qualities. Definitions '
+            'of race and ethnicity are not universally agreed upon and vary '
+            'over time and place. Individuals may identify as belonging to '
+            'multiple racial and ethnic groups.'
+            )))
+    session.add(Category(
+        id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd',
+        name='disability',
+        description=(
+            'A disability is any condition of the body or mind (impairment) '
+            'that makes it more difficult for the person with the condition '
+            'to do certain activities (activity limitation) and interact with '
+            'the world around them (participation restrictions). Some '
+            'disabilities may be hidden or not easy to see.'
+            )))
+
     session.commit()
 
 
 def create_dummy_data(session):
+    """Create dummy data for testing and development.
+
+    :param session: Database session
+    """
     if not settings.debug:
         raise RuntimeError("Can't add dummy data when not in a debug environment")
 
@@ -585,10 +708,9 @@ def create_dummy_data(session):
     Tag(id='4a2142c0-5416-431d-b62f-0dbfe7574688', name='news', description='tag for all news programming',
             tag_type='news', programs=[program], datasets=[ds1, ds2])
     
-    category_gender = Category(id='51349e29-290e-4398-a401-5bf7d04af75e', name='gender', 
-                               description='Gender: A social construct based on a group of emotional and psychological characteristics that classify an individual as feminine, masculine, androgynous or other. Gender can be understood to have several components, including gender identity, gender expression and gender role.')
-    category_race = Category(id='2f98f223-417f-41ea-8fdb-35f0c5fe5b41', name='race', description='Race: is ...')
-    category_disability = Category(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='disability', description='A disability is any condition of the body or mind (impairment) that makes it more difficult for the person with the condition to do certain activities (activity limitation) and interact with the world around them (participation restrictions). Some disabilities may be hidden or not easy to see.')
+    category_gender = session.query(Category).get('51349e29-290e-4398-a401-5bf7d04af75e')
+    category_disability = session.query(Category).get('55119215-71e9-43ca-b2c1-7e7fb8cec2fd')
+    category_race = session.query(Category).get('2f98f223-417f-41ea-8fdb-35f0c5fe5b41')
     
     target_non_binary = Target(id='40eaeafc-3311-4294-a639-a826eb6495ab', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
     target_cis_women = Target(id='eccf90e8-3261-46c1-acd5-507f9113ff72', program=program, target_date=datetime.strptime('2022-12-31 00:00:00', '%Y-%m-%d %H:%M:%S'), target=float(.17))
@@ -627,16 +749,16 @@ def create_dummy_data(session):
     session.add(org)
     session.commit()
 
+
 @click.command()
 @click.option("--tables/--no-tables", default=True)
 @click.option("--dummy-data/--no-dummy-data", default=False)
 def run(tables: bool, dummy_data: bool):
     """Create tables and dummy data (if requested)."""
-    engine = create_engine('postgresql+psycopg2://' + DATABASE_URL)
-    session = SessionLocal()
+    session = connection.SessionLocal()
 
     if tables:
-        create_tables(engine, session)
+        create_tables(session)
     if dummy_data:
         create_dummy_data(session)
     print("✅ done!")

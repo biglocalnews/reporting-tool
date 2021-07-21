@@ -5,16 +5,18 @@ from unittest.mock import Mock, patch
 from fastapi_users.utils import generate_jwt, JWT_ALGORITHM
 from fastapi_users.password import verify_and_update_password
 from fastapi.testclient import TestClient
-from ariadne import graphql_sync
+from ariadne import graphql_sync, graphql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import schema, app, cookie_authentication
-from user import user_db
+from app import schema, app
+from user import user_db, cookie_authentication, get_valid_token
 from database import (
+    clear_cached_state,
     Base,
     create_tables,
+    Organization,
     create_dummy_data,
     Record,
     Entry,
@@ -29,23 +31,15 @@ from database import (
 from uuid import UUID
 
 
-def get_valid_token(aud, **kwargs):
-    data = {"aud": aud}
-    data.update(kwargs)
-    return generate_jwt(data,
-            cookie_authentication.lifetime_seconds,
-            cookie_authentication.secret,
-            JWT_ALGORITHM)
 
-
-class BaseAppTest(unittest.TestCase):
+class BaseAppTest(unittest.IsolatedAsyncioTestCase):
     """Base test runner that sets up an in-memory database that test cases can
     make assertions against.
     """
     # Get full diff outuput
     maxDiff = None
 
-    def setUp(self):
+    def setUp(self, with_dummy_data=True):
         # Create in-memory sqlite database. This is configured to work with
         # multithreaded environments, so it can be used safely with the real
         # FastAPI app instance.
@@ -59,33 +53,36 @@ class BaseAppTest(unittest.TestCase):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
-        create_tables(self.engine, session)
-        create_dummy_data(session)
+        clear_cached_state()
+        create_tables(session)
+        if with_dummy_data:
+            create_dummy_data(session)
 
         session.close()
 
         # Expose the session maker so a test can make one
         self.Session = Session
-
-    def tearDown(self):
-        Base.metadata.drop_all(self.engine)
-        self.engine.dispose()
-
-
-class TestAppUsers(BaseAppTest):
-    """Test /users/ API routes."""
-
-    def setUp(self):
-        super().setUp()
-
-        # Mock out database objects to use in-memory DB.
-        app.extra['database'] = Mock()
-        app.extra['get_db_session'] = self.Session
         user_db.session_factory = self.Session
 
         # Mock the email sender
         self.send_email_patch = patch('mailer.send_email')
         self.mock_send_email = self.send_email_patch.start()
+
+    def tearDown(self):
+        Base.metadata.drop_all(self.engine)
+        self.engine.dispose()
+        self.send_email_patch.stop()
+
+
+class TestAppUsers(BaseAppTest):
+    """Test /users/ API routes."""
+
+    def setUp(self, *args, **kwargs):
+        super().setUp(*args, **kwargs)
+
+        # Mock out database objects to use in-memory DB.
+        app.extra['database'] = Mock()
+        app.extra['get_db_session'] = self.Session
 
         # Set up Starlette test client
         self.client = TestClient(app)
@@ -97,15 +94,20 @@ class TestAppUsers(BaseAppTest):
                 'other': 'a47085ba-3d01-46a4-963b-9ffaeda18113',
                 }
 
-    def tearDown(self):
-        super().tearDown()
-        self.send_email_patch.stop()
-
     def test_users_me_not_authed(self):
         """Checks that route returns error when user is not authed."""
         response = self.client.get('/users/me')
         assert response.status_code == 401
         assert response.json() == {'detail': 'Unauthorized'}
+
+    def test_users_me_first_time(self):
+        """Checks that when the app is not configured this throws a 418."""
+        # Reset the database with no dummy data
+        self.tearDown()
+        self.setUp(with_dummy_data=False)
+
+        response = self.client.get('/users/me')
+        assert response.status_code == 418
 
     def test_users_me_normal(self):
         """Checks that a user can get info about themselves."""
@@ -449,8 +451,8 @@ class TestAppUsers(BaseAppTest):
 class TestGraphQL(BaseAppTest):
     """Tests for the GraphQL schema, including permissions directives."""
 
-    def setUp(self):
-        super().setUp()
+    def setUp(self, *args, **kwargs):
+        super().setUp(*args, **kwargs)
         # Create new session for test case to use
         self.session = self.Session()
 
@@ -466,13 +468,17 @@ class TestGraphQL(BaseAppTest):
         super().tearDown()
 
 
-    def run_graphql_query(self, data, user=None):
+    def run_graphql_query(self, data, user=None, is_async=False):
         """Run a GraphQL query with the given data as the given user.
 
         :param data: Dict of a GraphQL query
         :param user: User to run query as
         """
-        return graphql_sync(
+        # TODO: All tests should use async now. Before Python3.8 it was harder
+        # to run isolated async unit tests, but now we can do so.
+        # https://app.clubhouse.io/stanford-computational-policy-lab/story/335/use-async-graphql-calls-in-all-unit-tests
+        method = graphql if is_async else graphql_sync
+        return method(
                 schema,
                 data,
                 context_value={
@@ -689,18 +695,6 @@ class TestGraphQL(BaseAppTest):
                             "publicationDate": "2020-12-21T00:00:00",
                             "entries": [
                                 {
-                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a',
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "categoryValue": {
-                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                        "name": "Non-binary"
-                                    }
-                                },
-                                {
                                     'id': 'a37a5fe2-1493-4cb9-bcd0-a87688ffa409',
                                     'count': 1,
                                     'inputter': {
@@ -757,6 +751,18 @@ class TestGraphQL(BaseAppTest):
                                     'categoryValue': {
                                         "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                         "name": "Gender non-conforming"
+                                    }
+                                },
+                                {
+                                    'id': '64677dc1-a1cd-4cd3-965d-6565832d307a',
+                                    'count': 1,
+                                    'inputter': {
+                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
+                                        'firstName': 'Cat'
+                                    },
+                                    "categoryValue": {
+                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                        "name": "Non-binary"
                                     }
                                 },
                                 {
@@ -1099,10 +1105,6 @@ class TestGraphQL(BaseAppTest):
                         "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
                         "entries": [
                             {"categoryValue": {
-                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                "name": "Non-binary"
-                            }},
-                            {"categoryValue": {
                                 "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                 "name": "Cisgender women"
                             }},
@@ -1121,6 +1123,10 @@ class TestGraphQL(BaseAppTest):
                             {'categoryValue': {
                                 "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                 "name": "Gender non-conforming"
+                            }},
+                            {"categoryValue": {
+                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                "name": "Non-binary"
                             }},
                             {"categoryValue": {
                                 "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
@@ -1324,12 +1330,12 @@ class TestGraphQL(BaseAppTest):
                         "publicationDate": "2020-12-25T00:00:00",
                         "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
                         "entries": [
-                            {"count": 0, "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
+                            {"count": 0, "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1, "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                             {"count": 1, "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                         ]
@@ -2499,15 +2505,15 @@ class TestGraphQL(BaseAppTest):
                             "name": "An updated new Program",
                             "targets": [
                                 {
+                                    "categoryValue": {"name": "Non-binary"},
+                                    "target": 0.17,
+                                },
+                                {
                                     "categoryValue": {"name": "Cisgender men"},
                                     "target": 0.16,
                                 },
                                 {
                                     "categoryValue": {"name": "Trans women"},
-                                    "target": 0.17,
-                                },
-                                {
-                                    "categoryValue": {"name": "Non-binary"},
                                     "target": 0.17,
                                 },
                                 {
@@ -2641,6 +2647,67 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
             program = Program.get_not_deleted(self.session, program_id)
             self.assertNotEqual(program, None)
+
+    async def test_first_time_app_configure(self):
+        """Test that the app can be configured if it's in the blank state."""
+        success, result = await self.run_graphql_query({
+            "operationName": "ConfigureApp",
+            "query": """
+                mutation ConfigureApp($input: FirstTimeAppConfigurationInput!) {
+                    configureApp(input: $input)
+                }
+            """,
+            "variables": {
+                "input": {
+                    "organization": "My Org",
+                    "email": "me@notrealemail.info",
+                    "firstName": "Tina",
+                    "lastName": "Turner",
+                    },
+                },
+            }, user=None, is_async=True)
+
+        assert success
+        self.assertResultWasNotAuthed(result)
+
+        self.tearDown()
+        self.setUp(with_dummy_data=False)
+
+        success, result = await self.run_graphql_query({
+            "operationName": "ConfigureApp",
+            "query": """
+                mutation ConfigureApp($input: FirstTimeAppConfigurationInput!) {
+                    configureApp(input: $input)
+                }
+            """,
+            "variables": {
+                "input": {
+                    "organization": "My Org",
+                    "email": "me@notrealemail.info",
+                    "firstName": "Tina",
+                    "lastName": "Turner",
+                    },
+                },
+            }, user=None, is_async=True)
+
+        assert success
+        assert self.is_valid_uuid(result['data']['configureApp'])
+
+        user = User.get_by_email(self.session, "me@notrealemail.info")
+
+        _, orgs = await self.run_graphql_query({
+            "operationName": "Orgs",
+            "query": """
+                query Orgs {
+                    organizations {
+                        name
+                    }
+                }
+            """,
+            }, user=user, is_async=True)
+        assert orgs['data']['organizations'] == [{'name': 'My Org'}]
+
+
 
 if __name__ == '__main__':
     unittest.main()

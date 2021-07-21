@@ -5,6 +5,7 @@ from graphql.type import (
         GraphQLObjectType,
         )
 from database import (
+        is_blank_slate,
         PermissionsMixin,
         User,
         Dataset,
@@ -43,6 +44,11 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
     current_user = info.context.get('current_user')
     if 'LOGGED_IN' in permissions:
         if current_user:
+            return True
+
+    if 'BLANK_SLATE' in permissions:
+        # Any user has this permission if the app has not been configured yet.
+        if is_blank_slate(info.context['dbsession']):
             return True
 
     # The rest of the permissions assume LOGGED_IN is true, since they

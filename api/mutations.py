@@ -1,11 +1,29 @@
 import uuid
+import secrets
 
+import mailer
+from user import fastapi_users, UserCreateModel, UserRole, get_valid_token
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
-from database import SessionLocal, User, Dataset, Tag, Program, Record, Entry, Category, Target, CategoryValue, Team
+from database import (
+        Category,
+        CategoryValue,
+        Dataset,
+        Entry,
+        Organization,
+        Program,
+        Record,
+        Role,
+        Tag,
+        User,
+        Target,
+        Team,
+        )
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
+from fastapi_users.router.verify import VERIFY_USER_TOKEN_AUDIENCE
+
 
 mutation = ObjectType("Mutation")
 
@@ -432,3 +450,47 @@ def resolve_restore_program(obj, info, id):
     session.commit()
 
     return program
+
+
+@mutation.field("configureApp")
+@convert_kwargs_to_snake_case
+async def resolve_configure_app(obj, info, input):
+    """GraphQL mutation to configure the app when it's first opened.
+
+    :param input: Config parameters
+    :returns: User object of the new admin
+    """
+    session = info.context['dbsession']
+    org = Organization(name=input.pop('organization'))
+    session.add(org)
+    session.commit()
+
+    # Create a good temporary password
+    temp_password = password=secrets.token_urlsafe(16)
+    # Get a list of roles to grant this person
+    super_roles = session.query(Role).filter(Role.name == 'admin').all()
+    # Create the new user
+    new_user = UserCreateModel(
+            email=input['email'],
+            first_name=input['first_name'],
+            last_name=input['last_name'],
+            password=temp_password,
+            is_superuser=True,
+            roles=[UserRole(id=role.id) for role in super_roles],
+            teams=[],
+            )
+
+    user = await fastapi_users.create_user(new_user)
+
+    # Send temp password.
+    # TODO: Unify the email to streamline this process
+    # https://app.clubhouse.io/stanford-computational-policy-lab/story/334/unify-registration-emails
+    await mailer.send_register_email(user, temp_password)
+    token = get_valid_token(
+                VERIFY_USER_TOKEN_AUDIENCE,
+                user_id=str(user.id),
+                email=user.email,
+                )
+    await mailer.send_verify_request_email(user, token)
+
+    return user.id

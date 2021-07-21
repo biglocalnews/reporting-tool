@@ -1,4 +1,8 @@
-import { mockUserLoggedIn, mockUserLogIn } from "../graphql/__mocks__/auth";
+import {
+  mockBlankSlate,
+  mockUserLoggedIn,
+  mockUserLogIn,
+} from "../graphql/__mocks__/auth";
 
 it("marks user as admin correctly", async () => {
   const { auth } = mockUserLoggedIn({
@@ -38,6 +42,14 @@ it("returns a special error if user has never changed password", async () => {
   expect(await auth.login(user, password)).toEqual("CHANGE_PASSWORD");
   expect(auth.isLoggedIn()).toBe(true);
   expect(auth.getFullName()).toEqual("Penelope Pomegranate");
+});
+
+it("returns a special error if the app is in blank slate mode", async () => {
+  const { auth } = mockBlankSlate();
+  await auth.init();
+
+  expect(auth.initState).toEqual("blank_slate");
+  expect(auth.isBlankSlate()).toBe(true);
 });
 
 it("reports an error if user is not authed", async () => {

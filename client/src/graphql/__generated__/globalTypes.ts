@@ -45,6 +45,13 @@ export interface EntryInput {
   readonly count: number;
 }
 
+export interface FirstTimeAppConfigurationInput {
+  readonly organization: string;
+  readonly email: string;
+  readonly firstName: string;
+  readonly lastName: string;
+}
+
 export interface TagInput {
   readonly id?: string | null;
   readonly name?: string | null;

@@ -21,6 +21,30 @@
   "submitUpdateFail": "Failed to save changes.",
   "cancel": "Cancel",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
+  "placeholder": {
+    "email": "tina@turner.org",
+    "organization": "Tina Turner Foundation",
+    "firstName": "Tina",
+    "lastName": "Turner"
+  },
+  "app": {
+    "configure": {
+      "title": "App configuration",
+      "description": "Hello! You are the very first person to use this app since it was set up. Please tell us who you are. We will create an admin user account for you. We will email you a temporary password which you can use to login and continue setting up the tool.",
+      "organization": "Name of your organization",
+      "organizationRequired": "You must enter an organization name.",
+      "firstName": "Your first name",
+      "firstNameRequired": "You must enter your first name.",
+      "lastName": "Your last name",
+      "lastNameRequired": "You must enter your last name.",
+      "email": "Your email address",
+      "emailRequired": "You must enter your email.",
+      "emailFormat": "You must enter a valid email address.",
+      "submit": "Configure the app!",
+      "success": "Success! Check your email for a temporary password you can use to log in.",
+      "error": "Uh-oh, that didn't work."
+    }
+  },
   "account": {
     "login": {
       "action": "Login!",

@@ -1,10 +1,14 @@
 from pydantic import BaseModel, UUID4, EmailStr
 from datetime import datetime
+from fastapi_users.authentication import CookieAuthentication
+from fastapi_users import FastAPIUsers
 from fastapi_users import models
+from fastapi_users.utils import generate_jwt
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.db.sqlalchemy import GUID
 from sqlalchemy.sql import func
-from typing import Optional, List
+from typing import Optional, List, Dict
+from settings import settings
 import database
 
 
@@ -62,6 +66,8 @@ class UserCreateModel(BaseUserCreateUpdate):
     password: str
     first_name: str
     last_name: str
+    roles: Optional[List[UserRole]]
+    teams: Optional[List[UserTeam]]
 
 
 class UserUpdateModel(BaseUserCreateUpdate):
@@ -121,11 +127,17 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         d = user.dict()
-        if not d['roles']:
-            d['roles'] = []
-        if not d['teams']:
-            d['teams'] = []
+        roles = d.pop('roles', [])
+        teams = d.pop('teams', [])
         dbuser = database.User(**d)
+        if roles:
+            dbuser.roles = session.query(database.Role).filter(
+                    database.Role.id.in_([r['id'] for r in roles])
+                    ).all()
+        if teams:
+            dbuser.teams = session.query(database.Team).filter(
+                    database.Team.id.in_([t['id'] for t in teams])
+                    ).all()
         session.add(dbuser)
         session.commit()
         user = self.format_orm_model(dbuser)
@@ -196,4 +208,38 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
 
         return user
 
-user_db = SQLAlchemyORMUserDatabase(database.SessionLocal)
+
+user_db = SQLAlchemyORMUserDatabase(database.connection)
+
+
+# remove cookie_secure=False later for production
+cookie_authentication = CookieAuthentication(
+        secret=settings.secret,
+        lifetime_seconds=3600,
+        cookie_secure=False,
+        cookie_name='rtauth')
+
+
+fastapi_users = FastAPIUsers(
+    user_db,
+    [cookie_authentication],
+    UserModel,
+    UserCreateModel,
+    UserUpdateModel,
+    UserDBModel,
+)
+
+
+def get_valid_token(type_: str, **kwargs) -> str:
+    """Get a valid JWT for fastapi-users.
+
+    :param type_: Token audience (see fastapi-users for constants)
+    :param **kwargs: Data to encode in the token
+    :returns: Encoded JWT
+    """
+    token_data = {'aud': type_}
+    token_data.update(kwargs)
+    return generate_jwt(
+            data=token_data,
+            secret=cookie_authentication.secret,
+            lifetime_seconds=cookie_authentication.lifetime_seconds)
