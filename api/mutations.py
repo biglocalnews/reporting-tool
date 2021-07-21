@@ -463,6 +463,7 @@ async def resolve_configure_app(obj, info, input):
     session = info.context['dbsession']
     org = Organization(name=input.pop('organization'))
     session.add(org)
+    session.commit()
 
     # Create a good temporary password
     temp_password = password=secrets.token_urlsafe(16)
@@ -491,7 +492,5 @@ async def resolve_configure_app(obj, info, input):
                 email=user.email,
                 )
     await mailer.send_verify_request_email(user, token)
-
-    session.commit()
 
     return user.id

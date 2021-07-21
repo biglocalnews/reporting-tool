@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from fastapi_users.utils import generate_jwt, JWT_ALGORITHM
 from fastapi_users.password import verify_and_update_password
 from fastapi.testclient import TestClient
-from ariadne import graphql_sync
+from ariadne import graphql_sync, graphql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -13,8 +13,10 @@ from sqlalchemy.pool import StaticPool
 from app import schema, app
 from user import user_db, cookie_authentication, get_valid_token
 from database import (
+    clear_cached_state,
     Base,
     create_tables,
+    Organization,
     create_dummy_data,
     Record,
     Entry,
@@ -30,14 +32,14 @@ from uuid import UUID
 
 
 
-class BaseAppTest(unittest.TestCase):
+class BaseAppTest(unittest.IsolatedAsyncioTestCase):
     """Base test runner that sets up an in-memory database that test cases can
     make assertions against.
     """
     # Get full diff outuput
     maxDiff = None
 
-    def setUp(self):
+    def setUp(self, with_dummy_data=True):
         # Create in-memory sqlite database. This is configured to work with
         # multithreaded environments, so it can be used safely with the real
         # FastAPI app instance.
@@ -51,33 +53,36 @@ class BaseAppTest(unittest.TestCase):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
+        clear_cached_state()
         create_tables(session)
-        create_dummy_data(session)
+        if with_dummy_data:
+            create_dummy_data(session)
 
         session.close()
 
         # Expose the session maker so a test can make one
         self.Session = Session
-
-    def tearDown(self):
-        Base.metadata.drop_all(self.engine)
-        self.engine.dispose()
-
-
-class TestAppUsers(BaseAppTest):
-    """Test /users/ API routes."""
-
-    def setUp(self):
-        super().setUp()
-
-        # Mock out database objects to use in-memory DB.
-        app.extra['database'] = Mock()
-        app.extra['get_db_session'] = self.Session
         user_db.session_factory = self.Session
 
         # Mock the email sender
         self.send_email_patch = patch('mailer.send_email')
         self.mock_send_email = self.send_email_patch.start()
+
+    def tearDown(self):
+        Base.metadata.drop_all(self.engine)
+        self.engine.dispose()
+        self.send_email_patch.stop()
+
+
+class TestAppUsers(BaseAppTest):
+    """Test /users/ API routes."""
+
+    def setUp(self, *args, **kwargs):
+        super().setUp(*args, **kwargs)
+
+        # Mock out database objects to use in-memory DB.
+        app.extra['database'] = Mock()
+        app.extra['get_db_session'] = self.Session
 
         # Set up Starlette test client
         self.client = TestClient(app)
@@ -89,15 +94,20 @@ class TestAppUsers(BaseAppTest):
                 'other': 'a47085ba-3d01-46a4-963b-9ffaeda18113',
                 }
 
-    def tearDown(self):
-        super().tearDown()
-        self.send_email_patch.stop()
-
     def test_users_me_not_authed(self):
         """Checks that route returns error when user is not authed."""
         response = self.client.get('/users/me')
         assert response.status_code == 401
         assert response.json() == {'detail': 'Unauthorized'}
+
+    def test_users_me_first_time(self):
+        """Checks that when the app is not configured this throws a 418."""
+        # Reset the database with no dummy data
+        self.tearDown()
+        self.setUp(with_dummy_data=False)
+
+        response = self.client.get('/users/me')
+        assert response.status_code == 418
 
     def test_users_me_normal(self):
         """Checks that a user can get info about themselves."""
@@ -441,8 +451,8 @@ class TestAppUsers(BaseAppTest):
 class TestGraphQL(BaseAppTest):
     """Tests for the GraphQL schema, including permissions directives."""
 
-    def setUp(self):
-        super().setUp()
+    def setUp(self, *args, **kwargs):
+        super().setUp(*args, **kwargs)
         # Create new session for test case to use
         self.session = self.Session()
 
@@ -458,13 +468,17 @@ class TestGraphQL(BaseAppTest):
         super().tearDown()
 
 
-    def run_graphql_query(self, data, user=None):
+    def run_graphql_query(self, data, user=None, is_async=False):
         """Run a GraphQL query with the given data as the given user.
 
         :param data: Dict of a GraphQL query
         :param user: User to run query as
         """
-        return graphql_sync(
+        # TODO: All tests should use async now. Before Python3.8 it was harder
+        # to run isolated async unit tests, but now we can do so.
+        # https://app.clubhouse.io/stanford-computational-policy-lab/story/335/use-async-graphql-calls-in-all-unit-tests
+        method = graphql if is_async else graphql_sync
+        return method(
                 schema,
                 data,
                 context_value={
@@ -2633,6 +2647,67 @@ class TestGraphQL(BaseAppTest):
             self.assertResultWasNotAuthed(result)
             program = Program.get_not_deleted(self.session, program_id)
             self.assertNotEqual(program, None)
+
+    async def test_first_time_app_configure(self):
+        """Test that the app can be configured if it's in the blank state."""
+        success, result = await self.run_graphql_query({
+            "operationName": "ConfigureApp",
+            "query": """
+                mutation ConfigureApp($input: FirstTimeAppConfigurationInput!) {
+                    configureApp(input: $input)
+                }
+            """,
+            "variables": {
+                "input": {
+                    "organization": "My Org",
+                    "email": "me@notrealemail.info",
+                    "firstName": "Tina",
+                    "lastName": "Turner",
+                    },
+                },
+            }, user=None, is_async=True)
+
+        assert success
+        self.assertResultWasNotAuthed(result)
+
+        self.tearDown()
+        self.setUp(with_dummy_data=False)
+
+        success, result = await self.run_graphql_query({
+            "operationName": "ConfigureApp",
+            "query": """
+                mutation ConfigureApp($input: FirstTimeAppConfigurationInput!) {
+                    configureApp(input: $input)
+                }
+            """,
+            "variables": {
+                "input": {
+                    "organization": "My Org",
+                    "email": "me@notrealemail.info",
+                    "firstName": "Tina",
+                    "lastName": "Turner",
+                    },
+                },
+            }, user=None, is_async=True)
+
+        assert success
+        assert self.is_valid_uuid(result['data']['configureApp'])
+
+        user = User.get_by_email(self.session, "me@notrealemail.info")
+
+        _, orgs = await self.run_graphql_query({
+            "operationName": "Orgs",
+            "query": """
+                query Orgs {
+                    organizations {
+                        name
+                    }
+                }
+            """,
+            }, user=user, is_async=True)
+        assert orgs['data']['organizations'] == [{'name': 'My Org'}]
+
+
 
 if __name__ == '__main__':
     unittest.main()

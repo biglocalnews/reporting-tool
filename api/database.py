@@ -115,6 +115,12 @@ def is_blank_slate(session):
     return True
 
 
+def clear_cached_state():
+    """Reset cached state. (Useful for testing.)"""
+    global _blank_slate
+    _blank_slate = True
+
+
 
 Base = declarative_base()
 
