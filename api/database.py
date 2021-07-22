@@ -26,7 +26,7 @@ from sqlalchemy import (
         UniqueConstraint,
         )
 from sqlalchemy.orm import relationship, sessionmaker, validates
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
@@ -72,6 +72,15 @@ def init_db():
         engine.dispose()
         # Now try to connect to the new database again.
         engine = create_engine(db_driver + db_url, **db_args)
+
+
+    # Now check if the tables exist
+    try:
+        with engine.connect() as conn:
+            conn.execute("""
+                SELECT 1 FROM organization
+            """)
+    except ProgrammingError:
         needs_tables = True
 
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

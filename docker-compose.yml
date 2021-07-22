@@ -24,35 +24,6 @@ services:
         mode: 0400
     depends_on:
       - db
-      - api_init
-
-  # Python first-time API init script
-  api_init:
-    build: api
-    image: ${RT_API_IMAGE}:${RT_API_VERSION}
-    networks:
-      - private
-    environment:
-      - db_name=${RT_DB_NAME}
-      - db_host=db
-      - RT_DUMMY_DATA=${RT_DUMMY_DATA}
-    secrets:
-      - source: db-password
-        target: /run/secrets/db_pw
-        mode: 0400
-      - source: app-secret
-        target: /run/secrets/secret
-        mode: 0400
-    depends_on:
-      - db
-    restart: "no"
-    deploy:
-      # TODO: ReplicatedJob mode is the best fit for this script, but not
-      # currently supported in the compose spec:
-      # https://github.com/moby/moby/issues/41895
-      # mode: replicated-job
-      replicas: 1
-    entrypoint: [ "./docker-api-init.sh" ]
 
   # Typescript assets
   static:
@@ -81,7 +52,6 @@ services:
     deploy:
       mode: global
 
-
   # Postgres database
   db:
     image: postgres:13.2
@@ -98,7 +68,7 @@ services:
     networks:
       - private
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${RT_DB_NAME}" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${RT_DB_NAME}"]
       interval: 2s
       timeout: 2s
       retries: 20
