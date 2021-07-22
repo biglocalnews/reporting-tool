@@ -37,12 +37,12 @@ jobs:
       - name: Build main BBC API image
         run: |
           cd ./api
-          docker build --target core -t "api:${GITHUB_REF##*/}" . -f Dockerfile
+          docker build -t "api:${GITHUB_REF##*/}" . -f Dockerfile
 
       - name: Build main BBC Client image
         run: |
           cd ./client
-          docker build --target core -t "client:${GITHUB_REF##*/}" . -f Dockerfile
+          docker build -t "client:${GITHUB_REF##*/}" . -f Dockerfile
 
       - name: Authenticate with GCR
         if: success()
