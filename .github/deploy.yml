@@ -1,0 +1,103 @@
+name: Deploy BBC Reporting Tool
+
+on:
+  push:
+    branches: [main, ch328/github-workflows]
+
+jobs:
+  deploy:
+    name: Release BBC Reporting Tool (GCP)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install docker
+        run: |
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository \
+            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+              $(lsb_release -cs) \
+              stable"
+          sudo apt-get update
+          sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: "319.0.0"
+          project_id: ${{ secrets.GC_PROJECT_ID  }}
+          service_account_key: ${{ secrets.GCR_ACCESS_KEY }}
+          export_default_credentials: true
+
+      - name: Configure git
+        env:
+          GH_EXTRA_PAT: ${{ secrets.GH_EXTRA_PAT }}
+        run: |
+          git config --global http.extraHeader "Authorization: Basic $(echo -n $GH_EXTRA_PAT | base64)"
+
+      - name: Check out main BBC repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.head_ref}}
+
+      - name: Build main BBC API image
+        run: |
+          cd ./bbc-50-50/api
+          docker build --target core -t "api:${GITHUB_REF##*/}" . -f Dockerfile
+
+      - name: Build main BBC Client image
+        run: |
+          cd ./bbc-50-50/client
+          docker build --target core -t "client:${GITHUB_REF##*/}" . -f Dockerfile
+
+      - name: Authenticate with GCR
+        if: success()
+        run: |
+          gcloud auth configure-docker
+
+      # Check if each image needs to be pushed to its own gcr repo
+      - name: Push API image to gcr's docker repo
+        if: success()
+        env:
+          GCR_REPO: gcr.io/${{ secrets.GC_PROJECT_ID  }}/bbc5050-api
+        run: |
+          docker tag api:${GITHUB_REF##*/} $GCR_REPO:${GITHUB_REF##*/}
+          docker tag api:${GITHUB_REF##*/} $GCR_REPO:latest
+          docker push $GCR_REPO:${GITHUB_REF##*/}
+          docker push $GCR_REPO:latest
+
+      - name: Push Client image to gcr's docker repo
+        if: success()
+        env:
+          GCR_REPO: gcr.io/${{ secrets.GC_PROJECT_ID  }}/bbc5050-client
+        run: |
+          docker tag client:${GITHUB_REF##*/} $GCR_REPO:${GITHUB_REF##*/}
+          docker tag client:${GITHUB_REF##*/} $GCR_REPO:latest
+          docker push $GCR_REPO:${GITHUB_REF##*/}
+          docker push $GCR_REPO:latest
+
+      - name: Send notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
+        run: |
+          GIF=$(curl "https://api.giphy.com/v1/gifs/random?api_key=$GIPHY_API_KEY&tag=dog&rating=g" | python -c "import sys,json; print (json.load(sys.stdin)['data']['images']['downsized']['url'])")
+          MSG="Released BBC 50:50 Dev (GCP) docker image v${GITHUB_REF##*/} :tada:"
+          curl -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\": \"$MSG\", \"blocks\": [{\"type\":\"section\", \"text\": {\"type\": \"plain_text\", \"text\": \"$MSG\", \"emoji\": true}}, {\"type\":\"image\",\"image_url\":\"$GIF\", \"alt_text\":\"dog\", \"title\": {\"type\":\"plain_text\", \"text\": \"success dog\"}}]}" \
+            $SLACK_WEBHOOK
+
+# Build docker image
+# Upload docker image to a docker repository hosted by aws/google cloud
+# tell google how to start that image
+# google takes image and starts running it somewhere- not setting up machine or running docker
+
+# Build API Image
+# Build Docker container
+# Run docker container
+# Send to gcloud build
+
+# Build Docker Container
+# Publish to Container Registry
+# Release to GCloud Run
+
+# Push static assets to public cloud storage bucket
+#
