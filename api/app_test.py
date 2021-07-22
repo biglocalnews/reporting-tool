@@ -1240,9 +1240,9 @@ class TestGraphQL(BaseAppTest):
                 "data": {
                     "record": {
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                        "publicationDate": "2020-12-24T19:00:00",
+                        "publicationDate": "2020-12-21T00:00:00",
                         "dataset": {
-                            "id": "96336531-9245-405f-bd28-5b4b12ea3798"
+                            "id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"
                         },
                         "entries": [
                             {
@@ -1564,7 +1564,7 @@ class TestGraphQL(BaseAppTest):
                 "variables": {
                     "input": {
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                        "publicationDate": '2020-12-25T00:00:00.000Z',
+                        "publicationDate": '2020-12-25T00:00:00.000',
                         "datasetId": "96336531-9245-405f-bd28-5b4b12ea3798",
                         "entries": [{
                             "id": "64677dc1-a1cd-4cd3-965d-6565832d307a",
@@ -1583,7 +1583,7 @@ class TestGraphQL(BaseAppTest):
                 "data": {
                     "updateRecord": {
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                        "publicationDate": "2020-12-24T19:00:00",
+                        "publicationDate": "2020-12-25T00:00:00",
                         "dataset": {
                             "id": "96336531-9245-405f-bd28-5b4b12ea3798",
                             "name": "12PM - 4PM"
