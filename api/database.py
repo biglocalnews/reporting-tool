@@ -755,7 +755,7 @@ def create_dummy_data(session):
 @click.option("--dummy-data/--no-dummy-data", default=False)
 def run(tables: bool, dummy_data: bool):
     """Create tables and dummy data (if requested)."""
-    session = connection.SessionLocal()
+    session = connection()
 
     if tables:
         create_tables(session)

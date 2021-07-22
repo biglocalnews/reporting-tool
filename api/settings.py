@@ -90,6 +90,10 @@ class Settings(BaseSettings):
 
     secret: str = 'shhhhhh its a secret'
 
+    # Whether to send cookies over HTTPS only. This should generally be turned
+    # on in production.
+    use_secure_cookies: bool = False
+
     email: EmailSettings = EmailSettings()
 
     class Config:
