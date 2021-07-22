@@ -162,6 +162,13 @@ program_tags = Table('program_tag', Base.metadata,
                          'tag.id'), index=True),
                      )
 
+dataset_person_types = Table('dataset_person_type', Base.metadata,
+                            Column('dataset_id', GUID, ForeignKey(
+                                'dataset.id'), index=True),
+                            Column('person_type_id', GUID, ForeignKey(
+                            'person_type.id'), index=True),
+                        )
+
 
 class PermissionsMixin:
     """Base class defining some common permissions checks."""
@@ -531,6 +538,8 @@ class Dataset(Base, PermissionsMixin):
     records = relationship('Record')
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
+    person_types = relationship('PersonType', secondary=dataset_person_types,
+                        back_populates='datasets')
 
     # Datasets must be unique within a program to avoid ambiguity.
     UniqueConstraint('name', 'program_id')
@@ -598,6 +607,8 @@ class Entry(Base, PermissionsMixin):
     record_id = Column(GUID, ForeignKey('record.id', ondelete="cascade"), index=True)
     inputter = relationship('User')
     inputter_id = Column(GUID, ForeignKey('user.id'), index=True)
+    person_type = relationship('PersonType', back_populates='entries')
+    person_type_id = Column(GUID, ForeignKey('person_type.id'), index=True)
 
     created = Column(TIMESTAMP,
                      server_default=func.now(), nullable=False)
@@ -615,6 +626,22 @@ class Entry(Base, PermissionsMixin):
     def soft_delete(self, session):
         self.deleted= func.now()
         session.add(self)
+
+class PersonType(Base, PermissionsMixin):
+    __tablename__ = 'person_type'
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    person_type_name = Column(String(255), nullable=False)
+    description = Column(String(255), nullable=True)
+    datasets = relationship('Dataset', secondary=dataset_person_types,
+                            back_populates='person_types')
+    entries = relationship('Entry', back_populates='person_type')
+
+    created = Column(TIMESTAMP,
+                     server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP,
+                     server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
 
 
 def create_tables(session):
@@ -705,7 +732,8 @@ def create_dummy_data(session):
     
     ds1 = Dataset(id='b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89', name='Breakfast Hour',
             description='breakfast hour programming')
-    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM', description='afternoon programming')
+    ds2 = Dataset(id='96336531-9245-405f-bd28-5b4b12ea3798', name='12PM - 4PM',
+            description='afternoon programming')
     
     program = Program(id="1e73e788-0808-4ee8-9b25-682b6fa3868b", name='BBC News',
             description='All BBC news programming', datasets=[ds1, ds2])
@@ -738,21 +766,35 @@ def create_dummy_data(session):
     entry6 = Entry(id='1c49c64f-51e6-48fe-af10-69aaeeddc55f', count=1, inputter=user) 
     entry7 = Entry(id='335b3680-13a1-4d8f-a917-01e1e7e1311a', count=1, inputter=user)
     entry8 = Entry(id='fa5f1f0e-d5ba-4f2d-bdbf-819470a6fa4a', count=1, inputter=user)
+    entry1_b = Entry(id='9a323df8-15cf-45c2-a8c6-755b7d98332b', count=1, inputter=user) 
+    entry2_b = Entry(id='4c672b25-02da-4d48-bece-26b45fff9a03', count=1, inputter=user) 
+    entry3_b = Entry(id='21d12404-a1b7-40c0-9598-5dc853adbb9b', count=1, inputter=user) 
+    entry4_b = Entry(id='98aecacd-9eea-4d08-9b0d-a80c57db3b74', count=1, inputter=user) 
+    entry5_b = Entry(id='0ef0e83a-81b2-4c05-82d5-2fc5d8714368', count=1, inputter=user) 
+    entry6_b = Entry(id='4f07ef7f-70ec-4c04-9f57-fd692ab430d2', count=1, inputter=user) 
+    entry7_b = Entry(id='201d163a-873c-4196-9056-18e66eab37c7', count=1, inputter=user)
+    entry8_b = Entry(id='d7f57989-cf6e-4384-93d4-773d71137e0d', count=1, inputter=user)
     
-    CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women', category=category_gender, targets=[target_cis_women], entries=[entry2])
-    CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men', category=category_gender, targets=[target_cis_men], entries=[entry3])
-    CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women', category=category_gender, targets=[target_trans_women], entries=[entry4])
-    CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men', category=category_gender, targets=[target_trans_men], entries=[entry5])
-    CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming', category=category_gender, targets=[target_gender_non_conforming], entries=[entry6])
-    CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1])
-    CategoryValue(id='c36958cb-cc62-479e-ab61-eb03896a981c', name='disabled', category=category_disability, targets=[target_disabed], entries=[entry7])
-    CategoryValue(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='non-disabled', category=category_disability, targets=[target_non_disabled], entries=[entry8])
+    CategoryValue(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', name='cisgender women', category=category_gender, targets=[target_cis_women], entries=[entry2, entry2_b])
+    CategoryValue(id='d237a422-5858-459c-bd01-a0abdc077e5b', name='cisgender men', category=category_gender, targets=[target_cis_men], entries=[entry3, entry3_b])
+    CategoryValue(id='662557e5-aca8-4cec-ad72-119ad9cda81b', name='trans women', category=category_gender, targets=[target_trans_women], entries=[entry4, entry4_b])
+    CategoryValue(id='1525cce8-7db3-4e73-b5b0-d2bd14777534', name='trans men', category=category_gender, targets=[target_trans_men], entries=[entry5, entry5_b])
+    CategoryValue(id='a72ced2b-b1a6-4d3d-b003-e35e980960df', name='gender non-conforming', category=category_gender, targets=[target_gender_non_conforming], entries=[entry6, entry6_b])
+    CategoryValue(id='6cae6d26-97e1-4e9c-b1ad-954b4110e83b', name='non-binary', category=category_gender, targets=[target_non_binary], entries=[entry1, entry1_b])
+    CategoryValue(id='c36958cb-cc62-479e-ab61-eb03896a981c', name='disabled', category=category_disability, targets=[target_disabed], entries=[entry7, entry7_b])
+    CategoryValue(id='55119215-71e9-43ca-b2c1-7e7fb8cec2fd', name='non-disabled', category=category_disability, targets=[target_non_disabled], entries=[entry8, entry8_b])
     
     category_value_white = CategoryValue(id='0034d015-0652-497d-ab4a-d42b0bdf08cb', name='white', category=category_race)
     
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format
     Record(id='742b5971-eeb6-4f7a-8275-6111f2342bb4', dataset=ds1, publication_date=datetime.strptime('2020-12-21 00:00:00', '%Y-%m-%d %H:%M:%S'), 
-           entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8]) 
+           entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8,
+           entry1_b, entry2_b, entry3_b, entry4_b, entry5_b, entry6_b, entry7_b, entry8_b]) 
+
+    PersonType(id='1c9b9573-726f-46c4-86a8-ed6412eb0c35', person_type_name='BBC Contributor', datasets=[ds1], 
+                entries=[entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8])
+    PersonType(id='59bf75ad-f5b9-4b21-94e5-659896ebe2b5', person_type_name='Non-BBC Contributor', datasets=[ds1],
+                entries=[entry1_b, entry2_b, entry3_b, entry4_b, entry5_b, entry6_b, entry7_b, entry8_b])
     
     session.add(category_value_white)
     session.add(org)

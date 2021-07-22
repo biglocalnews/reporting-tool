@@ -10,3 +10,8 @@
 .ant-layout {
   min-height: initial;
 }
+
+.ant-page-header {
+  padding-left: 0;
+  padding-right: 0;
+}

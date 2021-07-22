@@ -43,6 +43,7 @@ export interface EntryInput {
   readonly id?: string | null;
   readonly categoryValueId: string;
   readonly count: number;
+  readonly personTypeId?: string | null;
 }
 
 export interface FirstTimeAppConfigurationInput {

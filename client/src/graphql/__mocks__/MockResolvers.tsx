@@ -157,6 +157,30 @@ const datasets = new Map([
         },
       ],
       records: recordsData,
+      personTypes: [],
+    },
+  ],
+  [
+    "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+    {
+      id: "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",
+      name: "12pm - 4pm",
+      tags: [
+        {
+          name: "News",
+        },
+      ],
+      records: recordsData,
+      personTypes: [
+        {
+          id: "1c9b9573-726f-46c4-86a8-ed6412eb0c35",
+          personTypeName: "BBC Contributor",
+        },
+        {
+          id: "59bf75ad-f5b9-4b21-94e5-659896ebe2b5",
+          personTypeName: "Non-BBC Contributor",
+        },
+      ],
     },
   ],
 ]);

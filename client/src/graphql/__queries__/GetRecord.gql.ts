@@ -20,6 +20,10 @@ export const GET_RECORD = gql`
           }
         }
         count
+        personType {
+          id
+          personTypeName
+        }
       }
     }
   }

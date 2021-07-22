@@ -55,7 +55,7 @@ test("should render home page datasets and formatted 'last updated' date", async
   expect(within(row).getAllByRole("cell")[2].textContent).toBe("May 10, 2021");
 });
 
-test("should render No Data Available for 'last updated' date when no records exist", async () => {
+test("should render No Data Available Yet for 'last updated' date when no records exist", async () => {
   const { auth } = mockUserLoggedIn();
   await auth.init();
 
@@ -82,7 +82,7 @@ test("should render No Data Available for 'last updated' date when no records ex
   const row = screen.getAllByRole("row")[1];
   expect(row).toHaveTextContent(/breakfast hour/i);
   expect(within(row).getAllByRole("cell")[2].textContent).toBe(
-    "No Data Available"
+    "No Data Available Yet"
   );
 });
 

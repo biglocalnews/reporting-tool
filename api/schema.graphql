@@ -119,6 +119,14 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   records: [Record!]!
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
+  personTypes: [PersonType!]!
+}
+
+type PersonType {
+  id: ID!
+  dataset: Dataset!
+  personTypeName: String!
+  description: String
 }
 
 type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
@@ -139,6 +147,7 @@ type Entry @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   categoryValue: CategoryValue!
   count: Int!
   inputter: User!
+  personType: PersonType
 }
 
 type Description {
@@ -229,6 +238,7 @@ input EntryInput {
   id: ID
   categoryValueId: ID!
   count: Int!
+  personTypeId: ID
 }
 
 input CategoryInput {

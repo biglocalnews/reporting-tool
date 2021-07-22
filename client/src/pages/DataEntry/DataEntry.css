@@ -1,5 +1,5 @@
 .data-entry_record_person_type {
-  font-size: large;
+  font-size: medium;
 }
 
 .data-entry_publication-date-field > label {
@@ -19,4 +19,9 @@
   display: grid;
   grid-template-columns: max-content max-content;
   grid-gap: 5px;
+}
+
+.personTypeTitle {
+  font-size: 1rem;
+  line-height: 3rem;
 }

@@ -6,6 +6,10 @@ export const GET_DATASET = gql`
       id
       name
       lastUpdated
+      personTypes {
+        id
+        personTypeName
+      }
       sumOfCategoryValueCounts {
         categoryValue {
           id
@@ -49,6 +53,10 @@ export const GET_DATASET = gql`
             }
           }
           count
+          personType {
+            id
+            personTypeName
+          }
         }
       }
     }
