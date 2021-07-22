@@ -50,7 +50,7 @@ jobs:
           gcloud auth configure-docker
 
       # Check if each image needs to be pushed to its own gcr repo
-      - name: Push API image to gcr's docker repo
+      - name: Push API image to GCR's docker repo
         if: success()
         env:
           GCR_REPO: gcr.io/${{ secrets.GC_PROJECT_ID  }}/bbc5050-api
@@ -60,7 +60,7 @@ jobs:
           docker push $GCR_REPO:${GITHUB_REF##*/}
           docker push $GCR_REPO:latest
 
-      - name: Push Client image to gcr's docker repo
+      - name: Push Client image to GCR's docker repo
         if: success()
         env:
           GCR_REPO: gcr.io/${{ secrets.GC_PROJECT_ID  }}/bbc5050-client
