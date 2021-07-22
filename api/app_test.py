@@ -688,249 +688,252 @@ class TestGraphQL(BaseAppTest):
                         "program": {
                             "id": "1e73e788-0808-4ee8-9b25-682b6fa3868b",
                             "name": "BBC News",
-                            "tags": [{
-                                "name": "News"
-                            }]
-                        },
-                        "records": [{
-                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                            "publicationDate": "2020-12-21T00:00:00",
-                            "entries": [
-                                # BBC contributors
+                            "tags": [
                                 {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                        "name": "Non-binary"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                                        "name": "Cisgender women"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                        "name": "Cisgender men"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
-                                        "name": "Trans women"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-                                        "name": "Trans men"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-                                        "name": "Gender non-conforming"
-                                    }
-                                },
-                                {
-                                    "count": 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                        "name": "Disabled"
-                                    },
-                                },
-                                {
-                                    "count": 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                        "name": "Non-disabled"
-                                    },
-                                },
-
-                                # Non-BBC contributors
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                        "name": "Non-binary"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                                        "name": "Cisgender women"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                        "name": "Cisgender men"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
-                                        "name": "Trans women"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-                                        "name": "Trans men"
-                                    }
-                                },
-                                {
-                                    'count': 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    'categoryValue': {
-                                        "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-                                        "name": "Gender non-conforming"
-                                    }
-                                },
-                                {
-                                    "count": 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                        "name": "Disabled"
-                                    },
-                                },
-                                {
-                                    "count": 1,
-                                    'inputter': {
-                                        'id': 'cd7e6d44-4b4d-4d7a-8a67-31efffe53e77',
-                                        'firstName': 'Cat'
-                                    },
-                                    "personType": {
-                                        "personTypeName": "Non-BBC Contributor",
-                                    },
-                                    "categoryValue": {
-                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                        "name": "Non-disabled"
-                                    },
-                                },
+                                    "name": "News"
+                                }
                             ]
-                        }],
-                        "tags": [{
-                            "id": "4a2142c0-5416-431d-b62f-0dbfe7574688",
-                            "name": "News"
-                        }]
-                    },
-                },
+                        },
+                        "records": [
+                            {
+                                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                "publicationDate": "2020-12-21T00:00:00",
+                                "entries": [
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                            "name": "Cisgender women"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                            "name": "Cisgender women"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                            "name": "Cisgender men"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                            "name": "Cisgender men"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                            "name": "Trans women"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                            "name": "Trans women"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                            "name": "Trans men"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                            "name": "Trans men"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                            "name": "Gender non-conforming"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                            "name": "Gender non-conforming"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                            "name": "Non-binary"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                            "name": "Non-binary"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                            "name": "Disabled"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                            "name": "Disabled"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                            "name": "Non-disabled"
+                                        }
+                                    },
+                                    {
+                                        "count": 1,
+                                        "personType": {
+                                            "personTypeName": "Non-BBC Contributor"
+                                        },
+                                        "inputter": {
+                                            "id": "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
+                                            "firstName": "Cat"
+                                        },
+                                        "categoryValue": {
+                                            "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                            "name": "Non-disabled"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "id": "4a2142c0-5416-431d-b62f-0dbfe7574688",
+                                "name": "News"
+                            }
+                        ]
+                    }
+                }
             })
 
     def test_query_dataset_no_perm(self):
@@ -1236,84 +1239,159 @@ class TestGraphQL(BaseAppTest):
             self.assertEqual(result, {
                 "data": {
                     "record": {
-                        "id" : "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                        "publicationDate": "2020-12-21T00:00:00",
-                        "dataset": {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"},
+                        "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                        "publicationDate": "2020-12-24T19:00:00",
+                        "dataset": {
+                            "id": "96336531-9245-405f-bd28-5b4b12ea3798"
+                        },
                         "entries": [
-                            # BBC Contributors
-                            {"categoryValue": {
-                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                "name": "Non-binary"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                                "name": "Cisgender women"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                "name": "Cisgender men"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
-                                "name": "Trans women"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-                                "name": "Trans men"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-                                "name": "Gender non-conforming"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                "name": "Disabled"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                "name": "Non-disabled"
-                            }, "personType": {"personTypeName": "BBC Contributor"}},
-
-                            # Non-BBC Contributors
-                            {"categoryValue": {
-                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                "name": "Non-binary"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                                "name": "Cisgender women"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
-                                "name": "Cisgender men"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
-                                "name": "Trans women"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
-                                "name": "Trans men"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {'categoryValue': {
-                                "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
-                                "name": "Gender non-conforming"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
-                                "name": "Non-binary"
-                            }},
-                            {"categoryValue": {
-                                "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
-                                "name": "Disabled"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
-                            {"categoryValue": {
-                                "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-                                "name": "Non-disabled"
-                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                    "name": "Cisgender women"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                    "name": "Cisgender women"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "name": "Cisgender men"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "name": "Cisgender men"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                    "name": "Trans women"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                    "name": "Trans women"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                    "name": "Trans men"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                    "name": "Trans men"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                    "name": "Gender non-conforming"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                    "name": "Gender non-conforming"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                    "name": "Non-binary"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                    "name": "Non-binary"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                    "name": "Disabled"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                    "name": "Disabled"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                    "name": "Non-disabled"
+                                }
+                            },
+                            {
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                    "name": "Non-disabled"
+                                }
+                            }
                         ]
-                    },
-                },
+                    }
+                }
             })
 
     def test_query_record_no_perm(self):
@@ -1505,63 +1583,239 @@ class TestGraphQL(BaseAppTest):
                 "data": {
                     "updateRecord": {
                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-                        "publicationDate": "2020-12-25T00:00:00",
-                        "dataset": {"id": "96336531-9245-405f-bd28-5b4b12ea3798", "name": "12PM - 4PM"},
+                        "publicationDate": "2020-12-24T19:00:00",
+                        "dataset": {
+                            "id": "96336531-9245-405f-bd28-5b4b12ea3798",
+                            "name": "12PM - 4PM"
+                        },
                         "entries": [
-                            # BBC Contributors
-                            {"count": 0,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "BBC Contributor" },
-                                "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
-
-                            # Non-BBC Contributors
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
-                            {"count": 1,
-                                "personType": { "personTypeName": "Non-BBC Contributor" },
-                                "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                    "name": "Cisgender women",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
+                                    "name": "Cisgender women",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "name": "Cisgender men",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
+                                    "name": "Cisgender men",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                    "name": "Trans women",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
+                                    "name": "Trans women",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                    "name": "Trans men",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
+                                    "name": "Trans men",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                    "name": "Gender non-conforming",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
+                                    "name": "Gender non-conforming",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 0,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                    "name": "Non-binary",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
+                                    "name": "Non-binary",
+                                    "category": {
+                                        "id": "51349e29-290e-4398-a401-5bf7d04af75e",
+                                        "name": "Gender"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                    "name": "Disabled",
+                                    "category": {
+                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                        "name": "Disability"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
+                                    "name": "Disabled",
+                                    "category": {
+                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                        "name": "Disability"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                    "name": "Non-disabled",
+                                    "category": {
+                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                        "name": "Disability"
+                                    }
+                                }
+                            },
+                            {
+                                "count": 1,
+                                "personType": {
+                                    "personTypeName": "Non-BBC Contributor"
+                                },
+                                "categoryValue": {
+                                    "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                    "name": "Non-disabled",
+                                    "category": {
+                                        "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
+                                        "name": "Disability"
+                                    }
+                                }
+                            }
                         ]
-                    },
-                },
+                    }
+                }
             }
 
     def test_update_record_no_perm(self):
