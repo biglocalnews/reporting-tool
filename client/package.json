@@ -37,7 +37,7 @@
     "start": "react-scripts start",
     "start-env": "sh -ac '. .env.${REACT_APP_ENV}; react-scripts start'",
     "start:mock": "REACT_APP_ENV=mock yarn run start-env",
-    "build": "react-scripts build",
+    "build": "REACT_APP_BUILD_TS=`date +%s` react-scripts build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "npx jest --coverage",
