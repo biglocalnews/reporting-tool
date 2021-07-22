@@ -47,7 +47,7 @@ jobs:
       - name: Authenticate with GCR
         if: success()
         run: |
-          gcloud auth configure-docker
+          gcloud auth login configure-docker
 
       # Check if each image needs to be pushed to its own gcr repo
       - name: Push API image to gcr's docker repo
@@ -76,7 +76,7 @@ jobs:
           GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
         run: |
           GIF=$(curl "https://api.giphy.com/v1/gifs/random?api_key=$GIPHY_API_KEY&tag=dog&rating=g" | python -c "import sys,json; print (json.load(sys.stdin)['data']['images']['downsized']['url'])")
-          MSG="Released BBC 50:50 Dev (GCP) docker image v${GITHUB_REF##*/} :tada:"
+          MSG="Released BBC 50:50 Dev (GCP) docker image v${GITHUB_REF##*/} :hamsterdance:"
           curl -X POST -H 'Content-Type: application/json' \
             --data "{\"text\": \"$MSG\", \"blocks\": [{\"type\":\"section\", \"text\": {\"type\": \"plain_text\", \"text\": \"$MSG\", \"emoji\": true}}, {\"type\":\"image\",\"image_url\":\"$GIF\", \"alt_text\":\"dog\", \"title\": {\"type\":\"plain_text\", \"text\": \"success dog\"}}]}" \
             $SLACK_WEBHOOK
