@@ -24,7 +24,6 @@ services:
         mode: 0400
     depends_on:
       - db
-      - api_init
 
   # Typescript assets
   static:
