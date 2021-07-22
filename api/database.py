@@ -1,10 +1,10 @@
 """Define and manage database schema.
 
 Run this as a script to create the database tables:
-    python database.py --tables
+    python database.py
 
 Can also add dummy data for development with:
-    python database.py --tables --dummy-data
+    python database.py --dummy-data
 """
 import databases
 import uuid
@@ -802,16 +802,16 @@ def create_dummy_data(session):
 
 
 @click.command()
-@click.option("--tables/--no-tables", default=True)
 @click.option("--dummy-data/--no-dummy-data", default=False)
-def run(tables: bool, dummy_data: bool):
+def run(dummy_data: bool):
     """Create tables and dummy data (if requested)."""
+    # Database and tables are created automatically when connecting if they
+    # don't already exist.
     session = connection()
 
-    if tables:
-        create_tables(session)
     if dummy_data:
         create_dummy_data(session)
+
     print("✅ done!")
 
 
