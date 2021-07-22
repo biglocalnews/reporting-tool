@@ -21,6 +21,12 @@ i18next
       escapeValue: false, // not needed for react as it escapes by default
     },
     debug: process.env.NODE_ENV === "development",
+    backend: {
+      requestOptions: {
+        cache: "no-cache",
+      },
+      queryStringParams: { t: process.env.REACT_APP_BUILD_TS || "" },
+    },
   });
 
 export default i18next;
