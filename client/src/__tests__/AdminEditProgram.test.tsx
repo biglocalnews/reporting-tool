@@ -7,6 +7,7 @@ import { ADMIN_DELETE_PROGRAM } from "../graphql/__mutations__/AdminDeleteProgra
 import { ADMIN_RESTORE_PROGRAM } from "../graphql/__mutations__/AdminRestoreProgram.gql";
 import { ADMIN_UPDATE_PROGRAM } from "../graphql/__mutations__/AdminUpdateProgram.gql";
 import { ADMIN_GET_ALL_CATEGORIES } from "../graphql/__queries__/AdminGetAllCategories.gql";
+import { ADMIN_GET_ALL_PERSON_TYPES } from "../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
 import { GET_ALL_TAGS } from "../graphql/__queries__/GetAllTags.gql";
@@ -31,6 +32,16 @@ const PROGRAM = {
           id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
           name: "DS1",
           description: "first dataset",
+          personTypes: [
+            {
+              id: "fffff3b4-b910-4f6e-8f3c-8201c8812345",
+              personTypeName: "personType1",
+            },
+            {
+              id: "ggggg3b4-b910-4f6e-8f3c-8201c8812345",
+              personTypeName: "personType2",
+            },
+          ],
         },
       ],
       targets: [
@@ -111,6 +122,25 @@ const CATEGORIES = {
   },
 };
 
+const PERSON_TYPES = {
+  data: {
+    personTypes: [
+      {
+        id: "fffff3b4-b910-4f6e-8f3c-8201c8812345",
+        personTypeName: "personType1",
+      },
+      {
+        id: "ggggg3b4-b910-4f6e-8f3c-8201c8812345",
+        personTypeName: "personType2",
+      },
+      {
+        id: "hhhhh3b4-b910-4f6e-8f3c-8201c8812345",
+        personTypeName: "personType3",
+      },
+    ],
+  },
+};
+
 const TAGS = {
   data: {
     tags: [
@@ -157,6 +187,10 @@ const apolloMocks = [
   {
     request: { query: GET_ALL_TAGS },
     result: TAGS,
+  },
+  {
+    request: { query: ADMIN_GET_ALL_PERSON_TYPES },
+    result: PERSON_TYPES,
   },
 ];
 
@@ -225,6 +259,7 @@ it("can set new target values for existing targets", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
@@ -329,6 +364,7 @@ it("can remove tracked targets", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
@@ -431,6 +467,7 @@ it("can add new tracked targets", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
@@ -613,6 +650,7 @@ it("can add and remove tracked categories", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             targets: [...genderTargets, ...otherCatTargets],
@@ -642,6 +680,7 @@ it("can add and remove tracked categories", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             targets: [...otherCatTargets],
@@ -742,6 +781,7 @@ it("can edit a dataset", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1 - edited",
                 description: "first dataset - edited",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             tags: [{ id: "ccccc3b4-b910-4f6e-8f3c-8201c9999999" }],
@@ -841,6 +881,7 @@ it("can add and remove datasets", async () => {
               {
                 name: "DS2",
                 description: "second dataset",
+                personTypes: ["newPersonType", "personType3"],
               },
             ],
             targets: [
@@ -916,6 +957,40 @@ it("can add and remove datasets", async () => {
     { target: { value: "second dataset" } }
   );
 
+  const personTypeBox = screen.getByRole("combobox", { name: /personType/ });
+  userEvent.type(personTypeBox, "newPersonType");
+
+  await tick();
+
+  fireEvent.keyDown(personTypeBox, {
+    key: "enter",
+    code: 13,
+    charCode: 13,
+    keyCode: 13,
+  });
+
+  await tick();
+
+  userEvent.type(personTypeBox, "3");
+
+  await tick();
+
+  fireEvent.keyDown(personTypeBox, {
+    key: "arrowdown",
+    code: 40,
+    charCode: 40,
+    keyCode: 40,
+  });
+
+  await tick();
+
+  fireEvent.keyDown(personTypeBox, {
+    key: "enter",
+    code: 13,
+    charCode: 13,
+    keyCode: 13,
+  });
+
   await tick();
 
   fireEvent.click(screen.getByRole("button", { name: /save/ }));
@@ -948,6 +1023,7 @@ it("can edit basic info: name and description and team", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             targets: [
@@ -1169,6 +1245,7 @@ it("lets user add custom and existing tags", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             targets: [
@@ -1292,6 +1369,7 @@ it("lets user remove tags", async () => {
                 id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
                 name: "DS1",
                 description: "first dataset",
+                personTypes: ["personType1", "personType2"],
               },
             ],
             targets: [
