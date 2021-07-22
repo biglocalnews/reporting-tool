@@ -47,7 +47,6 @@ jobs:
       - name: Authenticate with GCR
         if: success()
         run: |
-          gcloud auth login 
           gcloud auth configure-docker
 
       # Check if each image needs to be pushed to its own gcr repo
