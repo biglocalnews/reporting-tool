@@ -3,6 +3,8 @@ name: Deploy BBC Reporting Tool
 on:
   push:
     branches: [main, ch328/github-workflows]
+  pull_request:
+    branches: [main, ch328/github-workflows]
 
 jobs:
   deploy:
