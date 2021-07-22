@@ -25,7 +25,7 @@ i18next
       requestOptions: {
         cache: "no-cache",
       },
-      queryStringParams: { t: process.env.REACT_APP_BUILD_TS },
+      queryStringParams: { t: process.env.REACT_APP_BUILD_TS || "" },
     },
   });
 
