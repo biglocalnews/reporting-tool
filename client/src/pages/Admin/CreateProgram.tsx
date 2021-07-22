@@ -1,5 +1,15 @@
 import { useApolloClient } from "@apollo/client";
-import { Alert, Form, FormInstance, Input, message, Select } from "antd";
+import {
+  Alert,
+  Col,
+  Form,
+  FormInstance,
+  Input,
+  message,
+  Row,
+  Select,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -203,15 +213,27 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
           optionFilterProp="children"
           loading={programsResponse.loading}
           filterOption={(input, option) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            option?.title.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
           filterSort={(a, b) =>
-            a.children.toLowerCase().localeCompare(b.children.toLowerCase())
+            a.title.toLowerCase().localeCompare(b.title.toLowerCase())
           }
         >
           {programsResponse.data?.programs.map((p) => (
-            <Select.Option key={p.id} value={p.id}>
-              {p.name}
+            <Select.Option
+              key={p.id}
+              value={p.id}
+              aria-label={`${p.team?.name}: ${p.name}`}
+              title={`${p.team?.name}: ${p.name}`}
+            >
+              <Row justify="space-between">
+                <Col>{p.name}</Col>
+                <Col>
+                  <Typography.Text type="secondary">
+                    {p.team?.name}
+                  </Typography.Text>
+                </Col>
+              </Row>
             </Select.Option>
           ))}
         </Select>
