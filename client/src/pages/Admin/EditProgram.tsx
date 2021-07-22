@@ -26,6 +26,7 @@ import { Loading } from "../../components/Loading/Loading";
 import { NewStringInput } from "../../components/NewStringInput";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
+import { AdminGetAllPersonTypes } from "../../graphql/__generated__/AdminGetAllPersonTypes";
 import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
 import {
   AdminGetProgram,
@@ -34,6 +35,7 @@ import {
 } from "../../graphql/__generated__/AdminGetProgram";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
+import { ADMIN_GET_ALL_PERSON_TYPES } from "../../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
@@ -132,6 +134,11 @@ export const EditProgram = () => {
     "tags"
   );
 
+  const personTypesResponse = useQueryWithErrorHandling<AdminGetAllPersonTypes>(
+    ADMIN_GET_ALL_PERSON_TYPES,
+    "personTypes"
+  );
+
   if (
     teamsResponse.loading ||
     programResponse.loading ||
@@ -153,7 +160,10 @@ export const EditProgram = () => {
       value: id,
     })),
     targets: getGroupedTargets(programResponse.data!.program.targets),
-    datasets: programResponse.data!.program.datasets.slice(),
+    datasets: programResponse.data!.program.datasets.map((ds) => ({
+      ...ds,
+      personTypes: ds.personTypes.map(({ personTypeName }) => personTypeName),
+    })),
   };
 
   return (
@@ -634,29 +644,63 @@ export const EditProgram = () => {
                           </Form.Item>
                         }
                         description={
-                          <Form.Item
-                            label={t(
-                              "admin.program.edit.form.datasetDescription"
-                            )}
-                            rules={[
-                              {
-                                required: true,
-                                message: t(
-                                  "admin.program.edit.form.validation.datasetDescriptionRequired"
-                                ),
-                              },
-                            ]}
-                            wrapperCol={{ span: 24 }}
-                            name={[datasetField.name, "description"]}
-                          >
-                            <Input.TextArea
-                              aria-required="true"
-                              aria-label={t(
+                          <>
+                            <Form.Item
+                              label={t("admin.program.edit.form.personTypes")}
+                              name={[datasetField.name, "personTypes"]}
+                            >
+                              <Select
+                                disabled={inactive}
+                                aria-label={t(
+                                  "admin.program.edit.form.personTypes"
+                                )}
+                                mode="tags"
+                                placeholder={t(
+                                  "admin.program.edit.form.newPersonTypePrompt"
+                                )}
+                                filterOption={(input, option) =>
+                                  option?.children
+                                    ?.toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                }
+                              >
+                                {personTypesResponse.data?.personTypes.map(
+                                  ({ personTypeName }) => (
+                                    <Select.Option
+                                      key={personTypeName}
+                                      value={personTypeName}
+                                    >
+                                      {personTypeName}
+                                    </Select.Option>
+                                  )
+                                )}
+                              </Select>
+                            </Form.Item>
+
+                            <Form.Item
+                              label={t(
                                 "admin.program.edit.form.datasetDescription"
                               )}
-                              disabled={inactive}
-                            />
-                          </Form.Item>
+                              rules={[
+                                {
+                                  required: true,
+                                  message: t(
+                                    "admin.program.edit.form.validation.datasetDescriptionRequired"
+                                  ),
+                                },
+                              ]}
+                              wrapperCol={{ span: 24 }}
+                              name={[datasetField.name, "description"]}
+                            >
+                              <Input.TextArea
+                                aria-required="true"
+                                aria-label={t(
+                                  "admin.program.edit.form.datasetDescription"
+                                )}
+                                disabled={inactive}
+                              />
+                            </Form.Item>
+                          </>
                         }
                       />
                     </List.Item>

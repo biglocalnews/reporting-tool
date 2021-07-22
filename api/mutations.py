@@ -348,7 +348,7 @@ def resolve_create_program(obj, info, input):
         input['description'] = ''
     
     program = Program(**input)
-    program.datasets = [session.merge(Dataset(**dataset)) for dataset in datasets]
+    program.datasets = Dataset.upsert_datasets(session, datasets)
     for tag_dict in tags:
         tag = Tag.get_or_create(session, tag_dict)
         program.tags.append(tag)
@@ -400,11 +400,7 @@ def resolve_update_program(obj, info, input):
             program.targets.append(target)
 
     if 'datasets' in input:
-        program.datasets = []
-        for ds_dict in input.pop('datasets'):
-            if 'id' in ds_dict:
-                ds_dict['id'] = uuid.UUID(ds_dict['id'])
-            program.datasets.append(session.merge(Dataset(**ds_dict)))
+        program.datasets = Dataset.upsert_datasets(session, input.pop('datasets'))
 
     if 'tags' in input:
         program.tags = []

@@ -9,6 +9,7 @@ from database import (
         Entry,
         Team,
         Role,
+        PersonType,
         Program,
         Organization,
         Tag,
@@ -232,3 +233,13 @@ def resolve_organizations(obj, info):
     '''
     session = info.context['dbsession']
     return session.query(Organization).filter(Organization.deleted == None).order_by(Organization.name.asc()).all()
+
+
+@query.field("personTypes")
+def resolve_person_types(obj, info):
+    '''GraphQL query to fetch all person types.
+
+    :returns: List of PersonTypes
+    '''
+    session = info.context['dbsession']
+    return session.query(PersonType).order_by(PersonType.person_type_name.asc()).all()

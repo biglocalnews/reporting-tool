@@ -2826,6 +2826,9 @@ class TestGraphQL(BaseAppTest):
                             }
                             datasets {
                                 name
+                                personTypes {
+                                    personTypeName
+                                }
                             }
                             targets {
                                 target
@@ -2844,6 +2847,7 @@ class TestGraphQL(BaseAppTest):
                         "datasets": [{
                             "name": "A new dataset",
                             "description": "Some new dataset",
+                            "personTypes": ["BBC CONTRIBUTOR", "another"],
                             }],
                         "targets": [
                             {
@@ -2881,7 +2885,11 @@ class TestGraphQL(BaseAppTest):
                                 "name": "News Team"
                             },
                             "tags": [{"name": "News"}],
-                            "datasets": [{"name": "A new dataset"}], 
+                            "datasets": [{"name": "A new dataset",
+                                "personTypes": [
+                                    {"personTypeName": "BBC Contributor"},
+                                    {"personTypeName": "another"},
+                                    ]}], 
                             "targets": [{"target": 0.5}, {"target": 0.5}],
                         },
                     },
@@ -2925,6 +2933,9 @@ class TestGraphQL(BaseAppTest):
                             }
                             datasets {
                                 name
+                                personTypes {
+                                    personTypeName
+                                }
                             }
                             tags {
                                 name
@@ -2958,7 +2969,8 @@ class TestGraphQL(BaseAppTest):
                             ],
                         "datasets": [
                             {"id": "b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89"}, # Existing dataset 'Breakfast Hour'
-                            {"name": "Some new dataset", "description": "for testing"}, # New one 
+                            {"name": "Some new dataset", "description": "for testing",
+                                "personTypes": ["one", "two", "BBC CONTRIBUTOR"]}, # New one 
                             ],
                         "tags": [
                             {"id": "4a2142c0-5416-431d-b62f-0dbfe7574688"}, # Existing tag 'news'
@@ -3001,8 +3013,17 @@ class TestGraphQL(BaseAppTest):
                                 },
                             ],
                             "datasets": [
-                                {"name": "Breakfast Hour"},
-                                {"name": "Some new dataset"},
+                                {"name": "Breakfast Hour",
+                                    "personTypes": [
+                                        {"personTypeName": "BBC Contributor"},
+                                        {"personTypeName": "Non-BBC Contributor"},
+                                        ]},
+                                {"name": "Some new dataset",
+                                    "personTypes": [
+                                        {"personTypeName": "BBC Contributor"},
+                                        {"personTypeName": "one"},
+                                        {"personTypeName": "two"},
+                                        ]},
                             ],
                             "tags": [
                                 {"name": "News"},

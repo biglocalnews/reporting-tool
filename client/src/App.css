@@ -8,7 +8,7 @@
 }
 
 .ant-layout {
-  min-height: initial;
+  min-height: max-content;
 }
 
 .ant-page-header {

@@ -19,11 +19,18 @@ export interface AdminGetProgram_program_tags {
   readonly name: string;
 }
 
+export interface AdminGetProgram_program_datasets_personTypes {
+  readonly __typename: "PersonType";
+  readonly id: string;
+  readonly personTypeName: string;
+}
+
 export interface AdminGetProgram_program_datasets {
   readonly __typename: "Dataset";
   readonly id: string;
   readonly name: string;
   readonly description: string | null;
+  readonly personTypes: ReadonlyArray<AdminGetProgram_program_datasets_personTypes>;
 }
 
 export interface AdminGetProgram_program_targets_categoryValue_category {

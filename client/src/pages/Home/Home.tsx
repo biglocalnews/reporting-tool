@@ -10,7 +10,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 import { ErrorFallback } from "../../components/Error/ErrorFallback";
 import { Loading } from "../../components/Loading/Loading";
+import {
+  AllDatasets,
+  AllDatasets_teams,
+} from "../../graphql/__generated__/AllDatasets";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
+import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 
@@ -89,12 +94,12 @@ const columns: ColumnsType<TableData> = [
 ];
 
 const getTableData = (
-  queryData: GetUser | undefined,
+  queryData: AllDatasets_teams[],
   t: TFunction<"translation">
 ) => {
   const rowData: Array<TableData> = [];
 
-  queryData?.user?.teams.map((team) => {
+  queryData.map((team) => {
     return team.programs.map((program) => {
       program.datasets.map((dataset) => {
         rowData.push({
@@ -117,7 +122,8 @@ const getTableData = (
 
 const Home = (): JSX.Element => {
   const { t } = useTranslation();
-  const userId = useAuth().getUserId();
+  const auth = useAuth();
+  const userId = auth.getUserId();
 
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
@@ -125,10 +131,14 @@ const Home = (): JSX.Element => {
       variables: { id: userId },
     }
   );
+  const allTeams = useQuery<AllDatasets>(ALL_DATASETS, {
+    skip: !auth.isAdmin(),
+  });
 
   const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
 
-  const rowData = getTableData(data, t);
+  const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
+  const rowData = getTableData(originalTeamData.slice(), t);
 
   // Filters datasets table by search term
   const handleTableSearchFilter = (searchText: string) => {
