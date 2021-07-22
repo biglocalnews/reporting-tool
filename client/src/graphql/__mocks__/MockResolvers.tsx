@@ -174,11 +174,11 @@ const datasets = new Map([
       personTypes: [
         {
           id: "1c9b9573-726f-46c4-86a8-ed6412eb0c35",
-          person_type_name: "BBC Contributor",
+          personTypeName: "BBC Contributor",
         },
         {
           id: "59bf75ad-f5b9-4b21-94e5-659896ebe2b5",
-          person_type_name: "Non-BBC Contributor",
+          personTypeName: "Non-BBC Contributor",
         },
       ],
     },

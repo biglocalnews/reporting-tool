@@ -22,7 +22,7 @@ export const GET_RECORD = gql`
         count
         personType {
           id
-          person_type_name
+          personTypeName
         }
       }
     }

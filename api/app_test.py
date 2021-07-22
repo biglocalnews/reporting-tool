@@ -654,7 +654,7 @@ class TestGraphQL(BaseAppTest):
                                 entries {
                                     count
                                     personType {
-                                        person_type_name
+                                        personTypeName
                                     }
                                     inputter {
                                         id
@@ -704,7 +704,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
@@ -718,7 +718,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
@@ -732,7 +732,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
@@ -746,7 +746,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
@@ -760,7 +760,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
@@ -774,7 +774,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
@@ -788,7 +788,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
@@ -802,7 +802,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "BBC Contributor",
+                                        "personTypeName": "BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
@@ -818,7 +818,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
@@ -832,7 +832,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
@@ -846,7 +846,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
@@ -860,7 +860,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
@@ -874,7 +874,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
@@ -888,7 +888,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     'categoryValue': {
                                         "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
@@ -902,7 +902,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
@@ -916,7 +916,7 @@ class TestGraphQL(BaseAppTest):
                                         'firstName': 'Cat'
                                     },
                                     "personType": {
-                                        "person_type_name": "Non-BBC Contributor",
+                                        "personTypeName": "Non-BBC Contributor",
                                     },
                                     "categoryValue": {
                                         "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
@@ -1217,7 +1217,7 @@ class TestGraphQL(BaseAppTest):
                             }
                             entries {
                                 personType {
-                                    person_type_name
+                                    personTypeName
                                 }
                                 categoryValue {
                                     id
@@ -1244,61 +1244,61 @@ class TestGraphQL(BaseAppTest):
                             {"categoryValue": {
                                 "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                 "name": "Non-binary"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                 "name": "Cisgender women"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
                                 "name": "Cisgender men"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                 "name": "Trans women"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
                                 "name": "Trans men"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                 "name": "Gender non-conforming"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
                                 "name": "Disabled"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
                                 "name": "Non-disabled"
-                            }, "personType": {"person_type_name": "BBC Contributor"}},
+                            }, "personType": {"personTypeName": "BBC Contributor"}},
 
                             # Non-BBC Contributors
                             {"categoryValue": {
                                 "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                 "name": "Non-binary"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "742b5971-eeb6-4f7a-8275-6111f2342bb4",
                                 "name": "Cisgender women"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "d237a422-5858-459c-bd01-a0abdc077e5b",
                                 "name": "Cisgender men"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "662557e5-aca8-4cec-ad72-119ad9cda81b",
                                 "name": "Trans women"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "1525cce8-7db3-4e73-b5b0-d2bd14777534",
                                 "name": "Trans men"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {'categoryValue': {
                                 "id": "a72ced2b-b1a6-4d3d-b003-e35e980960df",
                                 "name": "Gender non-conforming"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
                                 "name": "Non-binary"
@@ -1306,11 +1306,11 @@ class TestGraphQL(BaseAppTest):
                             {"categoryValue": {
                                 "id": "c36958cb-cc62-479e-ab61-eb03896a981c",
                                 "name": "Disabled"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                             {"categoryValue": {
                                 "id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
                                 "name": "Non-disabled"
-                            }, "personType": {"person_type_name": "Non-BBC Contributor"}},
+                            }, "personType": {"personTypeName": "Non-BBC Contributor"}},
                         ]
                     },
                 },
@@ -1469,7 +1469,7 @@ class TestGraphQL(BaseAppTest):
                             entries {
                                 count
                                 personType {
-                                    person_type_name
+                                    personTypeName
                                 }
                                 categoryValue {
                                     id
@@ -1510,54 +1510,54 @@ class TestGraphQL(BaseAppTest):
                         "entries": [
                             # BBC Contributors
                             {"count": 0,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "BBC Contributor" },
+                                "personType": { "personTypeName": "BBC Contributor" },
                                 "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
 
                             # Non-BBC Contributors
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "6cae6d26-97e1-4e9c-b1ad-954b4110e83b", "name": "Non-binary", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "742b5971-eeb6-4f7a-8275-6111f2342bb4", "name": "Cisgender women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "d237a422-5858-459c-bd01-a0abdc077e5b", "name": "Cisgender men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "662557e5-aca8-4cec-ad72-119ad9cda81b", "name": "Trans women", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "1525cce8-7db3-4e73-b5b0-d2bd14777534", "name": "Trans men", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "a72ced2b-b1a6-4d3d-b003-e35e980960df", "name": "Gender non-conforming", "category": {"id": "51349e29-290e-4398-a401-5bf7d04af75e", "name": "Gender"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "c36958cb-cc62-479e-ab61-eb03896a981c", "name": "Disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                             {"count": 1,
-                                "personType": { "person_type_name": "Non-BBC Contributor" },
+                                "personType": { "personTypeName": "Non-BBC Contributor" },
                                 "categoryValue": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Non-disabled", "category": {"id": "55119215-71e9-43ca-b2c1-7e7fb8cec2fd", "name": "Disability"}}},
                         ]
                     },

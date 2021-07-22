@@ -31,7 +31,7 @@ const groupByCategory = (entries: Entry[]) => {
 const groupByCategoryAndPersonType = (entries: Entry[]) => {
   const categoryAndPersonTypeGroups = _.mapValues(
     _.groupBy(entries, (entry) => entry.category),
-    (app) => _.groupBy(app, (entry) => entry.personType?.person_type_name)
+    (app) => _.groupBy(app, (entry) => entry.personType?.personTypeName)
   );
 
   const output = _.map(
@@ -70,17 +70,17 @@ const DataEntryCategorySections = ({
       <Form.Item
         key={
           item.personType
-            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
             : item.categoryValueLabel
         }
         id={
           item.personType
-            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
             : item.categoryValueLabel
         }
         htmlFor={
           item.personType
-            ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
             : item.categoryValueLabel
         }
         className="data-entry-form_label"
@@ -91,12 +91,12 @@ const DataEntryCategorySections = ({
         <InputNumber
           aria-label={
             item.personType
-              ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+              ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
               : item.categoryValueLabel
           }
           aria-labelledby={
             item.personType
-              ? `${item.personType.person_type_name} ${item.categoryValueLabel}`
+              ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
               : item.categoryValueLabel
           }
           required={true}

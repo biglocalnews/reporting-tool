@@ -29,7 +29,7 @@ export interface GetRecord_record_entries_categoryValue {
 export interface GetRecord_record_entries_personType {
   readonly __typename: "PersonType";
   readonly id: string;
-  readonly person_type_name: string;
+  readonly personTypeName: string;
 }
 
 export interface GetRecord_record_entries {

@@ -125,7 +125,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
 type PersonType {
   id: ID!
   dataset: Dataset!
-  person_type_name: String!
+  personTypeName: String!
   description: String
 }
 

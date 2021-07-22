@@ -10,7 +10,7 @@
 export interface GetDataset_dataset_personTypes {
   readonly __typename: "PersonType";
   readonly id: string;
-  readonly person_type_name: string;
+  readonly personTypeName: string;
 }
 
 export interface GetDataset_dataset_sumOfCategoryValueCounts_categoryValue_category {
@@ -77,7 +77,7 @@ export interface GetDataset_dataset_records_entries_categoryValue {
 export interface GetDataset_dataset_records_entries_personType {
   readonly __typename: "PersonType";
   readonly id: string;
-  readonly person_type_name: string;
+  readonly personTypeName: string;
 }
 
 export interface GetDataset_dataset_records_entries {
@@ -100,7 +100,7 @@ export interface GetDataset_dataset {
   readonly id: string;
   readonly name: string;
   readonly lastUpdated: any | null;
-  readonly personTypes: ReadonlyArray<GetDataset_dataset_personTypes> | null;
+  readonly personTypes: ReadonlyArray<GetDataset_dataset_personTypes>;
   readonly sumOfCategoryValueCounts: ReadonlyArray<GetDataset_dataset_sumOfCategoryValueCounts>;
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
