@@ -539,7 +539,7 @@ class Dataset(Base, PermissionsMixin):
     tags = relationship('Tag', secondary=dataset_tags,
                         back_populates='datasets')
     person_types = relationship('PersonType', secondary=dataset_person_types,
-                        back_populates='datasets')
+                        back_populates='datasets', order_by="PersonType.person_type_name")
 
     # Datasets must be unique within a program to avoid ambiguity.
     UniqueConstraint('name', 'program_id')
@@ -563,6 +563,26 @@ class Dataset(Base, PermissionsMixin):
         records = session.query(Record).filter(Record.dataset_id == self.id).all()
         for record in records:
             record.soft_delete(session)
+
+    @classmethod
+    def upsert_datasets(cls, session, dataset_dicts):
+        """Merge dataset dictionaries into dataset objects.
+
+        :param session: Database session
+        :param dataset_dicts: List of dictionaries describing datasets
+        :returns: List of Dataset database objects
+        """
+        datasets = []
+        for ds_dict in dataset_dicts:
+            if 'id' in ds_dict:
+                ds_dict['id'] = uuid.UUID(ds_dict['id'])
+            person_types = ds_dict.pop('person_types', None)
+            ds = session.merge(Dataset(**ds_dict))
+            if person_types is not None:
+                ds.person_types = [PersonType.get_or_create(session, pt) for pt in person_types]
+            datasets.append(ds)
+        return datasets
+
 
 class Record(Base, PermissionsMixin):
     __tablename__ = 'record'
@@ -627,6 +647,7 @@ class Entry(Base, PermissionsMixin):
         self.deleted= func.now()
         session.add(self)
 
+
 class PersonType(Base, PermissionsMixin):
     __tablename__ = 'person_type'
 
@@ -642,6 +663,35 @@ class PersonType(Base, PermissionsMixin):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    @validates('person_type_name')
+    def validate_name(self, key, name):
+        return self.clean_name(name)
+
+    @classmethod
+    def clean_name(cls, name):
+        """Normalize the person type name
+
+        :param name: string
+        :returns: Normalized string
+        """
+        return name.strip()
+
+    @classmethod
+    def get_or_create(cls, session, person_type: str) -> "PersonType":
+        """Create a person type if it doesn't exist and return it.
+
+        :param session: Database session
+        :param person_type: String representing the person type
+        :returns: The PersonType record
+        """
+        pt = session.query(cls).filter(
+                func.lower(cls.clean_name(person_type)) == func.lower(cls.person_type_name)
+                ).first()
+        if pt:
+            return pt
+
+        return cls(person_type_name=person_type)
 
 
 def create_tables(session):

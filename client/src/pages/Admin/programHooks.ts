@@ -26,6 +26,7 @@ export type DatasetFormValues = Readonly<{
   id?: string;
   name: string;
   description: string | null;
+  personTypes: string[];
 }>;
 
 /**
@@ -209,6 +210,7 @@ export const useSave = getOpHook(
               id: dataset.id,
               name: dataset.name,
               description: dataset.description,
+              personTypes: dataset.personTypes,
             })),
             targets,
           },

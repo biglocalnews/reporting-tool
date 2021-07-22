@@ -94,6 +94,7 @@ export interface UpsertDatasetInput {
   readonly id?: string | null;
   readonly name?: string | null;
   readonly description?: string | null;
+  readonly personTypes?: ReadonlyArray<string> | null;
 }
 
 //==============================================================

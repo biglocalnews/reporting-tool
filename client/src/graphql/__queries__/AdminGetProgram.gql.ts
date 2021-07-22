@@ -18,6 +18,10 @@ export const ADMIN_GET_PROGRAM = gql`
         id
         name
         description
+        personTypes {
+          id
+          personTypeName
+        }
       }
       targets {
         id

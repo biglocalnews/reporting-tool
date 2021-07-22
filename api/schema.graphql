@@ -276,6 +276,7 @@ input UpsertDatasetInput {
   id: ID
   name: String
   description: String
+  personTypes: [String!]
 }
 
 input UpdateProgramInput {
@@ -340,6 +341,9 @@ type Query {
 
   # Retrieve full list of organizations
   organizations: [Organization!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of person types
+  personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
 }
 
 type Mutation {

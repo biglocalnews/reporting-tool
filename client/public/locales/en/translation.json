@@ -214,6 +214,8 @@
           "datasetDescription": "Dataset description",
           "addCategoryPlaceholder": "Select a new category to track",
           "addNewCategory": "Track a new category",
+          "personTypes": "Types of people",
+          "newPersonTypePrompt": "Track a new type of person",
           "stopTrackingCategory": "Stop tracking",
           "stopTrackingCategoryConfirm": "Do you really wish to stop tracking this category?",
           "stopTrackingSegment": "Stop tracking {{ segment }}",
