@@ -1,6 +1,6 @@
-import { Card, Col, Row, InputNumber, Form } from "antd";
+import { Card, Col, Form, InputNumber, Row } from "antd";
 import _ from "lodash";
-import { ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { GetDataset_dataset_personTypes } from "../../graphql/__generated__/GetDataset";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
@@ -11,6 +11,16 @@ interface DataEntryCategorySectionProps {
   personTypes?: ReadonlyArray<GetDataset_dataset_personTypes> | null;
 }
 
+/**
+ * Group of entries related to the given category.
+ */
+interface GroupOfEntries {
+  values: Entry[];
+}
+
+/**
+ * Group entries together by category.
+ */
 const groupByCategory = (entries: Entry[]) => {
   const categoryGroups = _(entries)
     // Group the elements of Array based on nested `category` property
@@ -60,58 +70,31 @@ const DataEntryCategorySections = ({
 
   const categoriesAndPersonTypes = groupByCategoryAndPersonType(entries);
 
-  const groups = !personTypes?.length
-    ? groupByCategory(entries)
-    : groupByCategoryAndPersonType(entries);
-  console.log(groups);
-
-  const inputs = (entries: any) => {
-    return entries.values.map((item: Entry) => (
+  const inputs = (entries: GroupOfEntries) => {
+    return entries.values.map((item) => (
       <Form.Item
-        key={
-          item.personType
-            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
-            : item.categoryValueLabel
-        }
-        id={
-          item.personType
-            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
-            : item.categoryValueLabel
-        }
-        htmlFor={
-          item.personType
-            ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
-            : item.categoryValueLabel
-        }
+        key={`${item.personType?.personTypeName}-${item.categoryValueLabel}`}
         className="data-entry-form_label"
         rules={[
           { required: true, message: "Please input a count for this value!" },
         ]}
       >
-        <InputNumber
-          aria-label={
-            item.personType
-              ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
-              : item.categoryValueLabel
-          }
-          aria-labelledby={
-            item.personType
-              ? `${item.personType.personTypeName} ${item.categoryValueLabel}`
-              : item.categoryValueLabel
-          }
-          required={true}
-          aria-required
-          min={0}
-          value={item.count}
-          onChange={(e) => onValueChange(e, item.index)}
-        />
-        {` ${item.categoryValue} `}
-        <span
-          className="data-entry-form_required-field"
-          aria-labelledby={item.categoryValueLabel}
+        <label
+          htmlFor={`${item.personType?.personTypeName}-${item.categoryValueLabel}-input`}
+          id={`${item.personType?.personTypeName}-${item.categoryValueLabel}-label`}
         >
-          *
-        </span>
+          <InputNumber
+            id={`${item.personType?.personTypeName}-${item.categoryValueLabel}-input`}
+            aria-labelledby={`${item.personType?.personTypeName}-${item.categoryValueLabel}-label`}
+            required={true}
+            aria-required
+            min={0}
+            value={item.count}
+            onChange={(e) => onValueChange(e, item.index)}
+          />
+          {` ${item.categoryValue} `}
+        </label>
+        <span className="data-entry-form_required-field">*</span>
       </Form.Item>
     ));
   };
@@ -137,11 +120,7 @@ const DataEntryCategorySections = ({
               })}
             </Col>
             <Col span={17}>
-              <Card
-                key={category.categoryName}
-                type="inner"
-                title={category.categoryName}
-              >
+              <Card type="inner" title={category.categoryName}>
                 <div className="data-entry-form_input-grid">
                   {inputs(category)}
                 </div>
@@ -155,7 +134,7 @@ const DataEntryCategorySections = ({
 
   return (
     <div className="data-entry_category_groups">
-      {categoriesAndPersonTypes.map((category, index) => (
+      {categoriesAndPersonTypes.map((category) => (
         <Row
           role="group"
           key={category.categoryName}
@@ -163,7 +142,7 @@ const DataEntryCategorySections = ({
           gutter={[16, 16]}
           className="data-entry"
         >
-          <Col key={index} span={7}>
+          <Col span={7}>
             <h3 className="data-entry_category-descr-header">
               {t("aboutAttribute", { attribute: category.categoryName })}
             </h3>
@@ -173,22 +152,19 @@ const DataEntryCategorySections = ({
           </Col>
           <Col span={17}>
             <Card
-              key={category.categoryName}
               type="inner"
               id={category.categoryName}
               title={category.categoryName}
             >
-              {category.personTypes.map((value, index) => (
-                <>
+              {category.personTypes.map((value) => (
+                <React.Fragment key={value.personType}>
                   {value.personType.length > 0 && (
-                    <h2 key={index} style={{ marginBottom: "1rem" }}>
-                      {value.personType}
-                    </h2>
+                    <h2 style={{ marginBottom: "1rem" }}>{value.personType}</h2>
                   )}
                   <div className="data-entry-form_input-grid">
                     {inputs(value)}
                   </div>
-                </>
+                </React.Fragment>
               ))}
             </Card>
           </Col>

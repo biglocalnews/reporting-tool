@@ -71,37 +71,28 @@ export const renderFormEntries = (
 
   /* Entries for adding a record */
 
-  // Check if personTypes exist as metadata in dataset and return
-  // collection of default entries with person type
-  if (metadata?.dataset.personTypes?.length) {
-    let addIndex = 0;
+  // If there are no personTypes defined, add a dummy value `undefined` so that
+  // we render one input for each category with an empty personType.
+  const sourcePersonTypes = metadata?.dataset.personTypes;
+  const personTypes =
+    sourcePersonTypes && sourcePersonTypes.length > 0
+      ? sourcePersonTypes.slice()
+      : [undefined];
+  let addIndex = 0;
 
-    for (const personType of metadata?.dataset.personTypes) {
-      for (const target of metadata?.dataset.program.targets) {
-        form.push({
-          index: addIndex++,
-          category: target.categoryValue.category.name,
-          description: target.categoryValue.category.description,
-          categoryValueId: target.categoryValue.id,
-          categoryValue: target.categoryValue.name,
-          categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
-          count: 0,
-          personType: personType,
-        });
-      }
-    }
-  } else {
-    metadata?.dataset?.program?.targets.map((target, index) => {
+  for (const personType of personTypes) {
+    for (const target of metadata?.dataset.program.targets || []) {
       form.push({
-        index: index,
+        index: addIndex++,
         category: target.categoryValue.category.name,
         description: target.categoryValue.category.description,
         categoryValueId: target.categoryValue.id,
         categoryValue: target.categoryValue.name,
         categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
         count: 0,
+        personType: personType,
       });
-    });
+    }
   }
 
   return form;
