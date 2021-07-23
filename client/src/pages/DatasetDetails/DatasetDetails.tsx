@@ -3,6 +3,8 @@ import { useQuery } from "@apollo/client";
 import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
+import { Loading } from "../../components/Loading/Loading";
+import { PageTitleBar } from "../../components/PageTitleBar";
 import {
   GetDataset,
   GetDatasetVariables,
@@ -10,7 +12,6 @@ import {
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
-import { PageTitleBar } from "../../components/PageTitleBar";
 
 interface RouteParams {
   datasetId: string;
@@ -29,9 +30,13 @@ const DatasetDetails = (): JSX.Element => {
     variables: { id: datasetId },
   });
 
-  // TODO: update for error and loading components
-  if (queryLoading) return <h1>Loading</h1>;
-  if (queryError) return <div>{`Error: ${queryError.message}`}</div>;
+  if (queryLoading) {
+    return <Loading />;
+  }
+
+  if (queryError) {
+    throw queryError;
+  }
 
   return (
     <div className="dataset-details_container">

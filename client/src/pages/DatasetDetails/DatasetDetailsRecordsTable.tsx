@@ -27,7 +27,7 @@ interface TableData {
   id: string;
   key: string;
   publicationDate: string;
-  [key: string]: string;
+  [key: string]: string | number;
 }
 
 const DatasetDetailsRecordsTable = ({
@@ -45,14 +45,17 @@ const DatasetDetailsRecordsTable = ({
    * and its count as the corresponding value to create an
    * array of flat objects.
    */
+  console.log("RECORDS", records);
   const tableData = records?.map((record) => {
-    return record.entries.reduce((accumulator: any, currentItem) => {
-      accumulator[currentItem.categoryValue.name] = currentItem.count;
+    return record.entries.reduce((accumulator, currentItem) => {
+      const catValName = currentItem.categoryValue.name;
+      const previousCount = accumulator[catValName] as number | undefined;
+      accumulator[catValName] = (previousCount || 0) + currentItem.count;
       accumulator["id"] = record.id;
       accumulator["publicationDate"] = record.publicationDate;
       return accumulator;
-    }, {});
-  }) as TableData[];
+    }, {} as TableData);
+  });
 
   const [deleteRecord, { loading: deleteRecordLoader }] = useMutation(
     DELETE_RECORD,
