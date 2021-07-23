@@ -216,6 +216,13 @@ export const useSave = getOpHook(
             targets,
           },
         },
+        // Reload the dataset in case it's been loaded previously, otherwise the
+        // changes won't be reflected if the admin navigates to the dataset page.
+        refetchQueries: (result) =>
+          result.data?.updateProgram.datasets.map((ds) => ({
+            query: GET_DATASET,
+            variables: { id: ds.id },
+          })) || [],
       }
     );
   },
@@ -232,14 +239,6 @@ export const useRestore = getOpHook(
       variables: {
         input: id,
       },
-      // Reload the dataset in case it's been loaded previously, otherwise the
-      // changes won't be reflected if the admin navigates to the dataset page.
-      refetchQueries: [
-        {
-          query: GET_DATASET,
-          variables: { id },
-        },
-      ],
     }),
   "restoreSuccess"
 );
