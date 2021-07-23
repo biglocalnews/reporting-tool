@@ -45,7 +45,6 @@ const DatasetDetailsRecordsTable = ({
    * and its count as the corresponding value to create an
    * array of flat objects.
    */
-  console.log("RECORDS", records);
   const tableData = records?.map((record) => {
     return record.entries.reduce((accumulator, currentItem) => {
       const catValName = currentItem.categoryValue.name;

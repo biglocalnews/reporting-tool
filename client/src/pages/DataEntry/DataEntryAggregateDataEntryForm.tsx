@@ -71,9 +71,13 @@ export const renderFormEntries = (
 
   /* Entries for adding a record */
 
-  // Check if personTypes exist as metadata in dataset and return
-  // collection of default entries with person type
-  const personTypes = metadata?.dataset.personTypes || [undefined];
+  // If there are no personTypes defined, add a dummy value `undefined` so that
+  // we render one input for each category with an empty personType.
+  const sourcePersonTypes = metadata?.dataset.personTypes;
+  const personTypes =
+    sourcePersonTypes && sourcePersonTypes.length > 0
+      ? sourcePersonTypes.slice()
+      : [undefined];
   let addIndex = 0;
 
   for (const personType of personTypes) {
