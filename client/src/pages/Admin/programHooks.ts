@@ -18,6 +18,7 @@ import { TargetInput } from "../../graphql/__generated__/globalTypes";
 import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
 import { ADMIN_RESTORE_PROGRAM } from "../../graphql/__mutations__/AdminRestoreProgram.gql";
 import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 
 /**
  * Form values filled out by the UI for editing datasetes.
@@ -215,6 +216,13 @@ export const useSave = getOpHook(
             targets,
           },
         },
+        // Reload the dataset in case it's been loaded previously, otherwise the
+        // changes won't be reflected if the admin navigates to the dataset page.
+        refetchQueries: (result) =>
+          result.data?.updateProgram.datasets.map((ds) => ({
+            query: GET_DATASET,
+            variables: { id: ds.id },
+          })) || [],
       }
     );
   },
