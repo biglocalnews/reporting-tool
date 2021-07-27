@@ -1,4 +1,4 @@
-import { Card, Col, Row, InputNumber, Form } from "antd";
+import { Card, Col, Form, InputNumber, Row } from "antd";
 import _ from "lodash";
 import { ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -155,7 +155,7 @@ const DataEntryCategorySections = ({
 
   return (
     <div className="data-entry_category_groups">
-      {categoriesAndPersonTypes.map((category, index) => (
+      {categoriesAndPersonTypes.map((category) => (
         <Row
           role="group"
           key={category.categoryName}
@@ -163,15 +163,7 @@ const DataEntryCategorySections = ({
           gutter={[16, 16]}
           className="data-entry"
         >
-          <Col key={index} span={7}>
-            <h3 className="data-entry_category-descr-header">
-              {t("aboutAttribute", { attribute: category.categoryName })}
-            </h3>
-            {t("attributeDescription", {
-              description: category.description,
-            })}
-          </Col>
-          <Col span={17}>
+          <Col span={24}>
             <Card
               key={category.categoryName}
               type="inner"

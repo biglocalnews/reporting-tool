@@ -27,7 +27,7 @@ export function ProtectedAppContainer({
         <AppSidebar />
         <Layout style={{ padding: "0 24px 24px" }}>
           <Content className="site-layout-background">{children}</Content>
-          <Footer style={{ textAlign: "center" }}>Footer content</Footer>
+          <Footer style={{ textAlign: "center" }}></Footer>
         </Layout>
       </Layout>
     </>
