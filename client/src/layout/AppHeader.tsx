@@ -52,7 +52,6 @@ const AppHeader = () => {
           </Col>
         </Row>
       </Header>
-      <div className="header__border-image"></div>
     </div>
   );
 };

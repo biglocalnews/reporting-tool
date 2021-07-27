@@ -1,5 +1,4 @@
-import { Pie } from "@ant-design/charts";
-import { PieConfig } from "@ant-design/charts/es/pie";
+import { Pie, PieConfig } from "@ant-design/charts";
 import { Card, Col, Row } from "antd";
 import _ from "lodash";
 import {

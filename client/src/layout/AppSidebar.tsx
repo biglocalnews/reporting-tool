@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
-
+import "./AppSidebar.css";
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
