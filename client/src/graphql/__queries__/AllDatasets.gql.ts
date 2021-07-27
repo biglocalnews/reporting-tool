@@ -5,19 +5,27 @@ export const ALL_DATASETS = gql`
     teams {
       programs {
         id
+        importedId
         name
+        deleted
         datasets {
           id
           name
           description
           lastUpdated
+          deleted
           records {
             id
             publicationDate
           }
           tags {
             name
+            tagType
           }
+        }
+        tags {
+          name
+          tagType
         }
       }
     }

@@ -11,10 +11,11 @@ import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
+import { ErrorBoundary } from "../components/Error/ErrorBoundary";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 
-const history = createMemoryHistory();
+let navigate = createMemoryHistory();
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -47,14 +48,18 @@ test("should return error to ui if dataset query fails", async () => {
   render(
     <ApolloProvider client={client}>
       <Router history={history}>
-        <DatasetDetails />
+        <ErrorBoundary>
+          <DatasetDetails />
+        </ErrorBoundary>
       </Router>
     </ApolloProvider>
   );
 
   await wait();
 
-  expect(screen.getByText("Error: something bad happened")).toBeInTheDocument();
+  expect(screen.getByText(/something bad happened/)).toBeInTheDocument();
+
+  await wait();
 });
 
 test("should get dataset records when component is mounted and displays them in a table", async () => {
@@ -69,7 +74,7 @@ test("should get dataset records when component is mounted and displays them in 
   );
 
   expect(screen).toBeTruthy();
-  expect(screen.getByText("Loading")).toBeInTheDocument();
+  expect(screen.getByRole("progressbar")).toBeInTheDocument();
 
   await wait();
 

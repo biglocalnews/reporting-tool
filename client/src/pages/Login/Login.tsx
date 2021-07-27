@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RouteComponentProps } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../components/AuthProvider";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./Login.css";
@@ -16,18 +16,13 @@ type LoginRequest = {
   password: string;
 };
 
-/**
- * Props expected by a login component.
- *
- * Mostly these come from react-router, but the auth component is our custom
- * service that manages authentication.
- */
-export type LoginProps = RouteComponentProps;
 
 /**
  * Login UI form.
  */
-export const Login = (props: LoginProps) => {
+export const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth();
   const account = useUserAccountManager();
   const { t } = useTranslation();
@@ -40,31 +35,31 @@ export const Login = (props: LoginProps) => {
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);
 
-    const error = await auth.login(email, password);
-    if (error) {
-      // If the error tells us to reset the password, then redirect
-      if (error === "CHANGE_PASSWORD") {
-        const token = await auth.getResetToken();
-        const params = new URLSearchParams({
-          email,
-          token,
-        });
+    try {
+      const error = await auth.login(email, password);
+      if (error) {
+        // If the error tells us to reset the password, then redirect
+        if (error === "CHANGE_PASSWORD") {
+          const token = await auth.getResetToken();
+          const params = new URLSearchParams({
+            email,
+            token,
+          });
 
-        props.history.push({
-          pathname: "/account/reset-password",
-          search: `?${params.toString()}`,
-        });
-        return;
+          return navigate(`/account/reset-password?${params.toString()}`);
+        }
+
+        // Otherwise a bad error happened
+        setError(new Error(error));
+      } else {
+        const state = location.state;
+        const redirect = (state && (state as Record<string, any>).from) || {
+          pathname: "/",
+        };
+        navigate(redirect);
       }
-
-      // Otherwise a bad error happened
-      setError(new Error(error));
-    } else {
-      const state = props.location.state;
-      const redirect = (state && (state as Record<string, any>).from) || {
-        pathname: "/",
-      };
-      props.history.push(redirect);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setError(e);
     }
   };
 
@@ -78,11 +73,13 @@ export const Login = (props: LoginProps) => {
       await account.requestPasswordReset(email);
       setShowForgotPassword(false);
       message.success(t("account.resetPassword.reresetSuccess", { email }));
-    } catch (e) {
-      console.error(e);
-      message.error(
-        t("account.resetPassword.reresetError", { message: e.message })
-      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error(e);
+        message.error(
+          t("account.resetPassword.reresetError", { message: e.message })
+        );
+      }
     } finally {
       setResettingPassword(false);
     }

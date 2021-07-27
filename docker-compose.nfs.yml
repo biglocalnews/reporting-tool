@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  haproxy:
+    image: ubuntu
+    entrypoint: [ "/bin/bash", "sleep", "infinity" ]
+    dns:
+      - 127.0.0.11
+    networks:
+      - storage
+    deploy:
+      mode: global
+    volumes:
+      - ./data:/data
+
+networks:
+  storage:
+    driver: overlay

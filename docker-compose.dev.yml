@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+
+  client:
+    environment:
+      - NODE_ENV=development
+    networks:
+      - frontend
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "RobTestLogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
+
+  api:
+    networks:
+      - frontend
+    dns: 172.17.37.49 #needs to use wsl2 dns on bbc laptop, maybe zscaler issue 
+    environment:
+      - rt_debug=True
+      - GUNICORN_WORKERS=1
+      - TASK_SLOT={{.Task.Slot}}
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "RobTestLogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
+
+  db:
+    volumes:
+      - /home/cobair01/5050-pgdata:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /dev/shm
+    command:
+      [
+        "-c",
+        "shared_buffers=512MB",
+        "-c",
+        "max_connections=400"
+      ]
+    shm_size: "1024M"
+    tmpfs:
+      - /tmp:size=1024M
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "RobTestLogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
+
+networks:
+  frontend:
+    driver: overlay

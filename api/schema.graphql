@@ -29,6 +29,34 @@ enum Permission {
   # When the app has not been configured yet, it is in the blank slate mode
   # that allows any visitor to configure it.
   BLANK_SLATE
+  # A user who can also Publish record sets
+  PUBLISHER
+}
+
+enum ReportingPeriodType {
+  monthly
+  quarterly
+  annual
+  custom
+}
+
+enum CustomColumnType {
+  string
+  integer
+  float
+  datetime
+  boolean
+}
+
+enum TargetStateType {
+  exceeds
+  fails
+}
+
+enum NeedsAttentionType {
+  NothingPublishedLast3Periods
+  MissedATargetInAllLast3Periods
+  MoreThan10PercentBelowATargetLastPeriod
 }
 
 schema {
@@ -37,6 +65,7 @@ schema {
 }
 
 scalar DateTime
+scalar JSON
 
 type Organization @needsPermission(permission: [LOGGED_IN]) {
   id: ID!
@@ -56,6 +85,7 @@ type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
   id: ID!
   firstName: String!
   lastName: String!
+  username: String
   email: String!
   roles: [Role!]!
   teams: [Team!]!
@@ -74,9 +104,12 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   description: String!
   team: Team
   datasets: [Dataset!]!
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriod!]
   targets: [Target!]!
   tags: [Tag!]!
   deleted: DateTime
+  importedId: Int
 }
 
 type Tag {
@@ -99,14 +132,23 @@ type Target @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  categoryValue: CategoryValue!
+  category: Category!
   target: Float!
+  targetDate: DateTime
+  tracks: [Track!]!
+}
+
+type Track {
+  id: ID!
+  categoryValue: CategoryValue!
+  targetMember: Boolean!
 }
 
 type Category {
   id: ID!
   name: String!
   description: String!
+  targets:[Target!]
   categoryValues: [CategoryValue!]!
 }
 
@@ -115,11 +157,29 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   name: String!
   description: String
   lastUpdated: DateTime
-  program: Program!
+  deleted: DateTime
+  program: Program
   records: [Record!]!
+  publishedRecordSets: [PublishedRecordSet!]
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
   personTypes: [PersonType!]!
+  customColumns: [CustomColumn!]
+}
+
+type CustomColumn {
+  id: ID!
+  datasets: [Dataset!]
+  name: String!
+  type: CustomColumnType
+  description: String
+}
+
+type CustomColumnValue {
+  id: ID!
+  record: Record!
+  customColumn: CustomColumn!
+  value: String
 }
 
 type PersonType {
@@ -134,6 +194,7 @@ type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   dataset: Dataset!
   publicationDate: DateTime!
   entries: [Entry!]!
+  customColumnValues: [CustomColumnValue!]
 }
 
 type CategoryValue {
@@ -161,12 +222,166 @@ type SumEntriesByCategoryValue {
   sumOfCounts: Int!
 }
 
+type ReportingPeriod {
+  id: ID!
+  programmeId: ID!
+  range: [DateTime!]!
+  begin: DateTime
+  end: DateTime
+  description: String
+}
+
+
+type PublishedRecordSet {
+  id: ID!
+  datasetId: ID!
+  reportingPeriodId: ID!
+  created: DateTime!
+  deleted: DateTime
+  begin: DateTime!
+  end: DateTime!
+  document: JSON
+  dataset: Dataset
+}
+
+type RecordSetDocument {
+  reportingPeriodId: ID!
+  reportingPeriodDescription: String
+  created: DateTime!
+  deleted: DateTime
+  begin: DateTime!
+  end: DateTime!
+  targets: [PublishedRecordSetTarget!]!
+  records: [PublishedRecordSetRecord!]!,
+  datasetTags: [PublishedRecordSetTag!],
+  datasetGroupTags: [PublishedRecordSetTag!],
+  team: String!,
+  datasetGroup: String!
+}
+
+type PublishedRecordSetTag {
+  name: String!
+  group: String
+}
+
+type PublishedRecordSetTarget {
+  category: String!
+  target: Int!
+}
+
+type PublishedRecordSetRecord {
+  category: String!
+  personType: String
+  entries: [PublishedRecordSetEntry]
+}
+
+type PublishedRecordSetEntry {
+  attribute: String!
+  category: String!,
+  targetMember: Boolean!
+  percent: Float!
+}
+
+type Consistency {
+  year: Int!
+  category: String!
+  consistencyState: String!
+  value: Int!
+}
+
+type Overview {
+  date: String!
+  category: String!
+  targetState: String!
+  value: Int!
+  filter: String!
+}
+type HeadlineTotal {
+    percent: Float!
+    noOfDatasets: Int!
+}
+
+type HeadlineTotals {
+  gender: HeadlineTotal
+  ethnicity: HeadlineTotal
+  disability: HeadlineTotal
+  lgbtqa: HeadlineTotal
+}
+
+type BasicStats {
+  teams: Int!
+  datasets: Int!
+  tags: Int!
+}
+
+type Stats {
+  teams: Int!
+  datasets: Int!
+  tags: Int!
+  gender: Float!
+  ethnicity: Float!
+  disability: Float!
+  lgbtqa: Float!
+  consistencies: [Consistency!]!
+  overviews: [Overview!]!
+}
+
+interface IDatasetInfo {
+  datasetId: ID!
+  name: String!
+  reportingPeriodEnd: DateTime!
+}
+
+type TargetStates implements IDatasetInfo {
+  prsId: ID!
+  datasetId: ID!
+  name: String!
+  reportingPeriodEnd: DateTime!
+  category: String!
+  percent: Float!
+  target: Int!
+  state: TargetStateType!
+}
+
+type Overdue implements IDatasetInfo {
+  datasetId: ID!
+  name: String!
+  reportingPeriodName: String
+  reportingPeriodEnd: DateTime!
+}
+
+type NeedsAttention implements IDatasetInfo {
+  datasetId: ID!
+  name: String!
+  reportingPeriodEnd: DateTime!
+  count: Int!
+  needsAttentionTypes: [NeedsAttentionType!]!
+}
+
+type AdminStats @needsPermission(permission: [ADMIN]) {
+  targetStates: [TargetStates!]!
+  overdue: [Overdue!]!
+  needsAttention: [NeedsAttention!]!
+}
+
+type ADUser {
+  prefName: String
+  firstName: String
+  middleName: String
+  surname: String
+  username: String
+  positionName: String
+  workEmail: String
+  idCardPhotoUrl: String
+}
+
 input UpsertUserInput {
   id: ID
   firstName: String!
   lastName: String!
   email: String!
   role: String!
+  username: String!
 }
 
 input CreateDatasetInput {
@@ -174,6 +389,7 @@ input CreateDatasetInput {
   description: String!
   programId: ID!
   tags: [TagInput!]!
+  customColumns: [CustomColumnInput!]
 }
 
 input UpdateDatasetInput {
@@ -190,6 +406,21 @@ input UpdateRecordInput {
   datasetId: ID
   publicationDate: DateTime
   entries: [EntryInput!]
+  customColumnValues: [CustomColumnValueInput!]
+}
+
+input CustomColumnInput {
+  id: ID
+  datasetId: ID!
+  name: String
+  type: CustomColumnType
+
+}
+
+input CustomColumnValueInput {
+  id: ID
+  customColumnId: ID!
+  value: String
 }
 
 input CreateRecordInput {
@@ -237,7 +468,7 @@ input UpdateTeamInput {
 input EntryInput {
   id: ID
   categoryValueId: ID!
-  count: Int!
+  count: Int
   personTypeId: ID
 }
 
@@ -253,14 +484,22 @@ input BaseCategoryInput {
 
 input CategoryValueInput {
   id: ID
-  name: String
+  name: String!
   category: BaseCategoryInput!
 }
 
 input TargetInput {
   id: ID
-  target: Float
-  categoryValue: CategoryValueInput
+  target: Float!
+  targetDate: DateTime
+  category: CategoryInput!
+  tracks: [TrackInput!]!
+}
+
+input TrackInput {
+  id: ID
+  categoryValue: CategoryValueInput!
+  targetMember: Boolean!
 }
 
 input CreateProgramInput {
@@ -270,6 +509,8 @@ input CreateProgramInput {
   targets: [TargetInput!]
   tags: [TagInput!]
   datasets: [UpsertDatasetInput!]
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriodInput!]
 }
 
 input UpsertDatasetInput {
@@ -277,6 +518,7 @@ input UpsertDatasetInput {
   name: String
   description: String
   personTypes: [String!]
+  customColumns: [String!]
 }
 
 input UpdateProgramInput {
@@ -287,6 +529,17 @@ input UpdateProgramInput {
   targets: [TargetInput!]
   tags: [TagInput!]
   datasets: [UpsertDatasetInput!]
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriodInput!]
+}
+
+input ReportingPeriodInput {
+  id: ID
+  programId: ID!
+  range: [DateTime!]
+  begin: DateTime
+  end: DateTime
+  description: String
 }
 
 input FirstTimeAppConfigurationInput {
@@ -294,6 +547,69 @@ input FirstTimeAppConfigurationInput {
   email: String!
   firstName: String!
   lastName: String!
+}
+
+input RecordSetEntryInput {
+  percentOfCategory: Float!
+  percentOfCategoryPersonType: Float!
+  attribute: String!
+  attributeCategory: String!
+  personType: String!
+}
+
+input RecordSetTargetInput {
+  attributeCategory: String!
+  percent: Float!
+  attributes: [String!]!
+}
+
+input CreatePublishedRecordSetInput {
+  id: ID
+  datasetId: ID!
+  reportingPeriodId: ID!
+  begin: DateTime!
+  end: DateTime!
+  document: JSON
+}
+
+input CreateReportingPeriodInput {
+  programmeId: ID!
+  range: [DateTime!]!
+  begin: DateTime
+  end: DateTime
+}
+
+input UpdateTagInput {
+  id: ID!
+  name: String
+  tagType: String
+  description: String
+}
+
+input CreateTagInput {
+  name: String!
+  tagType: String
+  description: String
+}
+
+input PublishedRecordSetsInput {
+  id: ID
+  categories: [String!]!
+  teams: [String!]!
+  datasetGroups: [String!]!
+  tags: [String!]!
+  year: Int!
+}
+
+input AdminStatsInput {
+  duration: Int!
+}
+
+input SendEmailInput {
+  to: [String!]!
+  body: String!
+  subject: String!
+  monthYear: String!
 }
 
 type Query {
@@ -308,6 +624,9 @@ type Query {
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset! @needsPermission(permission: [LOGGED_IN])
 
+  # Retrieve all datasets.
+  datasets(onlyUnassigned: Boolean): [Dataset!]! @needsPermission(permission: [ADMIN])
+
   # Retrieve a single Record.
   record(id: ID!): Record! @needsPermission(permission: [LOGGED_IN])
 
@@ -321,11 +640,19 @@ type Query {
   categoryValue(id: ID!): CategoryValue!
     @needsPermission(permission: [LOGGED_IN])
 
+  publishedRecordSet(id: ID!): PublishedRecordSet!
+
+  reportingPeriod(id: ID!): ReportingPeriod!
+
   # Retrieve all tags. Server-side search not currently supported.
   tags: [Tag!]! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve a team.
   team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
+
+  teamByDatasetId(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
+
+  teamsByDatasetIds(ids: [ID!]!): [Team!]! @needsPermission(permission: [LOGGED_IN])
 
   # Retrieve list of all teams.
   teams: [Team!]! @needsPermission(permission: [ADMIN])
@@ -339,11 +666,34 @@ type Query {
   # Retrieve full list of categories
   categories: [Category!]! @needsPermission(permission: [ADMIN])
 
+  targets: [Target!]! @needsPermission(permission: [ADMIN])
+
   # Retrieve full list of organizations
   organizations: [Organization!]! @needsPermission(permission: [ADMIN])
 
   # Retrieve full list of person types
   personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
+
+  customColumns: [CustomColumn!]! @needsPermission(permission: [ADMIN])
+
+  publishedRecordSets(input: PublishedRecordSetsInput): [PublishedRecordSet!]!
+
+  reportingPeriods: [ReportingPeriod!]!
+
+  stats: Stats!
+
+  headlineTotals: HeadlineTotals!
+
+  basicStats: BasicStats!
+
+  consistencies: [Consistency!]!
+
+  overviews: [Overview!]!
+
+  adminStats(input: AdminStatsInput): AdminStats!
+
+  adUsers(search: String): [ADUser!]!
+
 }
 
 type Mutation {
@@ -419,4 +769,20 @@ type Mutation {
   # First-time app configuration
   configureApp(input: FirstTimeAppConfigurationInput!): ID!
     @needsPermission(permission: [BLANK_SLATE])
+
+  # Create a Program
+  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet! @needsPermission(permission: [ADMIN, PUBLISHER])
+
+  createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod! @needsPermission(permission: [ADMIN])
+
+  deletePublishedRecordSet(id: ID!): ID! @needsPermission(permission: [ADMIN, PUBLISHER])
+
+  createTag(input: CreateTagInput!): Tag! @needsPermission(permission: [ADMIN])
+
+  updateTag(input: UpdateTagInput!): Tag! @needsPermission(permission: [ADMIN])
+
+  deleteTag(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  sendEmail(input: SendEmailInput!): String @needsPermission(permission: [ADMIN])
+
 }

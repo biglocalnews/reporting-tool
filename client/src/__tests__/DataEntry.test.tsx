@@ -16,7 +16,7 @@ import { Router, useParams } from "react-router-dom";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 
-const history = createMemoryHistory();
+let navigate = createMemoryHistory();
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
@@ -186,12 +186,12 @@ test("should render add entry form with today's date when a record id does not e
 
   expect(screen.getAllByRole("spinbutton")).toHaveLength(8);
 
-  screen.getByRole("spinbutton", { name: /cisgender-women/i });
-  screen.getByRole("spinbutton", { name: /cisgender-men/i });
-  screen.getByRole("spinbutton", { name: /trans-men/i });
-  screen.getByRole("spinbutton", { name: /trans-women/i });
+  screen.getByRole("spinbutton", { name: /women/i });
+  screen.getByRole("spinbutton", { name: /men/i });
+  screen.getByRole("spinbutton", { name: /trans men/i });
+  screen.getByRole("spinbutton", { name: /trans women/i });
   screen.getByRole("spinbutton", { name: /non-binary/i });
-  screen.getByRole("spinbutton", { name: /gender-non-conforming/i });
+  screen.getByRole("spinbutton", { name: /gender non-conforming/i });
 
   screen.getByRole("button", { name: /Save Record/i });
   screen.getByRole("button", { name: /Save and Add Another Record/i });

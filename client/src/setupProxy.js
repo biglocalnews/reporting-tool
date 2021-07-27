@@ -4,7 +4,7 @@
  *
  * Based on https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually
  */
-const createProxyMiddleware = require("http-proxy-middleware");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 module.exports = (app) => {
   app.use(
@@ -14,7 +14,7 @@ module.exports = (app) => {
       pathRewrite: {
         "^/api/": "/",
       },
-      changeOrigin: true,
+      changeOrigin: true
     })
   );
 };

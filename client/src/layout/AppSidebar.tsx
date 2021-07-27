@@ -1,97 +1,26 @@
 import {
   BarChartOutlined,
   DatabaseOutlined,
+  SettingOutlined,
   TableOutlined,
   TeamOutlined,
   UserSwitchOutlined,
+  HomeOutlined
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Layout, Menu } from "antd";
+import { Button, Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
-
+import "./AppSidebar.css";
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-interface Dataset {
-  id: string;
-  title: string;
-}
 
 /**
- * Sidebar content for normal (non-admin) users.
- */
-export const AppNormalUserSidebarMenu = () => {
-  const { t } = useTranslation();
-  const userId = useAuth().getUserId();
-
-  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
-    variables: { id: userId },
-  });
-
-  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
-    team.programs.map((program) => {
-      return {
-        key: program.id,
-        team: program.name,
-        datasets: program.datasets.map((dataset) => {
-          return {
-            id: dataset.id,
-            title: dataset.name,
-          };
-        }),
-      };
-    })
-  );
-
-  return (
-    <Menu
-      mode="inline"
-      theme="light"
-      defaultOpenKeys={["teams", "stats"]}
-      style={{ height: "100%", borderRight: 0 }}
-    >
-      <SubMenu
-        key="teams"
-        title={t("teamsSideBarTitle")}
-        icon={<TeamOutlined />}
-      >
-        {loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          sidebarPrograms?.map(
-            (program: { key: string; team: string; datasets: Dataset[] }) => {
-              return (
-                <Menu.ItemGroup key={program.key} title={program.team}>
-                  {program.datasets.map((dataset) => (
-                    <Menu.Item key={dataset.id}>
-                      <Link
-                        to={{
-                          pathname: `/dataset/${dataset.id}/details`,
-                        }}
-                      >
-                        {dataset.title}
-                      </Link>
-                    </Menu.Item>
-                  ))}
-                </Menu.ItemGroup>
-              );
-            }
-          )
-        )}
-      </SubMenu>
-      <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
-        <div style={{ padding: "20px", background: "#fff" }}></div>
-      </SubMenu>
-    </Menu>
-  );
-};
-
-/**
- * Sidebar content for admin users.
+ * Sidebar content for all users.
  */
 export const AppAdminSidebarMenu = () => {
   const { t } = useTranslation();
@@ -110,19 +39,161 @@ export const AppAdminSidebarMenu = () => {
         <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
           <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
         </Menu.Item>
+        <Menu.Item key="tags" icon={<TableOutlined />} role="menuitem">
+          <Link to="/admin/tags">{t("admin.sidebar.manageTags")}</Link>
+        </Menu.Item>
       </Menu.ItemGroup>
     </Menu>
   );
 };
 
+export const AppSidebarMenu = () => {
+  const { t } = useTranslation();
+  const userId = useAuth().getUserId();
+  const auth = useAuth();
+  const { data } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+    variables: { id: userId },
+  });
+
+  const sidebarTeams = data?.user?.teams.flatMap((team) => {
+    return {
+      key: team.id,
+      name: team.name,
+      programmes:
+        team.programs.map((program) => {
+          return {
+            key: program.id,
+            team: program.name,
+            datasets: program.datasets.map((dataset) => {
+              return {
+                id: dataset.id,
+                title: dataset.name,
+              };
+            }),
+          };
+        })
+    };
+  }
+
+
+  );
+
+  return (
+    <Menu
+      mode="inline"
+      theme="dark"
+      /*defaultOpenKeys={["admin"]}*/
+      style={{ height: "100%", borderRight: 0, paddingTop: "10px" }}
+    >
+      <Menu.Item key="home" icon={<HomeOutlined />} role="menuitem">
+        <Link to="/">{t("admin.sidebar.home")}</Link>
+      </Menu.Item>
+      {
+        auth.isAdmin() &&
+        <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+          <Link to="/admin/datasets">{t("admin.sidebar.viewAll")}</Link>
+        </Menu.Item>
+      }
+
+
+      <SubMenu
+        key="my-datasets"
+        title="My Datasets"
+        icon={<TeamOutlined />}
+      >
+        {
+          sidebarTeams?.
+            flatMap((x) => x.programmes)
+            .flatMap(x => x.datasets)
+            .map((dataset) => (
+              <Menu.Item key={dataset.id}>
+                <Link
+                  to={{
+                    pathname: `/dataset/${dataset.id}/details`,
+                  }}
+                >
+                  {dataset.title}
+                </Link>
+              </Menu.Item>
+            ))
+        }
+      </SubMenu>
+
+      <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
+        <Link to="/reports">{t("admin.sidebar.reports")}</Link>
+      </Menu.Item>
+
+
+      {
+        auth.isAdmin() &&
+        <SubMenu key="admin" title="Admin" icon={<SettingOutlined />}>
+          <Menu.Item key="users" role="menuitem">
+            <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
+          </Menu.Item>
+          <Menu.Item key="teams" role="menuitem">
+            <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
+          </Menu.Item>
+          <Menu.Item key="programs" role="menuitem">
+            <Link to="/admin/programs">
+              {t("admin.sidebar.managePrograms")}
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="tags" role="menuitem">
+            <Link to="/admin/tags">
+              {t("admin.sidebar.manageTags")}
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="admin.reports" role="menuitem" icon={<BarChartOutlined />}>
+            <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
+          </Menu.Item>
+        </SubMenu>
+      }
+    </Menu>
+  );
+};
+
+interface IProps {
+  setCollapseState: (newState: boolean) => void
+  collapsed: boolean
+}
+
 /**
  * App sidebar content: info and navigation links
  */
-const AppSidebar = (): JSX.Element => {
-  const auth = useAuth();
+const AppSidebar = ({ setCollapseState, collapsed }: IProps): JSX.Element => {
   return (
-    <Sider className="sidebar" breakpoint="md">
-      {auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />}
+    <Sider
+
+      collapsed={collapsed}
+      width={300}
+      className="sidebar"
+      breakpoint="md"
+      theme="dark"
+      collapsible
+      style={{
+        overflow: 'auto',
+        height: '100vh',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        bottom: 0,
+      }}
+      trigger={
+        <Button
+          type="text"
+          style={{
+            color: "white",
+            fontSize: "xx-large",
+            width: "100%"
+          }}
+          onClick={() => setCollapseState(!collapsed)}
+        >
+          {collapsed ? <>&gt;</> : <>&lt;</>}
+        </Button>
+      }
+    >
+      <AppSidebarMenu />
+      {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
   );
 };

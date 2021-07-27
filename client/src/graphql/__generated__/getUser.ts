@@ -16,6 +16,7 @@ export interface GetUser_user_teams_programs_datasets_records {
 export interface GetUser_user_teams_programs_datasets_tags {
   readonly __typename: "Tag";
   readonly name: string;
+  readonly tagType: string;
 }
 
 export interface GetUser_user_teams_programs_datasets {
@@ -24,19 +25,31 @@ export interface GetUser_user_teams_programs_datasets {
   readonly name: string;
   readonly description: string | null;
   readonly lastUpdated: any | null;
+  readonly deleted: any | null;
   readonly records: ReadonlyArray<GetUser_user_teams_programs_datasets_records>;
   readonly tags: ReadonlyArray<GetUser_user_teams_programs_datasets_tags>;
+}
+
+export interface GetUser_user_teams_programs_tags {
+  readonly __typename: "Tag";
+  readonly name: string;
+  readonly tagType: string;
 }
 
 export interface GetUser_user_teams_programs {
   readonly __typename: "Program";
   readonly id: string;
+  readonly importedId: number | null;
   readonly name: string;
+  readonly deleted: any | null;
   readonly datasets: ReadonlyArray<GetUser_user_teams_programs_datasets>;
+  readonly tags: ReadonlyArray<GetUser_user_teams_programs_tags>;
 }
 
 export interface GetUser_user_teams {
   readonly __typename: "Team";
+  readonly id: string;
+  readonly name: string;
   readonly programs: ReadonlyArray<GetUser_user_teams_programs>;
 }
 

@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  client:
+    image: 5050.ni.bbc.co.uk:8443/5050-client-prod:latest
+    networks:
+      - haproxy-network
+  api:
+    image: 5050.ni.bbc.co.uk:8443/5050-api-prod:latest
+    environment:
+      - rt_debug=False
+    networks:
+      - haproxy-network
+
+  db:
+    volumes:
+      - /mnt/data/postgres/5050:/var/lib/postgresql/data
+  backup:
+    build: backup-service
+    image: 5050.ni.bbc.co.uk:8443/5050-backup-prod:latest
+    environment:
+      - rt_debug=False
+      - HTTP_PROXY=http://global-zen.reith.bbc.co.uk:9480/
+      - HTTPS_PROXY=http://global-zen.reith.bbc.co.uk:9480/
+    secrets:
+      - rt_db_pw
+      - source: 5050-aws-credentials
+        target: /root/.aws/credentials
+        mode: 400
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.labels.postgres==true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
+
+networks:
+  haproxy-network:
+    external: true

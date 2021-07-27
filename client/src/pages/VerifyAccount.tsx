@@ -1,7 +1,7 @@
 import { Alert, Button, message } from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Loading } from "../components/Loading/Loading";
 import { useUserAccountManager } from "../components/UserAccountManagerProvider";
 
@@ -17,7 +17,7 @@ import { useUserAccountManager } from "../components/UserAccountManagerProvider"
 export const VerifyAccount = () => {
   const { t } = useTranslation();
   const account = useUserAccountManager();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<Error | null>(null);
@@ -37,8 +37,8 @@ export const VerifyAccount = () => {
       }
       await account.requestVerifyUser(email);
       message.success(t("account.verify.reverifySuccess", { email }));
-    } catch (e) {
-      message.error(t("account.verify.reverifyError", { message: e.message }));
+    } catch (e: unknown) {
+      if (e instanceof Error) return message.error(t("account.verify.reverifyError", { message: e.message }));
     }
   };
 
@@ -57,12 +57,12 @@ export const VerifyAccount = () => {
       .verify(token)
       .then(() => {
         message.success(t("account.verify.success"));
-        history.push("/");
+        navigate("/");
       })
       .catch((e) => {
         if (e.message === "VERIFY_USER_ALREADY_VERIFIED") {
           message.warn(t("account.verify.errors.VERIFY_USER_ALREADY_VERIFIED"));
-          history.push("/");
+          navigate("/");
           return;
         }
         setVerifyError(e);

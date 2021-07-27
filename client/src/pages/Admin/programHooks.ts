@@ -14,10 +14,13 @@ import {
   AdminUpdateProgram,
   AdminUpdateProgramVariables,
 } from "../../graphql/__generated__/AdminUpdateProgram";
-import { TargetInput } from "../../graphql/__generated__/globalTypes";
+
 import { ADMIN_DELETE_PROGRAM } from "../../graphql/__mutations__/AdminDeleteProgram.gql";
 import { ADMIN_RESTORE_PROGRAM } from "../../graphql/__mutations__/AdminRestoreProgram.gql";
 import { ADMIN_UPDATE_PROGRAM } from "../../graphql/__mutations__/AdminUpdateProgram.gql";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+
+import { ReportingPeriodType } from "../../graphql/__generated__/globalTypes";
 
 /**
  * Form values filled out by the UI for editing datasetes.
@@ -27,14 +30,24 @@ export type DatasetFormValues = Readonly<{
   name: string;
   description: string | null;
   personTypes: string[];
+  customColumns: string[] | undefined;
 }>;
+
+/*type customColumn = Readonly<{
+  id?: string;
+  name: string;
+  type: CustomColumnType | null;
+  description: string | null;
+}>;*/
 
 /**
  * Form values to represent a tag for a program.
  */
 export type TagFormValues = Readonly<{
-  value: string;
-  label: string;
+  name: string;
+  tagType: string | null;
+  id: string;
+  description: string | null;
 }>;
 
 /**
@@ -46,27 +59,48 @@ export type ProgramUpdateFormValues = Readonly<{
   teamId?: string;
   tags: TagFormValues[];
   datasets: DatasetFormValues[];
-  targets: CategoryTarget[];
+  targets: Target[];
+  reportingPeriodType: ReportingPeriodType,
+  reportingPeriods: ReportingPeriod[]
 }>;
 
-/**
- * Represent a single target in a category, like  "non-binary" in Gender.
- */
-export type CategoryTargetSegment = Readonly<{
-  categoryValueId: string;
-  categoryValueName: string;
-  targetId: string;
-  targetValue: number;
-}>;
+export type ReportingPeriod = Readonly<{
+  id: string;
+  begin: any;
+  end: any;
+  range: [moment.Moment, moment.Moment];
+  description: string | null;
+}>
 
 /**
- * Represent a single category such as Gender.
+ * Represent a single track in a target, like  "non-binary" in Gender.
  */
-export type CategoryTarget = Readonly<{
-  categoryId: string;
-  categoryName: string;
-  categoryDescription: string;
-  segments: CategoryTargetSegment[];
+export type TargetTrack = Readonly<{
+  id: string;
+  categoryValue: CategoryValue;
+  targetMember: boolean;
+}>;
+
+export type Category = Readonly<{
+  id: string;
+  name: string;
+  description: string;
+}>
+
+export type CategoryValue = Readonly<{
+  id: string;
+  name: string;
+  category: { id: string }
+}>
+
+/**
+ * Represent a target
+ */
+export type Target = Readonly<{
+  id: string | null;
+  category: Category;
+  target: number;
+  tracks: TargetTrack[];
 }>;
 
 /**
@@ -76,7 +110,7 @@ export type CategoryTarget = Readonly<{
 export type HandlerFunction<
   A extends [ApolloClient<any>] = any,
   R extends FetchResult = FetchResult
-> = (...args: A) => Promise<R>;
+  > = (...args: A) => Promise<R>;
 
 /**
  * Type of the "other" parameters that can be passed through to a handler
@@ -89,16 +123,6 @@ export type HandlerArgs<F extends HandlerFunction> = F extends (
   ? U
   : never;
 
-/**
- * Check if the tag is a new custom tag that needs to be created on the server.
- *
- * This checks that the value is a UUIDv4. Test taken from here:
- * https://stackoverflow.com/a/38191104
- */
-export const isCustomTag = (tag: TagFormValues) =>
-  !/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(
-    tag.value
-  );
 
 /**
  * Higher-order hook factory for network operations.
@@ -144,9 +168,11 @@ const getOpHook = <F extends HandlerFunction>(
 
           message.success(t(`admin.program.edit.${successKey}`));
           success = true;
-        } catch (e) {
-          console.error(e);
-          setError(e);
+        } catch (e: unknown) {
+          if (e instanceof Error) {
+            console.error(e);
+            setError(e);
+          }
         } finally {
           setInFlight(false);
         }
@@ -177,23 +203,6 @@ export const useSave = getOpHook(
     programId: string,
     input: ProgramUpdateFormValues
   ) => {
-    const targets = input.targets.reduce((allTargets, current) => {
-      current.segments.forEach((segment) => {
-        allTargets.push({
-          id: segment.targetId,
-          target: segment.targetValue,
-          categoryValue: {
-            id: segment.categoryValueId,
-            name: segment.categoryValueName,
-            category: {
-              id: current.categoryId,
-            },
-          },
-        });
-      });
-      return allTargets;
-    }, [] as TargetInput[]);
-
     return apolloClient.mutate<AdminUpdateProgram, AdminUpdateProgramVariables>(
       {
         mutation: ADMIN_UPDATE_PROGRAM,
@@ -203,18 +212,55 @@ export const useSave = getOpHook(
             name: input.name,
             description: input.description,
             teamId: input.teamId,
-            tags: input.tags.map((tag) =>
-              isCustomTag(tag) ? { name: tag.value } : { id: tag.value }
-            ),
+            tags: input.tags.map((tag) => ({
+              id: tag.id,
+              name: tag.name,
+              tagType: tag.tagType,
+              description: tag.description
+            })),
             datasets: input.datasets.map((dataset) => ({
               id: dataset.id,
               name: dataset.name,
               description: dataset.description,
               personTypes: dataset.personTypes,
+              customColumns: dataset.customColumns
             })),
-            targets,
+            reportingPeriodType: input.reportingPeriodType,
+            reportingPeriods: input.reportingPeriods?.map(rp => {
+              const begin = rp.range[0].set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0);
+              const end = rp.range[1].set("hour", 23).set("minute", 59).set("second", 59).set("millisecond", 999);
+              return {
+                id: rp.id,
+                range: [begin, end],
+                programId: programId,
+                description: rp.description
+              };
+            }),
+            targets: input.targets.map(target => ({
+              id: target.id,
+              category: { id: target.category.id, name: target.category.name, description: target.category.description },
+              target: target.target,
+              tracks: target.tracks.map(track => ({
+                id: track.id,
+                categoryValue: {
+                  id: track.categoryValue.id,
+                  name: track.categoryValue.name,
+                  category: {
+                    id: track.categoryValue.category.id
+                  }
+                },
+                targetMember: track.targetMember
+              }))
+            }))
           },
         },
+        // Reload the dataset in case it's been loaded previously, otherwise the
+        // changes won't be reflected if the admin navigates to the dataset page.
+        refetchQueries: (result) =>
+          result.data?.updateProgram.datasets.map((ds) => ({
+            query: GET_DATASET,
+            variables: { id: ds.id },
+          })) || [],
       }
     );
   },

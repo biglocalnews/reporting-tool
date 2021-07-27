@@ -1,189 +1,270 @@
-import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Space, Table, Tag } from "antd";
-import { ColumnsType } from "antd/lib/table";
-import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useState } from "react";
-import { TFunction, useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../components/AuthProvider";
-import { ErrorFallback } from "../../components/Error/ErrorFallback";
-import { Loading } from "../../components/Loading/Loading";
-import {
-  AllDatasets,
-  AllDatasets_teams,
-} from "../../graphql/__generated__/AllDatasets";
-import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
-import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
-import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
-import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
+import { Card, Col, Divider, Radio, Row, Skeleton, Space, Statistic } from "antd";
+import { useTranslation } from "react-i18next";
+import { Typography } from 'antd';
+import { getPalette } from "../DatasetDetails/DatasetDetails";
+import "./Home.css";
+import { Bar } from "@ant-design/charts";
+import { useMemo, useState } from "react";
+import { catSort } from "../CatSort";
+import { GET_BASIC_STATS } from "../../graphql/__queries__/GetBasicStats.gql";
+import { GetBasicStats } from "../../graphql/__generated__/GetBasicStats";
+import { GET_HEADLINE_TOTALS } from "../../graphql/__queries__/GetHeadlineTotals.gql";
+import { GetHeadlineTotals } from "../../graphql/__generated__/GetHeadlineTotals";
+import { GetConsistencies } from "../../graphql/__generated__/GetConsistencies";
+import { GET_CONSISTENCIES } from "../../graphql/__queries__/GetConsistencies";
+import { GET_OVERVIEWS } from "../../graphql/__queries__/GetOverviews";
+import { GetOverviews } from "../../graphql/__generated__/GetOverviews";
 
-dayjs.extend(localizedFormat);
+const { Title } = Typography;
 
-export interface TableData {
-  id: string;
-  team: string;
-  dataset: string;
-  lastUpdated: string;
-  tags: Array<string>;
-}
+const gradientStyle = (category: string) => ({
+    backgroundImage: `linear-gradient(to right, ${getPalette(category).join(",")})`,
+    backgroundSize: "100%",
+    backgroundClip: "text",
+    WebkitBackgroundClip: "text",
+    MozBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    MozTextFillColor: "transparent",
+    width: "fit-content",
+    fontSize: "5rem",
+    textAlign: "center" as const,
+    fontWeight: 600,
+    margin: "auto",
+    lineHeight: 1
+})
 
-const columns: ColumnsType<TableData> = [
-  {
-    title: "Team",
-    dataIndex: "team",
-    key: "team",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.team.localeCompare(b.team),
-  },
-  {
-    title: "Dataset",
-    dataIndex: "dataset",
-    key: "dataset",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.dataset.localeCompare(b.dataset),
-  },
-  {
-    title: "Last Updated",
-    dataIndex: "lastUpdated",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    width: 250,
-    render: (tags: string[]) => {
-      return tags.map((tag: string) => {
-        const color = "blue";
-        return (
-          // TODO: Create component to link tags to datasets with the same tags
-          <Tag color={color} key={tag}>
-            {tag.toUpperCase()}
-          </Tag>
-        );
-      });
-    },
-  },
-  {
-    dataIndex: "id",
-    width: 250,
-    render: function btn(datasetId: string) {
-      return (
-        <Space>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/entry`,
-            }}
-          >
-            <Button type="primary" icon={<PlusOutlined />}>
-              Add Data
-            </Button>
-          </Link>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/details`,
-            }}
-          >
-            <Button icon={<InfoCircleOutlined />}>View Details</Button>
-          </Link>
+export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", background: "#fafafa" });
+
+export const Home = () => {
+
+    const { data: basicStats, loading: loadingBasicStats } = useQuery<GetBasicStats>(GET_BASIC_STATS);
+    const { data: headlineTotals, loading: loadingHeadlineTotals } = useQuery<GetHeadlineTotals>(GET_HEADLINE_TOTALS);
+    const { data: consistencies, loading: loadingConsistencies } = useQuery<GetConsistencies>(GET_CONSISTENCIES);
+    const { data: overviews, loading: loadingOverviews } = useQuery<GetOverviews>(GET_OVERVIEWS);
+    const { t } = useTranslation();
+    const [selectedOverviewCategory, setSelectedOverviewCategory] = useState("Gender");
+
+    const overviewCategories = useMemo(() => {
+        return Array.from(new Set(overviews?.overviews.map(x => x.category)))
+            .sort((a, b) => catSort(a, b));
+    }, [overviews]);
+
+    const overviewFilters = useMemo(() => {
+        return Array.from(new Set(overviews?.overviews.map(x => x.filter)));
+    }, [overviews]);
+
+    const headlineTotal = (category: string, totals: { percent: number, noOfDatasets: number }) =>
+        <Space direction="vertical">
+            <div style={gradientStyle(category)}>
+                <div>{Math.round(totals.percent)}</div>
+            </div>
+            <div
+                style={{ color: getPalette(category)[0], fontSize: "0.7rem" }}
+            >
+                {`${totals.noOfDatasets} ${t(category)} ${t("datasets")}`}
+            </div>
+
         </Space>
-      );
-    },
-  },
-];
 
-const getTableData = (
-  queryData: AllDatasets_teams[],
-  t: TFunction<"translation">
-) => {
-  const rowData: Array<TableData> = [];
+    return <Row gutter={[32, 32]}>
+        <Col span={24} style={{ textAlign: "center" }}>
+            <Skeleton
+                loading={loadingHeadlineTotals}
+                paragraph={{ rows: 1 }}
+            >
+                <Space direction="vertical">
+                    <Space
+                        direction="horizontal"
+                        size={50}
+                    >
+                        {
+                            headlineTotals &&
+                            headlineTotals.headlineTotals.gender &&
+                            headlineTotal("Gender", headlineTotals.headlineTotals.gender)
+                        }
+                        {
+                            headlineTotals &&
+                            headlineTotals.headlineTotals.ethnicity &&
+                            headlineTotal("Ethnicity", headlineTotals.headlineTotals.ethnicity)
+                        }
+                        {
+                            headlineTotals &&
+                            headlineTotals.headlineTotals.disability &&
+                            headlineTotal("Disability", headlineTotals.headlineTotals.disability)
+                        }
 
-  queryData.map((team) => {
-    return team.programs.map((program) => {
-      program.datasets.map((dataset) => {
-        rowData.push({
-          id: dataset.id,
-          team: program.name,
-          dataset: dataset.name,
-          lastUpdated: dataset.lastUpdated
-            ? dayjs(dataset.lastUpdated).format("ll")
-            : t("noDataAvailable"),
-          tags: dataset.tags.map((tag) => {
-            return tag.name;
-          }),
-        });
-      });
-    });
-  });
+                    </Space>
+                    Figures shown are percentages for the last published record of each dataset
+                </Space>
+            </Skeleton>
+        </Col>
+        <Col span={8}>
+            <Card style={cardStyle}>
+                <Statistic
+                    loading={loadingBasicStats}
+                    title={t("teams")}
+                    value={basicStats?.basicStats.teams}
+                />
+            </Card>
+        </Col>
+        <Col span={8}>
+            <Card style={cardStyle}>
+                <Statistic
+                    loading={loadingBasicStats}
+                    title={t("datasets")}
+                    value={basicStats?.basicStats.datasets}
+                />
+            </Card>
+        </Col>
+        <Col span={8}>
+            <Card style={cardStyle}>
+                <Statistic
+                    loading={loadingBasicStats}
+                    title={t("tags")}
+                    value={basicStats?.basicStats.tags}
+                />
+            </Card>
+        </Col>
+        <Col span={12}>
+            <Divider orientation="left"><Title level={3}>{t("consistencyChallenge")}</Title></Divider>
+        </Col>
+        <Col span={12}>
+            <Divider orientation="left"><Title level={3}>{t("overview")}</Title></Divider>
+        </Col>
+        <Col span={12}>
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <Typography>
+                        Datasets that meet the Gender target for at least three months and do not drop below 45% in any other month.
+                    </Typography>
+                </Col>
+                <Col span={24}>
+                    <Skeleton loading={loadingConsistencies} paragraph={{ rows: 1 }}>
+                        {
+                            consistencies && consistencies.consistencies.length &&
 
-  return rowData;
-};
+                            <Bar
+                                data={consistencies.consistencies
+                                    .filter(x => x.category === "Gender")
+                                    .sort((a, b) => a.year - b.year)}
+                                xField="value"
+                                yField="year"
+                                seriesField="consistencyState"
+                                isPercent
+                                isStack
+                                autoFit={false}
+                                height={250}
+                                barWidthRatio={1 / 2}
+                                color={[getPalette("Gender")[0], "rgba(0,0,0,0)"]}
+                                label={{
+                                    formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${(Number(v.value) * 100).toFixed(2)}%` : "",
 
-const Home = (): JSX.Element => {
-  const { t } = useTranslation();
-  const auth = useAuth();
-  const userId = auth.getUserId();
+                                }}
+                                xAxis={false}
+                                legend={false}
+                                tooltip={{ showContent: false }}
+                            />
 
-  const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
-    GET_USER,
-    {
-      variables: { id: userId },
-    }
-  );
-  const allTeams = useQuery<AllDatasets>(ALL_DATASETS, {
-    skip: !auth.isAdmin(),
-  });
+                        }
+                    </Skeleton>
+                </Col>
 
-  const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
+            </Row>
+        </Col>
+        <Col span={12}>
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <Typography>
+                        Shows the improvement in the proportion of datasets that exceeded the target for that category
+                    </Typography>
+                </Col>
+                <Col span={24} style={{ textAlign: "center" }}>
+                    <Radio.Group
+                        defaultValue={"Gender"}
+                        onChange={(e) => setSelectedOverviewCategory(e.target.value)}
+                    >
+                        {
+                            overviewCategories.map(category =>
+                                <Radio key={category} value={category}>{category}</Radio>
+                            )
+                        }
+                    </Radio.Group>
+                </Col>
+                <Col span={24} >
+                    <Skeleton loading={loadingOverviews} paragraph={{ rows: 1 }}>
 
-  const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
-  const rowData = getTableData(originalTeamData.slice(), t);
+                        {
+                            overviews && overviews.overviews.length &&
 
-  // Filters datasets table by search term
-  const handleTableSearchFilter = (searchText: string) => {
-    const data = [...rowData];
-    const filteredData = data.filter(({ team, dataset }) => {
-      team = team.toLowerCase();
-      dataset = dataset.toLowerCase();
-      return team.includes(searchText) || dataset.includes(searchText);
-    });
+                            overviewFilters.map(filter =>
 
-    setFilteredData(filteredData);
-  };
+                                <Card
+                                    key={`${selectedOverviewCategory + filter}`}
+                                    title={filter}
+                                    size="small"
+                                >
+                                    <Bar
+                                        data={overviews.overviews
+                                            .filter(x => x.filter === filter)
+                                            .filter(x => x.category === selectedOverviewCategory)
+                                            .sort((a, b) => b.date.localeCompare(a.date))}
+                                        xField="value"
+                                        yField="date"
+                                        seriesField="targetState"
+                                        isPercent
+                                        isStack
+                                        height={150}
+                                        width={300}
+                                        barWidthRatio={1 / 3}
+                                        label={{
+                                            formatter: (v) => Number(v.value) > 0 ? `${Math.round(Number(v.value) * 100)}%` : ""
+                                        }}
+                                        xAxis={false}
+                                        yAxis={{
+                                            label: {
+                                                formatter: (v) => {
+                                                    switch (v) {
+                                                        case "min":
+                                                            return "First Entry";
+                                                        case "max":
+                                                            return "Last Entry";
+                                                        default:
+                                                            return v;
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                        legend={{
+                                            position: "top-right",
+                                            itemName: {
+                                                formatter: (v) => {
+                                                    switch (v) {
+                                                        case "exceeds":
+                                                            return "Exceeded";
+                                                        case "lt5":
+                                                            return "Within 5%";
+                                                        case "lt10":
+                                                            return "Within 10%";
+                                                        case "gt10":
+                                                            return "More than 10%";
+                                                        default:
+                                                            return v;
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                        tooltip={{ showContent: false }}
+                                    />
+                                </Card>
 
-  if (error) return <ErrorFallback error={error} />;
+                            )
+                        }
 
-  return (
-    <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div>
-          <div
-            id="home_table-search"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "1rem",
-            }}
-          >
-            <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
-          </div>
-          <Table
-            dataSource={filteredData.length > 0 ? filteredData : rowData}
-            columns={columns}
-            rowKey={(dataset) => dataset.id}
-            footer={() =>
-              filteredData.length > 0
-                ? `Showing ${filteredData.length} of ${rowData.length} results`
-                : `Showing ${rowData.length} of ${rowData.length} results`
-            }
-          />
-        </div>
-      )}
-    </>
-  );
-};
+                    </Skeleton>
+                </Col>
+            </Row>
+        </Col>
 
-export { Home };
+    </Row>
+}

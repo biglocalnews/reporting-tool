@@ -13,6 +13,8 @@ export const ADMIN_GET_PROGRAM = gql`
       tags {
         id
         name
+        tagType
+        description
       }
       datasets {
         id
@@ -22,19 +24,40 @@ export const ADMIN_GET_PROGRAM = gql`
           id
           personTypeName
         }
+        customColumns {
+          id
+          name
+          type
+          description
+        }
+      }
+      reportingPeriodType
+      reportingPeriods {
+        id
+        begin
+        end
+        range
+        description
       }
       targets {
         id
-        categoryValue {
+        category {
           id
           name
-          category {
+          description
+        }        
+        target
+        tracks {
+          id
+          targetMember
+          categoryValue {
             id
             name
-            description
+            category {
+              id
+            }
           }
         }
-        target
       }
     }
   }

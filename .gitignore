@@ -130,13 +130,13 @@ dmypy.json
 # ESLint
 *.eslintcache
 
-# Production configs
-*.prod.*
-*.prod
-
 # Database
 data/
 
 # Vim swapfiles
 *.swp
 *.swo
+
+*.dump
+.VSCodeCounter
+*.csv

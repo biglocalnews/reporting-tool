@@ -24,23 +24,49 @@ export const GET_DATASET = gql`
       }
       program {
         name
+        importedId
         targets {
           id
           target
-          categoryValue {
-            id
-            name
-            category {
+          category {
               id
               name
               description
+          }
+          tracks {
+            targetMember
+            categoryValue {
+              id
+              name
             }
           }
+        }
+        reportingPeriods {
+          id
+          range
+          description
+          
+        }       
+        tags {
+          name
+          tagType
+        }
+        team {
+          name
         }
       }
       records {
         id
         publicationDate
+        customColumnValues {
+          id
+          customColumn {
+            id
+            name
+            type
+          }
+          value
+        }
         entries {
           id
           categoryValue {
@@ -58,6 +84,23 @@ export const GET_DATASET = gql`
             personTypeName
           }
         }
+      }
+      tags {
+        name
+        tagType
+      }
+      publishedRecordSets {
+        id
+        reportingPeriodId
+        begin
+        end
+        document
+      }
+      customColumns {
+        id
+        name
+        type
+        description
       }
     }
   }

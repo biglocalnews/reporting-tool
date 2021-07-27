@@ -7,13 +7,49 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum CustomColumnType {
+  boolean = "boolean",
+  datetime = "datetime",
+  float = "float",
+  integer = "integer",
+  string = "string",
+}
+
+export enum NeedsAttentionType {
+  MissedATargetInAllLast3Periods = "MissedATargetInAllLast3Periods",
+  MoreThan10PercentBelowATargetLastPeriod = "MoreThan10PercentBelowATargetLastPeriod",
+  NothingPublishedLast3Periods = "NothingPublishedLast3Periods",
+}
+
+export enum ReportingPeriodType {
+  annual = "annual",
+  custom = "custom",
+  monthly = "monthly",
+  quarterly = "quarterly",
+}
+
+export enum TargetStateType {
+  exceeds = "exceeds",
+  fails = "fails",
+}
+
+export interface AdminStatsInput {
+  readonly duration: number;
+}
+
 export interface BaseCategoryInput {
   readonly id: string;
 }
 
+export interface CategoryInput {
+  readonly id?: string | null;
+  readonly name: string;
+  readonly description: string;
+}
+
 export interface CategoryValueInput {
   readonly id?: string | null;
-  readonly name?: string | null;
+  readonly name: string;
   readonly category: BaseCategoryInput;
 }
 
@@ -24,12 +60,29 @@ export interface CreateProgramInput {
   readonly targets?: ReadonlyArray<TargetInput> | null;
   readonly tags?: ReadonlyArray<TagInput> | null;
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
+  readonly reportingPeriodType: ReportingPeriodType;
+  readonly reportingPeriods?: ReadonlyArray<ReportingPeriodInput> | null;
+}
+
+export interface CreatePublishedRecordSetInput {
+  readonly id?: string | null;
+  readonly datasetId: string;
+  readonly reportingPeriodId: string;
+  readonly begin: any;
+  readonly end: any;
+  readonly document?: any | null;
 }
 
 export interface CreateRecordInput {
   readonly datasetId: string;
   readonly publicationDate: any;
   readonly entries?: ReadonlyArray<EntryInput> | null;
+}
+
+export interface CreateTagInput {
+  readonly name: string;
+  readonly tagType?: string | null;
+  readonly description?: string | null;
 }
 
 export interface CreateTeamInput {
@@ -39,10 +92,16 @@ export interface CreateTeamInput {
   readonly programIds?: ReadonlyArray<string> | null;
 }
 
+export interface CustomColumnValueInput {
+  readonly id?: string | null;
+  readonly customColumnId: string;
+  readonly value?: string | null;
+}
+
 export interface EntryInput {
   readonly id?: string | null;
   readonly categoryValueId: string;
-  readonly count: number;
+  readonly count?: number | null;
   readonly personTypeId?: string | null;
 }
 
@@ -51,6 +110,31 @@ export interface FirstTimeAppConfigurationInput {
   readonly email: string;
   readonly firstName: string;
   readonly lastName: string;
+}
+
+export interface PublishedRecordSetsInput {
+  readonly id?: string | null;
+  readonly categories: ReadonlyArray<string>;
+  readonly teams: ReadonlyArray<string>;
+  readonly datasetGroups: ReadonlyArray<string>;
+  readonly tags: ReadonlyArray<string>;
+  readonly year: number;
+}
+
+export interface ReportingPeriodInput {
+  readonly id?: string | null;
+  readonly programId: string;
+  readonly range?: ReadonlyArray<any> | null;
+  readonly begin?: any | null;
+  readonly end?: any | null;
+  readonly description?: string | null;
+}
+
+export interface SendEmailInput {
+  readonly to: ReadonlyArray<string>;
+  readonly body: string;
+  readonly subject: string;
+  readonly monthYear: string;
 }
 
 export interface TagInput {
@@ -62,8 +146,16 @@ export interface TagInput {
 
 export interface TargetInput {
   readonly id?: string | null;
-  readonly target?: number | null;
-  readonly categoryValue?: CategoryValueInput | null;
+  readonly target: number;
+  readonly targetDate?: any | null;
+  readonly category: CategoryInput;
+  readonly tracks: ReadonlyArray<TrackInput>;
+}
+
+export interface TrackInput {
+  readonly id?: string | null;
+  readonly categoryValue: CategoryValueInput;
+  readonly targetMember: boolean;
 }
 
 export interface UpdateProgramInput {
@@ -74,6 +166,8 @@ export interface UpdateProgramInput {
   readonly targets?: ReadonlyArray<TargetInput> | null;
   readonly tags?: ReadonlyArray<TagInput> | null;
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
+  readonly reportingPeriodType: ReportingPeriodType;
+  readonly reportingPeriods?: ReadonlyArray<ReportingPeriodInput> | null;
 }
 
 export interface UpdateRecordInput {
@@ -81,6 +175,14 @@ export interface UpdateRecordInput {
   readonly datasetId?: string | null;
   readonly publicationDate?: any | null;
   readonly entries?: ReadonlyArray<EntryInput> | null;
+  readonly customColumnValues?: ReadonlyArray<CustomColumnValueInput> | null;
+}
+
+export interface UpdateTagInput {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly tagType?: string | null;
+  readonly description?: string | null;
 }
 
 export interface UpdateTeamInput {
@@ -95,6 +197,7 @@ export interface UpsertDatasetInput {
   readonly name?: string | null;
   readonly description?: string | null;
   readonly personTypes?: ReadonlyArray<string> | null;
+  readonly customColumns?: ReadonlyArray<string> | null;
 }
 
 //==============================================================

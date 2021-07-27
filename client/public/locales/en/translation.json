@@ -1,31 +1,87 @@
 {
-  "program": "program",
-  "program_plural": "programs",
-  "Program": "Program",
-  "Program_plural": "Programs",
+  "footer": "Built by BBC NI Product Team",
+  "project": "Project Confluence",
+  "version": "Version",
+  "userGuide": "User Guide",
+  "program": "dataset group",
+  "program_plural": "dataset groups",
+  "Program": "Dataset Group",
+  "Program_plural": "Dataset Groups",
+  "Team_plural": "Teams",
+  "User_plural": "Users",
+  "Dataset_plural": "Datasets",
   "teamsSideBarTitle": "My $t(Program_plural)",
   "aboutAttribute": "About {{attribute}}",
   "attributeDescription": "{{description}}",
   "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
   "datasetRecordsTableTitle": "{{title}}",
-  "saveRecord": "{{buttonTitle}} Record",
+  "saveRecord": "Confirm",
+  "newRow": "Add Row(s)",
+  "recordDate": "Date of record",
+  "currentrp": "This reporting period",
+  "today": "Today",
+  "numberOf": "Number of",
+  "reportingPeriod": "Reporting Period",
+  "unknownPersonType": "Everyone",
+  "everyone": "Everyone",
+  "personType": "Person Type",
+  "consistencyChallenge": "Consistency Challenge",
+  "consistent": "Consistent",
+  "gender": "Gender",
+  "ethnicity": "Ethnicity",
+  "disability": "Disability",
+  "overview": "Overview",
+  "failed": "Not met",
+  "published": "Published",
+  "publishRecordSet": "Publish",
+  "noPublishedRecordSets": "No published record sets",
+  "allReportingPeriodsPublished": "All reporting periods have been published",
+  "noReportingPeriodsConfigured": "No reporting periods have been configured for this Dataset group",
+  "exportCSV": "Export CSV",
+  "deleteRecord": "Delete Record",
   "goToDataset": "Go to Dataset",
   "addMoreData": "Add More Data",
-  "addData": "Add Data",
+  "addData": "Add Record",
   "editData": "Edit",
+  "null": "null",
   "backToDashboard": "Back To Dashboard",
-  "noDataAvailable": "No Data Available Yet",
+  "noDataAvailable": "No data available yet",
   "notAuthorized": "You do not have permission to view this page.",
   "submitUpdate": "Save changes",
   "submitUpdateSuccess": "Successfully saved changes!",
   "submitUpdateFail": "Failed to save changes.",
   "cancel": "Cancel",
+  "loading": "Loading",
+  "confirmDelete": "Are you sure?",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
+  "This Month": "This Month",
+  "Last Month": "Last Month",
+  "This Year": "This Year",
+  "All Time": "All Time",
+  "monthly": "Monthly",
+  "quarterly": "Quarterly",
+  "annual": "Annual",
+  "custom": "Custom",
+  "pageNotFound": "Page not found",
+  "allTags": "All Tags",
+  "tagGroups": "Grouped Tags",
+  "teams": "Teams",
+  "tags": "Tags",
+  "datasets": "Datasets",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",
     "firstName": "Tina",
     "lastName": "Turner"
+  },
+  "reports": {
+    "title": "Reports",
+    "clear": "Clear all",
+    "subtitle": "Use this page to generate charts from the published data",
+    "selectCategories": "Select Categories",
+    "selectTeams": "Select Teams",
+    "selectDatasetGroups": "Select Dataset Groups",
+    "selectTags": "Select Tags"
   },
   "app": {
     "configure": {
@@ -103,13 +159,25 @@
     "yes": "Yes",
     "no": "No"
   },
+  "datasetDetails": {
+    "deletePublishedRecordSet": "Deleted Published Record Set",
+    "unPublish": "Unpublish",
+    "last3Periods": "Last 3 periods",
+    "last6Periods": "Last 6 periods",
+    "newRecordNotAllowed": "You may only create records in reporting periods that exist, or have not been published yet.",
+    "createRecordsConfirmTitle": "Are you sure?",
+    "createRecordsConfirmBody": "The row you're trying to add won't appear in the table below.\nYou are trying to add a row for a different reporting period than you have selected on the left hand menu or that has already been published.\n\n\nPlease double-check the month you have selected on the left hand."
+  },
   "admin": {
     "sidebar": {
       "controlsHeader": "Manage application",
       "manageUsers": "Users",
       "manageTeams": "Teams",
       "managePrograms": "$t(Program_plural)",
-      "viewAll": "View all datasets"
+      "viewAll": "View all datasets",
+      "reports": "Reports",
+      "manageTags": "Tag Management",
+      "home": "Home"
     },
     "team": {
       "index": {
@@ -126,7 +194,8 @@
           "programCount": "$t(Program_plural)"
         },
         "cancel": "$t(cancel)",
-        "save": "Create team"
+        "save": "Create team",
+        "searchTeams": "Search $t(Team_plural)"
       },
       "create": {
         "name": "Name",
@@ -159,7 +228,8 @@
         "nonTeamMembers": "Other users",
         "teamMembers": "Team members",
         "otherPrograms": "Other $t(program_plural)",
-        "teamPrograms": "Assigned $t(program_plural)"
+        "teamPrograms": "Assigned $t(program_plural)",
+        "deleted": "Deleted"
       }
     },
     "program": {
@@ -173,7 +243,8 @@
           "active": "Active",
           "activeFilter": "Active",
           "inactiveFilter": "Deleted"
-        }
+        },
+        "searchDatasetGroups": "Search $t(Program_plural)"
       },
       "create": {
         "name": "Name",
@@ -197,6 +268,7 @@
         "title": "Edit $t(Program)",
         "targetTitle": "Representation targets",
         "datasetTitle": "Datasets",
+        "reportingPeriodTitle": "Reporting Period",
         "deactivateSuccess": "Successfully deleted",
         "saveSuccess": "$t(submitUpdateSuccess)",
         "restoreSuccess": "Successfully restored",
@@ -209,7 +281,13 @@
           "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this $t(program)?",
           "team": "Assigned team",
-          "tags": "Tags",
+          "newTagPrompt": "Create a new tag",
+          "datasetCustomColumns": "Custom columns",
+          "newCustomColumnPrompt": "Create a new custom column",
+          "tags": {
+            "name": "Name",
+            "type": "Group"
+          },
           "datasetName": "Dataset name",
           "datasetDescription": "Dataset description",
           "addCategoryPlaceholder": "Select a new category to track",
@@ -220,19 +298,28 @@
           "stopTrackingCategoryConfirm": "Do you really wish to stop tracking this category?",
           "stopTrackingSegment": "Stop tracking {{ segment }}",
           "confirmStopTrackingSegment": "Do you really wish to stop tracking this demographic segment?",
-          "addNewSegment": "Add new target for {{ category }}",
+          "addNewSegment": "Add new track for {{ category }}",
+          "segmentTooltip": "Include in target?",
           "addDataset": "Add a new dataset",
+          "addExistingDataset": "Add an existing dataset",
           "deleteDataset": "Delete this dataset",
           "confirmRemoveDataset": "Do you really wish to delete this dataset?",
           "alreadyDeletedTitle": "This $t(program) has been deleted.",
           "alreadyDeletedInfo": "You cannot edit this $t(program) while it is deleted. You can restore it if you wish.",
-          "restore": "Restore",
+          "targetNumber": "Target",
+          "addCustomReportingPeriod": "Add reporting period",
+          "removeReportingPeriod": "Remove reporting period",
+          "removeReportingPeriodGroup": "Remove reporting period group",
           "validation": {
             "nameRequired": "You must enter a name",
             "teamRequired": "You must assign a team",
+            "tagRequired": "You must enter a tag name",
+            "tagGroupRequired": "You must enter a tag group",
             "100%": "Targets within a category must sum to 100%.",
             "uniqueTargets": "Targets must all be unique.",
             "needSegments": "You must add at least one segment to track in a category.",
+            "needReportingPeriods": "You must add at least one reporting period.",
+            "overlappingReportingPeriod": "Reporting period overlaps another period",
             "saveError": "Failed to save changes to $t(program)",
             "deleteError": "Failed to deactivate $t(program)",
             "restoreError": "Failed to restore $t(program)",
@@ -247,11 +334,12 @@
       "userListTitle": "Manage users",
       "userListSubTitle": "Use this page to add and edit users",
       "createNew": "Add user",
-      "createTitle": "Create a new user",
+      "createTitle": "Add a new user",
       "noQueryData": "query did not return any data",
       "queryMissingKey": "query did not return the expected {{expectedKey}} key",
       "title": "Edit user",
-      "save": "$t(submitUpdate)",
+      "search": "Search users...",
+      "save": "Add User",
       "saveSuccess": "$t(submitUpdateSuccess)",
       "cancel": "$t(cancel)",
       "restore": "Reactivate user",
@@ -265,7 +353,8 @@
         "lastName": "Last name",
         "email": "E-mail",
         "teams": "Teams",
-        "roles": "Roles"
+        "roles": "Roles",
+        "username": "Username"
       },
       "validation": {
         "saveError": "An error occurred saving this user's data",
@@ -273,17 +362,59 @@
         "deleteError": "An error occurred deleting this user",
         "email": "Not a valid email",
         "emailRequired": "You need to enter an email.",
+        "usernameRequired": "You need to enter an username.",
         "firstNameRequired": "You need to enter a first name.",
         "lastNameRequired": "You need to enter a last name."
       }
     },
     "userList": {
+      "searchUsers": "Search $t(User_plural)",
       "columnTitle": {
         "email": "Email",
         "firstName": "First Name",
         "lastName": "Last Name",
-        "active": "Active"
+        "active": "Active",
+        "roles": "Roles"
       }
+    },
+    "tag": {
+      "index": {
+        "title": "Tag Management",
+        "subtitle": "Use this page to view and manage tags",
+        "name": "Name",
+        "description": "Description",
+        "group": "Group",
+        "submit": "Create"
+      }
+    },
+    "reports": {
+      "title": "Admin Reports",
+      "clear": "Clear all",
+      "subtitle": "Performance of Teams and Datasets",
+      "failed": "Failed to meet targets",
+      "exceeds": "Exceeded targets",
+      "selectDays": "Select Last n Days",
+      "filtersTitle": "Filters",
+      "statsTitle": "Stats",
+      "emailTeam": "Email Team",
+      "noPublishers": "Team has no publishers",
+      "alertTeam": "Alert Team",
+      "dataTitle": "Results",
+      "reqImprovementStatTitle": "Datasets showed improvement",
+      "reqAttentionStatTitle": "Needs attention",
+      "overdueStatTitle": "Overdue",
+      "datasetCategoryColumnTitle": "Category",
+      "datasetPercentColumnTitle": "Score",
+      "datasetReportingPeriodEndColumnTitle": "Reporting Period End",
+      "datasetMissedCountColumnTitle": "No. of Overdues",
+      "datasetNameColumnTitle": "Dataset Name",
+      "datasetAttentionTypeColumnTitle": "Reasons for Attention",
+      "MoreThan10PercentBelowATargetLastPeriod": "More than 10 percent below a target last period",
+      "MissedATargetInAllLast3Periods": "Missed a target in all last 3 periods",
+      "NothingPublishedLast3Periods": "Nothing published last 3 periods",
+      "emailAllOverdue": "Email all",
+      "confirmSendEmails": "Are you sure you want to send an email to all these teams?",
+      "sentOk": "Overdue emails sent"
     }
   }
 }

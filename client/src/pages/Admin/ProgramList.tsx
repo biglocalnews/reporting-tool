@@ -1,7 +1,8 @@
 import { AppstoreAddOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { Button, Form, Modal, PageHeader, Table } from "antd";
+import { Button, Col, Form, Input, Modal, PageHeader, Row, Table } from "antd";
+const { Search } = Input;
 import { ColumnsType } from "antd/lib/table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import {
@@ -17,11 +18,11 @@ import { EditLink } from "./EditLink";
  */
 const CategoriesCell = (_: string, record: AdminGetAllPrograms_programs) => {
   const uniqCategories = record.targets.reduce((agg, current) => {
-    agg.add(current.categoryValue.category.name);
+    agg.add(current.category.name);
     return agg;
-  }, new Set());
-  const categories = Array.from(uniqCategories).sort();
-  return <div>{categories.join(", ")}</div>;
+  }, new Set<string>());
+  //const categories = Array.from(uniqCategories).sort();
+  return <div>{Array.from(uniqCategories).join(", ")}</div>;
 };
 
 /**
@@ -38,6 +39,12 @@ export const ProgramList = () => {
   );
   const [newProgramForm] = Form.useForm<CreateProgramFormValues>();
   const [showCreateProgram, setShowCreateProgram] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data?.programs;
+    return data?.programs.filter(x => x.name.toLocaleLowerCase().includes(searchTerm?.toLocaleLowerCase()));
+  }, [data?.programs, searchTerm])
 
   const Active = (_: string, record: AdminGetAllPrograms_programs) =>
     !record.deleted ? <CheckCircleOutlined /> : null;
@@ -68,7 +75,7 @@ export const ProgramList = () => {
         {
           text: t("admin.program.index.columnTitle.inactiveFilter"),
           value: false,
-        },
+        }
       ],
       onFilter: (
         value: boolean | string | number,
@@ -83,41 +90,50 @@ export const ProgramList = () => {
   ];
 
   return (
-    <div className="admin program-programlist_container">
-      <Modal
-        forceRender
-        visible={showCreateProgram}
-        onOk={() => newProgramForm.submit()}
-        okText={t("admin.program.create.save")}
-        onCancel={() => {
-          setShowCreateProgram(false);
-          newProgramForm.resetFields();
-        }}
-        cancelText={t("admin.program.create.cancel")}
-        title={t("admin.program.create.title")}
-      >
-        <CreateProgram form={newProgramForm} />
-      </Modal>
-      <PageHeader
-        title={t("admin.program.index.title")}
-        subTitle={t("admin.program.index.subtitle")}
-        extra={[
-          <Button
-            type="primary"
-            key="add-program"
-            onClick={() => setShowCreateProgram(true)}
-            icon={<AppstoreAddOutlined />}
-          >
-            {t("admin.program.index.add")}
-          </Button>,
-        ]}
-      />
-      <Table
-        rowKey={(program) => program.id}
-        loading={loading}
-        dataSource={loading ? [] : data!.programs!}
-        columns={columns}
-      />
-    </div>
+    <Row className="admin program-programlist_container" gutter={[16, 16]}>
+      <Col span={24}>
+        <PageHeader
+          title={t("admin.program.index.title")}
+          subTitle={t("admin.program.index.subtitle")}
+          extra={[
+            <Button
+              type="primary"
+              key="add-program"
+              onClick={() => setShowCreateProgram(true)}
+              icon={<AppstoreAddOutlined />}
+            >
+              {t("admin.program.index.add")}
+            </Button>,
+            <Modal
+              key={2}
+              forceRender
+              visible={showCreateProgram}
+              onOk={() => newProgramForm.submit()}
+              okText={t("admin.program.create.save")}
+              onCancel={() => {
+                setShowCreateProgram(false);
+                newProgramForm.resetFields();
+              }}
+              cancelText={t("admin.program.create.cancel")}
+              title={t("admin.program.create.title")}
+            >
+              <CreateProgram form={newProgramForm} />
+            </Modal>
+          ]}
+        />
+      </Col>
+      <Col span={6} offset={18}>
+        <Search placeholder={t("admin.program.index.searchDatasetGroups")} allowClear onSearch={(e) => setSearchTerm(e)} />
+
+      </Col>
+      <Col span={24}>
+        <Table
+          rowKey={(program) => program.id}
+          loading={loading}
+          dataSource={filteredData}
+          columns={columns}
+        />
+      </Col>
+    </Row>
   );
 };

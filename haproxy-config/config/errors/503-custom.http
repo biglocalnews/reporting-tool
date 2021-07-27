@@ -1,0 +1,90 @@
+HTTP/1.0 503 Service Unavailable
+Cache-Control: no-cache
+Connection: close
+Content-Type: text/html
+
+<html>
+
+<head>
+    <title>Server Maintenance</title>
+</head>
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        overflow: hidden;
+        padding: none;
+        background: linear-gradient(90deg, #ca1619 0%, #a5c3e5 100%);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+</style>
+
+<body>
+    <div style="position: relative;
+    width: 400px;
+    height: 400px;  
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height:100%;
+    display: flex;
+    
+    ">
+        <div style="text-align: center;width:50%;height: 50%;margin: auto;display: block;">
+            <div>
+                <svg width="50%" height="50%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <style>
+                        .line-terminal2 {
+                            animation: line-terminal2-blink 1s infinite;
+                        }
+
+                        @keyframes line-terminal2-blink {
+                            0% {
+                                visibility: visible;
+                            }
+
+                            50% {
+                                visibility: hidden;
+                            }
+
+                            100% {
+                                visibility: hidden;
+                            }
+                        }
+                    </style>
+                    <rect x="11" y="16" width="75" height="68" rx="4" fill="#FFF" stroke="#000" stroke-width="2px">
+                    </rect>
+                    <path d="M11 20C11 17.7909 12.7909 16 15 16H82C84.2091 16 86 17.7909 86 20V34H11V20Z" fill="#FFF"
+                        stroke="#000" stroke-width="2px"></path>
+                    <path d="M36 51L42.9022 57.9022C43.6833 58.6833 43.6833 59.9496 42.9022 60.7306L36 67.6329"
+                        stroke="#000" stroke-width="2px"></path>
+                    <line class="line-terminal2" x1="44.3165" y1="66.6328" x2="60.9494" y2="66.6328" stroke="#000"
+                        stroke-width="2px" style="animation-duration: 1s;"></line>
+                    <circle cx="21" cy="25" r="3" fill="#FFF" stroke="#000" stroke-width="2px"></circle>
+                    <circle cx="33" cy="25" r="3" fill="#FFF" stroke="#000" stroke-width="2px"></circle>
+                    <circle cx="45" cy="25" r="3" fill="#FFF" stroke="#000" stroke-width="2px"></circle>
+                </svg>
+            </div>
+            <div>Please wait while we fix a few things...</div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

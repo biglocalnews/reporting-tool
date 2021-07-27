@@ -29,6 +29,20 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "no-unused-vars": "off",
+    "no-debugger": "off",
     "@typescript-eslint/no-unused-vars": "error",
+    // NOTE: The label-has-associated-control rule replaced the deprecated
+    // label-has-for rule:
+    // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/master/docs/rules/label-has-for.md
+    "jsx-a11y/label-has-associated-control": [
+      2,
+      {
+        labelAttributes: ["label"],
+        controlComponents: ["*Input*"],
+        depth: 3,
+      },
+    ],
+    "jsx-a11y/label-has-for": "off",
+    "jsx-a11y/no-autofocus": "warn"
   },
 };

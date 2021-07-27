@@ -15,8 +15,9 @@ import {
 } from "antd";
 import React, { useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
-import { Prompt, useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
+import { usePrompt } from "../../components/usePrompt";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import { AdminGetAllRoles } from "../../graphql/__generated__/AdminGetAllRoles";
 import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
@@ -123,17 +124,24 @@ const useSaveUser = (id: string, t: TFunction) => {
      *
      * Returns boolean indicating whether save succeeded.
      */
-    saveUser: async (formData: EditUserFormData) => {
+    saveUser: async (initialFormState: EditUserFormData, formData: EditUserFormData) => {
       setSaving(true);
       setSaveError(null);
       setSaving(false);
 
       try {
-        await account.editUser(id, formData);
+        if (initialFormState.email === formData.email) {
+          const { email, ...restOfTheProps } = formData;
+          email;//Keep linter happy by using it lol
+          await account.editUser(id, restOfTheProps);
+        } else {
+          await account.editUser(id, formData);
+        }
+
         message.success(t("admin.user.saveSuccess"));
         return true;
-      } catch (e) {
-        setSaveError(e);
+      } catch (e: unknown) {
+        if (e instanceof Error) setSaveError(e);
         return false;
       }
     },
@@ -166,8 +174,8 @@ const useDeleteUser = (userId: string, refresh: () => void) => {
       try {
         await account.deleteUser(userId);
         refresh();
-      } catch (e) {
-        setDeleteError(e);
+      } catch (e: unknown) {
+        if (e instanceof Error) return setDeleteError(e);
       } finally {
         setDeleting(false);
       }
@@ -201,8 +209,8 @@ const useRestoreUser = (userId: string, refresh: () => void) => {
       try {
         await account.restoreUser(userId);
         refresh();
-      } catch (e) {
-        setRestoreError(e);
+      } catch (e: unknown) {
+        if (e instanceof Error) return setRestoreError(e);
       } finally {
         setRestoring(false);
       }
@@ -213,11 +221,12 @@ const useRestoreUser = (userId: string, refresh: () => void) => {
 /**
  * Form to edit information about a user.
  */
-export const EditUser = () => {
+export const EditUser = (): JSX.Element => {
   const [dirty, setDirty] = useState(false);
-  const { userId } = useParams<{ userId: string }>();
+  const { userId } = useParams() as { userId: string };
+
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const {
     rolesResponse,
@@ -233,6 +242,10 @@ export const EditUser = () => {
   const { deleting, deleteError, deleteUser } = useDeleteUser(userId, refresh);
   const { restoreError, restoreUser } = useRestoreUser(userId, refresh);
 
+  usePrompt(t("confirmLeavePage"), dirty);
+
+  if (!userId) return <p>bad route</p>;
+
   if (loading) {
     return <Loading />;
   }
@@ -245,6 +258,7 @@ export const EditUser = () => {
   const initialFormState: EditUserFormData = {
     first_name: userResponse.data!.user.firstName,
     last_name: userResponse.data!.user.lastName,
+    username: userResponse.data!.user.username,
     email: userResponse.data!.user.email,
     roles: userResponse.data!.user.roles.map((r) => r.id),
     teams: userResponse.data!.user.teams.map((t) => t.id),
@@ -255,10 +269,9 @@ export const EditUser = () => {
 
   return (
     <div className="admin user-edituser_container">
-      <Prompt when={dirty} message={t("confirmLeavePage")} />
 
       <PageHeader
-        onBack={() => history.push("/admin/users")}
+        onBack={() => navigate("/admin/users")}
         title={t("admin.user.title")}
       />
 
@@ -305,7 +318,7 @@ export const EditUser = () => {
         wrapperCol={{ span: 14 }}
         initialValues={initialFormState}
         onFinish={async (values) => {
-          if (await saveUser(values)) {
+          if (await saveUser(initialFormState, values)) {
             setDirty(false);
           }
         }}
@@ -343,9 +356,25 @@ export const EditUser = () => {
             disabled={inactive}
           />
         </Form.Item>
-
+        <Form.Item
+          name="username"
+          label={t("admin.user.fields.username")}
+          rules={[
+            {
+              required: true,
+              message: t("admin.user.validation.usernameRequired"),
+            },
+          ]}
+        >
+          <Input
+            aria-label={t("admin.user.fields.username")}
+            aria-required="true"
+            disabled={inactive}
+          />
+        </Form.Item>
         <Form.Item
           name="email"
+
           label={t("admin.user.fields.email")}
           rules={[
             { type: "email", message: t("admin.user.validation.email") },
@@ -365,7 +394,7 @@ export const EditUser = () => {
         <Divider orientation="left" />
 
         <Form.Item name="teams" label={t("admin.user.fields.teams")}>
-          <Select
+          <Select<string, { value: string; children: string }>
             mode="multiple"
             showSearch
             disabled={inactive}
@@ -375,10 +404,10 @@ export const EditUser = () => {
             placeholder={t("admin.user.teamSearch")}
             optionFilterProp="children"
             filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input?.toLowerCase()) >= 0
+              option!.children.toLowerCase().indexOf(input?.toLowerCase()) >= 0
             }
             filterSort={(a, b) =>
-              a.children.toLowerCase().localeCompare(b.children.toLowerCase())
+              a!.children.toLowerCase().localeCompare(b!.children.toLowerCase())
             }
           >
             {teamsResponse.data!.teams.map((t) => (

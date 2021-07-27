@@ -1,6 +1,6 @@
 {
-  "program": "programme",
-  "program_plural": "programmes",
-  "Program": "Programme",
-  "Program_plural": "Programmes"
+  "program": "dataset group",
+  "program_plural": "dataset groups",
+  "Program": "Dataset Group",
+  "Program_plural": "Dataset Groups"
 }

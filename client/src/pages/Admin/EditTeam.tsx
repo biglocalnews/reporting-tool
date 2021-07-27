@@ -9,12 +9,15 @@ import {
   PageHeader,
   Popconfirm,
   Row,
+  Space,
+  Tag,
   Transfer,
 } from "antd";
 import { useState } from "react";
-import { Prompt, useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { messageError, messageSuccess } from "../../components/Message";
+import { usePrompt } from "../../components/usePrompt";
 import { useTranslationWithPrefix } from "../../components/useTranslationWithPrefix";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import {
@@ -110,11 +113,12 @@ const useEditTeamData = (teamId: string) => {
 /**
  * UI Component for editing a team.
  */
-export const EditTeam = () => {
+export const EditTeam = (): JSX.Element => {
   const { tp, t } = useTranslationWithPrefix("admin.team.edit");
-  const { teamId } = useParams<EditTeamRouteParams>();
+  const { teamId } = useParams() as EditTeamRouteParams;
+
   const { team, allUsers, allPrograms, loading, queries } =
-    useEditTeamData(teamId);
+    useEditTeamData(teamId ?? "");
   const [form] = Form.useForm<EditTeamData>();
   const [dirty, setDirty] = useState(false);
   const [saveTeam, { loading: saveTeamLoading, error: saveTeamError }] =
@@ -130,18 +134,22 @@ export const EditTeam = () => {
         console.error(e);
       },
     });
-  const history = useHistory();
+  const navigate = useNavigate();
   const [deleteTeam, { loading: deleteTeamLoading, error: deleteTeamError }] =
     useMutation<AdminDeleteTeam, AdminDeleteTeamVariables>(ADMIN_DELETE_TEAM, {
       onCompleted() {
         messageSuccess(tp("deleteSuccess"));
-        history.push("/admin/teams");
+        navigate("/admin/teams");
       },
-      onError(e) {
+      onError(e: unknown) {
         messageError(tp("deleteFail"));
-        console.error(e);
+        if (e instanceof Error) return console.error(e);
       },
     });
+
+  usePrompt(t("confirmLeavePage"), dirty);
+
+  if (!teamId) return <p>bad route</p>;
 
   if (loading) {
     return <Loading />;
@@ -149,10 +157,8 @@ export const EditTeam = () => {
 
   return (
     <div className="admin team-editteam_container">
-      <Prompt when={dirty} message={t("confirmLeavePage")} />
-
       <PageHeader
-        onBack={() => history.push("/admin/teams")}
+        onBack={() => navigate("/admin/teams")}
         title={tp("title")}
       />
 
@@ -234,9 +240,16 @@ export const EditTeam = () => {
                     .indexOf(input.toLowerCase()) >= 0
                 }
                 titles={[tp("nonTeamMembers"), tp("teamMembers")]}
-                dataSource={allUsers}
+                dataSource={
+                  allUsers?.map(x => ({ ...x, disabled: !x.active ? true : false }))
+                    .sort((a, b) => a.lastName.localeCompare(b.lastName))
+                }
                 onChange={(keys) => form.setFieldsValue({ userIds: keys })}
-                render={(user) => `${user.firstName} ${user.lastName}`}
+                render={(user) => <Space>
+                  {`${user.firstName} ${user.lastName}`}
+                  {user.roles.some(x => x.name === "admin") && <Tag>Admin</Tag>}
+                  {user.roles.some(x => x.name === "publisher") && <Tag>Publisher</Tag>}
+                </Space>}
               />
             </Form.Item>
 
@@ -257,10 +270,10 @@ export const EditTeam = () => {
                   option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 titles={[tp("otherPrograms"), tp("teamPrograms")]}
-                dataSource={allPrograms}
+                dataSource={allPrograms?.map(x => ({ ...x, disabled: x.deleted ? true : false }))}
                 onChange={(keys) => form.setFieldsValue({ programIds: keys })}
                 render={(program) =>
-                  program.name + (program.team ? ` [${program.team.name}]` : "")
+                  program.name + (program.team ? ` [${program.team.name}]` : "") + (program.deleted ? ` [${tp("deleted")}]` : "")
                 }
               />
             </Form.Item>

@@ -1,0 +1,65 @@
+.editable-cell {
+  position: relative;
+}
+
+.editable-cell-value-wrap {
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+  padding: 4px 11px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .editable-row:hover .editable-cell-value-wrap {
+  border: 1px solid #434343;
+}
+
+.col-gender {
+  background-color: rgba(255, 51, 0, 0.3);
+}
+
+.ant-table-tbody>tr>td.col-gender.ant-table-cell-row-hover {
+  background-color: rgba(255, 51, 0, 0.2);
+}
+
+.col-ethnicity {
+  background-color: rgba(112, 48, 160, 0.3);
+}
+
+.ant-table-tbody>tr>td.col-ethnicity.ant-table-cell-row-hover {
+  background-color: rgba(112, 48, 160, 0.2);
+}
+
+.col-disability {
+  background-color: rgba(255, 255, 0, 0.3);
+}
+
+.ant-table-tbody>tr>td.col-disability.ant-table-cell-row-hover {
+  background-color: rgba(255, 255, 0, 0.2);
+}
+
+.card-container p {
+  margin: 0;
+}
+
+.card-container>.ant-tabs-top>.ant-tabs-nav::before,
+.ant-tabs-bottom>.ant-tabs-nav::before,
+.ant-tabs-top>div>.ant-tabs-nav::before,
+.ant-tabs-bottom>div>.ant-tabs-nav::before {
+  border-bottom: 4px solid #1890ff;
+}
+
+.card-container>.ant-tabs-card.ant-tabs-top>.ant-tabs-nav .ant-tabs-tab,
+.ant-tabs-card.ant-tabs-top>div>.ant-tabs-nav .ant-tabs-tab {
+  border: 1px solid #f0f0f0;
+  border-bottom: 4px solid #1890ff;
+}
+
+.card-container>.ant-tabs-card.ant-tabs-top>.ant-tabs-nav .ant-tabs-tab-active,
+.ant-tabs-card.ant-tabs-top>div>.ant-tabs-nav .ant-tabs-tab-active {
+  border: 4px solid #1890ff;
+  border-bottom-color: #fff
+}

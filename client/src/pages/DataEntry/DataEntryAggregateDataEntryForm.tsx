@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   GetDataset,
   GetDataset_dataset_personTypes,
@@ -71,37 +71,30 @@ export const renderFormEntries = (
 
   /* Entries for adding a record */
 
-  // Check if personTypes exist as metadata in dataset and return
-  // collection of default entries with person type
-  if (metadata?.dataset.personTypes?.length) {
-    let addIndex = 0;
+  // If there are no personTypes defined, add a dummy value `undefined` so that
+  // we render one input for each category with an empty personType.
+  const sourcePersonTypes = metadata?.dataset.personTypes;
+  const personTypes =
+    sourcePersonTypes && sourcePersonTypes.length > 0
+      ? sourcePersonTypes.slice()
+      : [undefined];
+  let addIndex = 0;
 
-    for (const personType of metadata?.dataset.personTypes) {
-      for (const target of metadata?.dataset.program.targets) {
+  for (const personType of personTypes) {
+    for (const target of metadata?.dataset?.program?.targets || []) {
+      for (const track of target.tracks) {
         form.push({
           index: addIndex++,
-          category: target.categoryValue.category.name,
-          description: target.categoryValue.category.description,
-          categoryValueId: target.categoryValue.id,
-          categoryValue: target.categoryValue.name,
-          categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
+          category: target.category.name,
+          description: target.category.description,
+          categoryValueId: track.categoryValue.id,
+          categoryValue: track.categoryValue.name,
+          categoryValueLabel: track.categoryValue.name.replace(/\s+/g, "-"),
           count: 0,
           personType: personType,
         });
       }
     }
-  } else {
-    metadata?.dataset?.program?.targets.map((target, index) => {
-      form.push({
-        index: index,
-        category: target.categoryValue.category.name,
-        description: target.categoryValue.category.description,
-        categoryValueId: target.categoryValue.id,
-        categoryValue: target.categoryValue.name,
-        categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
-        count: 0,
-      });
-    });
   }
 
   return form;
@@ -109,7 +102,7 @@ export const renderFormEntries = (
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const isEditMode = props.recordId ? true : false;
 
@@ -207,8 +200,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     try {
       const data = isEditMode ? await update() : await create();
       if (data) return props.onFormSubmitted(true);
-    } catch (err) {
-      return setError(err);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setError(e);
     }
   };
 
@@ -229,8 +222,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         clearState();
         setIsSaveAndAddAnotherRecord(false);
       }
-    } catch (err) {
-      setError(err);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setError(e);
     }
   };
 
@@ -355,7 +348,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
             )}
             <Button
               htmlType="button"
-              onClick={() => history.push("/")}
+              onClick={() => navigate("/")}
               icon={<CloseSquareFilled />}
               style={{ whiteSpace: "normal", height: "auto" }}
             >

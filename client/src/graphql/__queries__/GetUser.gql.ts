@@ -6,21 +6,31 @@ export const GET_USER = gql`
       firstName
       lastName
       teams {
+        id
+        name
         programs {
           id
+          importedId
           name
+          deleted
           datasets {
             id
             name
             description
             lastUpdated
+            deleted
             records {
               id
               publicationDate
             }
             tags {
               name
+              tagType
             }
+          }
+          tags{
+            name
+            tagType
           }
         }
       }

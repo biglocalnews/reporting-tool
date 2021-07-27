@@ -1,107 +1,106 @@
+#load this along with either the dev or prod override files
+
 version: "3.9"
 
 services:
-  # Python API service
-  api:
-    build: api
-    image: ${RT_API_IMAGE}:${RT_API_VERSION}
-    restart: always
+
+  client:
+    build: client
+    image: 5050.ni.bbc.co.uk:8443/5050-client-dev:latest
+    dns:
+      - 127.0.0.11
     networks:
       - private
-      - frontend
-    expose:
-      - 8000
-    environment:
-      - db_name=${RT_DB_NAME}
-      - db_host=db
-      - debug=False
-    secrets:
-      - source: db-password
-        target: /run/secrets/db_pw
-        mode: 0400
-      - source: app-secret
-        target: /run/secrets/secret
-        mode: 0400
     depends_on:
-      - db
-
-  # Typescript assets
-  static:
-    restart: always
-    build: client
-    image: ${RT_CLIENT_IMAGE}:${RT_CLIENT_VERSION}
-    volumes:
-      - staticFiles:/www
-    deploy:
-      mode: global
-
-  # nginx reverse-proxy
-  nginx:
-    image: nginx:1.20
-    restart: always
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - staticFiles:/www:ro
-    ports:
-      - 80:80
-    networks:
-      - frontend
-    depends_on:
-      - static
       - api
     deploy:
       mode: global
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - "node.labels.storage==true"
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
-  # Postgres database
-  db:
-    image: postgres:13.2
-    restart: always
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${RT_DB_NAME}
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-    secrets:
-      - db-password
-    expose:
-      - 5432
+  api:
+    build: api
+    image: 5050.ni.bbc.co.uk:8443/5050-api-dev:latest
     networks:
       - private
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ${RT_DB_NAME}"]
-      interval: 2s
-      timeout: 2s
-      retries: 20
+    environment:
+      - rt_db_name=rt
+      - rt_db_host=5050_db
+      - rt_db_user=postgres
+      - rt_debug=True
+      - GUNICORN_WORKERS=32
+      - TASK_SLOT={{.Task.Slot}}
+    secrets:
+      - ni-app-tig.keytab
+      - rt_app_account_pw
+      - rt_db_pw
+      - rt_secret
+      - source: 5050-aws-credentials
+        target: /root/.aws/credentials
+        mode: 400
+    depends_on:
+      - db
+    dns: [ 127.0.0.11, 10.68.140.2 ]
     deploy:
-      # NOTE: Postgres is not set up for replication in this compose file.
-      # You will have problems if you try to scale this db service. This
-      # config will have to be expanded to set up a high-availability
-      # database cluster.
-      replicas: 1
+      mode: global
+      endpoint_mode: dnsrr
       placement:
-        max_replicas_per_node: 1
+        constraints:
+          - "node.labels.storage==true"
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
-volumes:
-  # Volume to share static assets from TS container to nginx
-  staticFiles: {}
-  # Volume to contain postgres data.
-  # NOTE: By default this is a docker-managed volume. You should provide an
-  # override with a persistent volume set up in production.
-  pgdata:
-    driver_opts: {}
+  db:
+    image: postgres:13.6
+    networks:
+      - private
+    environment:
+      - POSTGRES_DB=rt
+      - POSTGRES_PASSWORD_FILE=/run/secrets/rt_db_pw
+    secrets:
+      - rt_db_pw
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.labels.postgres==true"
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
 secrets:
-  # File containing secret database password. The default here is checked into
-  # the repo and not secure; override it for production.
-  #
-  # Note that the postgres user is `postgres`; this is not configurable.
-  db-password:
-    file: ./secrets/db-password.dev
-  # File containing application secret used for signing cookies. The default
-  # is checked into the repo and not secure; replace in production.
-  app-secret:
-    file: ./secrets/app-secret.dev
+  rt_db_pw:
+    external: true
+  ni-app-tig.keytab:
+    external: true
+  rt_app_account_pw:
+    external: true
+  rt_secret:
+    external: true
+  5050-aws-credentials:
+    external: true
 
 networks:
   private:
-  frontend:
+    driver: overlay

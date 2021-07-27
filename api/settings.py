@@ -1,4 +1,4 @@
-from pydantic import BaseSettings, BaseModel
+from pydantic import BaseModel, BaseSettings
 
 
 class SmtpSettings(BaseModel):
@@ -28,8 +28,8 @@ class EmailSettings(BaseModel):
     base_url: str = "http://localhost:3000"
     # Email template for sending welcome message
     welcome_tpl: EmailTemplate = EmailTemplate(
-            subject="Your new reporting tool account!",
-            body="""
+        subject="Your new reporting tool account!",
+        body="""
             <html>
                 <head></head>
                 <body>
@@ -41,11 +41,12 @@ class EmailSettings(BaseModel):
                     <p>Cheers!</p>
                 </body>
             </html>
-            """)
+            """,
+    )
     # Email template for sending password reset message
     reset_password_tpl: EmailTemplate = EmailTemplate(
-            subject="Your password reset token",
-            body="""
+        subject="Your password reset token",
+        body="""
             <html>
                 <head></head>
                 <body>
@@ -54,11 +55,12 @@ class EmailSettings(BaseModel):
                     <p>If you did not request to reset your password you can ignore this email.</p>
                 </body>
             </html>
-            """)
+            """,
+    )
     # Email template for verifying the user's email
     verify_request_tpl: EmailTemplate = EmailTemplate(
-            subject="Please verify your email address",
-            body="""
+        subject="Please verify your email address",
+        body="""
             <html>
                 <head></head>
                 <body>
@@ -67,28 +69,32 @@ class EmailSettings(BaseModel):
                     <p>If you have already verified your email please ignore this message.</p>
                 </body>
             </html>
-            """)
+            """,
+    )
     # Email template for confirming that the user's email was verified.
     verify_confirm_tpl: EmailTemplate = EmailTemplate(
-            subject="Your email has been verified!",
-            body="""
+        subject="Your email has been verified!",
+        body="""
             <html>
                 <head></head>
                 <body>
                     <p>Your email has been verified. Thank you!</p>
                 </body>
             </html>
-            """)
+            """,
+    )
 
 
 class Settings(BaseSettings):
-    db_user: str = 'postgres'
-    db_pw: str = 'pass'
-    db_host: str = 'localhost'
-    db_name: str = 'bbc'
+    db_user: str = "postgres"
+    db_pw: str = "postgres"
+    db_host: str = "localhost"
+    db_name: str = "rt"
     debug: bool = True
 
-    secret: str = 'shhhhhh its a secret'
+    app_account_pw: str = ""
+
+    secret: str = "shhhhhh its a secret"
 
     # Whether to send cookies over HTTPS only. This should generally be turned
     # on in production.
@@ -97,7 +103,10 @@ class Settings(BaseSettings):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        secrets_dir = '/run/secrets'
+        secrets_dir = "/run/secrets"
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        env_prefix = "rt_"
 
 
 settings = Settings()

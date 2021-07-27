@@ -29,7 +29,7 @@ export class ErrorBoundary extends React.Component<
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // TODO: Add server-side error logging, such as via sentry.
-    console.error("Error boundary caught error", error, errorInfo);
+    console.warn("Error boundary caught error", error, errorInfo);
   }
 
   public render() {

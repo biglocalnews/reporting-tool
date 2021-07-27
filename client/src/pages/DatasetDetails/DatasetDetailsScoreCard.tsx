@@ -1,135 +1,132 @@
-import { Pie } from "@ant-design/charts";
-import { PieConfig } from "@ant-design/charts/es/pie";
-import { Card, Col, Row } from "antd";
-import _ from "lodash";
+import { Column, ColumnConfig } from "@ant-design/charts";
+import { Tabs } from "antd";
+import { useTranslation } from "react-i18next";
 import {
   GetDataset,
-  GetDataset_dataset_sumOfCategoryValueCounts_categoryValue,
+  GetDataset_dataset,
+  GetDataset_dataset_program_targets_category,
+  GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
+import { catSort } from "../CatSort";
 import "./DatasetDetailsScoreCard.css";
+const { TabPane } = Tabs;
 
 interface ScoreCardProps {
   data: GetDataset | undefined;
+  filteredRecords: readonly GetDataset_dataset_records[] | undefined;
   datasetId: string;
 }
 
-type Attribute = {
-  id?: string;
-  __typename: string;
-  sumOfCounts?: number;
-  categoryValue: GetDataset_dataset_sumOfCategoryValueCounts_categoryValue;
-  target?: string;
+type ColStat = {
+  date: string;
+  count: number;
+  attribute: string;
+  personType: string | undefined;
+  target: number | undefined;
 };
 
-type CategoryGroup = {
-  category: string;
-  attributes: Array<Attribute>;
-};
-
-/**
- * Function takes the targets and the sum of the counts for a
- * category value (e.g. non-binary) and groups them by category (e.g. gender)
- * @param data Dataset query result object
- */
-const getDatasetStatsByCategory = (data: GetDataset | undefined) => {
-  const sumOfCounts = data?.dataset.sumOfCategoryValueCounts;
-  const targets = data?.dataset.program.targets;
-
-  const map = new Map();
-  sumOfCounts &&
-    sumOfCounts?.forEach((item) => map.set(item.categoryValue.id, item));
-  targets &&
-    targets?.forEach((item) =>
-      map.set(item.categoryValue.id, {
-        ...map.get(item.categoryValue.id),
-        ...item,
-      })
-    );
-
-  const mergedArr = Array.from(map.values()) as Array<Attribute>;
-  const result = _(mergedArr)
-    .groupBy((obj) => obj.categoryValue.category.name)
-    .map((attributes, category) => ({ category, attributes }))
-    .value() as Array<CategoryGroup>;
-
-  return result;
-};
-
-/**
- * Function maps the category group data to a type and value object
- * for rendering data in ant design pie chart
- * @param data single category group object with records by category value
- */
-const getCategoryGroupChartData = (data: CategoryGroup) => {
-  type StatisticDataType = {
-    type: string;
-    value: number;
-  };
-
-  const chart: Array<StatisticDataType> = [];
-  data.attributes.map((attribute) =>
-    chart.push({
-      type: attribute.categoryValue.name,
-      value: Number(attribute.sumOfCounts),
-    })
-  );
-  return chart;
-};
-
-const generatePieChartConfig = (chartData: CategoryGroup) => {
-  const _chartData = getCategoryGroupChartData(chartData);
-
-  const config: PieConfig = {
-    appendPadding: 10,
-    data: _chartData,
-    height: 300,
-    angleField: "value",
-    colorField: "type",
-    radius: 0.75,
+const generateColChartConfig = (chartData: Array<ColStat>) => {
+  const config: ColumnConfig = {
+    data: chartData,
+    xField: "date",
+    yField: "count",
+    seriesField: "attribute",
+    groupField: "personType",
+    isGroup: true,
+    isPercent: true,
+    isStack: true,
+    interactions: [{ type: "tooltip", enable: true }],
+    yAxis: {
+      top: true,
+      tickCount: 0,
+      tickLine: null,
+      grid: { line: { style: { stroke: "black" } } },
+    },
     label: {
-      type: "inner",
-      offset: "-10%",
-      content: function content(_ref) {
-        const percent = _ref.percent * 100;
-        return `${
-          percent === 100 || percent === 0 ? percent : percent.toFixed(2)
-        }%`;
+      position: "middle",
+      content: function content(item) {
+        const labelString = `${(item.count * 100).toFixed(0)}%`;
+        return labelString;
       },
+      style: { fill: "#fff" },
     },
-    legend: {
-      offsetX: -15,
-    },
-    interactions: [{ type: "element-selected" }, { type: "element-active" }],
   };
 
   return config;
 };
 
-const DatasetDetailsScoreCard = ({ data }: ScoreCardProps): JSX.Element => {
-  const stats = getDatasetStatsByCategory(data);
+interface Dictionary<T> {
+  [Key: string]: T;
+}
 
-  return (
-    <Row
-      gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}
-      className="dataset-details_statistics"
-    >
-      {stats.length > 0 &&
-        stats.flatMap((category, index) => (
-          <Col
-            key={index}
-            xs={24}
-            sm={24}
-            md={24 / stats.length} // column numbers based on number of category groups
-            lg={24 / stats.length}
-            xl={24 / stats.length}
-          >
-            <Card>
-              <Pie {...generatePieChartConfig(category)} />
-            </Card>
-          </Col>
-        ))}
-    </Row>
-  );
+
+
+const DatasetDetailsScoreCard = ({
+  data,
+  filteredRecords,
+}: ScoreCardProps): JSX.Element | null => {
+
+  const { t } = useTranslation();
+
+  const barStats = (
+    data: GetDataset_dataset,
+    records: readonly GetDataset_dataset_records[],
+    category: GetDataset_dataset_program_targets_category
+  ) => {
+    return Object.values(Array.from(records)
+      .sort(
+        (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
+      )
+      .reduce((chartData, record) => {
+        record.entries
+          .filter(x => x.categoryValue.category.id === category.id && x.count > 0)
+          .forEach((entry) => {
+            const recordDate = new Date(record.publicationDate);
+            const monthName = new Intl.DateTimeFormat(window.navigator.language, {
+              month: "long",
+            }).format(recordDate);
+            const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
+            const personType = entry.personType ? entry.personType.personTypeName : t("unknownPersonType");
+            const yearMonthCategoryPersonType = `${yearMonth}-${entry.categoryValue.name}-${personType}`;
+
+            if (!chartData[yearMonthCategoryPersonType]) {
+              chartData[yearMonthCategoryPersonType] = {
+                date: yearMonth,
+                attribute: entry.categoryValue.name,
+                personType: entry.personType
+                  ? entry.personType.personTypeName
+                  : t("unknownPersonType"),
+                count: entry.count,
+                target: data.program?.targets
+                  .find(x => x.category.id === category.id)
+                  ?.target,
+              };
+            } else {
+              chartData[yearMonthCategoryPersonType].count += entry.count;
+            }
+          });
+        return chartData;
+      }, {} as Dictionary<ColStat>))
+  }
+
+  return data?.dataset?.program?.targets.length && filteredRecords ? (
+    <Tabs defaultActiveKey="Gender">
+      {
+        Array.from(data.dataset.program.targets)
+          .sort((a, b) => catSort(a.category.name, b.category.name))
+          .flatMap((target) => target.category)
+          .map((category) =>
+            <TabPane tab={<span>{category.name}</span>} key={category.id}>
+              <Column
+                {...generateColChartConfig(
+                  barStats(data.dataset, filteredRecords, category)
+                )}
+              />
+            </TabPane>
+          )
+      }
+    </Tabs>
+  ) : null;
 };
 
 export { DatasetDetailsScoreCard };

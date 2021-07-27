@@ -11,8 +11,27 @@ import { ADMIN_GET_ALL_PERSON_TYPES } from "../graphql/__queries__/AdminGetAllPe
 import { ADMIN_GET_ALL_TEAMS } from "../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../graphql/__queries__/AdminGetProgram.gql";
 import { GET_ALL_TAGS } from "../graphql/__queries__/GetAllTags.gql";
+import { GET_DATASET } from "../graphql/__queries__/GetDataset.gql";
 import { EditProgram } from "../pages/Admin/EditProgram";
 import { tick } from "./utils";
+
+/**
+ * Generate a list of mock dataset responses for the refetch queries.
+ */
+const datasetRefetchQueries = (datasets: string[]) =>
+  datasets.map((ds) => ({
+    request: {
+      query: GET_DATASET,
+      variables: {
+        id: ds,
+      },
+    },
+    result: {
+      data: {
+        dataset: { id: ds },
+      },
+    },
+  }));
 
 const PROGRAM = {
   data: {
@@ -299,10 +318,16 @@ it("can set new target values for existing targets", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [
+              {
+                id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
+              },
+            ],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -395,10 +420,12 @@ it("can remove tracked targets", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -516,10 +543,12 @@ it("can add new tracked targets", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -661,10 +690,16 @@ it("can add and remove tracked categories", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [
+              {
+                id: "fffff3b4-b910-4f6e-8f3c-8201c9999999",
+              },
+            ],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
     {
       request: {
         query: ADMIN_UPDATE_PROGRAM,
@@ -691,10 +726,12 @@ it("can add and remove tracked categories", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -823,10 +860,12 @@ it("can edit a dataset", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -922,10 +961,12 @@ it("can add and remove datasets", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "ooooo3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["ooooo3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -1064,10 +1105,12 @@ it("can edit basic info: name and description and team", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -1286,10 +1329,12 @@ it("lets user add custom and existing tags", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(
@@ -1410,10 +1455,12 @@ it("lets user remove tags", async () => {
         data: {
           updateProgram: {
             id: "df6413b4-b910-4f6e-8f3c-8201c9e65af3",
+            datasets: [{ id: "fffff3b4-b910-4f6e-8f3c-8201c9999999" }],
           },
         },
       },
     },
+    ...datasetRefetchQueries(["fffff3b4-b910-4f6e-8f3c-8201c9999999"]),
   ];
 
   render(

@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { Button, Result, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
@@ -19,17 +19,12 @@ import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryFo
 
 const { Title } = Typography;
 
-interface RouteParams {
-  datasetId: string;
-  recordId?: string;
-}
-
 const DataEntry = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { datasetId, recordId } = useParams<RouteParams>();
-  const history = useHistory();
+  const { datasetId, recordId } = useParams() as { datasetId: string, recordId?: string };
 
+  const navigate = useNavigate();
   const isEditMode = recordId ? true : false;
   const pageTitle = isEditMode ? "Edit" : "Add";
 
@@ -38,24 +33,30 @@ const DataEntry = (): JSX.Element => {
     loading: datasetLoading,
     error: datasetError,
   } = useQuery<GetDataset, GetDatasetVariables>(GET_DATASET, {
-    variables: { id: datasetId },
+    variables: { id: datasetId ?? "" },
   });
 
-  const programAndDatasetPageTitle = `${datasetData?.dataset.program.name} | ${datasetData?.dataset.name}`;
+  const programAndDatasetPageTitle = `${datasetData?.dataset?.program?.name} | ${datasetData?.dataset.name}`;
 
   /* Retrieve a record to populate the data entry form if editing */
+
   const {
     data: existingRecord,
     called: existingRecordCalled,
     loading: existingRecordLoading,
     error: existingRecordError,
   } = useQuery<GetRecord, GetRecordVariables>(GET_RECORD, {
-    variables: { id: recordId! },
+    variables: { id: recordId ?? "" },
     skip: !isEditMode,
   });
 
+
   const [isFormSubmittedSuccess, setIsFormSubmittedSuccess] =
     useState<boolean>(false);
+
+
+  if (!datasetId) return <>No datasetId</>;
+
 
   if (isFormSubmittedSuccess)
     return (
@@ -69,7 +70,7 @@ const DataEntry = (): JSX.Element => {
               type="primary"
               key="addMoreData"
               icon={<PlusCircleTwoTone />}
-              onClick={() => history.push(`/dataset/${datasetId}/entry/reload`)}
+              onClick={() => navigate(`/dataset/${datasetId}/entry/reload`)}
             >
               {t("addMoreData")}
             </Button>
@@ -78,7 +79,7 @@ const DataEntry = (): JSX.Element => {
             type={isEditMode ? "primary" : undefined}
             key="goToDataset"
             icon={<DashboardTwoTone />}
-            onClick={() => history.push(`/dataset/${datasetId}/details`)}
+            onClick={() => navigate(`/dataset/${datasetId}/details`)}
           >
             {t("goToDataset")}
           </Button>,
@@ -103,12 +104,13 @@ const DataEntry = (): JSX.Element => {
           {` ${programAndDatasetPageTitle}`}
         </Link>
       </Title>
+
       <DataEntryAggregateDataEntryForm
         datasetData={datasetData}
         datasetId={datasetId}
         recordId={recordId}
         onFormSubmitted={setIsFormSubmittedSuccess}
-        existingRecord={existingRecordCalled && existingRecord}
+        existingRecord={existingRecordCalled ? existingRecord : undefined}
       />
     </>
   );

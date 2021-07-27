@@ -6,6 +6,8 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
+import { message } from 'antd';
+import { RetryLink } from "@apollo/client/link/retry";
 import { onError } from "@apollo/client/link/error";
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
@@ -18,14 +20,37 @@ import * as account from "./services/account";
 import { Auth } from "./services/auth";
 import "./services/i18next";
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.map(({ message, locations, path }) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+const retryLink = new RetryLink({
+  delay: {
+    initial: 300,
+    max: Infinity,
+    jitter: true
+  },
+  attempts: {
+    max: 5,
+    retryIf: (error, _operation) => !!error || !!_operation
+  }
+});
+
+const errorLink = onError((err) => {
+  if (err.graphQLErrors)
+    err.graphQLErrors.map(({ message: msg, locations, path }) =>
+      message.error(
+        `[GraphQL error]: Message: ${msg}, Location: ${locations}, Path: ${path}`
       )
     );
-  if (networkError) console.log(`[Network error]: ${networkError}`);
+  if (err.networkError) {
+    message.error(`[Network error]: ${err.networkError}`);
+  }
+
+  /*if (err.response?.errors) {
+    err.response.errors.map(x =>
+      message.error(
+        `[Response error]: Message: ${x.message}, Location: ${x.locations}, Path: ${x.path}`
+      )
+    );
+  }*/
+
 });
 
 const httpLink = new HttpLink({
@@ -33,6 +58,7 @@ const httpLink = new HttpLink({
     process.env.REACT_APP_ENV === "mock"
       ? "http://localhost:4000"
       : "/api/graphql/",
+
 });
 
 const cache = new InMemoryCache({
@@ -49,7 +75,7 @@ const cache = new InMemoryCache({
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: from([errorLink, httpLink]),
+  link: from([errorLink, retryLink, httpLink]),
 });
 
 // Create a new auth service, and initialize it. The `init` request is actually
@@ -73,7 +99,7 @@ const MainApp = () => {
 };
 
 if (process.env.NODE_ENV !== "production") {
-  import("react-axe").then((axe) => {
+  import("@axe-core/react").then((axe) => {
     axe.default(React, ReactDOM, 1000);
     ReactDOM.render(<MainApp />, document.getElementById("root"));
   });

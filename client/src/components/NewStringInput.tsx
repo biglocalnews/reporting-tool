@@ -69,7 +69,7 @@ export const NewStringInput = (props: NewStringInputProps) => {
         setAutoCompleteOpen(!!data);
       }}
       open={autoCompleteOpen}
-      onSelect={(data) => {
+      onSelect={(data: string) => {
         setValue(data);
         setAutoCompleteOpen(false);
       }}

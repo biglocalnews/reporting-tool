@@ -15,11 +15,9 @@ export const ADMIN_GET_ALL_PROGRAMS = gql`
         name
       }
       targets {
-        categoryValue {
           category {
             name
-          }
-        }
+          }       
       }
     }
   }
