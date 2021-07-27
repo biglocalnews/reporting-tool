@@ -1,15 +1,10 @@
-import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Space, Table, Tag } from "antd";
-import { ColumnsType } from "antd/lib/table";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 import { ErrorFallback } from "../../components/Error/ErrorFallback";
-import { Loading } from "../../components/Loading/Loading";
 import {
   AllDatasets,
   AllDatasets_teams,
@@ -17,6 +12,7 @@ import {
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { HomeDatasetsListTable } from "./HomeDatasetsListTable";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 
 dayjs.extend(localizedFormat);
@@ -27,71 +23,8 @@ export interface TableData {
   dataset: string;
   lastUpdated: string;
   tags: Array<string>;
+  [key: string]: string | string[];
 }
-
-const columns: ColumnsType<TableData> = [
-  {
-    title: "Team",
-    dataIndex: "team",
-    key: "team",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.team.localeCompare(b.team),
-  },
-  {
-    title: "Dataset",
-    dataIndex: "dataset",
-    key: "dataset",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.dataset.localeCompare(b.dataset),
-  },
-  {
-    title: "Last Updated",
-    dataIndex: "lastUpdated",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    width: 250,
-    render: (tags: string[]) => {
-      return tags.map((tag: string) => {
-        const color = "blue";
-        return (
-          // TODO: Create component to link tags to datasets with the same tags
-          <Tag color={color} key={tag}>
-            {tag.toUpperCase()}
-          </Tag>
-        );
-      });
-    },
-  },
-  {
-    dataIndex: "id",
-    width: 250,
-    render: function btn(datasetId: string) {
-      return (
-        <Space>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/entry`,
-            }}
-          >
-            <Button type="primary" icon={<PlusOutlined />}>
-              Add Data
-            </Button>
-          </Link>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/details`,
-            }}
-          >
-            <Button icon={<InfoCircleOutlined />}>View Details</Button>
-          </Link>
-        </Space>
-      );
-    },
-  },
-];
 
 const getTableData = (
   queryData: AllDatasets_teams[],
@@ -156,32 +89,22 @@ const Home = (): JSX.Element => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div>
-          <div
-            id="home_table-search"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "1rem",
-            }}
-          >
-            <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
-          </div>
-          <Table
-            dataSource={filteredData.length > 0 ? filteredData : rowData}
-            columns={columns}
-            rowKey={(dataset) => dataset.id}
-            footer={() =>
-              filteredData.length > 0
-                ? `Showing ${filteredData.length} of ${rowData.length} results`
-                : `Showing ${rowData.length} of ${rowData.length} results`
-            }
-          />
-        </div>
-      )}
+      <div
+        id="home_table-search"
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "1rem",
+        }}
+      >
+        <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
+      </div>
+
+      <HomeDatasetsListTable
+        loading={loading}
+        filteredData={filteredData}
+        rowData={rowData}
+      />
     </>
   );
 };
