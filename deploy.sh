@@ -1,3 +1,4 @@
+export https_proxy="http://global-zen.reith.bbc.co.uk:9480/"
 docker build -t 5050.ni.bbc.co.uk:8443/5050-api ./api
 docker push 5050.ni.bbc.co.uk:8443/5050-api
 
