@@ -7,7 +7,6 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - uses: BBCNI/bbc-50-50@main
-      - uses: ./
+      - uses: actions/checkout@v2
       - run: deploy.sh
 
