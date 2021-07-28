@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - uses: BBCNI/bbc-50-50
+      - uses: BBCNI/bbc-50-50@main
       - uses: ./
       - run: deploy.sh
 
