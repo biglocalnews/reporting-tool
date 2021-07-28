@@ -14,3 +14,5 @@ docker service update --constraint-rm no_such_node==true 5050-db
 
 docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-api:latest 5050-api
 docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-client:latest 5050-client-prod
+
+./db_init.sh
