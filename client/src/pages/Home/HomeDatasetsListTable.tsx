@@ -121,6 +121,20 @@ const HomeDatasetsListTable = ({
     }
   };
 
+  // eslint-disable-next-line react/display-name
+  const textToHighlight = (dataIndex: string) => (text: string) => {
+    return searchedColumn === dataIndex ? (
+      <Highlighter
+        highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+        searchWords={[searchText.toString()]}
+        autoEscape
+        textToHighlight={text}
+      />
+    ) : (
+      text
+    );
+  };
+
   const columns: ColumnsType<TableData> = [
     {
       title: "Team",
@@ -130,18 +144,7 @@ const HomeDatasetsListTable = ({
       filterDropdown: setFilterDropDown("team"),
       onFilter: setOnFilter("team"),
       onFilterDropdownVisibleChange: setOnFilterDropdownVisibleChange,
-      render: function textToHighlight(text: string) {
-        return searchedColumn === "team" ? (
-          <Highlighter
-            highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-            searchWords={[searchText.toString()]}
-            autoEscape
-            textToHighlight={text}
-          />
-        ) : (
-          text
-        );
-      },
+      render: textToHighlight("team"),
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.team.localeCompare(b.team),
     },
@@ -153,18 +156,7 @@ const HomeDatasetsListTable = ({
       filterDropdown: setFilterDropDown("dataset"),
       onFilter: setOnFilter("dataset"),
       onFilterDropdownVisibleChange: setOnFilterDropdownVisibleChange,
-      render: function textToHighlight(text: string) {
-        return searchedColumn === "dataset" ? (
-          <Highlighter
-            highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-            searchWords={[searchText.toString()]}
-            autoEscape
-            textToHighlight={text}
-          />
-        ) : (
-          text
-        );
-      },
+      render: textToHighlight("dataset"),
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.dataset.localeCompare(b.dataset),
     },
