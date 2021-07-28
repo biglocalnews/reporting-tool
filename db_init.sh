@@ -2,8 +2,8 @@
 docker service update --detach --constraint-add no_such_node==true 5050-db
 sleep 5
 
-rm -rf /mnt/data/postgres/5050
-mkdir /mnt/data/postgres/5050
+sudo rm -rf /mnt/data/postgres/5050
+sudo mkdir /mnt/data/postgres/5050
 
 docker service update --constraint-rm no_such_node==true 5050-db
 
