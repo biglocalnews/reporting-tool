@@ -1,6 +1,3 @@
-git reset --hard
-git pull
-
 docker build -t 5050.ni.bbc.co.uk:8443/5050-api ./api
 docker push 5050.ni.bbc.co.uk:8443/5050-api
 
