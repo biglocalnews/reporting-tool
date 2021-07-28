@@ -1,0 +1,10 @@
+name: deploy
+on [push]
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: BBCNI/bbc-50-50
+      - uses: ./
+      - run: deploy.sh
+
