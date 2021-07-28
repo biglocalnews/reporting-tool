@@ -64,7 +64,7 @@ const HomeDatasetsListTable = ({
         <div style={{ padding: 8 }}>
           <Input
             ref={searchInputRef}
-            placeholder={`Search ${dataIndex}`}
+            placeholder={`Search for a ${dataIndex}`}
             value={selectedKeys[0]}
             onChange={(e) =>
               setSelectedKeys(e.target.value ? [e.target.value] : [])
