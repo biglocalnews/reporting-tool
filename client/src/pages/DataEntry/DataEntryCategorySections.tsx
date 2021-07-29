@@ -128,15 +128,8 @@ const DataEntryCategorySections = ({
             gutter={[16, 16]}
             className="data-entry"
           >
-            <Col span={7}>
-              <h3 className="data-entry_category-descr-header">
-                {t("aboutAttribute", { attribute: category.categoryName })}
-              </h3>
-              {t("attributeDescription", {
-                description: category.description,
-              })}
-            </Col>
-            <Col span={17}>
+
+            <Col span={24}>
               <Card
                 key={category.categoryName}
                 type="inner"
