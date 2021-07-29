@@ -89,17 +89,6 @@ const HomeDatasetsListTable = ({
             >
               Reset
             </Button>
-            <Button
-              type="link"
-              size="small"
-              onClick={() => {
-                confirm({ closeDropdown: false });
-                setSearchText(selectedKeys[0]);
-                setSearchedColumn(dataIndex);
-              }}
-            >
-              Filter
-            </Button>
           </Space>
         </div>
       );
