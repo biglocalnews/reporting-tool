@@ -1,7 +1,6 @@
 import { Card, Col, Form, InputNumber, Row } from "antd";
 import _ from "lodash";
 import { ChangeEvent } from "react";
-import { useTranslation } from "react-i18next";
 import { GetDataset_dataset_personTypes } from "../../graphql/__generated__/GetDataset";
 import { Entry } from "./DataEntryAggregateDataEntryForm";
 
