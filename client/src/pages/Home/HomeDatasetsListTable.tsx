@@ -11,7 +11,7 @@ interface TableProps {
   filteredData: TableData[];
   rowData: TableData[];
   loading?: boolean;
-  teamNameFilterText?: string;
+  teamNameFilterText?: string | null;
 }
 
 const HomeDatasetsListTable = ({

@@ -28,13 +28,6 @@ export interface TableData {
   [key: string]: string | Array<string>;
 }
 
-/**
- * URL parameters expected for searching table
- */
-type HomeRouteParams = Readonly<{
-  programTeamSearchTerm: string;
-}>;
-
 const getTableData = (
   queryData: Array<AllDatasets_teams>,
   t: TFunction<"translation">
@@ -96,8 +89,8 @@ const Home = (): JSX.Element => {
     setFilteredData(filteredData);
   };
 
-  const location = useLocation<HomeRouteParams>();
-  const teamNameFilter = location.search.substring(1);
+  const { search } = useLocation();
+  const teamNameFilter = new URLSearchParams(search).get("filter");
   useEffect(() => {
     if (teamNameFilter) {
       handleTableSearchFilteredData(teamNameFilter);

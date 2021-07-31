@@ -9,7 +9,7 @@ import {
 import { useQuery } from "@apollo/client";
 import { Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
@@ -27,6 +27,7 @@ interface Dataset {
  */
 export const AppNormalUserSidebarMenu = (): JSX.Element => {
   const { t } = useTranslation();
+  const history = useHistory();
   const userId = useAuth().getUserId();
 
   const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
@@ -55,8 +56,12 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
       defaultOpenKeys={["teams", "stats"]}
       style={{ height: "100%", borderRight: 0 }}
     >
-      <Menu.Item key="home-dashboard" icon={<DashboardOutlined />}>
-        <Link to="/">{t("user.sidebar.home")}</Link>
+      <Menu.Item
+        key="home"
+        icon={<DashboardOutlined />}
+        onClick={() => history.push("/")}
+      >
+        {t("user.sidebar.home")}
       </Menu.Item>
       <SubMenu
         key="teams"
@@ -79,22 +84,21 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
                     <Link
                       to={{
                         pathname: `/`, // go to user homepage
-                        search: program.team,
+                        search: `?filter=${program.team}`,
                       }}
                     >
                       {program.team}
                     </Link>
                   }
                 >
-                  {program.datasets.map((dataset) => (
-                    <Menu.Item key={dataset.id}>
-                      <Link
-                        to={{
-                          pathname: `/dataset/${dataset.id}/details`,
-                        }}
-                      >
-                        {dataset.title}
-                      </Link>
+                  {program.datasets.map((dataset, index) => (
+                    <Menu.Item
+                      key={index}
+                      onClick={() =>
+                        history.push(`/dataset/${dataset.id}/details`)
+                      }
+                    >
+                      {dataset.title}
                     </Menu.Item>
                   ))}
                 </Menu.ItemGroup>
