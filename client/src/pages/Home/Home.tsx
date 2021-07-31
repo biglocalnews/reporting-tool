@@ -122,7 +122,9 @@ const Home = (): JSX.Element => {
               type="primary"
               onClick={() => history.push("/")}
             >
-              Show All My Teams
+              {t("user.homePage.showAllMy", {
+                term: "Teams",
+              })}
             </Button>
           }
         />

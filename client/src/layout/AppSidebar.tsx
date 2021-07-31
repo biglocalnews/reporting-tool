@@ -56,7 +56,7 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
       style={{ height: "100%", borderRight: 0 }}
     >
       <Menu.Item key="home-dashboard" icon={<DashboardOutlined />}>
-        <Link to="/">Home</Link>
+        <Link to="/">{t("user.sidebar.home")}</Link>
       </Menu.Item>
       <SubMenu
         key="teams"

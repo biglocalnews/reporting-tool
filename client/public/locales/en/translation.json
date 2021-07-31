@@ -286,5 +286,11 @@
         "active": "Active"
       }
     }
+  },
+  "user": {
+    "sidebar": {
+      "home": "Home"
+    },
+    "homePage": { "showAllMy": "Show All My {{term}}" }
   }
 }

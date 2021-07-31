@@ -3,6 +3,7 @@ import { Button, Space, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { TableData } from "./Home";
 
@@ -19,6 +20,7 @@ const HomeDatasetsListTable = ({
   loading,
   teamNameFilterText,
 }: TableProps): JSX.Element => {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState<string>("");
 
   const textToHighlight = (text: string) => {
@@ -87,7 +89,7 @@ const HomeDatasetsListTable = ({
               }}
             >
               <Button type="primary" icon={<PlusOutlined />}>
-                Add Data
+                {t("addData")}
               </Button>
             </Link>
             <Link
