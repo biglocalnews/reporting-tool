@@ -1,15 +1,7 @@
-import {
-  InfoCircleOutlined,
-  PlusOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { Button, Input, Space, Table, Tag } from "antd";
-import {
-  ColumnsType,
-  FilterConfirmProps,
-  FilterDropdownProps,
-} from "antd/lib/table/interface";
-import { useRef, useState } from "react";
+import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Space, Table, Tag } from "antd";
+import { ColumnsType } from "antd/lib/table/interface";
+import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import { Link } from "react-router-dom";
 import { TableData } from "./Home";
@@ -27,93 +19,9 @@ const HomeDatasetsListTable = ({
   loading,
   teamNameFilterText,
 }: TableProps): JSX.Element => {
-  const searchInputRef = useRef<Input>(null);
-  const [searchText, setSearchText] = useState<React.Key | string>("");
-  const [searchedColumn, setSearchedColumn] = useState("");
+  const [searchText, setSearchText] = useState<string>("");
 
-  const handleSearch = (
-    selectedKeys: React.Key[],
-    confirm: (param?: FilterConfirmProps) => void,
-    dataIndex: string
-  ) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters: (() => void) | undefined) => {
-    if (clearFilters) clearFilters();
-    setSearchText("");
-  };
-
-  const setFilterIcon = (filtered: boolean) => {
-    return (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : "#000000" }} />
-    );
-  };
-
-  // eslint-disable-next-line react/display-name
-  const setFilterDropDown =
-    (dataIndex: string) =>
-    // eslint-disable-next-line react/display-name
-    ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }: FilterDropdownProps) =>
-      (
-        <div style={{ padding: 8 }}>
-          <Input
-            ref={searchInputRef}
-            placeholder={`Search for a ${dataIndex}`}
-            value={selectedKeys[0]}
-            onChange={(e) =>
-              setSelectedKeys(e.target.value ? [e.target.value] : [])
-            }
-            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            style={{ marginBottom: 8, display: "block" }}
-          />
-          <Space>
-            <Button
-              type="primary"
-              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-              icon={<SearchOutlined />}
-              size="small"
-              style={{ width: 90 }}
-            >
-              Search
-            </Button>
-            <Button
-              onClick={() => handleReset(clearFilters)}
-              size="small"
-              style={{ width: 90 }}
-            >
-              Reset
-            </Button>
-          </Space>
-        </div>
-      );
-
-  const setOnFilter =
-    (dataIndex: string) =>
-    (value: string | number | boolean, record: TableData) => {
-      return record[dataIndex]
-        ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toString().toLowerCase())
-        : false;
-    };
-
-  const setOnFilterDropdownVisibleChange = (visible: boolean) => {
-    if (visible) {
-      setTimeout(() => searchInputRef.current?.select(), 100);
-    }
-  };
-
-  // eslint-disable-next-line react/display-name
-  const textToHighlight = (dataIndex: string) => (text: string) => {
+  const textToHighlight = (text: string) => {
     if (teamNameFilterText) {
       setSearchText(teamNameFilterText);
       return (
@@ -126,16 +34,7 @@ const HomeDatasetsListTable = ({
       );
     }
 
-    return searchedColumn === dataIndex ? (
-      <Highlighter
-        highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-        searchWords={[searchText.toString()]}
-        autoEscape
-        textToHighlight={text}
-      />
-    ) : (
-      text
-    );
+    return text;
   };
 
   const columns: ColumnsType<TableData> = [
@@ -143,11 +42,7 @@ const HomeDatasetsListTable = ({
       title: "Team",
       dataIndex: "team",
       key: "team",
-      filterIcon: setFilterIcon,
-      filterDropdown: setFilterDropDown("team"),
-      onFilter: setOnFilter("team"),
-      onFilterDropdownVisibleChange: setOnFilterDropdownVisibleChange,
-      render: textToHighlight("team"),
+      render: textToHighlight,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.team.localeCompare(b.team),
     },
@@ -155,11 +50,7 @@ const HomeDatasetsListTable = ({
       title: "Dataset",
       dataIndex: "dataset",
       key: "dataset",
-      filterIcon: setFilterIcon,
-      filterDropdown: setFilterDropDown("dataset"),
-      onFilter: setOnFilter("dataset"),
-      onFilterDropdownVisibleChange: setOnFilterDropdownVisibleChange,
-      render: textToHighlight("dataset"),
+      render: textToHighlight,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.dataset.localeCompare(b.dataset),
     },
