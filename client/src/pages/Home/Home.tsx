@@ -25,7 +25,7 @@ export interface TableData {
   dataset: string;
   lastUpdated: string;
   tags: Array<string>;
-  [key: string]: string | string[];
+  [key: string]: string | Array<string>;
 }
 
 /**
@@ -36,15 +36,15 @@ type HomeRouteParams = Readonly<{
 }>;
 
 const getTableData = (
-  queryData: AllDatasets_teams[],
+  queryData: Array<AllDatasets_teams>,
   t: TFunction<"translation">
 ) => {
-  const rowData: Array<TableData> = [];
+  const rowTableData: Array<TableData> = [];
 
   queryData.map((team) => {
     return team.programs.map((program) => {
       program.datasets.map((dataset) => {
-        rowData.push({
+        rowTableData.push({
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
@@ -59,7 +59,7 @@ const getTableData = (
     });
   });
 
-  return rowData;
+  return rowTableData;
 };
 
 const Home = (): JSX.Element => {
@@ -80,12 +80,13 @@ const Home = (): JSX.Element => {
   });
 
   const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
-  const rowData = getTableData(originalTeamData.slice(), t);
-  const [filteredData, setFilteredData] = useState<Array<TableData>>(rowData);
+  const allTableData = getTableData(originalTeamData.slice(), t);
+  const [filteredData, setFilteredData] =
+    useState<Array<TableData>>(allTableData);
 
   // Filters datasets table by search term
-  const handleTableSearchFilter = (searchText: string) => {
-    const data = [...rowData];
+  const handleTableSearchFilteredData = (searchText: string) => {
+    const data = [...allTableData];
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
       dataset = dataset.toLowerCase();
@@ -99,9 +100,9 @@ const Home = (): JSX.Element => {
   const teamNameFilter = location.search.substring(1);
   useEffect(() => {
     if (teamNameFilter) {
-      handleTableSearchFilter(teamNameFilter);
+      handleTableSearchFilteredData(teamNameFilter);
     } else {
-      setFilteredData(rowData);
+      setFilteredData(allTableData);
     }
   }, [teamNameFilter]);
 
@@ -134,14 +135,14 @@ const Home = (): JSX.Element => {
             marginBottom: "1rem",
           }}
         >
-          <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
+          <HomeSearchAutoComplete onSearch={handleTableSearchFilteredData} />
         </div>
       )}
 
       <HomeDatasetsListTable
         loading={loading}
         filteredData={filteredData}
-        rowData={rowData}
+        rowData={allTableData}
         teamNameFilterText={teamNameFilter}
       />
     </>
