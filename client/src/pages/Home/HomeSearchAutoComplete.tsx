@@ -1,5 +1,4 @@
 import { AutoComplete, Input } from "antd";
-import { useTranslation } from "react-i18next";
 import "./HomeSearchAutoComplete.css";
 
 const { Search } = Input;
@@ -11,18 +10,23 @@ interface AutoCompleteProps {
 const HomeSearchAutoComplete = ({
   onSearch,
 }: AutoCompleteProps): JSX.Element => {
-  const { t } = useTranslation();
+  const searchBarLabel = "Search team and dataset";
 
   return (
-    <AutoComplete
-      style={{ width: 300 }}
-      aria-label="Search"
-      placeholder={`Search your ${t("program")}s`}
-      aria-expanded="false"
-      onSearch={onSearch}
-    >
-      <Search allowClear />
-    </AutoComplete>
+    <>
+      <label htmlFor="Search">
+        <span className="visually-hidden">{searchBarLabel}</span>
+      </label>
+      <AutoComplete
+        style={{ width: 300 }}
+        aria-label="Search"
+        placeholder={searchBarLabel}
+        aria-expanded="false"
+        onSearch={onSearch}
+      >
+        <Search allowClear />
+      </AutoComplete>
+    </>
   );
 };
 
