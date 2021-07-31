@@ -18,15 +18,17 @@ interface TableProps {
   filteredData: TableData[];
   rowData: TableData[];
   loading?: boolean;
+  teamNameFilterText?: string;
 }
 
 const HomeDatasetsListTable = ({
   filteredData,
   rowData,
   loading,
+  teamNameFilterText,
 }: TableProps): JSX.Element => {
   const searchInputRef = useRef<Input>(null);
-  const [searchText, setSearchText] = useState<React.Key>("");
+  const [searchText, setSearchText] = useState<React.Key | string>("");
   const [searchedColumn, setSearchedColumn] = useState("");
 
   const handleSearch = (
@@ -112,6 +114,18 @@ const HomeDatasetsListTable = ({
 
   // eslint-disable-next-line react/display-name
   const textToHighlight = (dataIndex: string) => (text: string) => {
+    if (teamNameFilterText) {
+      setSearchText(teamNameFilterText);
+      return (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText.toString()]}
+          autoEscape
+          textToHighlight={text}
+        />
+      );
+    }
+
     return searchedColumn === dataIndex ? (
       <Highlighter
         highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
