@@ -47,7 +47,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 
   await wait();
 
-  screen.getByText(/Search your programs/i);
+  screen.getAllByText(/Search team and dataset/i);
   screen.getByRole("table");
 
   const row = screen.getAllByRole("row")[1];
@@ -84,6 +84,41 @@ test("should render No Data Available Yet for 'last updated' date when no record
   expect(within(row).getAllByRole("cell")[2].textContent).toBe(
     "No Data Available Yet"
   );
+});
+
+test("should render filter alert box and no search bar when filtering by a search term ", async () => {
+  const hist = createMemoryHistory();
+  const route = "/?filter=BBC News";
+  hist.push(route);
+
+  const { auth } = mockUserLoggedIn();
+  await auth.init();
+
+  const client = autoMockedClient();
+
+  render(
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={hist}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
+  );
+
+  await wait();
+
+  // search bar should not appear
+  expect(
+    screen.queryByText(/Search team and dataset/i)
+  ).not.toBeInTheDocument();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Showing datasets for team: BBC News/i
+  );
+
+  expect(screen.getByRole("button", { name: /user.homePage.showAllMy/i }));
 });
 
 describe("accessibility", () => {
