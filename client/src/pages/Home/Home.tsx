@@ -89,6 +89,7 @@ const Home = (): JSX.Element => {
     setFilteredData(filteredData);
   };
 
+  // Searches table for team name if selected from user sidebar
   const { search } = useLocation();
   const teamNameFilter = new URLSearchParams(search).get("filter");
   useEffect(() => {
