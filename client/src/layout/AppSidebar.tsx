@@ -9,7 +9,7 @@ import {
 import { useQuery } from "@apollo/client";
 import { Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { GetUser, GetUserVariables } from "../graphql/__generated__/getUser";
 import { GET_USER } from "../graphql/__queries__/GetUser.gql";
@@ -27,7 +27,6 @@ interface Dataset {
  */
 export const AppNormalUserSidebarMenu = (): JSX.Element => {
   const { t } = useTranslation();
-  const history = useHistory();
   const userId = useAuth().getUserId();
 
   const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
@@ -52,16 +51,13 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
   return (
     <Menu
       mode="inline"
+      role="menubar"
       theme="light"
       defaultOpenKeys={["teams", "stats"]}
       style={{ height: "100%", borderRight: 0 }}
     >
-      <Menu.Item
-        key="home"
-        icon={<DashboardOutlined />}
-        onClick={() => history.push("/")}
-      >
-        {t("user.sidebar.home")}
+      <Menu.Item key="home" icon={<DashboardOutlined />}>
+        <Link to="/">{t("user.sidebar.home")}</Link>
       </Menu.Item>
       <SubMenu
         key="teams"
@@ -91,14 +87,11 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
                     </Link>
                   }
                 >
-                  {program.datasets.map((dataset, index) => (
-                    <Menu.Item
-                      key={index}
-                      onClick={() =>
-                        history.push(`/dataset/${dataset.id}/details`)
-                      }
-                    >
-                      {dataset.title}
+                  {program.datasets.map((dataset) => (
+                    <Menu.Item key={dataset.id}>
+                      <Link to={`/dataset/${dataset.id}/details`}>
+                        {dataset.title}
+                      </Link>
                     </Menu.Item>
                   ))}
                 </Menu.ItemGroup>
