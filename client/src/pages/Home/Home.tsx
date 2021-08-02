@@ -94,8 +94,6 @@ const Home = (): JSX.Element => {
   useEffect(() => {
     if (teamNameFilter) {
       handleTableSearchFilteredData(teamNameFilter);
-    } else {
-      setFilteredData(allTableData);
     }
   }, [teamNameFilter]);
 
