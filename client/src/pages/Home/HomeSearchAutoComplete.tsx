@@ -19,6 +19,7 @@ const HomeSearchAutoComplete = ({
       </label>
       <AutoComplete
         style={{ width: 300 }}
+        id="Search"
         aria-label="Search"
         placeholder={searchBarLabel}
         aria-expanded="false"
