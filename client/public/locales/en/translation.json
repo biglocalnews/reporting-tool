@@ -291,6 +291,9 @@
     "sidebar": {
       "home": "Home"
     },
-    "homePage": { "showAllMy": "Show All My {{term}}" }
+    "homePage": {
+      "showAllMy": "Show All My {{term}}",
+      "showingDatasetsFor": "Showing datasets for {{term}}:"
+    }
   }
 }

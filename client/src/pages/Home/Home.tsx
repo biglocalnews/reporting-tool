@@ -105,7 +105,9 @@ const Home = (): JSX.Element => {
       {teamNameFilter ? (
         <Alert
           style={{ margin: "1rem 0rem" }}
-          message={`Showing datasets for team: ${teamNameFilter.toUpperCase()}`}
+          message={`${t("user.homePage.showingDatasetsFor", {
+            term: "team",
+          })} ${teamNameFilter.toUpperCase()}`}
           type="info"
           action={
             <Button
