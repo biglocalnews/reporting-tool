@@ -1,4 +1,6 @@
-from pydantic import BaseSettings, BaseModel
+from pydantic import BaseModel
+from pydantic_settings import load_settings, BaseSettingsModel
+from dotenv import load_dotenv
 
 
 class SmtpSettings(BaseModel):
@@ -81,7 +83,7 @@ class EmailSettings(BaseModel):
             """)
 
 
-class Settings(BaseSettings):
+class Settings(BaseSettingsModel):
     db_user: str = 'postgres'
     db_pw: str = 'pass'
     db_host: str = 'localhost'
@@ -97,7 +99,18 @@ class Settings(BaseSettings):
     email: EmailSettings = EmailSettings()
 
     class Config:
+        env_prefix = "RT"
         secrets_dir = '/run/secrets'
 
 
-settings = Settings()
+# Only load dotenv from this directory (not parent directories). If it doesn't
+# exist, this is a no-op.
+# NOTE: not using Pydantic's own dotenv parser because it misses nested keys.
+# https://github.com/samuelcolvin/pydantic/issues/2304
+load_dotenv(".env")
+
+
+settings = load_settings(
+        Settings,
+        load_env=True,
+        )

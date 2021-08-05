@@ -20,6 +20,7 @@
   "submitUpdateSuccess": "Successfully saved changes!",
   "submitUpdateFail": "Failed to save changes.",
   "cancel": "Cancel",
+  "loading": "Loading",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
   "placeholder": {
     "email": "tina@turner.org",

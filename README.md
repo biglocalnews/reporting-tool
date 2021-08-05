@@ -25,7 +25,7 @@ docker-compose up --build
 The app will be available at `http://localhost/`. See the `.env` file in the
 root directory for more configuration options available here.
 
-Docker compose should *not* be used for production; it's better just for a
+Docker compose should _not_ be used for production; it's better just for a
 quick demo.
 
 The secrets used for development are in `./secrets/`; these should be replaced
@@ -68,6 +68,11 @@ secrets:
   app-secret:
     file: ./secrets/app-secret.prod
 ```
+
+The `.env` file can be used to configure the Python API as well, e.g. to
+provide settings for the SMTP server for sending email. See both the
+`./api/settings.py` file for what settings are available, and the `.env` for
+examples of how to override them with environment variables.
 
 #### Scaling
 

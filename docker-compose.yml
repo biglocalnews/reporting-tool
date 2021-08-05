@@ -12,15 +12,18 @@ services:
     expose:
       - 8000
     environment:
-      - db_name=${RT_DB_NAME}
-      - db_host=db
-      - debug=False
+      - RT_DB_NAME
+      - RT_DB_HOST=db
+      - RT_DEBUG=False
     secrets:
       - source: db-password
-        target: /run/secrets/db_pw
+        target: /run/secrets/rt_db_pw
         mode: 0400
       - source: app-secret
-        target: /run/secrets/secret
+        target: /run/secrets/rt_secret
+        mode: 0400
+      - source: api-env
+        target: /app/.env
         mode: 0400
     depends_on:
       - db
@@ -101,6 +104,11 @@ secrets:
   # is checked into the repo and not secure; replace in production.
   app-secret:
     file: ./secrets/app-secret.dev
+  # File containing environment for the API. These override the settings given
+  # in ./api/settings.py. The example .env file given here has more info about
+  # how these overrides work.
+  api-env:
+    file: .env
 
 networks:
   private:
