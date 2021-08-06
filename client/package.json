@@ -46,7 +46,7 @@
     "lint:fix": "eslint -c .eslintrc.js --fix 'src/**/*{.ts,.tsx}'",
     "gentypes": "apollo client:codegen --target typescript --endpoint=http://localhost:8000/graphql --excludes='node_modules/*' --outputFlat='src/graphql/__generated__' --includes='src/**/*.ts*' --useReadOnlyTypes && pretty-quick --pattern 'client/src/graphql/__generated__/**/*.ts' --branch HEAD",
     "introspect": "apollo schema:download src/schema.json --endpoint=http://localhost:8000/graphql",
-    "mock-server": "(curl --silent --fail http://localhost:8000/graphql && yarn introspect) ; ts-node-dev ./src/__mocks__/gql-mock-server.ts",
+    "mock-server": "(curl --silent --fail http://localhost:8000/graphql && yarn introspect) ; ts-node-dev ./src/graphql/__mocks__/gql-mock-server.ts",
     "prepare": "cd .. && npx husky install",
     "pre-commit": "npx pretty-quick --staged"
   },

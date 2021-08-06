@@ -119,6 +119,9 @@ const mockTypes = {
   Date: () => {
     return fake.date();
   },
+  DateTime: () => {
+    return fake.date();
+  },
 };
 
 const server = new ApolloServer({
