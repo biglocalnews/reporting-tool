@@ -64,7 +64,7 @@ const DataEntryCategorySections = ({
   onValueChange,
   personTypes,
 }: DataEntryCategorySectionProps): JSX.Element => {
-
+  const { t } = useTranslation();
 
   const categories = groupByCategory(entries);
 

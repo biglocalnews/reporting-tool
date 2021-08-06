@@ -8,7 +8,7 @@ import {
 import { SchemaLink } from "@apollo/client/link/schema";
 import { addMockFunctionsToSchema } from "apollo-server";
 import { GraphQLError } from "graphql";
-import { makeExecutableSchema, mergeResolvers } from "graphql-tools";
+import { makeExecutableSchema } from "graphql-tools";
 import { buildClientSchema, printSchema } from "graphql/utilities";
 import introspectionResult from "../../schema.json";
 import { mockResolvers } from "./MockResolvers";
@@ -34,9 +34,7 @@ const autoMockedClient = (
   });
 
   // Apply global mock and custom passed resolvers to executable schema
-  const resolvers = [mockResolvers, customResolvers] ?? [mockResolvers];
-  const mocks = mergeResolvers(resolvers);
-  addMockFunctionsToSchema({ schema, mocks });
+  addMockFunctionsToSchema({ schema: schema, mocks: mockResolvers });
 
   // Define errors
   const errorLink = new ApolloLink(() => {
