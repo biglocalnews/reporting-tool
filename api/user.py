@@ -98,7 +98,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         if not ormuser:
             return None
         user = UserDBModel.from_orm(ormuser)
-        if any(r.name == 'admin' for r in user.roles):
+        if any(r.name == "admin" for r in user.roles):
             user.is_superuser = True
         user.is_active = ormuser.deleted is None
         return user
@@ -127,23 +127,27 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # TODO! Use an async session
         session = self.session_factory()
         d = user.dict()
-        roles = d.pop('roles', [])
-        teams = d.pop('teams', [])
+        roles = d.pop("roles", [])
+        teams = d.pop("teams", [])
         dbuser = database.User(**d)
         if roles:
-            dbuser.roles = session.query(database.Role).filter(
-                    database.Role.id.in_([r['id'] for r in roles])
-                    ).all()
+            dbuser.roles = (
+                session.query(database.Role)
+                .filter(database.Role.id.in_([r["id"] for r in roles]))
+                .all()
+            )
         if teams:
-            dbuser.teams = session.query(database.Team).filter(
-                    database.Team.id.in_([t['id'] for t in teams])
-                    ).all()
+            dbuser.teams = (
+                session.query(database.Team)
+                .filter(database.Team.id.in_([t["id"] for t in teams]))
+                .all()
+            )
         session.add(dbuser)
         session.commit()
         user = self.format_orm_model(dbuser)
         session.close()
         return user
-    
+
     async def update(self, user: UserUpdateModel) -> UserDBModel:
         # TODO! Use an async session
         session = self.session_factory()
@@ -153,9 +157,16 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         dbuser = session.query(database.User).get(user.id)
 
         # Only allow updates of certain columns
-        for k in ['first_name', 'last_name', 'email', 'is_active', 'is_verified', 'hashed_password']:
+        for k in [
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_verified",
+            "hashed_password",
+        ]:
             if k in d:
-                if k == 'hashed_password' and dbuser.hashed_password != d[k]:
+                if k == "hashed_password" and dbuser.hashed_password != d[k]:
                     dbuser.last_changed_password = func.now()
                 setattr(dbuser, k, d[k])
 
@@ -163,22 +174,34 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
                 # column while the fastapi-users library uses is_active. We
                 # let queries set `is_active` if they want to delete or restore
                 # and we will set `deleted` automatically.
-                if k == 'is_active':
+                if k == "is_active":
                     if d[k]:
                         dbuser.deleted = None
                     else:
                         dbuser.deleted = func.now()
-        
-        # Update roles and teams separately
-        dbuser.roles = session.query(database.Role).filter(
-            database.Role.id.in_([r['id'] for r in d['roles']]),
-            database.Role.deleted == None,
-        ).all() if d['roles'] else []
 
-        dbuser.teams = session.query(database.Team).filter(
-            database.Team.id.in_([t['id'] for t in d['teams']]),
-            database.Team.deleted == None,
-            ).all() if d['teams'] else []
+        # Update roles and teams separately
+        dbuser.roles = (
+            session.query(database.Role)
+            .filter(
+                database.Role.id.in_([r["id"] for r in d["roles"]]),
+                database.Role.deleted == None,
+            )
+            .all()
+            if d["roles"]
+            else []
+        )
+
+        dbuser.teams = (
+            session.query(database.Team)
+            .filter(
+                database.Team.id.in_([t["id"] for t in d["teams"]]),
+                database.Team.deleted == None,
+            )
+            .all()
+            if d["teams"]
+            else []
+        )
 
         session.merge(dbuser)
         session.commit()
@@ -198,11 +221,12 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         # Mark this as the most recent login.
         # The user object we return will have the last login, not this one.
         session = self.session_factory()
-        session.query(database.User).filter(
-            database.User.id == user.id
-            ).update({
+        session.query(database.User).filter(database.User.id == user.id).update(
+            {
                 "last_login": func.now(),
-                }, synchronize_session=False)
+            },
+            synchronize_session=False,
+        )
         session.commit()
         session.close()
 
@@ -214,10 +238,11 @@ user_db = SQLAlchemyORMUserDatabase(database.connection)
 
 # remove cookie_secure=False later for production
 cookie_authentication = CookieAuthentication(
-        secret=settings.secret,
-        lifetime_seconds=3600,
-        cookie_secure=settings.use_secure_cookies,
-        cookie_name='rtauth')
+    secret=settings.secret,
+    lifetime_seconds=3600,
+    cookie_secure=settings.use_secure_cookies,
+    cookie_name="rtauth",
+)
 
 
 fastapi_users = FastAPIUsers(
@@ -237,9 +262,10 @@ def get_valid_token(type_: str, **kwargs) -> str:
     :param **kwargs: Data to encode in the token
     :returns: Encoded JWT
     """
-    token_data = {'aud': type_}
+    token_data = {"aud": type_}
     token_data.update(kwargs)
     return generate_jwt(
-            data=token_data,
-            secret=cookie_authentication.secret,
-            lifetime_seconds=cookie_authentication.lifetime_seconds)
+        data=token_data,
+        secret=cookie_authentication.secret,
+        lifetime_seconds=cookie_authentication.lifetime_seconds,
+    )
