@@ -186,7 +186,9 @@ async def acs(request: Request):
                     and OneLogin_Saml2_Utils.get_self_url(req)
                     != req["post_data"]["RelayState"]
                 ):
-                    print(f'redirect: {auth.redirect_to(req["post_data"]["RelayState"]}')
+                    print(
+                        f'redirect: {auth.redirect_to(req["post_data"]["RelayState"])}'
+                    )
             else:
                 print("Not authenticated")
         else:
