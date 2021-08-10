@@ -1,3 +1,5 @@
+from logging import debug
+from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from starlette.responses import RedirectResponse
 import uvicorn
@@ -126,8 +128,10 @@ idp_data = OneLogin_Saml2_IdPMetadataParser.parse_remote(
 
 
 def init_saml_auth(req):
-    auth = OneLogin_Saml2_Auth(req, idp_data)
-    return auth
+    idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
+    idp_data["sp"]["assertionConsumerService"] = {}
+    idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
+    return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
 
 
 def build_saml_req(host, path, query_params, post_data):
@@ -138,7 +142,7 @@ def build_saml_req(host, path, query_params, post_data):
         "post_data": post_data,
         # Advanced request options
         "https": "on",
-        "request_uri": "/acs",
+        # "request_uri": "/acs",
         "query_string": "",
         "validate_signature_from_qs": False,
         "lowercase_urlencoding": False,
@@ -147,18 +151,16 @@ def build_saml_req(host, path, query_params, post_data):
 
 @app.get("/bbc-login")
 async def bbc_login(request: Request):
-    try:
-        form = await request.form()
-        req = build_saml_req(
-            "5050.ni.bbc.co.uk",
-            request.url.path,
-            request.query_params.copy(),
-            form.copy(),
-        )
-        auth = init_saml_auth(req)
-        return RedirectResponse(auth.login())
-    except Exception as ex:
-        return ex
+    form = await request.form()
+    req = build_saml_req(
+        "5050.ni.bbc.co.uk",
+        request.url.path,
+        request.query_params,
+        form,
+    )
+    auth = init_saml_auth(req)
+    redirect = auth.login()
+    return RedirectResponse(redirect)
 
 
 @app.post("/acs")
@@ -168,8 +170,8 @@ async def acs(request: Request):
         req = build_saml_req(
             "5050.ni.bbc.co.uk",
             request.url.path,
-            request.query_params.copy(),
-            form.copy(),
+            request.query_params,
+            form,
         )
         auth = init_saml_auth(req)
         auth.process_response()
@@ -177,15 +179,14 @@ async def acs(request: Request):
         if not errors:
             if auth.is_authenticated():
                 samlUserdata = auth.get_attributes()
+                for attr_name in samlUserdata.keys():
+                    print("%s ==> %s" % (attr_name, "|| ".join(samlUserdata)))
                 if (
                     "RelayState" in req["post_data"]
                     and OneLogin_Saml2_Utils.get_self_url(req)
                     != req["post_data"]["RelayState"]
                 ):
-                    auth.redirect_to(req["post_data"]["RelayState"])
-                else:
-                    for attr_name in samlUserdata.keys():
-                        print("%s ==> %s" % (attr_name, "|| ".join(samlUserdata)))
+                    print(f'redirect: {auth.redirect_to(req["post_data"]["RelayState"]}')
             else:
                 print("Not authenticated")
         else:
