@@ -1,0 +1,19 @@
+{
+  "idp": {
+    "entityId": "https://bbclogin.id.stage.tools.bbc.co.uk/v3",
+    "singleSignOnService": {
+      "url": "https://gateway.id.stage.tools.bbc.co.uk:443/eiam/SSORedirect/metaAlias/v3",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    },
+    "singleLogoutService": {
+      "url": "https://gateway.id.stage.tools.bbc.co.uk:443/eiam/IDPSloRedirect/metaAlias/v3",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    },
+    "x509cert": "MIIDOTCCAiGgAwIBAgIEEFAUhDANBgkqhkiG9w0BAQsFADBNMQswCQYDVQQGEwJVSzEMMAoGA1UEChMDQkJDMREwDwYDVQQLEwhCQkNMb2dpbjEdMBsGA1UEAwwUQkJDTG9naW5fU0FNTF9JRFBfVjMwHhcNMjAwNTA3MTM0ODQzWhcNMzAwMzE2MTM0ODQzWjBNMQswCQYDVQQGEwJVSzEMMAoGA1UEChMDQkJDMREwDwYDVQQLEwhCQkNMb2dpbjEdMBsGA1UEAwwUQkJDTG9naW5fU0FNTF9JRFBfVjMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCVLXTutRAah2KXsglGiPk1sMd5g+NKbzAIrRV6mN3Vgxftr1JcAkyN4CPomlVf+ygZk1VRmb/B/iz51ELFKr5i8UiNyaSzbychdyAcReBzJVRZBEBUCz+k0S6fAZN+LLdQGZaggJr3R45FanmI1Kl7mkWm0WHVzlFLvYEaLbxch1TU+cpy13wibFeMAYSh8umlygFWQxYnfresPi8jH5xx8FPWV/DH2gEfMwLVTnaJQpGHUq32R1VaQl+UxohI2/YxEksrnrgZ/kSSnF6mirOCfn8HnyJLAsUYqQht5RfU8Sk+Lyshr0AEqLv1khmXa7lueDXbJDDdlM9QwiyGuGXdAgMBAAGjITAfMB0GA1UdDgQWBBTwyf8R8oUki7MybLZoGrL9LK8A4TANBgkqhkiG9w0BAQsFAAOCAQEAcLMDNa5K0gYTXh8Wxnura4/pQ8NN2fV/ONdLFCF96VfnZg8Tg+3skbRqEpSwhEC40nLoEVjh9wKdG0k6EejXz9hwGRUYyXp/GUp9zuMUDT4/GYneQ7O0kgiOjs4Or4Y49yXTZC5Q4vDhu1lTzL9mcxP+XPiMZqYoS3q0jG+2S/+AU3+jPMDowpaAXhpfBDiWrOuDg4qMaeIL8HJ/AptdS3hqk5CFPGEKGLCmnbbCIQYFZ6o5ZrOc2TjZ6O+O3fLAsenttP4Sltx/pLs8lb3yhxUIHTMZNHfQIeStrjkn4qiUt2I3DPL7kwu2OuBEoDRwpwCB7r2MW2EOz7Wj5QMTuQ=="
+  },
+  "sp": {
+    "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+    "entityId": "https://5050.ni.bbc.co.uk/",
+    "assertionConsumerService": { "url": "https://5050.ni.bbc.co.uk/acs" }
+  }
+}
