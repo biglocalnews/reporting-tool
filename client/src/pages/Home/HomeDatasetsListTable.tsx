@@ -96,7 +96,7 @@ const HomeDatasetsListTable = ({
                 pathname: `/dataset/${datasetId}/details`,
               }}
             >
-              <Button icon={<InfoCircleOutlined />}>View Details</Button>
+              <Button icon={<InfoCircleOutlined />}>{t("viewDetails")}</Button>
             </Link>
           </Space>
         );

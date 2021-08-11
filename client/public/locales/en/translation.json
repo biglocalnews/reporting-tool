@@ -22,6 +22,7 @@
   "cancel": "Cancel",
   "loading": "Loading",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
+  "viewDetails": "View Details",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",
