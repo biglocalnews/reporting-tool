@@ -88,8 +88,8 @@ test("should render No Data Available Yet for 'last updated' date when no record
 
 test("should render filter alert box and no search bar when filtering by a search term ", async () => {
   const hist = createMemoryHistory();
-  const route = "/?filter=BBC News";
-  hist.push(route);
+  const queryParamRoute = "/?team=BBC News";
+  hist.push(queryParamRoute);
 
   const { auth } = mockUserLoggedIn();
   await auth.init();
