@@ -1,4 +1,5 @@
 import { AutoComplete, Input } from "antd";
+import { useTranslation } from "react-i18next";
 import "./HomeSearchAutoComplete.css";
 
 const { Search } = Input;
@@ -10,7 +11,8 @@ interface AutoCompleteProps {
 const HomeSearchAutoComplete = ({
   onSearch,
 }: AutoCompleteProps): JSX.Element => {
-  const searchBarLabel = "Search team and dataset";
+  const { t } = useTranslation();
+  const searchBarLabel = t("searchTeamAndDataset");
 
   return (
     <>
