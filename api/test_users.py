@@ -1,5 +1,4 @@
-import uuid
-from database import connection, User, Role, database
+from database import connection, User, Role
 from settings import settings
 
 
