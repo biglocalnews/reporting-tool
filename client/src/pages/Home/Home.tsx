@@ -79,6 +79,10 @@ const Home = (): JSX.Element => {
 
   // Filters datasets table by search term
   const handleTableSearchFilteredData = (searchText: string) => {
+    if (!searchText || searchText.length === 0) {
+      return;
+    }
+
     const data = [...allTableData];
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
