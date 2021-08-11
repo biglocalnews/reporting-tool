@@ -83,7 +83,10 @@ const Home = (): JSX.Element => {
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
       dataset = dataset.toLowerCase();
-      return team.includes(searchText) || dataset.includes(searchText);
+      return (
+        team.includes(searchText.toLowerCase()) ||
+        dataset.includes(searchText.toLowerCase())
+      );
     });
 
     setFilteredData(filteredData);
