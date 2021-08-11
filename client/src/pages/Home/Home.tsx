@@ -94,23 +94,23 @@ const Home = (): JSX.Element => {
 
   // Searches table for team name if selected from user sidebar
   const { search } = useLocation();
-  const teamNameFilter = new URLSearchParams(search).get("team");
+  const teamNameURLParam = new URLSearchParams(search).get("team");
   useEffect(() => {
-    if (teamNameFilter) {
-      handleTableSearchFilteredData(teamNameFilter);
+    if (teamNameURLParam) {
+      handleTableSearchFilteredData(teamNameURLParam);
     }
-  }, [teamNameFilter]);
+  }, [teamNameURLParam]);
 
   if (error) return <ErrorFallback error={error} />;
 
   return (
     <>
-      {teamNameFilter ? (
+      {teamNameURLParam ? (
         <Alert
           style={{ margin: "1rem 0rem" }}
           message={`${t("user.homePage.showingDatasetsFor", {
             term: "team",
-          })} ${teamNameFilter.toUpperCase()}`}
+          })} ${teamNameURLParam.toUpperCase()}`}
           type="info"
           action={
             <Button
@@ -142,7 +142,7 @@ const Home = (): JSX.Element => {
         loading={loading}
         filteredData={filteredData}
         rowData={allTableData}
-        teamNameFilterText={teamNameFilter}
+        teamNameFilterText={teamNameURLParam}
       />
     </>
   );
