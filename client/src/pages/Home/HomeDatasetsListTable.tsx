@@ -39,6 +39,29 @@ const HomeDatasetsListTable = ({
     return text;
   };
 
+  const renderRowActionButtons = (datasetId: string) => {
+    return (
+      <Space>
+        <Link
+          to={{
+            pathname: `/dataset/${datasetId}/entry`,
+          }}
+        >
+          <Button type="primary" icon={<PlusOutlined />}>
+            {t("addData")}
+          </Button>
+        </Link>
+        <Link
+          to={{
+            pathname: `/dataset/${datasetId}/details`,
+          }}
+        >
+          <Button icon={<InfoCircleOutlined />}>{t("viewDetails")}</Button>
+        </Link>
+      </Space>
+    );
+  };
+
   const columns: ColumnsType<TableData> = [
     {
       title: "Team",
@@ -79,28 +102,7 @@ const HomeDatasetsListTable = ({
     {
       dataIndex: "id",
       width: 250,
-      render: function btn(datasetId: string) {
-        return (
-          <Space>
-            <Link
-              to={{
-                pathname: `/dataset/${datasetId}/entry`,
-              }}
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                {t("addData")}
-              </Button>
-            </Link>
-            <Link
-              to={{
-                pathname: `/dataset/${datasetId}/details`,
-              }}
-            >
-              <Button icon={<InfoCircleOutlined />}>{t("viewDetails")}</Button>
-            </Link>
-          </Space>
-        );
-      },
+      render: renderRowActionButtons,
     },
   ];
 
