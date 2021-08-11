@@ -16,7 +16,6 @@ interface TableProps {
 
 const HomeDatasetsListTable = ({
   filteredData,
-  rowData,
   loading,
   teamNameFilterText,
 }: TableProps): JSX.Element => {
@@ -112,11 +111,6 @@ const HomeDatasetsListTable = ({
       dataSource={filteredData}
       columns={columns}
       rowKey={(dataset) => dataset.id}
-      footer={() =>
-        filteredData.length > 0
-          ? `Showing ${filteredData.length} of ${rowData.length} results`
-          : `Showing ${rowData.length} of ${rowData.length} results`
-      }
     />
   );
 };
