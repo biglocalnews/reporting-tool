@@ -94,7 +94,7 @@ const Home = (): JSX.Element => {
 
   // Searches table for team name if selected from user sidebar
   const { search } = useLocation();
-  const teamNameFilter = new URLSearchParams(search).get("filter");
+  const teamNameFilter = new URLSearchParams(search).get("team");
   useEffect(() => {
     if (teamNameFilter) {
       handleTableSearchFilteredData(teamNameFilter);

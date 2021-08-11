@@ -80,7 +80,7 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
                     <Link
                       to={{
                         pathname: `/`, // go to user homepage
-                        search: `?filter=${program.team}`,
+                        search: `?team=${encodeURIComponent(program.team)}`,
                       }}
                     >
                       {program.team}

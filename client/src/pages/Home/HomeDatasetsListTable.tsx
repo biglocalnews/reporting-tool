@@ -108,7 +108,7 @@ const HomeDatasetsListTable = ({
   return (
     <Table<TableData>
       loading={loading}
-      dataSource={filteredData.length > 0 ? filteredData : rowData}
+      dataSource={filteredData}
       columns={columns}
       rowKey={(dataset) => dataset.id}
       footer={() =>
