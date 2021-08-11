@@ -27,6 +27,7 @@ def run():
         first_name="Lara",
         last_name="Joannides",
     )
+    session.add(user)
 
     # Admin user
     admin_user = User(
@@ -39,6 +40,7 @@ def run():
     admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
     admin_user.roles.append(admin)
     session.add(admin_user)
+    session.commit()
 
     print("✅ done!")
 
