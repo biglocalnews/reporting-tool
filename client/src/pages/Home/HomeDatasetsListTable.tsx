@@ -69,7 +69,6 @@ const HomeDatasetsListTable = ({
         return tags.map((tag: string) => {
           const color = "blue";
           return (
-            // TODO: Create component to link tags to datasets with the same tags
             <Tag color={color} key={tag}>
               {tag.toUpperCase()}
             </Tag>
