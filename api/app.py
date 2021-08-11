@@ -166,7 +166,7 @@ async def bbc_login(request: Request):
     return RedirectResponse(redirect)
 
 
-@app.post("/acs")
+@app.post("/acs", status_code=200)
 async def acs(request: Request):
     try:
         form = await request.form()
@@ -201,6 +201,8 @@ async def acs(request: Request):
             )
     except Exception as err:
         print(err)
+
+    return {}
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
