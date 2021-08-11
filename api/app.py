@@ -165,9 +165,12 @@ async def bbc_login(request: Request):
     redirect = auth.login()
     return RedirectResponse(redirect)
 
+@app.get("/acs", status_code=200)
+async def acs_get(request: Request):
+    return
 
 @app.post("/acs")
-async def acs(request: Request):
+async def acs(request: Request, status_code=200):
     try:
         form = await request.form()
         req = build_saml_req(
@@ -201,6 +204,8 @@ async def acs(request: Request):
             )
     except Exception as err:
         print(err)
+    
+    return {}
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
