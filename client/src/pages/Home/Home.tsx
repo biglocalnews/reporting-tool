@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
 import { Alert, Button } from "antd";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -72,18 +72,34 @@ const Home = (): JSX.Element => {
     skip: !auth.isAdmin(),
   });
 
-  const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
+  const client = useApolloClient();
+  const originalTeamData = allTeams?.data?.teams || data?.user.teams || [];
   const allTableData = getTableData(originalTeamData.slice(), t);
   const [filteredData, setFilteredData] =
     useState<Array<TableData>>(allTableData);
+  useEffect(() => {
+    const data = async () =>
+      await client.query({
+        query: GET_USER,
+        variables: { id: userId },
+      });
+
+    data().then((result) => {
+      const originalTeamData =
+        allTeams?.data?.teams || result.data.user.teams || [];
+      const allTableData = getTableData(originalTeamData.slice(), t);
+      setFilteredData(allTableData);
+    });
+  }, []);
 
   // Filters datasets table by search term
   const handleTableSearchFilteredData = (searchText: string) => {
+    const data = [...allTableData];
     if (!searchText || searchText.length === 0) {
+      setFilteredData(data);
       return;
     }
 
-    const data = [...allTableData];
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
       dataset = dataset.toLowerCase();
