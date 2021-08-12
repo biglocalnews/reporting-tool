@@ -145,7 +145,7 @@ def build_saml_req(host, path, query_params, post_data):
         "post_data": post_data,
         # Advanced request options
         "https": "on",
-        # "request_uri": "/acs",
+        "request_uri": "/acs",
         "query_string": "",
         "validate_signature_from_qs": False,
         "lowercase_urlencoding": False,
@@ -164,11 +164,6 @@ async def bbc_login(request: Request):
     auth = init_saml_auth(req)
     redirect = auth.login()
     return RedirectResponse(redirect)
-
-
-@app.get("/acs", status_code=200)
-async def acs_get(request: Request):
-    return
 
 
 @app.post("/acs")

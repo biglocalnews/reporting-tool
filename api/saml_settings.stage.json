@@ -14,6 +14,9 @@
   "sp": {
     "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:persistent",
     "entityId": "https://5050.ni.bbc.co.uk/",
-    "assertionConsumerService": { "url": "https://5050.ni.bbc.co.uk/acs" }
+    "assertionConsumerService": {
+      "url": "https://5050.ni.bbc.co.uk/acs",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+    }
   }
 }
