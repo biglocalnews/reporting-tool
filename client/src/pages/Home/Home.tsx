@@ -1,5 +1,5 @@
 import { useApolloClient, useQuery } from "@apollo/client";
-import { Alert, Button } from "antd";
+import { Alert, Button, Typography } from "antd";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useEffect, useState } from "react";
@@ -18,6 +18,8 @@ import { HomeDatasetsListTable } from "./HomeDatasetsListTable";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 
 dayjs.extend(localizedFormat);
+
+const { Text } = Typography;
 
 export interface TableData {
   id: string;
@@ -115,34 +117,50 @@ const Home = (): JSX.Element => {
       handleTableSearchFilteredData(teamNameURLParam);
     }
   }, [teamNameURLParam]);
-  const teamNameAlertText = teamNameURLParam
-    ? `${t("user.homePage.showingDatasetsFor", {
-        term: "team",
-      })}: ${teamNameURLParam.toUpperCase()}`
-    : "Missing";
+
+  const filterAlertBox = (): JSX.Element => {
+    const alertPrefix = `${t("user.homePage.showingDatasetsFor", {
+      term: "team",
+    })}: `;
+    const alertSuffix = <Text strong>{teamNameURLParam}</Text>;
+
+    const message = !teamNameURLParam ? (
+      <>Missing team parameter</>
+    ) : (
+      <>
+        {alertPrefix} {alertSuffix}
+      </>
+    );
+
+    const alertType = !teamNameURLParam ? "warning" : "info";
+
+    return (
+      <Alert
+        style={{ margin: "1rem 0rem" }}
+        message={message}
+        type={alertType}
+        action={
+          <Button
+            style={{ margin: ".5rem 0rem" }}
+            size="small"
+            type="primary"
+            onClick={() => history.push("/")}
+          >
+            {t("user.homePage.showAllMy", {
+              term: "Teams",
+            })}
+          </Button>
+        }
+      />
+    );
+  };
 
   if (error) return <ErrorFallback error={error} />;
 
   return (
     <>
       {search ? (
-        <Alert
-          style={{ margin: "1rem 0rem" }}
-          message={teamNameAlertText}
-          type="info"
-          action={
-            <Button
-              style={{ margin: ".5rem 0rem" }}
-              size="small"
-              type="primary"
-              onClick={() => history.push("/")}
-            >
-              {t("user.homePage.showAllMy", {
-                term: "Teams",
-              })}
-            </Button>
-          }
-        />
+        filterAlertBox()
       ) : (
         <div
           id="home_table-search"
