@@ -140,12 +140,12 @@ def init_saml_auth(req):
 def build_saml_req(host, path, query_params, post_data):
     return {
         "http_host": host,
-        "script_name": path,
+        "script_name": "/acs",
         "get_data": query_params,
         "post_data": post_data,
         # Advanced request options
         "https": "on",
-        "request_uri": "/acs",
+        # "request_uri": "",
         "query_string": "",
         "validate_signature_from_qs": False,
         "lowercase_urlencoding": False,
@@ -201,8 +201,6 @@ async def acs(request: Request, status_code=200):
             )
     except Exception as err:
         print(err)
-
-    return {}
 
     return {}
 
