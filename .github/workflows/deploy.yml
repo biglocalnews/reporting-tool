@@ -80,20 +80,3 @@ jobs:
           curl -X POST -H 'Content-Type: application/json' \
             --data "{\"text\": \"$MSG\", \"blocks\": [{\"type\":\"section\", \"text\": {\"type\": \"plain_text\", \"text\": \"$MSG\", \"emoji\": true}}, {\"type\":\"image\",\"image_url\":\"$GIF\", \"alt_text\":\"dog\", \"title\": {\"type\":\"plain_text\", \"text\": \"success dog\"}}]}" \
             $SLACK_WEBHOOK
-
-# Build docker image
-# Upload docker image to a docker repository hosted by aws/google cloud
-# tell google how to start that image
-# google takes image and starts running it somewhere- not setting up machine or running docker
-
-# Build API Image
-# Build Docker container
-# Run docker container
-# Send to gcloud build
-
-# Build Docker Container
-# Publish to Container Registry
-# Release to GCloud Run
-
-# Push static assets to public cloud storage bucket
-#
