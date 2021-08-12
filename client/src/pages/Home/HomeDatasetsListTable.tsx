@@ -73,7 +73,6 @@ const HomeDatasetsListTable = ({
       title: "Dataset",
       dataIndex: "dataset",
       key: "dataset",
-      render: textToHighlight,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.dataset.localeCompare(b.dataset),
     },
