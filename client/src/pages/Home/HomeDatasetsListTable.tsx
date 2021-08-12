@@ -23,20 +23,16 @@ const HomeDatasetsListTable = ({
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState<string>("");
 
-  const textToHighlight = (text: string) => {
-    if (teamNameFilterText) {
-      setSearchText(teamNameFilterText);
-      return (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText.toString()]}
-          autoEscape
-          textToHighlight={text}
-        />
-      );
-    }
-
-    return text;
+  const highlightTeamName = (text: string) => {
+    teamNameFilterText && setSearchText(teamNameFilterText);
+    return (
+      <Highlighter
+        highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+        searchWords={[searchText.toString()]}
+        autoEscape
+        textToHighlight={text ? text.toString() : ""}
+      />
+    );
   };
 
   const renderRowActionButtons = (datasetId: string) => {
@@ -78,7 +74,8 @@ const HomeDatasetsListTable = ({
       title: "Team",
       dataIndex: "team",
       key: "team",
-      render: textToHighlight,
+      render: (text: string) =>
+        teamNameFilterText ? highlightTeamName(text) : text,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.team.localeCompare(b.team),
     },
