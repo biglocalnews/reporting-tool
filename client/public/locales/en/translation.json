@@ -297,7 +297,7 @@
     },
     "homePage": {
       "showAllMy": "Show All My {{term}}",
-      "showingDatasetsFor": "Showing datasets for {{term}}:"
+      "showingDatasetsFor": "Showing datasets for {{term}}"
     }
   }
 }

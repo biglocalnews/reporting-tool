@@ -115,6 +115,11 @@ const Home = (): JSX.Element => {
       handleTableSearchFilteredData(teamNameURLParam);
     }
   }, [teamNameURLParam]);
+  const teamNameAlertText = teamNameURLParam
+    ? `${t("user.homePage.showingDatasetsFor", {
+        term: "team",
+      })}: ${teamNameURLParam.toUpperCase()}`
+    : "Missing";
 
   if (error) return <ErrorFallback error={error} />;
 
@@ -123,13 +128,7 @@ const Home = (): JSX.Element => {
       {search ? (
         <Alert
           style={{ margin: "1rem 0rem" }}
-          message={
-            teamNameURLParam
-              ? `${t("user.homePage.showingDatasetsFor", {
-                  term: "team",
-                })} ${teamNameURLParam.toUpperCase()}`
-              : "Missing"
-          }
+          message={teamNameAlertText}
           type="info"
           action={
             <Button
