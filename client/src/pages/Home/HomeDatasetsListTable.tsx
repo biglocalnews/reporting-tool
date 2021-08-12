@@ -9,12 +9,14 @@ import { TableData } from "./Home";
 
 interface TableProps {
   tableData: TableData[];
+  totalDatasets: number;
   loading?: boolean;
   teamNameFilterText?: string | null;
 }
 
 const HomeDatasetsListTable = ({
   tableData,
+  totalDatasets,
   loading,
   teamNameFilterText,
 }: TableProps): JSX.Element => {
@@ -103,12 +105,21 @@ const HomeDatasetsListTable = ({
     },
   ];
 
+  const resultsFoundText =
+    tableData.length > 0
+      ? t("showingNResults", {
+          nResults: tableData.length,
+          total: totalDatasets,
+        })
+      : t("noResultsFound");
+
   return (
     <Table<TableData>
       loading={loading}
       dataSource={tableData}
       columns={columns}
       rowKey={(dataset) => dataset.id}
+      footer={() => resultsFoundText}
     />
   );
 };

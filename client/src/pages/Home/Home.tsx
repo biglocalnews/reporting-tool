@@ -95,11 +95,6 @@ const Home = (): JSX.Element => {
   // Filters datasets table by search term
   const handleTableSearchFilteredData = (searchText: string) => {
     const data = [...allTableData];
-    if (!searchText || searchText.length === 0) {
-      setFilteredData(data);
-      return;
-    }
-
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
       dataset = dataset.toLowerCase();
@@ -125,12 +120,16 @@ const Home = (): JSX.Element => {
 
   return (
     <>
-      {teamNameURLParam ? (
+      {search ? (
         <Alert
           style={{ margin: "1rem 0rem" }}
-          message={`${t("user.homePage.showingDatasetsFor", {
-            term: "team",
-          })} ${teamNameURLParam.toUpperCase()}`}
+          message={
+            teamNameURLParam
+              ? `${t("user.homePage.showingDatasetsFor", {
+                  term: "team",
+                })} ${teamNameURLParam.toUpperCase()}`
+              : "Missing"
+          }
           type="info"
           action={
             <Button
@@ -161,6 +160,7 @@ const Home = (): JSX.Element => {
       <HomeDatasetsListTable
         loading={loading}
         tableData={filteredData}
+        totalDatasets={allTableData.length}
         teamNameFilterText={teamNameURLParam}
       />
     </>

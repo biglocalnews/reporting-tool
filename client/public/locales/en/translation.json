@@ -24,6 +24,8 @@
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
   "viewDetails": "View Details",
   "searchTeamAndDataset": "Search team and dataset",
+  "noResultsFound": "No results found",
+  "showingNResults": "Showing {{nResults}} of {{total}} results",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",
