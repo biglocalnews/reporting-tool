@@ -182,8 +182,8 @@ async def acs(request: Request, status_code=200):
         if not errors:
             if auth.is_authenticated():
                 samlUserdata = auth.get_attributes()
-                for attr_name in samlUserdata.keys():
-                    print("%s ==> %s" % (attr_name, "|| ".join(samlUserdata)))
+                for k, v in samlUserdata.items():
+                    print(f"{k}: {v}")
                 if (
                     "RelayState" in req["post_data"]
                     and OneLogin_Saml2_Utils.get_self_url(req)
