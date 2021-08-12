@@ -1,4 +1,4 @@
-name: Deploy BBC Reporting Tool
+name: Build and Push BBC Reporting Tool Images to GCP
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Release BBC Reporting Tool (GCP)
+    name: Build and Push BBC Reporting Tool Images to GCP
     runs-on: ubuntu-latest
     steps:
       - name: Install docker
@@ -76,7 +76,7 @@ jobs:
           GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
         run: |
           GIF=$(curl "https://api.giphy.com/v1/gifs/random?api_key=$GIPHY_API_KEY&tag=dog&rating=g" | python -c "import sys,json; print (json.load(sys.stdin)['data']['images']['downsized']['url'])")
-          MSG="Successfully Built BBC 50:50 Dev (GCP) docker image v${GITHUB_REF##*/} :hamsterdance:"
+          MSG="Successfully built BBC 50:50 Dev (GCP) images and pushed to GCR v${GITHUB_REF##*/} :hamsterdance:"
           curl -X POST -H 'Content-Type: application/json' \
             --data "{\"text\": \"$MSG\", \"blocks\": [{\"type\":\"section\", \"text\": {\"type\": \"plain_text\", \"text\": \"$MSG\", \"emoji\": true}}, {\"type\":\"image\",\"image_url\":\"$GIF\", \"alt_text\":\"dog\", \"title\": {\"type\":\"plain_text\", \"text\": \"success dog\"}}]}" \
             $SLACK_WEBHOOK
