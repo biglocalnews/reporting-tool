@@ -160,8 +160,7 @@ const Home = (): JSX.Element => {
 
       <HomeDatasetsListTable
         loading={loading}
-        filteredData={filteredData}
-        rowData={allTableData}
+        tableData={filteredData}
         teamNameFilterText={teamNameURLParam}
       />
     </>

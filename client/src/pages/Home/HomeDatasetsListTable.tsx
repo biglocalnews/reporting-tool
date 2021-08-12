@@ -8,14 +8,13 @@ import { Link } from "react-router-dom";
 import { TableData } from "./Home";
 
 interface TableProps {
-  filteredData: TableData[];
-  rowData: TableData[];
+  tableData: TableData[];
   loading?: boolean;
   teamNameFilterText?: string | null;
 }
 
 const HomeDatasetsListTable = ({
-  filteredData,
+  tableData,
   loading,
   teamNameFilterText,
 }: TableProps): JSX.Element => {
@@ -108,7 +107,7 @@ const HomeDatasetsListTable = ({
   return (
     <Table<TableData>
       loading={loading}
-      dataSource={filteredData}
+      dataSource={tableData}
       columns={columns}
       rowKey={(dataset) => dataset.id}
     />
