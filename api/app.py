@@ -140,7 +140,7 @@ def init_saml_auth(req):
 def build_saml_req(host, path, query_params, post_data):
     return {
         "http_host": host,
-        "script_name": "/acs",
+        "script_name": "/",
         "get_data": query_params,
         "post_data": post_data,
         # Advanced request options
