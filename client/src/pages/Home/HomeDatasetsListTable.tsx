@@ -62,6 +62,17 @@ const HomeDatasetsListTable = ({
     );
   };
 
+  const renderTags = (tags: string[]) => {
+    return tags.map((tag: string) => {
+      const color = "blue";
+      return (
+        <Tag color={color} key={tag}>
+          {tag.toUpperCase()}
+        </Tag>
+      );
+    });
+  };
+
   const columns: ColumnsType<TableData> = [
     {
       title: "Team",
@@ -87,16 +98,7 @@ const HomeDatasetsListTable = ({
       key: "tags",
       dataIndex: "tags",
       width: 250,
-      render: (tags: string[]) => {
-        return tags.map((tag: string) => {
-          const color = "blue";
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        });
-      },
+      render: renderTags,
     },
     {
       dataIndex: "id",
