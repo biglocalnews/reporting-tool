@@ -181,6 +181,7 @@ async def acs(request: Request, status_code=200):
         errors = auth.get_errors()
         if not errors:
             if auth.is_authenticated():
+                print(auth.get_nameid())
                 samlUserdata = auth.get_attributes()
                 for k, v in samlUserdata.items():
                     print(f"{k}: {v}")
