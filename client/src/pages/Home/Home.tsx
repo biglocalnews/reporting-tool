@@ -1,4 +1,4 @@
-import { useApolloClient, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Alert, Button, Typography } from "antd";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -74,25 +74,29 @@ const Home = (): JSX.Element => {
     skip: !auth.isAdmin(),
   });
 
-  const client = useApolloClient();
   const originalTeamData = allTeams?.data?.teams || data?.user.teams || [];
   const allTableData = getTableData(originalTeamData.slice(), t);
   const [filteredData, setFilteredData] =
     useState<Array<TableData>>(allTableData);
-  useEffect(() => {
-    const data = async () =>
-      await client.query({
-        query: GET_USER,
-        variables: { id: userId },
-      });
 
-    data().then((result) => {
-      const originalTeamData =
-        allTeams?.data?.teams || result.data.user.teams || [];
-      const allTableData = getTableData(originalTeamData.slice(), t);
+  // Searches table for team name if selected from user sidebar
+  const { search } = useLocation();
+  const teamNameURLParam = new URLSearchParams(search).get("team");
+  useEffect(() => {
+    if (data && !search) {
+      // initializes all table data when no query param exists
       setFilteredData(allTableData);
-    });
-  }, []);
+    }
+
+    // filters table data for team name query param
+    if (data && teamNameURLParam) {
+      const filter = allTableData.filter(({ team }) => {
+        team = team.toLowerCase();
+        return team.includes(teamNameURLParam.toLowerCase());
+      });
+      setFilteredData(filter);
+    }
+  }, [data, search, teamNameURLParam]);
 
   // Filters datasets table by search term
   const handleTableSearchFilteredData = (searchText: string) => {
@@ -108,15 +112,6 @@ const Home = (): JSX.Element => {
 
     setFilteredData(filteredData);
   };
-
-  // Searches table for team name if selected from user sidebar
-  const { search } = useLocation();
-  const teamNameURLParam = new URLSearchParams(search).get("team");
-  useEffect(() => {
-    if (teamNameURLParam) {
-      handleTableSearchFilteredData(teamNameURLParam);
-    }
-  }, [teamNameURLParam]);
 
   const filterAlertBox = (): JSX.Element => {
     const alertPrefix = `${t("user.homePage.showingDatasetsFor", {
@@ -155,7 +150,7 @@ const Home = (): JSX.Element => {
     );
   };
 
-  if (error) return <ErrorFallback error={error} />;
+  if (!data && error) return <ErrorFallback error={error} />;
 
   return (
     <>
