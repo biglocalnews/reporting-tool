@@ -88,8 +88,6 @@ test("should render No Data Available Yet for 'last updated' date when no record
 
 test("should render filter alert box and no search bar when filtering by a search term ", async () => {
   const hist = createMemoryHistory();
-  const queryParamRoute = "/?team=BBC News";
-  hist.push(queryParamRoute);
 
   const { auth } = mockUserLoggedIn();
   await auth.init();
@@ -106,6 +104,10 @@ test("should render filter alert box and no search bar when filtering by a searc
     </AuthProvider>
   );
 
+  // check for team found
+  const queryParamRoute = "/?team=BBC News";
+  hist.push(queryParamRoute);
+
   await wait();
 
   // search bar should not appear
@@ -115,10 +117,41 @@ test("should render filter alert box and no search bar when filtering by a searc
 
   // filter alert should be visible
   expect(screen.getByRole("alert")).toHaveTextContent(
-    /Showing datasets for team: BBC News/i
+    /user.homePage.showingDatasetsFor: BBC News/i
   );
 
   expect(screen.getByRole("button", { name: /user.homePage.showAllMy/i }));
+
+  // table should have header and two rows
+  expect(screen.getAllByRole("row")).toHaveLength(3);
+
+  // check alert box for team not found
+  const teamNotFound = "/?team=t";
+  hist.push(teamNotFound);
+
+  await wait();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /user.homePage.showingDatasetsFor: t/i
+  );
+
+  // table should have header and one row
+  expect(screen.getAllByRole("row")).toHaveLength(2);
+
+  // check alert box for team param value not found
+  const queryParamNotFound = "/?team=";
+  hist.push(queryParamNotFound);
+
+  await wait();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Oops! We couldn't find the team name provided. Please refresh and try again/i
+  );
+
+  // table should have no data
+  expect(screen.getByRole("table")).toHaveTextContent(/No Data/i);
 });
 
 describe("accessibility", () => {
