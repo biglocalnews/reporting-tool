@@ -113,7 +113,7 @@ const Home = (): JSX.Element => {
     setFilteredData(filteredData);
   };
 
-  const filterAlertBox = (): JSX.Element => {
+  const renderFilterAlert = (): JSX.Element => {
     const alertPrefix = `${t("user.homePage.showingDatasetsFor", {
       term: "team",
     })}: `;
@@ -155,7 +155,7 @@ const Home = (): JSX.Element => {
   return (
     <>
       {search ? (
-        filterAlertBox()
+        renderFilterAlert()
       ) : (
         <div
           id="home_table-search"
