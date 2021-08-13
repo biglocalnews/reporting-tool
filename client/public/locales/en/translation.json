@@ -26,6 +26,7 @@
   "searchTeamAndDataset": "Search team and dataset",
   "noResultsFound": "No results found",
   "showingNResults": "Showing {{nResults}} of {{total}} results",
+  "missingTeamParam": "Oops! We couldn't find the team name provided. Please refresh and try again.",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",

@@ -120,14 +120,14 @@ const Home = (): JSX.Element => {
     const alertSuffix = <Text strong>{teamNameURLParam}</Text>;
 
     const message = !teamNameURLParam ? (
-      <>Missing team parameter</>
+      <>{t("missingTeamParam")}</>
     ) : (
       <>
         {alertPrefix} {alertSuffix}
       </>
     );
 
-    const alertType = !teamNameURLParam ? "warning" : "info";
+    const alertType = !teamNameURLParam ? "error" : "info";
 
     return (
       <Alert
