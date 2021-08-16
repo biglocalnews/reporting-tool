@@ -123,7 +123,7 @@ const Home = (): JSX.Element => {
     const alertSuffix = <Text strong>{teamNameURLParam}</Text>;
 
     const message = !teamNameURLParam ? (
-      <>{t("missingTeamParam")}</>
+      t("missingTeamParam")
     ) : (
       <>
         {alertPrefix} {alertSuffix}
