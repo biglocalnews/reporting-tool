@@ -83,13 +83,18 @@ const Home = (): JSX.Element => {
   const { search } = useLocation();
   const teamNameURLParam = new URLSearchParams(search).get("team");
   useEffect(() => {
-    if (data && !search) {
-      // initializes all table data when no query param exists
+    if (!data) {
+      return;
+    }
+
+    // initializes all table data when no query param exists
+    if (!search) {
       setFilteredData(allTableData);
+      return;
     }
 
     // filters table data for team name query param
-    if (data && teamNameURLParam) {
+    if (teamNameURLParam) {
       const filter = allTableData.filter(({ team }) => {
         team = team.toLowerCase();
         return team.includes(teamNameURLParam.toLowerCase());
