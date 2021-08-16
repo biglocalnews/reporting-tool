@@ -1,4 +1,4 @@
-name: Build and Push BBC Reporting Tool Images to GCP
+name: Build Workflow
 
 on:
   push:
@@ -49,7 +49,6 @@ jobs:
         run: |
           gcloud auth configure-docker
 
-      # Check if each image needs to be pushed to its own gcr repo
       - name: Push API image to GCR's docker repo
         if: success()
         env:
