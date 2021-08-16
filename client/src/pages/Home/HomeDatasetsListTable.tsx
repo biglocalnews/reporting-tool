@@ -5,6 +5,7 @@ import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { theme } from "../../config";
 import { TableData } from "./Home";
 
 interface TableProps {
@@ -27,7 +28,7 @@ const HomeDatasetsListTable = ({
     teamNameFilterText && setSearchText(teamNameFilterText);
     return (
       <Highlighter
-        highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+        highlightStyle={{ backgroundColor: theme.highlight, padding: 0 }}
         searchWords={[searchText]}
         autoEscape
         textToHighlight={text}
@@ -60,9 +61,8 @@ const HomeDatasetsListTable = ({
 
   const renderTags = (tags: string[]) => {
     return tags.map((tag: string) => {
-      const color = "blue";
       return (
-        <Tag color={color} key={tag}>
+        <Tag color={theme.primaryBlue} key={tag}>
           {tag.toUpperCase()}
         </Tag>
       );
