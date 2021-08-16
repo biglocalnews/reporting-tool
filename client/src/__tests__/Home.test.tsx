@@ -47,7 +47,7 @@ test("should render home page datasets and formatted 'last updated' date", async
 
   await wait();
 
-  screen.getByText(/Search your programs/i);
+  screen.getAllByText(/Search team and dataset/i);
   screen.getByRole("table");
 
   const row = screen.getAllByRole("row")[1];
@@ -84,6 +84,74 @@ test("should render No Data Available Yet for 'last updated' date when no record
   expect(within(row).getAllByRole("cell")[2].textContent).toBe(
     "No Data Available Yet"
   );
+});
+
+test("should render filter alert box and no search bar when filtering by a search term ", async () => {
+  const hist = createMemoryHistory();
+
+  const { auth } = mockUserLoggedIn();
+  await auth.init();
+
+  const client = autoMockedClient();
+
+  render(
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={hist}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
+  );
+
+  // check for team found
+  const queryParamRoute = "/?team=BBC News";
+  hist.push(queryParamRoute);
+
+  await wait();
+
+  // search bar should not appear
+  expect(
+    screen.queryByText(/Search team and dataset/i)
+  ).not.toBeInTheDocument();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /user.homePage.showingDatasetsFor: BBC News/i
+  );
+
+  expect(screen.getByRole("button", { name: /user.homePage.showAllMy/i }));
+
+  // table should have header and two rows
+  expect(screen.getAllByRole("row")).toHaveLength(3);
+
+  // check alert box for team not found
+  const teamNotFound = "/?team=t";
+  hist.push(teamNotFound);
+
+  await wait();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /user.homePage.showingDatasetsFor: t/i
+  );
+
+  // table should have header and one row
+  expect(screen.getAllByRole("row")).toHaveLength(2);
+
+  // check alert box for team param value not found
+  const queryParamNotFound = "/?team=";
+  hist.push(queryParamNotFound);
+
+  await wait();
+
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Oops! We couldn't find the team name provided. Please refresh and try again/i
+  );
+
+  // table should have no data
+  expect(screen.getByRole("table")).toHaveTextContent(/No Data/i);
 });
 
 describe("accessibility", () => {

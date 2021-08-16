@@ -1,5 +1,6 @@
 import {
   BarChartOutlined,
+  DashboardOutlined,
   DatabaseOutlined,
   TableOutlined,
   TeamOutlined,
@@ -24,7 +25,7 @@ interface Dataset {
 /**
  * Sidebar content for normal (non-admin) users.
  */
-export const AppNormalUserSidebarMenu = () => {
+export const AppNormalUserSidebarMenu = (): JSX.Element => {
   const { t } = useTranslation();
   const userId = useAuth().getUserId();
 
@@ -50,10 +51,14 @@ export const AppNormalUserSidebarMenu = () => {
   return (
     <Menu
       mode="inline"
+      role="menubar"
       theme="light"
       defaultOpenKeys={["teams", "stats"]}
       style={{ height: "100%", borderRight: 0 }}
     >
+      <Menu.Item key="home" icon={<DashboardOutlined />}>
+        <Link to="/">{t("user.sidebar.home")}</Link>
+      </Menu.Item>
       <SubMenu
         key="teams"
         title={t("teamsSideBarTitle")}
@@ -63,16 +68,28 @@ export const AppNormalUserSidebarMenu = () => {
           <h1>Loading...</h1>
         ) : (
           sidebarPrograms?.map(
-            (program: { key: string; team: string; datasets: Dataset[] }) => {
+            (program: {
+              key: string;
+              team: string;
+              datasets: Array<Dataset>;
+            }) => {
               return (
-                <Menu.ItemGroup key={program.key} title={program.team}>
+                <Menu.ItemGroup
+                  key={program.key}
+                  title={
+                    <Link
+                      to={{
+                        pathname: `/`, // go to user homepage
+                        search: `?team=${encodeURIComponent(program.team)}`,
+                      }}
+                    >
+                      {program.team}
+                    </Link>
+                  }
+                >
                   {program.datasets.map((dataset) => (
                     <Menu.Item key={dataset.id}>
-                      <Link
-                        to={{
-                          pathname: `/dataset/${dataset.id}/details`,
-                        }}
-                      >
+                      <Link to={`/dataset/${dataset.id}/details`}>
                         {dataset.title}
                       </Link>
                     </Menu.Item>

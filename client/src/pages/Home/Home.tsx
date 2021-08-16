@@ -1,15 +1,12 @@
-import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Space, Table, Tag } from "antd";
-import { ColumnsType } from "antd/lib/table";
+import { Alert, Button, Typography } from "antd";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 import { ErrorFallback } from "../../components/Error/ErrorFallback";
-import { Loading } from "../../components/Loading/Loading";
 import {
   AllDatasets,
   AllDatasets_teams,
@@ -17,9 +14,12 @@ import {
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { HomeDatasetsListTable } from "./HomeDatasetsListTable";
 import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
 
 dayjs.extend(localizedFormat);
+
+const { Text } = Typography;
 
 export interface TableData {
   id: string;
@@ -27,82 +27,19 @@ export interface TableData {
   dataset: string;
   lastUpdated: string;
   tags: Array<string>;
+  [key: string]: string | Array<string>;
 }
 
-const columns: ColumnsType<TableData> = [
-  {
-    title: "Team",
-    dataIndex: "team",
-    key: "team",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.team.localeCompare(b.team),
-  },
-  {
-    title: "Dataset",
-    dataIndex: "dataset",
-    key: "dataset",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.dataset.localeCompare(b.dataset),
-  },
-  {
-    title: "Last Updated",
-    dataIndex: "lastUpdated",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    width: 250,
-    render: (tags: string[]) => {
-      return tags.map((tag: string) => {
-        const color = "blue";
-        return (
-          // TODO: Create component to link tags to datasets with the same tags
-          <Tag color={color} key={tag}>
-            {tag.toUpperCase()}
-          </Tag>
-        );
-      });
-    },
-  },
-  {
-    dataIndex: "id",
-    width: 250,
-    render: function btn(datasetId: string) {
-      return (
-        <Space>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/entry`,
-            }}
-          >
-            <Button type="primary" icon={<PlusOutlined />}>
-              Add Data
-            </Button>
-          </Link>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/details`,
-            }}
-          >
-            <Button icon={<InfoCircleOutlined />}>View Details</Button>
-          </Link>
-        </Space>
-      );
-    },
-  },
-];
-
 const getTableData = (
-  queryData: AllDatasets_teams[],
+  queryData: Array<AllDatasets_teams>,
   t: TFunction<"translation">
 ) => {
-  const rowData: Array<TableData> = [];
+  const rowTableData: Array<TableData> = [];
 
   queryData.map((team) => {
     return team.programs.map((program) => {
       program.datasets.map((dataset) => {
-        rowData.push({
+        rowTableData.push({
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
@@ -117,13 +54,15 @@ const getTableData = (
     });
   });
 
-  return rowData;
+  return rowTableData;
 };
 
 const Home = (): JSX.Element => {
   const { t } = useTranslation();
   const auth = useAuth();
   const userId = auth.getUserId();
+
+  const history = useHistory();
 
   const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
     GET_USER,
@@ -135,53 +74,110 @@ const Home = (): JSX.Element => {
     skip: !auth.isAdmin(),
   });
 
-  const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
+  const originalTeamData = allTeams?.data?.teams || data?.user.teams || [];
+  const allTableData = getTableData(originalTeamData.slice(), t);
+  const [filteredData, setFilteredData] =
+    useState<Array<TableData>>(allTableData);
 
-  const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
-  const rowData = getTableData(originalTeamData.slice(), t);
+  // Searches table for team name if selected from user sidebar
+  const { search } = useLocation();
+  const teamNameURLParam = new URLSearchParams(search).get("team");
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    // initializes all table data when no query param exists
+    if (!search) {
+      setFilteredData(allTableData);
+      return;
+    }
+
+    // filters table data for team name query param
+    if (teamNameURLParam) {
+      const filter = allTableData.filter(({ team }) => {
+        team = team.toLowerCase();
+        return team.includes(teamNameURLParam.toLowerCase());
+      });
+      setFilteredData(filter);
+    }
+  }, [data, search, teamNameURLParam]);
 
   // Filters datasets table by search term
-  const handleTableSearchFilter = (searchText: string) => {
-    const data = [...rowData];
+  const handleTableSearchFilteredData = (searchText: string) => {
+    const text = searchText.toLowerCase();
+    const data = [...allTableData];
     const filteredData = data.filter(({ team, dataset }) => {
       team = team.toLowerCase();
       dataset = dataset.toLowerCase();
-      return team.includes(searchText) || dataset.includes(searchText);
+      return team.includes(text) || dataset.includes(text);
     });
 
     setFilteredData(filteredData);
   };
 
-  if (error) return <ErrorFallback error={error} />;
+  const renderFilterAlert = (): JSX.Element => {
+    const alertPrefix = `${t("user.homePage.showingDatasetsFor", {
+      term: "team",
+    })}: `;
+    const alertSuffix = <Text strong>{teamNameURLParam}</Text>;
+
+    const message = !teamNameURLParam ? (
+      t("missingTeamParam")
+    ) : (
+      <>
+        {alertPrefix} {alertSuffix}
+      </>
+    );
+
+    const alertType = !teamNameURLParam ? "error" : "info";
+
+    return (
+      <Alert
+        style={{ margin: "1rem 0rem" }}
+        message={message}
+        type={alertType}
+        action={
+          <Button
+            style={{ margin: ".5rem 0rem" }}
+            size="small"
+            type="primary"
+            onClick={() => history.push("/")}
+          >
+            {t("user.homePage.showAllMy", {
+              term: "Teams",
+            })}
+          </Button>
+        }
+      />
+    );
+  };
+
+  if (!data && error) return <ErrorFallback error={error} />;
 
   return (
     <>
-      {loading ? (
-        <Loading />
+      {search ? (
+        renderFilterAlert()
       ) : (
-        <div>
-          <div
-            id="home_table-search"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "1rem",
-            }}
-          >
-            <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
-          </div>
-          <Table
-            dataSource={filteredData.length > 0 ? filteredData : rowData}
-            columns={columns}
-            rowKey={(dataset) => dataset.id}
-            footer={() =>
-              filteredData.length > 0
-                ? `Showing ${filteredData.length} of ${rowData.length} results`
-                : `Showing ${rowData.length} of ${rowData.length} results`
-            }
-          />
+        <div
+          id="home_table-search"
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "1rem",
+          }}
+        >
+          <HomeSearchAutoComplete onSearch={handleTableSearchFilteredData} />
         </div>
       )}
+
+      <HomeDatasetsListTable
+        loading={loading}
+        tableData={filteredData}
+        totalDatasets={allTableData.length}
+        teamNameFilterText={teamNameURLParam}
+      />
     </>
   );
 };

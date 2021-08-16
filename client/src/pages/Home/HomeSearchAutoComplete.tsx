@@ -12,17 +12,24 @@ const HomeSearchAutoComplete = ({
   onSearch,
 }: AutoCompleteProps): JSX.Element => {
   const { t } = useTranslation();
+  const searchBarLabel = t("searchTeamAndDataset");
 
   return (
-    <AutoComplete
-      style={{ width: 300 }}
-      aria-label="Search"
-      placeholder={`Search your ${t("program")}s`}
-      aria-expanded="false"
-      onSearch={onSearch}
-    >
-      <Search allowClear />
-    </AutoComplete>
+    <>
+      <label htmlFor="Search">
+        <span className="visually-hidden">{searchBarLabel}</span>
+      </label>
+      <AutoComplete
+        style={{ width: 300 }}
+        id="Search"
+        aria-label="Search"
+        placeholder={searchBarLabel}
+        aria-expanded="false"
+        onSearch={onSearch}
+      >
+        <Search allowClear />
+      </AutoComplete>
+    </>
   );
 };
 
