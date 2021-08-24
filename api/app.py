@@ -188,7 +188,9 @@ async def acs(request: Request, status_code=200):
                 dbsession = request.scope.get("dbsession")
                 if not dbsession:
                     return "No db session found"
-                user = dbsession.query(User).get_by_username(auth.get_nameid())
+                user = User.get_by_username(
+                    session=dbsession, username=auth.get_nameid()
+                )
                 if not user:
                     new_id = uuid4()
                     user = User(
