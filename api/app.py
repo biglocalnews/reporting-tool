@@ -188,12 +188,12 @@ async def acs(request: Request, status_code=200):
                 dbsession = request.scope.get("dbsession")
                 if not dbsession:
                     return "No db session found"
-                user = User.get_by_username(
+                bbc_user = User.get_by_username(
                     session=dbsession, username=auth.get_nameid()
                 )
-                if not user:
+                if not bbc_user:
                     new_id = uuid4()
-                    user = User(
+                    bbc_user = User(
                         id=new_id,
                         username=bbc_username,
                         email=samlUserdata["email"],
@@ -203,7 +203,7 @@ async def acs(request: Request, status_code=200):
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
-                    dbsession.add(user)
+                    dbsession.add(bbc_user)
                     dbsession.commit()
                 redirect_url = (
                     req["post_data"]["RelayState"]
@@ -214,7 +214,7 @@ async def acs(request: Request, status_code=200):
                 response.set_cookie(
                     key="rtauth",
                     value=user.get_valid_token(
-                        "fastapi-users:auth", user_id=str(user["id"])
+                        "fastapi-users:auth", user_id=str(bbc_user["id"])
                     ),
                 )
                 return response
