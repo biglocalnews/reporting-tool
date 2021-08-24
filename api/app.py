@@ -212,6 +212,7 @@ async def acs(request: Request, status_code=200):
                     else "/"
                 )
                 response = RedirectResponse(url="/")
+                print(str(bbc_user.id))
                 response.set_cookie(
                     key="rtauth",
                     value=user.get_valid_token(
