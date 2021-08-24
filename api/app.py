@@ -1,7 +1,9 @@
 import json
 from logging import debug
+from uuid import uuid4
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
+from requests.sessions import session
 from starlette.responses import RedirectResponse
 import uvicorn
 import databases
@@ -31,7 +33,6 @@ import user
 import directives
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
-from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 
 app = FastAPI(
     debug=settings.debug,
@@ -132,7 +133,7 @@ def init_saml_auth(req):
     # idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
     # idp_data["sp"]["assertionConsumerService"] = {}
     # idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
-    with open("saml_settings.stage.json", "r") as saml_settings:
+    with open("saml_settings.dev.json", "r") as saml_settings:
         idp_data = json.loads(saml_settings.read())
     return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
 
@@ -181,18 +182,40 @@ async def acs(request: Request, status_code=200):
         errors = auth.get_errors()
         if not errors:
             if auth.is_authenticated():
-                print(auth.get_nameid())
+                bbc_username = auth.get_nameid()
+                print(f"{bbc_username} successfully authenticated")
                 samlUserdata = auth.get_attributes()
-                for k, v in samlUserdata.items():
-                    print(f"{k}: {v}")
-                if (
-                    "RelayState" in req["post_data"]
-                    and OneLogin_Saml2_Utils.get_self_url(req)
-                    != req["post_data"]["RelayState"]
-                ):
-                    print(
-                        f'redirect: {auth.redirect_to(req["post_data"]["RelayState"])}'
+                dbsession = request.scope.get("dbsession")
+                if not dbsession:
+                    return "No db session found"
+                user = dbsession.query(User).get_by_username(auth.get_nameid())
+                if not user:
+                    new_id = uuid4()
+                    user = User(
+                        id=new_id,
+                        username=bbc_username,
+                        email=samlUserdata["email"],
+                        hashed_password=uuid4(),
+                        first_name=samlUserdata["bbcPreferredName"],
+                        last_name=samlUserdata["bbcLastName"],
+                        last_changed_password=datetime.datetime.now(),
+                        last_login=datetime.datetime.now(),
                     )
+                    dbsession.add(user)
+                    dbsession.commit()
+                redirect_url = (
+                    req["post_data"]["RelayState"]
+                    if "RelayState" in req["post_data"]
+                    else "/"
+                )
+                response = RedirectResponse(url="/")
+                response.set_cookie(
+                    key="rtauth",
+                    value=user.get_valid_token(
+                        "fastapi-users:auth", user_id=str(user["id"])
+                    ),
+                )
+                return response
             else:
                 print("Not authenticated")
         else:

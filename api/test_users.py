@@ -1,3 +1,4 @@
+import datetime
 from database import connection, User, Role
 from settings import settings
 
@@ -16,7 +17,7 @@ def run():
     def hash_test_password(pw: str) -> str:
         # NOTE: Use consistent salt and rounds to eliminate non-determinism in
         # testing. This is obviously not intended to be secure.
-        return bcrypt.hash(pw, salt="0" * 22, rounds=4)
+        return bcrypt.normhash(pw)
 
     print("👩🏽‍💻 Adding test users ...")
     lara_id = "54bdbbef-9294-4ed9-8cd4-592b53e01391"
@@ -25,9 +26,12 @@ def run():
         lara = User(
             id=lara_id,
             email="laratester@test.com",
+            username="laratester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Lara",
             last_name="Joannides",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         session.add(lara)
 
@@ -38,9 +42,12 @@ def run():
         lara_admin = User(
             id=lara_admin_id,
             email="laraadmintester@test.com",
+            username="laraadmintester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Lara",
             last_name="Joannides",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
         lara_admin.roles.append(admin)
@@ -52,9 +59,12 @@ def run():
         susanne = User(
             id=susanne_id,
             email="susannetester@test.com",
+            username="susannetester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Susanne",
             last_name="Weber",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         session.add(susanne)
 
@@ -65,9 +75,12 @@ def run():
         susanne_admin = User(
             id=susanne_admin_id,
             email="susanneadmintester@test.com",
+            username="susanneadmintester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Susanne",
             last_name="Weber",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
         susanne_admin.roles.append(admin)
@@ -79,9 +92,12 @@ def run():
         yasmin = User(
             id=yasmin_id,
             email="yasmintester@test.com",
+            username="yasmintester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Yasmin",
             last_name="Khan",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         session.add(yasmin)
 
@@ -92,9 +108,12 @@ def run():
         yasmin_admin = User(
             id=yasmin_admin_id,
             email="yasminadmintester@test.com",
+            username="yasminadmintester@test.com",
             hashed_password=hash_test_password("password"),
             first_name="Yasmin",
             last_name="Khan",
+            last_changed_password=datetime.datetime.now(),
+            last_login=datetime.datetime.now(),
         )
         admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
         yasmin_admin.roles.append(admin)
