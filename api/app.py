@@ -214,7 +214,7 @@ async def acs(request: Request, status_code=200):
                 response.set_cookie(
                     key="rtauth",
                     value=user.get_valid_token(
-                        "fastapi-users:auth", user_id=str(bbc_user["id"])
+                        "fastapi-users:auth", user_id=str(bbc_user.id)
                     ),
                 )
                 return response
