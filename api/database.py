@@ -819,7 +819,7 @@ def create_dummy_data(session):
     def hash_test_password(pw: str) -> str:
         # NOTE: Use consistent salt and rounds to eliminate non-determinism in
         # testing. This is obviously not intended to be secure.
-        return bcrypt.normhash(pw, salt="0" * 22, rounds=4)
+        return bcrypt.normhash(pw)
 
     print("👩🏽‍💻 Adding dummy data ...")
     user = User(
