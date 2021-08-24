@@ -203,6 +203,7 @@ async def acs(request: Request, status_code=200):
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
+                    print(bbc_user)
                     dbsession.add(bbc_user)
                     dbsession.commit()
                 redirect_url = (
