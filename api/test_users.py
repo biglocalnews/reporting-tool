@@ -17,7 +17,7 @@ def run():
     def hash_test_password(pw: str) -> str:
         # NOTE: Use consistent salt and rounds to eliminate non-determinism in
         # testing. This is obviously not intended to be secure.
-        return bcrypt.normhash(pw)
+        return bcrypt.hash(pw, salt="0" * 22, rounds=4)
 
     print("👩🏽‍💻 Adding test users ...")
     lara_id = "54bdbbef-9294-4ed9-8cd4-592b53e01391"

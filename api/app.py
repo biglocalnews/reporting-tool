@@ -133,7 +133,7 @@ def init_saml_auth(req):
     # idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
     # idp_data["sp"]["assertionConsumerService"] = {}
     # idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
-    with open("saml_settings.dev.json", "r") as saml_settings:
+    with open("saml_settings.stage.json", "r") as saml_settings:
         idp_data = json.loads(saml_settings.read())
     return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
 
