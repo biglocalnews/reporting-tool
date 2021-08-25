@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Redirect, Route, RouteComponentProps, Switch } from "react-router-dom";
+import { Route, RouteComponentProps, Switch } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { ErrorBoundary } from "../components/Error/ErrorBoundary";
@@ -112,12 +112,13 @@ export function RenderRoutes({
         </ErrorBoundary>
       </Container>
     ) : (
-      <Redirect
-        to={{
-          pathname: "/api/bbc-login",
-          state: { from: props.location },
-        }}
-      />
+      <React.Fragment>
+        {() =>
+          window.location.assign(
+            `/api/bbc-login?RelayState=${props.location.pathname}`
+          )
+        }
+      </React.Fragment>
     );
 
   // Additional routes that only authed admins can visit.
@@ -137,9 +138,13 @@ export function RenderRoutes({
         </ErrorBoundary>
       </Container>
     ) : (
-      <Redirect
-        to={{ pathname: "/api/bbc-login", state: { from: props.location } }}
-      />
+      <React.Fragment>
+        {() =>
+          window.location.assign(
+            `/api/bbc-login?RelayState=${props.location.pathname}`
+          )
+        }
+      </React.Fragment>
     );
 
   return (
@@ -153,6 +158,7 @@ export function RenderRoutes({
           () => import("../pages/ResetAccountPassword/ResetAccountPassword")
         )}
       />
+
       <Route path="/admin/" component={WrappedPrivateAdmin} />
       <Route path="/" component={WrappedPrivate} />
     </Switch>

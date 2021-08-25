@@ -192,8 +192,8 @@ async def acs(request: Request, status_code=200):
                 auth.get_last_error_reason(),
             )
 
-        if auth.is_authenticated():
-            return "Not authenticated"
+        if not auth.is_authenticated():
+            raise HTTPException(status_code=401, detail="Not authenticated")
 
         bbc_username = auth.get_nameid().lower()
         print(f"{bbc_username} successfully authenticated")
@@ -204,7 +204,7 @@ async def acs(request: Request, status_code=200):
             or not "bbcPreferredName" in samlUserdata
             or not "bbcLastName" in samlUserdata
         ):
-            return "Saml reponse does not contain all the expected attributes"
+            raise HTTPException(status_code=500, detail="Unexpected SAML response")
 
         bbc_email = (
             samlUserdata["email"][0]
@@ -223,7 +223,7 @@ async def acs(request: Request, status_code=200):
         dbsession = request.scope.get("dbsession")
 
         if not dbsession:
-            return "No db session found"
+            raise HTTPException(status_code=500, detail="No dbsession found")
 
         bbc_db_user = User.get_by_username(session=dbsession, username=bbc_username)
 
