@@ -10,7 +10,7 @@ import databases
 import sqlalchemy
 import datetime
 
-from fastapi import FastAPI, Request, Depends, HTTPException, Response
+from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 import dateutil.parser
@@ -206,27 +206,51 @@ async def acs(request: Request, status_code=200):
                 bbc_user = User.get_by_username(
                     session=dbsession, username=auth.get_nameid()
                 )
+
+                if (
+                    not "email" in samlUserdata
+                    or not "bbcPreferredName" in samlUserdata
+                    or not "bbcLastName" in samlUserdata
+                ):
+                    return "Saml reponse does not contain all the expected attributes"
+
+                bbc_email = (
+                    samlUserdata["email"][0]
+                    if samlUserdata["email"]
+                    else "niprodops@bbc.co.uk"
+                )
+                bbc_preferred_name = (
+                    samlUserdata["bbcPreferredName"][0]
+                    if samlUserdata["bbcPreferredName"]
+                    else "?"
+                )
+                bbc_last_name = (
+                    samlUserdata["bbcLastName"][0]
+                    if samlUserdata["bbcLastName"]
+                    else "?"
+                )
                 if not bbc_user:
                     new_id = uuid4()
                     bbc_user = User(
                         id=new_id,
                         username=bbc_username,
-                        email=samlUserdata["email"][0],
+                        email=bbc_email,
                         hashed_password=uuid4(),
-                        first_name=samlUserdata["bbcPreferredName"][0],
-                        last_name=samlUserdata["bbcLastName"][0],
+                        first_name=bbc_preferred_name,
+                        last_name=bbc_last_name,
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
                     dbsession.add(bbc_user)
                     dbsession.commit()
-                    dbsession.close()
                 redirect_url = (
                     req["post_data"]["RelayState"]
                     if "RelayState" in req["post_data"]
                     else "/"
                 )
-                response = RedirectResponse(url="/")
+                response = RedirectResponse(
+                    url="/", status_code=status.HTTP_303_SEE_OTHER
+                )
                 print(str(bbc_user.id))
                 response.set_cookie(
                     key="rtauth",
@@ -234,6 +258,7 @@ async def acs(request: Request, status_code=200):
                         "fastapi-users:auth", user_id=str(bbc_user.id)
                     ),
                 )
+                dbsession.close()
                 return response
             else:
                 return "Not authenticated"
