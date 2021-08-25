@@ -180,89 +180,92 @@ async def acs(request: Request, status_code=200):
             request.query_params,
             form,
         )
+
         auth = init_saml_auth(req)
         auth.process_response()
+
         errors = auth.get_errors()
-        if not errors:
-            if auth.is_authenticated():
-                bbc_username = auth.get_nameid().lower()
-                print(f"{bbc_username} successfully authenticated")
-                samlUserdata = auth.get_attributes()
-                dbsession = request.scope.get("dbsession")
-                if not dbsession:
-                    return "No db session found"
-                bbc_user = User.get_by_username(
-                    session=dbsession, username=bbc_username
-                )
 
-                if (
-                    not "email" in samlUserdata
-                    or not "bbcPreferredName" in samlUserdata
-                    or not "bbcLastName" in samlUserdata
-                ):
-                    return "Saml reponse does not contain all the expected attributes"
-
-                bbc_email = (
-                    samlUserdata["email"][0]
-                    if samlUserdata["email"]
-                    else f"{bbc_username}@onebbc.mail.onmicrosoft.com"
-                )
-                bbc_preferred_name = (
-                    samlUserdata["bbcPreferredName"][0]
-                    if samlUserdata["bbcPreferredName"]
-                    else bbc_username
-                )
-                bbc_last_name = (
-                    samlUserdata["bbcLastName"][0]
-                    if samlUserdata["bbcLastName"]
-                    else ""
-                )
-                if not bbc_user:
-                    new_id = uuid4()
-                    bbc_user = User(
-                        id=new_id,
-                        username=bbc_username,
-                        email=bbc_email,
-                        hashed_password=uuid4(),
-                        first_name=bbc_preferred_name,
-                        last_name=bbc_last_name,
-                        last_changed_password=datetime.datetime.now(),
-                        last_login=datetime.datetime.now(),
-                    )
-                    if bbc_username in seed_admins:
-                        admin = dbsession.query(Role).get(
-                            "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
-                        )
-                        bbc_user.roles.append(admin)
-                    dbsession.add(bbc_user)
-                    dbsession.commit()
-                redirect_url = (
-                    req["post_data"]["RelayState"]
-                    if "RelayState" in req["post_data"]
-                    else "/"
-                )
-                response = RedirectResponse(
-                    url="/", status_code=status.HTTP_303_SEE_OTHER
-                )
-                print(str(bbc_user.id))
-                response.set_cookie(
-                    key="rtauth",
-                    value=user.get_valid_token(
-                        "fastapi-users:auth", user_id=str(bbc_user.id)
-                    ),
-                )
-                dbsession.close()
-                return response
-            else:
-                return "Not authenticated"
-        else:
+        if errors:
             return "Error when processing SAML Response: %s %s" % (
                 ", ".join(errors),
                 auth.get_last_error_reason(),
             )
-    except Exception as err:
-        print(err)
-        return err
+
+        if auth.is_authenticated():
+            return "Not authenticated"
+
+        bbc_username = auth.get_nameid().lower()
+        print(f"{bbc_username} successfully authenticated")
+        samlUserdata = auth.get_attributes()
+
+        if (
+            not "email" in samlUserdata
+            or not "bbcPreferredName" in samlUserdata
+            or not "bbcLastName" in samlUserdata
+        ):
+            return "Saml reponse does not contain all the expected attributes"
+
+        bbc_email = (
+            samlUserdata["email"][0]
+            if samlUserdata["email"]
+            else f"{bbc_username}@onebbc.mail.onmicrosoft.com"
+        )
+        bbc_preferred_name = (
+            samlUserdata["bbcPreferredName"][0]
+            if samlUserdata["bbcPreferredName"]
+            else bbc_username
+        )
+        bbc_last_name = (
+            samlUserdata["bbcLastName"][0] if samlUserdata["bbcLastName"] else ""
+        )
+
+        dbsession = request.scope.get("dbsession")
+
+        if not dbsession:
+            return "No db session found"
+
+        bbc_db_user = User.get_by_username(session=dbsession, username=bbc_username)
+
+        if not bbc_db_user:
+            new_id = uuid4()
+            bbc_db_user = User(
+                id=new_id,
+                username=bbc_username,
+                email=bbc_email,
+                hashed_password=uuid4(),
+                first_name=bbc_preferred_name,
+                last_name=bbc_last_name,
+                last_changed_password=datetime.datetime.now(),
+                last_login=datetime.datetime.now(),
+            )
+            if bbc_username in seed_admins:
+                admin = dbsession.query(Role).get(
+                    "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
+                )
+                bbc_db_user.roles.append(admin)
+            dbsession.add(bbc_db_user)
+            dbsession.commit()
+        # redirect_url = (
+        #    req["post_data"]["RelayState"] if "RelayState" in req["post_data"] else "/"
+        # )
+        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        print(str(bbc_db_user.id))
+        response.set_cookie(
+            key="rtauth",
+            value=user.get_valid_token(
+                "fastapi-users:auth", user_id=str(bbc_db_user.id)
+            ),
+        )
+        dbsession.close()
+        return response
+
+    except Exception as e:
+        print(e)
+        if hasattr(e, "message"):
+            raise HTTPException(status_code=500, detail=e.message)
+        else:
+            raise HTTPException(status_code=500, detail="Unknown error occurred")
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

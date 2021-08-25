@@ -114,7 +114,7 @@ export function RenderRoutes({
     ) : (
       <Redirect
         to={{
-          pathname: "/login",
+          pathname: "/api/bbc-login",
           state: { from: props.location },
         }}
       />
@@ -137,7 +137,9 @@ export function RenderRoutes({
         </ErrorBoundary>
       </Container>
     ) : (
-      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
+      <Redirect
+        to={{ pathname: "/api/bbc-login", state: { from: props.location } }}
+      />
     );
 
   return (
