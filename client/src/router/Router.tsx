@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Route, RouteComponentProps, Switch } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
@@ -71,6 +71,14 @@ export type RenderRoutesProps = {
   protectedContainer: React.ComponentType;
 };
 
+function Redirecter(props: { from: string }) {
+  useEffect(() => {
+    console.log(props.from);
+    window.location.href = `/api/bbc-login`;
+  });
+  return <React.Fragment />;
+}
+
 /**
  * Component to render the react router DOM.
  *
@@ -112,13 +120,7 @@ export function RenderRoutes({
         </ErrorBoundary>
       </Container>
     ) : (
-      <React.Fragment>
-        {() =>
-          window.location.assign(
-            `/api/bbc-login?RelayState=${props.location.pathname}`
-          )
-        }
-      </React.Fragment>
+      <Redirecter from={props.location.pathname} />
     );
 
   // Additional routes that only authed admins can visit.
@@ -138,13 +140,7 @@ export function RenderRoutes({
         </ErrorBoundary>
       </Container>
     ) : (
-      <React.Fragment>
-        {() =>
-          window.location.assign(
-            `/api/bbc-login?RelayState=${props.location.pathname}`
-          )
-        }
-      </React.Fragment>
+      <Redirecter from={props.location.pathname} />
     );
 
   return (
