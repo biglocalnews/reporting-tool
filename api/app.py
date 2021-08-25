@@ -205,17 +205,17 @@ async def acs(request: Request, status_code=200):
                 bbc_email = (
                     samlUserdata["email"][0]
                     if samlUserdata["email"]
-                    else "niprodops@bbc.co.uk"
+                    else f"{bbc_username}@onebbc.mail.onmicrosoft.com"
                 )
                 bbc_preferred_name = (
                     samlUserdata["bbcPreferredName"][0]
                     if samlUserdata["bbcPreferredName"]
-                    else "?"
+                    else bbc_username
                 )
                 bbc_last_name = (
                     samlUserdata["bbcLastName"][0]
                     if samlUserdata["bbcLastName"]
-                    else "?"
+                    else ""
                 )
                 if not bbc_user:
                     new_id = uuid4()
