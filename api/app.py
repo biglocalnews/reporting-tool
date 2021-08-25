@@ -24,7 +24,7 @@ from ariadne import (
 )
 from ariadne.asgi import GraphQL
 
-from database import connection, User, is_blank_slate
+from database import connection, User, is_blank_slate, Role
 from queries import queries
 from mutations import mutation
 from settings import settings
@@ -153,6 +153,9 @@ def build_saml_req(host, path, query_params, post_data):
     }
 
 
+seed_admins = ["ni-sog-rco", "joannl01", "webers02", "lismoc01", "ni-sog-cb", "khany88"]
+
+
 @app.get("/bbc-login")
 async def bbc_login(request: Request):
     form = await request.form()
@@ -165,21 +168,6 @@ async def bbc_login(request: Request):
     auth = init_saml_auth(req)
     redirect = auth.login()
     return RedirectResponse(redirect)
-
-
-@app.get("/test")
-async def token_test(request: Request, status_code=200):
-    dbsession = request.scope.get("dbsession")
-    if not dbsession:
-        return "No db session found"
-    bbc_user = User.get_by_username(session=dbsession, username="laratester@test.com")
-    response = RedirectResponse(url="/")
-    print(str(bbc_user.id))
-    response.set_cookie(
-        key="rtauth",
-        value=user.get_valid_token("fastapi-users:auth", user_id=str(bbc_user.id)),
-    )
-    return response
 
 
 @app.post("/acs")
@@ -197,14 +185,14 @@ async def acs(request: Request, status_code=200):
         errors = auth.get_errors()
         if not errors:
             if auth.is_authenticated():
-                bbc_username = auth.get_nameid()
+                bbc_username = auth.get_nameid().lower()
                 print(f"{bbc_username} successfully authenticated")
                 samlUserdata = auth.get_attributes()
                 dbsession = request.scope.get("dbsession")
                 if not dbsession:
                     return "No db session found"
                 bbc_user = User.get_by_username(
-                    session=dbsession, username=auth.get_nameid()
+                    session=dbsession, username=bbc_username
                 )
 
                 if (
@@ -241,6 +229,11 @@ async def acs(request: Request, status_code=200):
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
+                    if bbc_username in seed_admins:
+                        admin = dbsession.query(Role).get(
+                            "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
+                        )
+                        bbc_user.roles.append(admin)
                     dbsession.add(bbc_user)
                     dbsession.commit()
                 redirect_url = (
