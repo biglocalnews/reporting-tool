@@ -153,7 +153,7 @@ def build_saml_req(host, path, query_params, post_data):
     }
 
 
-seed_admins = ["ni-sog-rco", "joannl01", "webers02", "lismoc01", "ni-sog-cb", "khany88"]
+seed_admins = ["cobair01", "joannl01", "webers02", "lismoc01", "brownc09", "khany88"]
 
 
 @app.get("/bbc-login")
