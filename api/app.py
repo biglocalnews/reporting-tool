@@ -167,6 +167,21 @@ async def bbc_login(request: Request):
     return RedirectResponse(redirect)
 
 
+@app.get("/test")
+async def token_test(request: Request, status_code=200):
+    dbsession = request.scope.get("dbsession")
+    if not dbsession:
+        return "No db session found"
+    bbc_user = User.get_by_username(session=dbsession, username="laratester@test.com")
+    response = RedirectResponse(url="/")
+    print(str(bbc_user.id))
+    response.set_cookie(
+        key="rtauth",
+        value=user.get_valid_token("fastapi-users:auth", user_id=str(bbc_user.id)),
+    )
+    return response
+
+
 @app.post("/acs")
 async def acs(request: Request, status_code=200):
     try:
@@ -196,16 +211,16 @@ async def acs(request: Request, status_code=200):
                     bbc_user = User(
                         id=new_id,
                         username=bbc_username,
-                        email=samlUserdata["email"],
+                        email=str(samlUserdata["email"]),
                         hashed_password=uuid4(),
-                        first_name=samlUserdata["bbcPreferredName"],
-                        last_name=samlUserdata["bbcLastName"],
+                        first_name=str(samlUserdata["bbcPreferredName"]),
+                        last_name=str(samlUserdata["bbcLastName"]),
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
-                    print(bbc_user)
                     dbsession.add(bbc_user)
                     dbsession.commit()
+                    dbsession.close()
                 redirect_url = (
                     req["post_data"]["RelayState"]
                     if "RelayState" in req["post_data"]
@@ -221,16 +236,15 @@ async def acs(request: Request, status_code=200):
                 )
                 return response
             else:
-                print("Not authenticated")
+                return "Not authenticated"
         else:
-            print(
-                "Error when processing SAML Response: %s %s"
-                % (", ".join(errors), auth.get_last_error_reason())
+            return "Error when processing SAML Response: %s %s" % (
+                ", ".join(errors),
+                auth.get_last_error_reason(),
             )
     except Exception as err:
         print(err)
-
-    return {}
+        return err
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

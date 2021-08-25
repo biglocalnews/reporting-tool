@@ -268,7 +268,7 @@ class User(Base, SQLAlchemyBaseUserTable):
                 User.username == username,
                 User.deleted == None,
             )
-            .first()
+            .one_or_none()
         )
 
     @classmethod
