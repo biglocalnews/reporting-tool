@@ -211,10 +211,10 @@ async def acs(request: Request, status_code=200):
                     bbc_user = User(
                         id=new_id,
                         username=bbc_username,
-                        email=str(samlUserdata["email"]),
+                        email=samlUserdata["email"][0],
                         hashed_password=uuid4(),
-                        first_name=str(samlUserdata["bbcPreferredName"]),
-                        last_name=str(samlUserdata["bbcLastName"]),
+                        first_name=samlUserdata["bbcPreferredName"][0],
+                        last_name=samlUserdata["bbcLastName"][0],
                         last_changed_password=datetime.datetime.now(),
                         last_login=datetime.datetime.now(),
                     )
