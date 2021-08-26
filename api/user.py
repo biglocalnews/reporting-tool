@@ -239,7 +239,7 @@ user_db = SQLAlchemyORMUserDatabase(database.connection)
 # remove cookie_secure=False later for production
 cookie_authentication = CookieAuthentication(
     secret=settings.secret,
-    lifetime_seconds=3600,
+    lifetime_seconds=1209600,
     cookie_secure=settings.use_secure_cookies,
     cookie_name="rtauth",
 )
