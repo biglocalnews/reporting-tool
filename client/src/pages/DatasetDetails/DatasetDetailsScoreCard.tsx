@@ -1,133 +1,68 @@
-import { Pie, PieConfig } from "@ant-design/charts";
-import { Card, Col, Row } from "antd";
-import _ from "lodash";
-import {
-  GetDataset,
-  GetDataset_dataset_sumOfCategoryValueCounts_categoryValue,
-} from "../../graphql/__generated__/GetDataset";
+import { Column, ColumnConfig } from "@ant-design/charts";
+import { Tabs } from "antd";
+import { GetDataset } from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
+
+const { TabPane } = Tabs;
 
 interface ScoreCardProps {
   data: GetDataset | undefined;
   datasetId: string;
 }
 
-type Attribute = {
-  id?: string;
-  __typename: string;
-  sumOfCounts?: number;
-  categoryValue: GetDataset_dataset_sumOfCategoryValueCounts_categoryValue;
-  target?: string;
+type ColStat = {
+  date: string;
+  count: number;
+  attribute: string;
 };
 
-type CategoryGroup = {
-  category: string;
-  attributes: Array<Attribute>;
-};
-
-/**
- * Function takes the targets and the sum of the counts for a
- * category value (e.g. non-binary) and groups them by category (e.g. gender)
- * @param data Dataset query result object
- */
-const getDatasetStatsByCategory = (data: GetDataset | undefined) => {
-  const sumOfCounts = data?.dataset.sumOfCategoryValueCounts;
-  const targets = data?.dataset.program.targets;
-
-  const map = new Map();
-  sumOfCounts &&
-    sumOfCounts?.forEach((item) => map.set(item.categoryValue.id, item));
-  targets &&
-    targets?.forEach((item) =>
-      map.set(item.categoryValue.id, {
-        ...map.get(item.categoryValue.id),
-        ...item,
-      })
-    );
-
-  const mergedArr = Array.from(map.values()) as Array<Attribute>;
-  const result = _(mergedArr)
-    .groupBy((obj) => obj.categoryValue.category.name)
-    .map((attributes, category) => ({ category, attributes }))
-    .value() as Array<CategoryGroup>;
-
-  return result;
-};
-
-/**
- * Function maps the category group data to a type and value object
- * for rendering data in ant design pie chart
- * @param data single category group object with records by category value
- */
-const getCategoryGroupChartData = (data: CategoryGroup) => {
-  type StatisticDataType = {
-    type: string;
-    value: number;
-  };
-
-  const chart: Array<StatisticDataType> = [];
-  data.attributes.map((attribute) =>
-    chart.push({
-      type: attribute.categoryValue.name,
-      value: Number(attribute.sumOfCounts),
-    })
-  );
-  return chart;
-};
-
-const generatePieChartConfig = (chartData: CategoryGroup) => {
-  const _chartData = getCategoryGroupChartData(chartData);
-
-  const config: PieConfig = {
-    appendPadding: 10,
-    data: _chartData,
-    height: 300,
-    angleField: "value",
-    colorField: "type",
-    radius: 0.75,
+const generateColChartConfig = (chartData: Array<ColStat>) => {
+  const config: ColumnConfig = {
+    data: chartData,
+    xField: "date",
+    yField: "count",
+    seriesField: "attribute",
+    isPercent: true,
+    isStack: true,
     label: {
-      type: "inner",
-      offset: "-10%",
-      content: function content(_ref) {
-        const percent = _ref.percent * 100;
-        return `${
-          percent === 100 || percent === 0 ? percent : percent.toFixed(2)
-        }%`;
+      position: "middle",
+      content: function content(item) {
+        return `${(item.count * 100).toFixed(2)}%`;
       },
+      style: { fill: "#fff" },
     },
-    legend: {
-      offsetX: -15,
-    },
-    interactions: [{ type: "element-selected" }, { type: "element-active" }],
   };
 
   return config;
 };
 
-const DatasetDetailsScoreCard = ({ data }: ScoreCardProps): JSX.Element => {
-  const stats = getDatasetStatsByCategory(data);
+const barStats = (data: GetDataset | undefined, category: string) => {
+  const chartArray: Array<ColStat> = [];
+  data?.dataset.records.forEach((record) =>
+    record.entries.forEach((entry) => {
+      if (entry.categoryValue.category.name === category && entry.count > 0) {
+        chartArray.push({
+          date: record.publicationDate.split("T")[0],
+          attribute: entry.categoryValue.name,
+          count: entry.count,
+        });
+      }
+    })
+  );
 
+  return chartArray;
+};
+
+const DatasetDetailsScoreCard = ({ data }: ScoreCardProps): JSX.Element => {
   return (
-    <Row
-      gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}
-      className="dataset-details_statistics"
-    >
-      {stats.length > 0 &&
-        stats.flatMap((category, index) => (
-          <Col
-            key={index}
-            xs={24}
-            sm={24}
-            md={24 / stats.length} // column numbers based on number of category groups
-            lg={24 / stats.length}
-            xl={24 / stats.length}
-          >
-            <Card>
-              <Pie {...generatePieChartConfig(category)} />
-            </Card>
-          </Col>
-        ))}
-    </Row>
+    <Tabs defaultActiveKey="Gender">
+      <TabPane tab={<span>Gender</span>} key="Gender">
+        <Column {...generateColChartConfig(barStats(data, "Gender"))} />
+      </TabPane>
+      <TabPane tab={<span>Disability</span>} key="Disability">
+        <Column {...generateColChartConfig(barStats(data, "Disability"))} />
+      </TabPane>
+    </Tabs>
   );
 };
 

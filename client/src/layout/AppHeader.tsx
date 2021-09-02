@@ -1,6 +1,6 @@
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Col, Layout, Row } from "antd";
-import { Link, useHistory } from "react-router-dom";
+import { UserOutlined } from "@ant-design/icons";
+import { Avatar, Col, Layout, Row } from "antd";
+import { Link } from "react-router-dom";
 import logo from "../assets/5050logo.jpg";
 import { useAuth } from "../components/AuthProvider";
 import "./AppHeader.css";
@@ -9,12 +9,13 @@ const { Header } = Layout;
 
 const AppHeader = () => {
   const auth = useAuth();
-  const history = useHistory();
+
+  /*const history = useHistory();
 
   const logout = async () => {
     await auth.logout();
     history.push("/login");
-  };
+  };*/
 
   return (
     <div>
@@ -41,13 +42,7 @@ const AppHeader = () => {
               <span id="name" className="header__user-profile-item">
                 <p>{auth.getFullName()}</p>
               </span>
-              <span className="header__user-profile-item">
-                <Button
-                  shape="circle"
-                  icon={<LogoutOutlined />}
-                  onClick={logout}
-                />
-              </span>
+              <span className="header__user-profile-item"></span>
             </div>
           </Col>
         </Row>

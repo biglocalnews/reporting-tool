@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Route, RouteComponentProps, Switch } from "react-router-dom";
+import { Redirect, Route, RouteComponentProps, Switch } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { ErrorBoundary } from "../components/Error/ErrorBoundary";
@@ -119,6 +119,8 @@ export function RenderRoutes({
           <ProtectedRoutes routes={protectedRoutes} />
         </ErrorBoundary>
       </Container>
+    ) : process.env.REACT_APP_ENV !== "production" ? (
+      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
     ) : (
       <Redirecter from={props.location.pathname} />
     );
@@ -139,6 +141,8 @@ export function RenderRoutes({
           )}
         </ErrorBoundary>
       </Container>
+    ) : process.env.REACT_APP_ENV !== "production" ? (
+      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
     ) : (
       <Redirecter from={props.location.pathname} />
     );

@@ -29,6 +29,7 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "no-unused-vars": "off",
+    "no-debugger": "off",
     "@typescript-eslint/no-unused-vars": "error",
     // NOTE: The label-has-associated-control rule replaced the deprecated
     // label-has-for rule:
