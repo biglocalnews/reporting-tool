@@ -28,9 +28,11 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     label: {
       position: "middle",
       content: function content(item) {
-        return `${(item.count * 100).toFixed(2)}% (${(
-          item.target * 100
-        ).toFixed(2)}%)`;
+        let labelString = `${(item.count * 100).toFixed(2)}%`;
+        if (item.target) {
+          labelString = labelString + ` (${(item.target * 100).toFixed(2)}%)`;
+        }
+        return labelString;
       },
       style: { fill: "#fff" },
     },
@@ -67,6 +69,11 @@ const DatasetDetailsScoreCard = ({ data }: ScoreCardProps): JSX.Element => {
       </TabPane>
       <TabPane tab={<span>Disability</span>} key="Disability">
         <Column {...generateColChartConfig(barStats(data, "Disability"))} />
+      </TabPane>
+      <TabPane tab={<span>Race/Ethnicity</span>} key="Race">
+        <Column
+          {...generateColChartConfig(barStats(data, "Race / ethnicity"))}
+        />
       </TabPane>
     </Tabs>
   );

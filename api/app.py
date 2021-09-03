@@ -161,6 +161,7 @@ seed_admins = [
     "brownc09",
     "khany88",
     "oconnk11",
+    "wrighg24",
 ]
 
 
