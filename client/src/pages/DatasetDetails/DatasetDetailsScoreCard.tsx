@@ -25,6 +25,11 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     seriesField: "attribute",
     isPercent: true,
     isStack: true,
+    yAxis: {
+      tickLine: null,
+      label: null,
+      grid: null,
+    },
     label: {
       position: "middle",
       content: function content(item) {
@@ -61,22 +66,26 @@ const barStats = (data: GetDataset | undefined, category: string) => {
   return chartArray;
 };
 
-const DatasetDetailsScoreCard = ({ data }: ScoreCardProps): JSX.Element => {
-  return (
+const DatasetDetailsScoreCard = ({
+  data,
+}: ScoreCardProps): JSX.Element | null => {
+  return data?.dataset.program.targets.length ? (
     <Tabs defaultActiveKey="Gender">
-      <TabPane tab={<span>Gender</span>} key="Gender">
-        <Column {...generateColChartConfig(barStats(data, "Gender"))} />
-      </TabPane>
-      <TabPane tab={<span>Disability</span>} key="Disability">
-        <Column {...generateColChartConfig(barStats(data, "Disability"))} />
-      </TabPane>
-      <TabPane tab={<span>Race/Ethnicity</span>} key="Race">
-        <Column
-          {...generateColChartConfig(barStats(data, "Race / ethnicity"))}
-        />
-      </TabPane>
+      {[
+        ...Array.from(
+          new Set(
+            data.dataset.program.targets.map(
+              (target) => target.categoryValue.category.name
+            )
+          )
+        ),
+      ].map((category) => (
+        <TabPane tab={<span>{category}</span>} key={category}>
+          <Column {...generateColChartConfig(barStats(data, category))} />
+        </TabPane>
+      ))}
     </Tabs>
-  );
+  ) : null;
 };
 
 export { DatasetDetailsScoreCard };
