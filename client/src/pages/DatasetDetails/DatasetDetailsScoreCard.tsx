@@ -14,6 +14,7 @@ type ColStat = {
   date: string;
   count: number;
   attribute: string;
+  target: number | undefined;
 };
 
 const generateColChartConfig = (chartData: Array<ColStat>) => {
@@ -27,7 +28,9 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     label: {
       position: "middle",
       content: function content(item) {
-        return `${(item.count * 100).toFixed(2)}%`;
+        return `${(item.count * 100).toFixed(2)}% (${(
+          item.target * 100
+        ).toFixed(2)}%)`;
       },
       style: { fill: "#fff" },
     },
@@ -45,6 +48,9 @@ const barStats = (data: GetDataset | undefined, category: string) => {
           date: record.publicationDate.split("T")[0],
           attribute: entry.categoryValue.name,
           count: entry.count,
+          target: data.dataset.program.targets.find(
+            (target) => target.categoryValue.name === entry.categoryValue.name
+          )?.target,
         });
       }
     })

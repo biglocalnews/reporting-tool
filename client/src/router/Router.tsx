@@ -119,7 +119,7 @@ export function RenderRoutes({
           <ProtectedRoutes routes={protectedRoutes} />
         </ErrorBoundary>
       </Container>
-    ) : process.env.REACT_APP_ENV !== "production" ? (
+    ) : process.env.NODE_ENV !== "production" ? (
       <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
     ) : (
       <Redirecter from={props.location.pathname} />
@@ -141,7 +141,7 @@ export function RenderRoutes({
           )}
         </ErrorBoundary>
       </Container>
-    ) : process.env.REACT_APP_ENV !== "production" ? (
+    ) : process.env.NODE_ENV !== "production" ? (
       <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
     ) : (
       <Redirecter from={props.location.pathname} />
