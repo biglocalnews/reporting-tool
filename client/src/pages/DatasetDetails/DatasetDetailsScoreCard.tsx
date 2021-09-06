@@ -1,6 +1,10 @@
 import { Column, ColumnConfig } from "@ant-design/charts";
 import { Tabs } from "antd";
-import { GetDataset } from "../../graphql/__generated__/GetDataset";
+import {
+  GetDataset,
+  GetDataset_dataset,
+  GetDataset_dataset_records,
+} from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
 
 const { TabPane } = Tabs;
@@ -18,6 +22,8 @@ type ColStat = {
 };
 
 const generateColChartConfig = (chartData: Array<ColStat>) => {
+  const isBinary =
+    Array.from(new Set(chartData.map((e) => e.attribute))).length === 2;
   const config: ColumnConfig = {
     data: chartData,
     xField: "date",
@@ -26,9 +32,19 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     isPercent: true,
     isStack: true,
     yAxis: {
+      top: true,
+      tickCount: isBinary ? 3 : 0,
       tickLine: null,
-      label: null,
-      grid: null,
+      grid: { line: { style: { stroke: "black" } } },
+      label: isBinary
+        ? {
+            formatter: (text) => {
+              return text === "0.5"
+                ? `${(Number.parseFloat(text) * 100).toFixed(0)}%`
+                : null;
+            },
+          }
+        : null,
     },
     label: {
       position: "middle",
@@ -46,24 +62,39 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
   return config;
 };
 
-const barStats = (data: GetDataset | undefined, category: string) => {
-  const chartArray: Array<ColStat> = [];
-  data?.dataset.records.forEach((record) =>
+interface Dictionary<T> {
+  [Key: string]: T;
+}
+
+const barStats = (data: GetDataset_dataset, category: string) => {
+  const chartData: Dictionary<ColStat> = {};
+  data.records.forEach((record: GetDataset_dataset_records) => {
     record.entries.forEach((entry) => {
       if (entry.categoryValue.category.name === category && entry.count > 0) {
-        chartArray.push({
-          date: record.publicationDate.split("T")[0],
-          attribute: entry.categoryValue.name,
-          count: entry.count,
-          target: data.dataset.program.targets.find(
-            (target) => target.categoryValue.name === entry.categoryValue.name
-          )?.target,
-        });
+        const recordDate = new Date(record.publicationDate);
+        const monthName = new Intl.DateTimeFormat("en", {
+          month: "long",
+        }).format(recordDate);
+        const yearMonthCategory = `${monthName}-${recordDate.getFullYear()}-${
+          entry.categoryValue.name
+        }`;
+        const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
+        if (!(yearMonthCategory in Object.keys(chartData))) {
+          chartData[yearMonthCategory] = {
+            date: yearMonth,
+            attribute: entry.categoryValue.name,
+            count: entry.count,
+            target: data.program.targets.find(
+              (target) => target.categoryValue.name === entry.categoryValue.name
+            )?.target,
+          };
+        } else {
+          chartData[yearMonthCategory].count += entry.count;
+        }
       }
-    })
-  );
-
-  return chartArray;
+    });
+  });
+  return Object.values(chartData);
 };
 
 const DatasetDetailsScoreCard = ({
@@ -71,17 +102,17 @@ const DatasetDetailsScoreCard = ({
 }: ScoreCardProps): JSX.Element | null => {
   return data?.dataset.program.targets.length ? (
     <Tabs defaultActiveKey="Gender">
-      {[
-        ...Array.from(
-          new Set(
-            data.dataset.program.targets.map(
-              (target) => target.categoryValue.category.name
-            )
+      {Array.from(
+        new Set(
+          data.dataset.program.targets.map(
+            (target) => target.categoryValue.category.name
           )
-        ),
-      ].map((category) => (
+        )
+      ).map((category) => (
         <TabPane tab={<span>{category}</span>} key={category}>
-          <Column {...generateColChartConfig(barStats(data, category))} />
+          <Column
+            {...generateColChartConfig(barStats(data?.dataset, category))}
+          />
         </TabPane>
       ))}
     </Tabs>
