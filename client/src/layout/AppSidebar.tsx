@@ -142,9 +142,15 @@ export const AppSidebarMenu = () => {
     <Menu
       mode="inline"
       theme="light"
-      defaultOpenKeys={["teams"]}
+      defaultOpenKeys={["teams", "admin"]}
       style={{ height: "100%", borderRight: 0 }}
     >
+      {auth.isAdmin() ? (
+      
+      <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+        <Link to="/">{t("admin.sidebar.viewAll")}</Link>
+      </Menu.Item>
+      ) : ""}
       <SubMenu
         key="teams"
         title={t("teamsSideBarTitle")}
@@ -177,23 +183,23 @@ export const AppSidebarMenu = () => {
       <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
         <div style={{ padding: "20px", background: "#fff" }}></div>
       </SubMenu>
+
       {auth.isAdmin() ? (
-            <Menu mode="inline" role="menubar">
-            <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
-              <Link to="/">{t("admin.sidebar.viewAll")}</Link>
-            </Menu.Item>
-            
-            <Menu.Item key="users" icon={<UserSwitchOutlined />} role="menuitem">
+            <SubMenu 
+            key="admin"
+            title="Admin"
+            icon={<TeamOutlined />}>            
+            <Menu.Item key="users" role="menuitem">
               <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
             </Menu.Item>
-            <Menu.Item key="teams" icon={<TeamOutlined />} role="menuitem">
+            <Menu.Item key="teams" role="menuitem">
               <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
             </Menu.Item>
-            <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
+            <Menu.Item key="programs" role="menuitem">
               <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
             </Menu.Item>
             
-          </Menu>
+          </SubMenu>
       ) : ""}
     </Menu>
   );
