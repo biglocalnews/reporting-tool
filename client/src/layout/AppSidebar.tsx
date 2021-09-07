@@ -142,7 +142,7 @@ export const AppSidebarMenu = () => {
     <Menu
       mode="inline"
       theme="light"
-      defaultOpenKeys={["teams", "admin"]}
+      /*defaultOpenKeys={["admin"]}*/
       style={{ height: "100%", borderRight: 0 }}
     >
       {auth.isAdmin() ? (
