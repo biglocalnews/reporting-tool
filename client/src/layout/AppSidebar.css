@@ -1,3 +1,7 @@
 .ant-layout-sider {
   background: #fff !important;
 }
+
+.ant-menu-dark .ant-menu-inline.ant-menu-sub {
+  background: unset;
+}

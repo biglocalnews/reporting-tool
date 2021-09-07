@@ -36,7 +36,7 @@ const AppHeader = () => {
             <div className="header__logo">
               <Link to="/">
                 <img src={bbclogo} alt="BBC Logo" style={{width: "120px", marginRight: "20px"}}/>
-                <img src={logo} alt="50:50 - The Equality Project Logo" style={{width: "120px"}} />
+                <img src={logo} alt="50:50 - The Equality Project Logo" style={{width: "110px"}} />
               </Link>
             </div>
           </Col>
