@@ -49,10 +49,10 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     label: {
       position: "middle",
       content: function content(item) {
-        let labelString = `${(item.count * 100).toFixed(2)}%`;
-        if (item.target) {
+        const labelString = `${(item.count * 100).toFixed(0)}`;
+        /*if (item.target) {
           labelString = labelString + ` (${(item.target * 100).toFixed(2)}%)`;
-        }
+        }*/
         return labelString;
       },
       style: { fill: "#fff" },

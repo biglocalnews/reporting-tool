@@ -108,10 +108,10 @@ with open("5050-data.csv", "r") as csv_file:
 
         session.commit()
 
-        cat_cis_women = None
+        cat_value_cis_women = None
 
         try:
-            cat_cis_women = (
+            cat_value_cis_women = (
                 session.query(CategoryValue)
                 .filter(CategoryValue.name == "cisgender women")
                 .one()
@@ -120,16 +120,16 @@ with open("5050-data.csv", "r") as csv_file:
             print(e)
             exit(1)
         except NoResultFound as e:
-            cat_cis_women = CategoryValue(
+            cat_value_cis_women = CategoryValue(
                 id=uuid4(), name="cisgender women", category=category_gender
             )
-            session.add(cat_cis_women)
+            session.add(cat_value_cis_women)
             session.commit()
 
-        cat_cis_men = None
+        cat_value_cis_men = None
 
         try:
-            cat_cis_men = (
+            cat_value_cis_men = (
                 session.query(CategoryValue)
                 .filter(CategoryValue.name == "cisgender men")
                 .one()
@@ -138,10 +138,10 @@ with open("5050-data.csv", "r") as csv_file:
             print(e)
             exit(1)
         except NoResultFound as e:
-            cat_cis_men = CategoryValue(
+            cat_value_cis_men = CategoryValue(
                 id=uuid4(), name="cisgender men", category=category_gender
             )
-            session.add(cat_cis_men)
+            session.add(cat_value_cis_men)
             session.commit()
 
         try:
@@ -149,7 +149,7 @@ with open("5050-data.csv", "r") as csv_file:
                 session.query(Target)
                 .filter(
                     Target.program_id == programme.id
-                    and Target.category_value_id == cat_cis_women.id
+                    and Target.category_value_id == cat_value_cis_women.id
                 )
                 .one()
             )
@@ -166,7 +166,7 @@ with open("5050-data.csv", "r") as csv_file:
                 target=float(0.50),
             )
             session.add(target_cis_women)
-            cat_cis_women.targets.append(target_cis_women)
+            cat_value_cis_women.targets.append(target_cis_women)
             session.commit()
 
         target_cis_men = None
@@ -176,7 +176,7 @@ with open("5050-data.csv", "r") as csv_file:
                 session.query(Target)
                 .filter(
                     Target.program_id == programme.id
-                    and Target.category_value_id == cat_cis_men.id
+                    and Target.category_value_id == cat_value_cis_men.id
                 )
                 .one()
             )
@@ -193,7 +193,7 @@ with open("5050-data.csv", "r") as csv_file:
                 target=float(0.50),
             )
             session.add(target_cis_men)
-            cat_cis_men.targets.append(target_cis_men)
+            cat_value_cis_men.targets.append(target_cis_men)
             session.commit()
 
         session.commit()
@@ -217,6 +217,8 @@ with open("5050-data.csv", "r") as csv_file:
 
         record.entries.append(entry1)
         record.entries.append(entry2)
+        cat_value_cis_women.entries.append(entry1)
+        cat_value_cis_men.entries.append(entry2)
         session.commit()
 
         ptype = PersonType(
