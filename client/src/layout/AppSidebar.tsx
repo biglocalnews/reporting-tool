@@ -115,14 +115,99 @@ export const AppAdminSidebarMenu = () => {
   );
 };
 
+export const AppSidebarMenu = () => {
+  const { t } = useTranslation();
+  const userId = useAuth().getUserId();
+  const auth = useAuth();
+  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+    variables: { id: userId },
+  });
+
+  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
+    team.programs.map((program) => {
+      return {
+        key: program.id,
+        team: program.name,
+        datasets: program.datasets.map((dataset) => {
+          return {
+            id: dataset.id,
+            title: dataset.name,
+          };
+        }),
+      };
+    })
+  );
+
+  return (
+    <Menu
+      mode="inline"
+      theme="light"
+      defaultOpenKeys={["teams"]}
+      style={{ height: "100%", borderRight: 0 }}
+    >
+      <SubMenu
+        key="teams"
+        title={t("teamsSideBarTitle")}
+        icon={<TeamOutlined />}
+      >
+        {loading ? (
+          <h1>Loading...</h1>
+        ) : (
+          sidebarPrograms?.map(
+            (program: { key: string; team: string; datasets: Dataset[] }) => {
+              return (
+                <Menu.ItemGroup key={program.key} title={program.team}>
+                  {program.datasets.map((dataset) => (
+                    <Menu.Item key={dataset.id}>
+                      <Link
+                        to={{
+                          pathname: `/dataset/${dataset.id}/details`,
+                        }}
+                      >
+                        {dataset.title}
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </Menu.ItemGroup>
+              );
+            }
+          )
+        )}
+      </SubMenu>
+      <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
+        <div style={{ padding: "20px", background: "#fff" }}></div>
+      </SubMenu>
+      {auth.isAdmin() ? (
+            <Menu mode="inline" role="menubar">
+            <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+              <Link to="/">{t("admin.sidebar.viewAll")}</Link>
+            </Menu.Item>
+            
+            <Menu.Item key="users" icon={<UserSwitchOutlined />} role="menuitem">
+              <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
+            </Menu.Item>
+            <Menu.Item key="teams" icon={<TeamOutlined />} role="menuitem">
+              <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
+            </Menu.Item>
+            <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
+              <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
+            </Menu.Item>
+            
+          </Menu>
+      ) : ""}
+    </Menu>
+  );
+};
+
+
 /**
  * App sidebar content: info and navigation links
  */
 const AppSidebar = (): JSX.Element => {
-  const auth = useAuth();
   return (
     <Sider className="sidebar" breakpoint="md">
-      {auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />}
+      <AppSidebarMenu />
+      {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
   );
 };
