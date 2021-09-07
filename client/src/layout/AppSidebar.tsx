@@ -162,7 +162,7 @@ export const AppSidebarMenu = () => {
           sidebarPrograms?.map(
             (program: { key: string; team: string; datasets: Dataset[] }) => {
               return (
-                <Menu.ItemGroup key={program.key} title={program.team}>
+                <SubMenu key={program.key} title={program.team}>
                   {program.datasets.map((dataset) => (
                     <Menu.Item key={dataset.id}>
                       <Link
@@ -174,7 +174,7 @@ export const AppSidebarMenu = () => {
                       </Link>
                     </Menu.Item>
                   ))}
-                </Menu.ItemGroup>
+                </SubMenu>
               );
             }
           )
