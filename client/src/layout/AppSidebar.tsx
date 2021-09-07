@@ -3,6 +3,8 @@ import {
   DatabaseOutlined,
   TableOutlined,
   TeamOutlined,
+  SettingOutlined,
+  VideoCameraOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
@@ -115,14 +117,109 @@ export const AppAdminSidebarMenu = () => {
   );
 };
 
+export const AppSidebarMenu = () => {
+  const { t } = useTranslation();
+  const userId = useAuth().getUserId();
+  const auth = useAuth();
+  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+    variables: { id: userId },
+  });
+
+  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
+    team.programs.map((program) => {
+      return {
+        key: program.id,
+        team: program.name,
+        datasets: program.datasets.map((dataset) => {
+          return {
+            id: dataset.id,
+            title: dataset.name,
+          };
+        }),
+      };
+    })
+  );
+
+  return (
+    
+    <Menu
+      mode="inline"
+      theme="dark"
+      /*defaultOpenKeys={["admin"]}*/
+      style={{ height: "100%", borderRight: 0, paddingTop: "10px" }}
+    >
+
+
+      {auth.isAdmin() ? (
+      
+      <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+        <Link to="/">{t("admin.sidebar.viewAll")}</Link>
+      </Menu.Item>
+      ) : ""}
+      <SubMenu
+        key="teams"
+        title={t("teamsSideBarTitle")}
+        icon={<VideoCameraOutlined />}
+      >
+        {loading ? (
+          <h1>Loading...</h1>
+        ) : (
+          sidebarPrograms?.map(
+            (program: { key: string; team: string; datasets: Dataset[] }) => {
+              return (
+                <SubMenu key={program.key} title={program.team}>
+                  {program.datasets.map((dataset) => (
+                    <Menu.Item key={dataset.id}>
+                      <Link
+                        to={{
+                          pathname: `/dataset/${dataset.id}/details`,
+                        }}
+                      >
+                        {dataset.title}
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </SubMenu>
+              );
+            }
+          )
+        )}
+      </SubMenu>
+      {/*<SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
+        <div style={{ padding: "20px", background: "#fff" }}></div>
+          </SubMenu>*/}
+
+      {auth.isAdmin() ? (
+            <SubMenu 
+            key="admin"
+            title="Admin"
+            icon={<SettingOutlined />}>            
+            <Menu.Item key="users" role="menuitem">
+              <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
+            </Menu.Item>
+            <Menu.Item key="teams" role="menuitem">
+              <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
+            </Menu.Item>
+            <Menu.Item key="programs" role="menuitem">
+              <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
+            </Menu.Item>
+            
+          </SubMenu>
+      ) : ""}
+    </Menu>
+  );
+};
+
+
 /**
  * App sidebar content: info and navigation links
  */
 const AppSidebar = (): JSX.Element => {
-  const auth = useAuth();
   return (
-    <Sider className="sidebar" breakpoint="md">
-      {auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />}
+    <Sider width={300} className="sidebar" breakpoint="md" theme="dark" collapsible>
+
+      <AppSidebarMenu />
+      {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
   );
 };
