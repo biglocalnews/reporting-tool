@@ -28,10 +28,7 @@ export function ProtectedAppContainer({
         <Layout>
           <AppHeader />
           <Content className="site-layout-background">{children}</Content>
-          <Footer>Footer Table Placeholder
-          </Footer>
-
-
+          <Footer></Footer>
         </Layout>
       </Layout>
     </>
