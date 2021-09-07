@@ -2,6 +2,7 @@ import { LogoutOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
 import { Menu, Dropdown, Button, Col, Layout, Row } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import logo from "../assets/5050logo.jpg";
+import bbclogo from "../assets/logo_bbc_dark.png";
 import { useAuth } from "../components/AuthProvider";
 
 import "./AppHeader.css";
@@ -31,19 +32,20 @@ const AppHeader = () => {
       <Header className="header">
         <Row wrap={false}>
           <Col flex="none">
+            
             <div className="header__logo">
               <Link to="/">
+                <img src={bbclogo} alt="App logo" style={{width: "120px", marginRight: "20px"}}/>
                 <img src={logo} alt="App logo" />
               </Link>
             </div>
           </Col>
           <Col flex="auto">
+
             <div
               id="header__user"
               style={{ float: "right", lineHeight: "64px" }}
             >
-
-
               <Dropdown overlay={menu}>
                 <Button icon={<UserOutlined />}>
                 {auth.getFullName()} <DownOutlined />

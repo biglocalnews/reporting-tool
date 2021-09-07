@@ -3,6 +3,8 @@ import {
   DatabaseOutlined,
   TableOutlined,
   TeamOutlined,
+  SettingOutlined,
+  VideoCameraOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
@@ -139,12 +141,15 @@ export const AppSidebarMenu = () => {
   );
 
   return (
+    
     <Menu
       mode="inline"
-      theme="light"
+      theme="dark"
       /*defaultOpenKeys={["admin"]}*/
       style={{ height: "100%", borderRight: 0 }}
     >
+
+
       {auth.isAdmin() ? (
       
       <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
@@ -154,7 +159,7 @@ export const AppSidebarMenu = () => {
       <SubMenu
         key="teams"
         title={t("teamsSideBarTitle")}
-        icon={<TeamOutlined />}
+        icon={<VideoCameraOutlined />}
       >
         {loading ? (
           <h1>Loading...</h1>
@@ -180,15 +185,15 @@ export const AppSidebarMenu = () => {
           )
         )}
       </SubMenu>
-      <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
+      {/*<SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
         <div style={{ padding: "20px", background: "#fff" }}></div>
-      </SubMenu>
+          </SubMenu>*/}
 
       {auth.isAdmin() ? (
             <SubMenu 
             key="admin"
             title="Admin"
-            icon={<TeamOutlined />}>            
+            icon={<SettingOutlined />}>            
             <Menu.Item key="users" role="menuitem">
               <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
             </Menu.Item>
@@ -211,7 +216,8 @@ export const AppSidebarMenu = () => {
  */
 const AppSidebar = (): JSX.Element => {
   return (
-    <Sider className="sidebar" breakpoint="md">
+    <Sider width={300} className="sidebar" breakpoint="md" theme="dark" collapsible>
+
       <AppSidebarMenu />
       {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
