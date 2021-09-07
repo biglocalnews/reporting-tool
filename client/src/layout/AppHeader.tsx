@@ -1,7 +1,7 @@
 import { LogoutOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
 import { Menu, Dropdown, Button, Col, Layout, Row } from "antd";
 import { Link, useHistory } from "react-router-dom";
-import logo from "../assets/5050logo.jpg";
+import logo from "../assets/5050logo-only.jpg";
 import bbclogo from "../assets/logo_bbc_dark.png";
 import { useAuth } from "../components/AuthProvider";
 
@@ -35,8 +35,8 @@ const AppHeader = () => {
             
             <div className="header__logo">
               <Link to="/">
-                <img src={bbclogo} alt="App logo" style={{width: "120px", marginRight: "20px"}}/>
-                <img src={logo} alt="App logo" />
+                <img src={bbclogo} alt="BBC Logo" style={{width: "120px", marginRight: "20px"}}/>
+                <img src={logo} alt="50:50 - The Equality Project Logo" style={{width: "120px"}} />
               </Link>
             </div>
           </Col>
