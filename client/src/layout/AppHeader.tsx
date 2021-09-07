@@ -1,8 +1,9 @@
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Col, Layout, Row } from "antd";
+import { LogoutOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
+import { Menu, Dropdown, Button, Col, Layout, Row } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import logo from "../assets/5050logo.jpg";
 import { useAuth } from "../components/AuthProvider";
+
 import "./AppHeader.css";
 
 const { Header } = Layout;
@@ -16,6 +17,14 @@ const AppHeader = () => {
     await auth.logout();
     history.push("/login");
   };
+
+  const menu = (
+    <Menu onClick={logout}>
+      <Menu.Item key="1" icon={<LogoutOutlined />}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <div>
@@ -33,22 +42,13 @@ const AppHeader = () => {
               id="header__user"
               style={{ float: "right", lineHeight: "64px" }}
             >
-              <span id="avatar" className="header__user-profile-item">
-                <Avatar
-                  style={{ backgroundColor: "#87d068" }}
-                  icon={<UserOutlined />}
-                />
-              </span>
-              <span id="name" className="header__user-profile-item">
-                <p>{auth.getFullName()}</p>
-              </span>
-              <span className="header__user-profile-item">
-                <Button
-                  shape="circle"
-                  icon={<LogoutOutlined />}
-                  onClick={logout}
-                />
-              </span>
+
+
+              <Dropdown overlay={menu}>
+                <Button icon={<UserOutlined />}>
+                {auth.getFullName()} <DownOutlined />
+                </Button>
+              </Dropdown>
             </div>
           </Col>
         </Row>

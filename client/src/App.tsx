@@ -22,12 +22,14 @@ export function ProtectedAppContainer({
 }) {
   return (
     <>
+
+
       <AppHeader />
       <Layout>
         <AppSidebar />
         <Layout style={{ padding: "0 24px 24px" }}>
           <Content className="site-layout-background">{children}</Content>
-          <Footer style={{ textAlign: "center" }}></Footer>
+          <Footer style={{ textAlign: "center" }}>This is the content</Footer>
         </Layout>
       </Layout>
     </>
