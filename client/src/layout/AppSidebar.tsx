@@ -146,7 +146,7 @@ export const AppSidebarMenu = () => {
       mode="inline"
       theme="dark"
       /*defaultOpenKeys={["admin"]}*/
-      style={{ height: "100%", borderRight: 0 }}
+      style={{ height: "100%", borderRight: 0, paddingTop: "10px" }}
     >
 
 
