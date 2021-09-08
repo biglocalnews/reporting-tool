@@ -14,6 +14,16 @@ Before you begin, ensure you have met the following requirements:
 - You have installed python3
 - You have installed postgresql
 
+### Running a docker instance of postgresql for dev
+
+```bash
+docker run -v /home/me/.postgres_pass:/run/secrets/5050_db_pass\
+ -e POSTGRES_PASSWORD_FILE=/run/secrets/5050_db_pass \
+ -e POSTGRES_DB=rt \
+ -p 5432:5432 \
+ -it postgres:13.2
+```
+
 ### First time running things? Look here!
 
 1. Create python virtual environment

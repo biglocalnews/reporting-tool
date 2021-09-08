@@ -9,6 +9,7 @@ from database import (
     Organization,
     PersonType,
     Record,
+    Tag,
     Target,
     connection,
     Team,
@@ -19,6 +20,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 with open("5050-data.csv", "r") as csv_file:
     session = connection()
+    bbc_org = session.query(Organization).get("15d89a19-b78d-4ee8-b321-043f26bdd48a")
     csv_reader = csv.reader(
         csv_file,
         quotechar='"',
@@ -41,89 +43,65 @@ with open("5050-data.csv", "r") as csv_file:
         ) = line
 
         print(ProgrammeName)
-        print(Year)
-        print(line)
 
-        team_id = None
         team = None
+        team_name = "Unassigned"
 
         try:
-            team = session.query(Team).filter(Team.name == GroupName).one()
-            team_id = team.id
+            team = session.query(Team).filter(Team.name == team_name).one()
         except MultipleResultsFound as e:
             print(e)
             exit(1)
         except NoResultFound as e:
             print(e)
             print("Creating new team")
-            team_id = uuid4()
-            team = Team(
-                id=team_id,
-                name=GroupName,
-            )
+            team = Team(id=uuid4(), name=team_name, organization=bbc_org)
             session.add(team)
-            org = session.query(Organization).get(
-                "15d89a19-b78d-4ee8-b321-043f26bdd48a"
-            )
-            org.teams.append(team)
             session.commit()
 
-        session.commit()
-
-        programme_id = None
         programme = None
+        programme_name = "Unassigned"
 
         try:
             programme = (
                 session.query(Program)
-                .filter(Program.name == ProgrammeName and Program.team_id == team.id)
+                .filter(Program.name == programme_name, Program.team_id == team.id)
                 .one()
             )
-            programme_id = programme.id
         except MultipleResultsFound as e:
             print(e)
             exit(1)
         except NoResultFound as e:
             print(e)
             print("Creating new programme")
-            programme_id = uuid4()
-            programme = Program(id=programme_id, name=ProgrammeName, description="")
-            ds1 = Dataset(
-                id=uuid4(),
-                name="Default",
-                description="Default dataset",
+            programme = Program(
+                id=uuid4(), name=programme_name, description="", team=team
             )
-            session.add(ds1)
-            programme.datasets.append(ds1)
             session.add(programme)
             session.commit()
-
-        team.programs.append(programme)
-        session.add(team)
-        session.commit()
 
         category_gender = session.query(Category).get(
             "51349e29-290e-4398-a401-5bf7d04af75e"
         )
-
-        session.commit()
 
         cat_value_cis_women = None
 
         try:
             cat_value_cis_women = (
                 session.query(CategoryValue)
-                .filter(CategoryValue.name == "cisgender women")
+                .filter(CategoryValue.name == "Cisgender women")
                 .one()
             )
         except MultipleResultsFound as e:
             print(e)
             exit(1)
         except NoResultFound as e:
+            print("Creating new cat_value_cis_women")
             cat_value_cis_women = CategoryValue(
                 id=uuid4(), name="cisgender women", category=category_gender
             )
             session.add(cat_value_cis_women)
+            print(cat_value_cis_women)
             session.commit()
 
         cat_value_cis_men = None
@@ -131,25 +109,29 @@ with open("5050-data.csv", "r") as csv_file:
         try:
             cat_value_cis_men = (
                 session.query(CategoryValue)
-                .filter(CategoryValue.name == "cisgender men")
+                .filter(CategoryValue.name == "Cisgender men")
                 .one()
             )
         except MultipleResultsFound as e:
             print(e)
             exit(1)
         except NoResultFound as e:
+            print("Creating new cat_value_cis_men")
             cat_value_cis_men = CategoryValue(
                 id=uuid4(), name="cisgender men", category=category_gender
             )
             session.add(cat_value_cis_men)
+            print(cat_value_cis_men)
             session.commit()
+
+        target_cis_women = None
 
         try:
             target_cis_women = (
                 session.query(Target)
                 .filter(
-                    Target.program_id == programme.id
-                    and Target.category_value_id == cat_value_cis_women.id
+                    Target.program_id == programme.id,
+                    Target.category_value_id == cat_value_cis_women.id,
                 )
                 .one()
             )
@@ -157,16 +139,17 @@ with open("5050-data.csv", "r") as csv_file:
             print(e)
             exit(1)
         except NoResultFound as e:
+            print("Creating new target cis_women")
             target_cis_women = Target(
                 id=uuid4(),
                 program=programme,
+                category_value=cat_value_cis_women,
                 target_date=datetime.strptime(
                     "2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"
                 ),
                 target=float(0.50),
             )
             session.add(target_cis_women)
-            cat_value_cis_women.targets.append(target_cis_women)
             session.commit()
 
         target_cis_men = None
@@ -175,8 +158,8 @@ with open("5050-data.csv", "r") as csv_file:
             target_cis_men = (
                 session.query(Target)
                 .filter(
-                    Target.program_id == programme.id
-                    and Target.category_value_id == cat_value_cis_men.id
+                    Target.program_id == programme.id,
+                    Target.category_value_id == cat_value_cis_men.id,
                 )
                 .one()
             )
@@ -184,54 +167,75 @@ with open("5050-data.csv", "r") as csv_file:
             print(e)
             exit(1)
         except NoResultFound as e:
+            print("Creating new target cis_men")
             target_cis_men = Target(
                 id=uuid4(),
                 program=programme,
+                category_value=cat_value_cis_men,
                 target_date=datetime.strptime(
                     "2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"
                 ),
                 target=float(0.50),
             )
             session.add(target_cis_men)
-            cat_value_cis_men.targets.append(target_cis_men)
             session.commit()
 
-        session.commit()
+        ds1 = None
 
-        print(Year)
-        print(Month)
+        try:
+            ds1 = (
+                session.query(Dataset)
+                .filter(Dataset.name == ProgrammeName, Program.team_id == team.id)
+                .one()
+            )
+            programme_id = programme.id
+        except MultipleResultsFound as e:
+            print(e)
+            exit(1)
+        except NoResultFound as e:
+            print(e)
+            print("Creating new dataset")
+            tag = Tag(id=uuid4(), name=GroupName, description="", tag_type="imported")
+            session.add(tag)
+            # BBC Contributor
+            ptype_id = "1c9b9573-726f-46c4-86a8-ed6412eb0c35"
+            ptype = session.query(PersonType).get(ptype_id)
+            ds1 = Dataset(
+                id=uuid4(),
+                name=ProgrammeName,
+                description="",
+                tags=[tag],
+                person_types=[ptype],
+                program=programme,
+            )
+            session.add(ds1)
+            session.commit()
 
         record = Record(
             id=uuid4(),
-            dataset=programme.datasets[0],
+            dataset=ds1,
             publication_date=datetime.strptime(
                 f"{Year}-{Month}-1 00:00:00", "%Y-%m-%d %H:%M:%S"
             ),
         )
 
         session.add(record)
+
         session.commit()
 
-        entry1 = Entry(id=uuid4(), count=int(FemaleRatio))
-        entry2 = Entry(id=uuid4(), count=int(MaleRatio))
-
-        record.entries.append(entry1)
-        record.entries.append(entry2)
-        cat_value_cis_women.entries.append(entry1)
-        cat_value_cis_men.entries.append(entry2)
-        session.commit()
-
-        ptype = PersonType(
+        entry1 = Entry(
             id=uuid4(),
-            person_type_name="BBC Contributor",
-            datasets=[programme.datasets[0]],
+            count=int(FemaleRatio),
+            record=record,
+            category_value=cat_value_cis_women,
+        )
+        entry2 = Entry(
+            id=uuid4(),
+            count=int(MaleRatio),
+            record=record,
+            category_value=cat_value_cis_men,
         )
 
-        session.add(ptype)
+        session.add(entry1)
+        session.add(entry2)
         session.commit()
-
-        ptype.entries.append(entry1)
-        ptype.entries.append(entry2)
-        session.commit()
-
-        print(ProgrammeName)
