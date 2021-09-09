@@ -68,32 +68,37 @@ interface Dictionary<T> {
 
 const barStats = (data: GetDataset_dataset, category: string) => {
   const chartData: Dictionary<ColStat> = {};
-  data.records.forEach((record: GetDataset_dataset_records) => {
-    record.entries.forEach((entry) => {
-      if (entry.categoryValue.category.name === category && entry.count > 0) {
-        const recordDate = new Date(record.publicationDate);
-        const monthName = new Intl.DateTimeFormat("en", {
-          month: "long",
-        }).format(recordDate);
-        const yearMonthCategory = `${monthName}-${recordDate.getFullYear()}-${
-          entry.categoryValue.name
-        }`;
-        const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
-        if (!(yearMonthCategory in Object.keys(chartData))) {
-          chartData[yearMonthCategory] = {
-            date: yearMonth,
-            attribute: entry.categoryValue.name,
-            count: entry.count,
-            target: data.program.targets.find(
-              (target) => target.categoryValue.name === entry.categoryValue.name
-            )?.target,
-          };
-        } else {
-          chartData[yearMonthCategory].count += entry.count;
+  Array.from(data.records)
+    .sort(
+      (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
+    )
+    .forEach((record: GetDataset_dataset_records) => {
+      record.entries.forEach((entry) => {
+        if (entry.categoryValue.category.name === category && entry.count > 0) {
+          const recordDate = new Date(record.publicationDate);
+          const monthName = new Intl.DateTimeFormat("en", {
+            month: "long",
+          }).format(recordDate);
+          const yearMonthCategory = `${monthName}-${recordDate.getFullYear()}-${
+            entry.categoryValue.name
+          }`;
+          const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
+          if (!(yearMonthCategory in Object.keys(chartData))) {
+            chartData[yearMonthCategory] = {
+              date: yearMonth,
+              attribute: entry.categoryValue.name,
+              count: entry.count,
+              target: data.program.targets.find(
+                (target) =>
+                  target.categoryValue.name === entry.categoryValue.name
+              )?.target,
+            };
+          } else {
+            chartData[yearMonthCategory].count += entry.count;
+          }
         }
-      }
+      });
     });
-  });
   return Object.values(chartData);
 };
 
