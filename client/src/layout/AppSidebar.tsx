@@ -167,7 +167,7 @@ export const AppSidebarMenu = () => {
           sidebarPrograms?.map(
             (program: { key: string; team: string; datasets: Dataset[] }) => {
               return (
-                <SubMenu key={program.key} title={program.team}>
+                <SubMenu className="ds-container" key={program.key} title={program.team}>
                   {program.datasets.map((dataset) => (
                     <Menu.Item key={dataset.id}>
                       <Link
