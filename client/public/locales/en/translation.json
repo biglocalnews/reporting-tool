@@ -223,11 +223,11 @@
           "confirmStopTrackingSegment": "Do you really wish to stop tracking this demographic segment?",
           "addNewSegment": "Add new target for {{ category }}",
           "addDataset": "Add a new dataset",
+          "addExistingDataset": "Add an existing dataset",
           "deleteDataset": "Delete this dataset",
           "confirmRemoveDataset": "Do you really wish to delete this dataset?",
           "alreadyDeletedTitle": "This $t(program) has been deleted.",
           "alreadyDeletedInfo": "You cannot edit this $t(program) while it is deleted. You can restore it if you wish.",
-          "restore": "Restore",
           "validation": {
             "nameRequired": "You must enter a name",
             "teamRequired": "You must assign a team",

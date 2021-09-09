@@ -4,6 +4,7 @@ import {
   PlusCircleOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
+import { useQuery } from "@apollo/client/react/hooks";
 import {
   Alert,
   Button,
@@ -19,7 +20,7 @@ import {
   Select,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Prompt, useHistory, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
@@ -33,11 +34,16 @@ import {
   AdminGetProgramVariables,
   AdminGetProgram_program_targets,
 } from "../../graphql/__generated__/AdminGetProgram";
+import {
+  AllDatasets,
+  AllDatasets_teams_programs_datasets,
+} from "../../graphql/__generated__/AllDatasets";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
 import { ADMIN_GET_ALL_PERSON_TYPES } from "../../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
+import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 import {
   CategoryTarget,
@@ -104,6 +110,10 @@ export const EditProgram = () => {
   const save = useSave();
   const restore = useRestore();
   const deactivate = useDeactivate();
+  const [showDatasets, setShowDatasets] = useState(false);
+  const [datasets, setAllDatasets] = useState(
+    new Array<AllDatasets_teams_programs_datasets>()
+  );
 
   const programResponse = useQueryWithErrorHandling<
     AdminGetProgram,
@@ -138,6 +148,21 @@ export const EditProgram = () => {
     ADMIN_GET_ALL_PERSON_TYPES,
     "personTypes"
   );
+
+  const { data: allTeams } = useQuery<AllDatasets>(ALL_DATASETS, {
+    skip: !showDatasets,
+  });
+
+  useEffect(() => {
+    if (allTeams) {
+      setAllDatasets(
+        allTeams.teams
+          .flatMap((team) => team.programs)
+          .filter((programme) => programme.name === "Unassigned")
+          .flatMap((progs) => progs.datasets)
+      );
+    }
+  }, [allTeams]);
 
   if (
     teamsResponse.loading ||
@@ -705,7 +730,35 @@ export const EditProgram = () => {
                       />
                     </List.Item>
                   ))}
+                  <List.Item hidden={!showDatasets}>
+                    <Select
+                      showSearch
+                      filterOption={(input, option) =>
+                        option?.children
+                          ?.toLocaleLowerCase()
+                          .indexOf(input.toLocaleLowerCase()) >= 0
+                      }
+                      style={{ width: "100%" }}
+                      placeholder="Select dataset"
+                    >
+                      {datasets.map((dataset, i) => (
+                        <option key={i} value={dataset.id}>
+                          {dataset.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </List.Item>
                   <List.Item>
+                    <Button
+                      disabled={inactive}
+                      aria-label={t(
+                        "admin.program.edit.form.addExisitingDataset"
+                      )}
+                      onClick={() => setShowDatasets((curr) => !curr)}
+                      icon={<PlusCircleOutlined />}
+                    >
+                      {t("admin.program.edit.form.addExistingDataset")}
+                    </Button>
                     <Button
                       disabled={inactive}
                       aria-label={t("admin.program.edit.form.addDataset")}

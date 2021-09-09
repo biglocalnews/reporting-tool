@@ -3,7 +3,6 @@ import { Tabs } from "antd";
 import {
   GetDataset,
   GetDataset_dataset,
-  GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
 
@@ -68,15 +67,17 @@ interface Dictionary<T> {
 
 const barStats = (data: GetDataset_dataset, category: string) => {
   const chartData: Dictionary<ColStat> = {};
+  const lang = window.navigator.language;
   Array.from(data.records)
     .sort(
       (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
     )
-    .forEach((record: GetDataset_dataset_records) => {
+    .forEach((record) => {
       record.entries.forEach((entry) => {
         if (entry.categoryValue.category.name === category && entry.count > 0) {
           const recordDate = new Date(record.publicationDate);
-          const monthName = new Intl.DateTimeFormat("en", {
+
+          const monthName = new Intl.DateTimeFormat(lang, {
             month: "long",
           }).format(recordDate);
           const yearMonthCategory = `${monthName}-${recordDate.getFullYear()}-${
