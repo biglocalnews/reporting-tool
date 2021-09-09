@@ -168,7 +168,8 @@ export const AppSidebarMenu = () => {
             (program: { key: string; team: string; datasets: Dataset[] }) => {
               return (
                 <SubMenu className="ds-container" key={program.key} title={program.team}>
-                  {program.datasets.map((dataset) => (
+                  {
+                  program.datasets.sort((a,b) => a.title.localeCompare(b.title)).map((dataset) => (
                     <Menu.Item key={dataset.id}>
                       <Link
                         to={{
