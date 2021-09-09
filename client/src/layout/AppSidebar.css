@@ -4,4 +4,24 @@
 
 .ant-menu-dark .ant-menu-inline.ant-menu-sub {
   background: unset;
+  max-height: 60vh;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 8px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #2f5e8a;
+  border-radius: 8px;
 }
