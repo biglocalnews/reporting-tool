@@ -110,7 +110,8 @@
       "manageUsers": "Users",
       "manageTeams": "Teams",
       "managePrograms": "$t(Program_plural)",
-      "viewAll": "View all datasets"
+      "viewAll": "View all datasets",
+      "reports": "Reports (Coming Soon)"
     },
     "team": {
       "index": {
