@@ -167,8 +167,9 @@ export const AppSidebarMenu = () => {
           sidebarPrograms?.map(
             (program: { key: string; team: string; datasets: Dataset[] }) => {
               return (
-                <SubMenu key={program.key} title={program.team}>
-                  {program.datasets.map((dataset) => (
+                <SubMenu className="ds-container" key={program.key} title={program.team}>
+                  {
+                  program.datasets.sort((a,b) => a.title.localeCompare(b.title)).map((dataset) => (
                     <Menu.Item key={dataset.id}>
                       <Link
                         to={{
@@ -188,6 +189,14 @@ export const AppSidebarMenu = () => {
       {/*<SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
         <div style={{ padding: "20px", background: "#fff" }}></div>
           </SubMenu>*/}
+
+      {auth.isAdmin() ? (
+          <SubMenu key="stats" title="Reports" icon={<BarChartOutlined />}>
+            <Menu.Item key="reports" role="menuitem">
+              <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
+            </Menu.Item>
+          </SubMenu>
+      ) : ""}
 
       {auth.isAdmin() ? (
             <SubMenu 
