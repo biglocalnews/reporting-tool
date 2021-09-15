@@ -32,15 +32,18 @@ jobs:
         with:
           ref: ${{github.head_ref}}
 
+      - name: Start docker-compose
+        run: docker-compose up
+
       - name: Build main API image
         run: |
           cd ./api
-          docker build -t "api:${GITHUB_REF##*/}" . -f Dockerfile
+          docker-compose build
 
       - name: Build main Client image
         run: |
           cd ./client
-          docker build -t "client:${GITHUB_REF##*/}" . -f Dockerfile
+          docker-compose build
 
       - name: Authenticate with GCR
         if: success()
