@@ -25,6 +25,7 @@ export interface TableData {
   id: string;
   team: string;
   dataset: string;
+  teamDataset: string;
   lastUpdated: string;
   tags: Array<string>;
   [key: string]: string | Array<string>;
@@ -43,6 +44,7 @@ const getTableData = (
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
+          teamDataset: `{ team: ${program.name}, dataset: ${dataset.name} }`,
           lastUpdated: dataset.lastUpdated
             ? dayjs(dataset.lastUpdated).format("ll")
             : t("noDataAvailable"),
