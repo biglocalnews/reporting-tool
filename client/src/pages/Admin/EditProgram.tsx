@@ -738,6 +738,9 @@ export const EditProgram = () => {
                           ?.toLocaleLowerCase()
                           .indexOf(input.toLocaleLowerCase()) >= 0
                       }
+                      onChange={(value) =>
+                        datasetOps.add(datasets.find((x) => x.id === value))
+                      }
                       style={{ width: "100%" }}
                       placeholder="Select dataset"
                     >
