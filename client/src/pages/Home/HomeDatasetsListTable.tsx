@@ -1,7 +1,7 @@
 import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Space, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -86,11 +86,11 @@ const HomeDatasetsListTable = ({
       title: `Team & Dataset`,
       key: "teamDataset",
       render: (record) => (
-        <Fragment>
+        <>
           {record.team}
           <br />
           {record.dataset}
-        </Fragment>
+        </>
       ),
       responsive: ["xs"],
     },
