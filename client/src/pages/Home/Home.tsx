@@ -156,7 +156,7 @@ const Home = (): JSX.Element => {
 
   return (
     <>
-      {loading ? (
+      {loading || allTeams.loading ? (
         <Loading />
       ) : (
         <div>

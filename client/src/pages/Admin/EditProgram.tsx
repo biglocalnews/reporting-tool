@@ -18,6 +18,7 @@ import {
   Popconfirm,
   Row,
   Select,
+  Spin,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -149,9 +150,12 @@ export const EditProgram = () => {
     "personTypes"
   );
 
-  const { data: allTeams } = useQuery<AllDatasets>(ALL_DATASETS, {
-    skip: !showDatasets,
-  });
+  const { data: allTeams, loading: allTeamsLoading } = useQuery<AllDatasets>(
+    ALL_DATASETS,
+    {
+      skip: !showDatasets,
+    }
+  );
 
   useEffect(() => {
     if (allTeams) {
@@ -730,26 +734,39 @@ export const EditProgram = () => {
                       />
                     </List.Item>
                   ))}
-                  <List.Item hidden={!showDatasets}>
-                    <Select
-                      showSearch
-                      filterOption={(input, option) =>
-                        option?.children
-                          ?.toLocaleLowerCase()
-                          .indexOf(input.toLocaleLowerCase()) >= 0
-                      }
-                      onChange={(value) =>
-                        datasetOps.add(datasets.find((x) => x.id === value))
-                      }
-                      style={{ width: "100%" }}
-                      placeholder="Select dataset"
-                    >
-                      {datasets.map((dataset, i) => (
-                        <option key={i} value={dataset.id}>
-                          {dataset.name}
-                        </option>
-                      ))}
-                    </Select>
+                  <List.Item style={{ width: "100%" }} hidden={!showDatasets}>
+                    {!allTeamsLoading ? (
+                      <Select
+                        showSearch
+                        filterOption={(input, option) =>
+                          option?.children
+                            ?.toLocaleLowerCase()
+                            .indexOf(input.toLocaleLowerCase()) >= 0
+                        }
+                        onChange={(value) =>
+                          datasetOps.add(datasets.find((x) => x.id === value))
+                        }
+                        style={{ width: "100%" }}
+                        placeholder="Select dataset"
+                      >
+                        {datasets.map((dataset, i) => (
+                          <option key={i} value={dataset.id}>
+                            {dataset.name}
+                          </option>
+                        ))}
+                      </Select>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          width: "100%",
+                          alignContent: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Spin tip="Loading unassigned datasets" />
+                      </div>
+                    )}
                   </List.Item>
                   <List.Item>
                     <Button
