@@ -22,7 +22,6 @@ export function ProtectedAppContainer({
 }) {
   return (
     <>
-      
       <Layout>
         <AppSidebar />
         <Layout>

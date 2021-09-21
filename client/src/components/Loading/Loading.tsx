@@ -4,7 +4,7 @@ import "./Loading.css";
 /**
  * Full-screen loading spinner.
  */
-export const Loading = () => (
+export const Loading = ({ tip = "Loading..." }: any) => (
   <div
     id="loading-container"
     aria-hidden="false"
@@ -13,6 +13,6 @@ export const Loading = () => (
     role="progressbar"
     aria-label="Loading"
   >
-    <Spin size="large" />
+    <Spin size="large" tip={tip} />
   </div>
 );

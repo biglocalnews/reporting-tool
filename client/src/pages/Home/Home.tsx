@@ -157,7 +157,7 @@ const Home = (): JSX.Element => {
   return (
     <>
       {loading || allTeams.loading ? (
-        <Loading />
+        <Loading tip={allTeams.loading ? "Loading all datasets..." : ""} />
       ) : (
         <div>
           <div
