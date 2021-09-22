@@ -1,5 +1,10 @@
 import { Column, ColumnConfig } from "@ant-design/charts";
 import { Tabs } from "antd";
+import moment from "moment";
+import { useContext } from "react";
+import DatasetDetailsFilterContext, {
+  IDatasetDetailsFilter,
+} from "../../components/DatasetDetailsFilterProvider";
 import {
   GetDataset,
   GetDataset_dataset,
@@ -65,10 +70,28 @@ interface Dictionary<T> {
   [Key: string]: T;
 }
 
-const barStats = (data: GetDataset_dataset, category: string) => {
+const barStats = (
+  data: GetDataset_dataset,
+  category: string,
+  filters: IDatasetDetailsFilter | undefined | null
+) => {
   const chartData: Dictionary<ColStat> = {};
   const lang = window.navigator.language;
-  Array.from(data.records)
+  let filteredRecords = Array.from(data.records);
+  if (filters) {
+    if (filters.DateRange && filters.DateRange.length === 2) {
+      const from = filters.DateRange[0];
+      const to = filters.DateRange[1];
+      if (from && to) {
+        filteredRecords = filteredRecords.filter(
+          (record) =>
+            moment(record.publicationDate) >= from &&
+            moment(record.publicationDate) <= to
+        );
+      }
+    }
+  }
+  filteredRecords
     .sort(
       (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
     )
@@ -106,6 +129,8 @@ const barStats = (data: GetDataset_dataset, category: string) => {
 const DatasetDetailsScoreCard = ({
   data,
 }: ScoreCardProps): JSX.Element | null => {
+  const filterContext = useContext(DatasetDetailsFilterContext);
+
   return data?.dataset.program.targets.length ? (
     <Tabs defaultActiveKey="Gender">
       {Array.from(
@@ -117,7 +142,9 @@ const DatasetDetailsScoreCard = ({
       ).map((category) => (
         <TabPane tab={<span>{category}</span>} key={category}>
           <Column
-            {...generateColChartConfig(barStats(data?.dataset, category))}
+            {...generateColChartConfig(
+              barStats(data?.dataset, category, filterContext)
+            )}
           />
         </TabPane>
       ))}
