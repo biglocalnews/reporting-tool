@@ -14,6 +14,7 @@ import { PageTitleBar } from "../../components/PageTitleBar";
 import {
   GetDataset,
   GetDatasetVariables,
+  GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
@@ -39,6 +40,25 @@ const DatasetDetails = (): JSX.Element => {
     variables: { id: datasetId },
   });
 
+  const filteredRecords = (
+    data: readonly GetDataset_dataset_records[] | undefined
+  ) => {
+    if (selectedFilters && data) {
+      if (selectedFilters.DateRange && selectedFilters.DateRange.length === 2) {
+        const from = selectedFilters.DateRange[0];
+        const to = selectedFilters.DateRange[1];
+        if (from && to) {
+          return data.filter(
+            (record: GetDataset_dataset_records) =>
+              moment(record.publicationDate) >= from &&
+              moment(record.publicationDate) <= to
+          );
+        }
+      }
+    }
+    return data;
+  };
+
   if (queryLoading) {
     return <Loading />;
   }
@@ -47,7 +67,7 @@ const DatasetDetails = (): JSX.Element => {
     throw queryError;
   }
 
-  function onChange(
+  function onChangeDateRange(
     dates: RangeValue<Moment> | null,
     dateStrings: [string, string]
   ) {
@@ -80,21 +100,29 @@ const DatasetDetails = (): JSX.Element => {
       <Space direction="vertical" size={12}>
         <RangePicker
           ranges={{
-            Today: [moment(), moment()],
             "This Month": [moment().startOf("month"), moment().endOf("month")],
+            "Last Month": [
+              moment().subtract(1, "months").startOf("month"),
+              moment().subtract(1, "months").endOf("month"),
+            ],
+            "This Year": [moment().startOf("year"), moment().endOf("year")],
           }}
-          onChange={onChange}
+          onChange={onChangeDateRange}
         />
       </Space>
       <DatasetDetailsFilterContext.Provider value={selectedFilters}>
         {queryData!.dataset.records.length > 0 && (
-          <DatasetDetailsScoreCard data={queryData} datasetId={datasetId} />
+          <DatasetDetailsScoreCard
+            data={queryData}
+            datasetId={datasetId}
+            filteredRecords={filteredRecords(queryData?.dataset?.records)}
+          />
         )}
 
         <DatasetDetailsRecordsTable
           datasetId={datasetId}
           datasetData={queryData}
-          records={queryData?.dataset?.records}
+          records={filteredRecords(queryData?.dataset?.records)}
           isLoading={queryLoading}
         />
       </DatasetDetailsFilterContext.Provider>

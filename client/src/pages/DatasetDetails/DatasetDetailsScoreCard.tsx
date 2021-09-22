@@ -1,13 +1,9 @@
 import { Column, ColumnConfig } from "@ant-design/charts";
 import { Tabs } from "antd";
-import moment from "moment";
-import { useContext } from "react";
-import DatasetDetailsFilterContext, {
-  IDatasetDetailsFilter,
-} from "../../components/DatasetDetailsFilterProvider";
 import {
   GetDataset,
   GetDataset_dataset,
+  GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
 
@@ -15,6 +11,7 @@ const { TabPane } = Tabs;
 
 interface ScoreCardProps {
   data: GetDataset | undefined;
+  filteredRecords: readonly GetDataset_dataset_records[] | undefined;
   datasetId: string;
 }
 
@@ -72,26 +69,12 @@ interface Dictionary<T> {
 
 const barStats = (
   data: GetDataset_dataset,
-  category: string,
-  filters: IDatasetDetailsFilter | undefined | null
+  records: readonly GetDataset_dataset_records[],
+  category: string
 ) => {
   const chartData: Dictionary<ColStat> = {};
   const lang = window.navigator.language;
-  let filteredRecords = Array.from(data.records);
-  if (filters) {
-    if (filters.DateRange && filters.DateRange.length === 2) {
-      const from = filters.DateRange[0];
-      const to = filters.DateRange[1];
-      if (from && to) {
-        filteredRecords = filteredRecords.filter(
-          (record) =>
-            moment(record.publicationDate) >= from &&
-            moment(record.publicationDate) <= to
-        );
-      }
-    }
-  }
-  filteredRecords
+  Array.from(records)
     .sort(
       (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
     )
@@ -128,22 +111,24 @@ const barStats = (
 
 const DatasetDetailsScoreCard = ({
   data,
+  filteredRecords,
 }: ScoreCardProps): JSX.Element | null => {
-  const filterContext = useContext(DatasetDetailsFilterContext);
-
-  return data?.dataset.program.targets.length ? (
-    <Tabs defaultActiveKey="Gender">
-      {Array.from(
-        new Set(
-          data.dataset.program.targets.map(
-            (target) => target.categoryValue.category.name
-          )
+  const categoryValueNames = (data: GetDataset) =>
+    Array.from(
+      new Set(
+        data.dataset.program.targets.map(
+          (target) => target.categoryValue.category.name
         )
-      ).map((category) => (
+      )
+    );
+
+  return data?.dataset.program.targets.length && filteredRecords ? (
+    <Tabs defaultActiveKey="Gender">
+      {categoryValueNames(data).map((category) => (
         <TabPane tab={<span>{category}</span>} key={category}>
           <Column
             {...generateColChartConfig(
-              barStats(data?.dataset, category, filterContext)
+              barStats(data.dataset, filteredRecords, category)
             )}
           />
         </TabPane>
