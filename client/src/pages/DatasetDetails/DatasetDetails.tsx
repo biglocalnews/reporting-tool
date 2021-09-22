@@ -51,10 +51,12 @@ const DatasetDetails = (): JSX.Element => {
     dates: RangeValue<Moment> | null,
     dateStrings: [string, string]
   ) {
-    if (dates?.length) {
+    if (dates?.length && dates?.length === 2) {
       console.log("From: ", dates[0], ", to: ", dates[1]);
       console.log("From: ", dateStrings[0], ", to: ", dateStrings[1]);
       setSelectedFilters((curr) => ({ ...curr, DateRange: dates }));
+    } else {
+      setSelectedFilters((curr) => ({ ...curr, DateRange: null }));
     }
   }
 
