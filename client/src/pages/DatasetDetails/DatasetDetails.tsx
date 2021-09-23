@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, DatePicker, Space } from "antd";
+import { Button, DatePicker, Space, Typography } from "antd";
 import moment, { Moment } from "moment";
 import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
 import { useMemo, useState } from "react";
@@ -19,6 +19,7 @@ import {
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
+const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
 interface RouteParams {
@@ -41,8 +42,12 @@ const DatasetDetails = (): JSX.Element => {
   const { datasetId } = useParams<RouteParams>();
   const history = useHistory();
   const { t } = useTranslation();
+  const defaultPresetDate = "This Month";
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
-    { DateRange: [moment().startOf("month"), moment().endOf("month")] }
+    { DateRange: PresetDateRanges[defaultPresetDate] }
+  );
+  const [presetDate, setPresetDate] = useState<string | null>(
+    defaultPresetDate
   );
 
   const {
@@ -59,6 +64,14 @@ const DatasetDetails = (): JSX.Element => {
         const from = selectedFilters.DateRange[0];
         const to = selectedFilters.DateRange[1];
         if (from && to) {
+          const presetDate = Object.entries(PresetDateRanges).find(
+            ([, v]) => v === selectedFilters.DateRange
+          )?.[0];
+          if (presetDate) {
+            setPresetDate(presetDate);
+          } else {
+            setPresetDate(null);
+          }
           return queryData?.dataset?.records.filter(
             (record: GetDataset_dataset_records) =>
               moment(record.publicationDate) >= from &&
@@ -67,6 +80,7 @@ const DatasetDetails = (): JSX.Element => {
         }
       }
     }
+    setPresetDate("All Time");
     return queryData?.dataset?.records;
   }, [queryData?.dataset?.records, selectedFilters]);
 
@@ -103,33 +117,56 @@ const DatasetDetails = (): JSX.Element => {
         ]}
       />
 
-      <Space direction="vertical" size={12}>
+      <Space align="center">
+        {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
         <RangePicker
           value={
             selectedFilters?.DateRange?.length == 2
               ? [selectedFilters?.DateRange[0], selectedFilters.DateRange[1]]
-              : null
+              : [null, null]
           }
           ranges={PresetDateRanges}
           onChange={onChangeDateRange}
         />
       </Space>
-      <DatasetDetailsFilterContext.Provider value={selectedFilters}>
-        {queryData!.dataset.records.length > 0 && (
-          <DatasetDetailsScoreCard
-            data={queryData}
-            datasetId={datasetId}
-            filteredRecords={filteredRecords}
-          />
-        )}
 
-        <DatasetDetailsRecordsTable
-          datasetId={datasetId}
-          datasetData={queryData}
-          records={filteredRecords}
-          isLoading={queryLoading}
-        />
-      </DatasetDetailsFilterContext.Provider>
+      {filteredRecords?.length ? (
+        <DatasetDetailsFilterContext.Provider value={selectedFilters}>
+          {queryData!.dataset.records.length > 0 && (
+            <DatasetDetailsScoreCard
+              data={queryData}
+              datasetId={datasetId}
+              filteredRecords={filteredRecords}
+            />
+          )}
+
+          <DatasetDetailsRecordsTable
+            datasetId={datasetId}
+            datasetData={queryData}
+            records={filteredRecords}
+            isLoading={queryLoading}
+          />
+        </DatasetDetailsFilterContext.Provider>
+      ) : (
+        <div
+          style={{
+            marginTop: "auto",
+            marginBottom: "auto",
+            textAlign: "center",
+          }}
+        >
+          <Text strong>
+            {" "}
+            {t("noDataAvailable")}
+            {presetDate ? (
+              <span style={{ textTransform: "lowercase" }}>
+                {" "}
+                {t(presetDate)}
+              </span>
+            ) : null}
+          </Text>
+        </div>
+      )}
     </div>
   );
 };

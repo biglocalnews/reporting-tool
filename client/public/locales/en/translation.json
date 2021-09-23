@@ -14,7 +14,7 @@
   "addData": "Add Data",
   "editData": "Edit",
   "backToDashboard": "Back To Dashboard",
-  "noDataAvailable": "No Data Available Yet",
+  "noDataAvailable": "No data available yet",
   "notAuthorized": "You do not have permission to view this page.",
   "submitUpdate": "Save changes",
   "submitUpdateSuccess": "Successfully saved changes!",
@@ -22,6 +22,9 @@
   "cancel": "Cancel",
   "loading": "Loading",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
+  "This Month": "This Month",
+  "Last Month": "Last Month",
+  "This Year": "This Year",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",

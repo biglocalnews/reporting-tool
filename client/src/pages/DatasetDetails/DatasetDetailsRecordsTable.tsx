@@ -90,7 +90,6 @@ const DatasetDetailsRecordsTable = ({
       size="small"
       scroll={{ x: 1000 }}
       sticky
-      title={() => t("datasetRecordsTableTitle", { title: "Records" })}
       pagination={{ hideOnSinglePage: true }}
       loading={isLoading || deleteRecordLoader}
       rowKey={(record) => record.id}
