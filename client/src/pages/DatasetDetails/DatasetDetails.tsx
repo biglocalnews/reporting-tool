@@ -151,6 +151,21 @@ const DatasetDetails = (): JSX.Element => {
         title={queryData?.dataset?.program.name}
         subtitle={queryData?.dataset?.name}
         extra={[
+          <Space key="0" size="middle">
+            {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
+            <RangePicker
+              value={
+                selectedFilters?.DateRange?.length == 2
+                  ? [
+                      selectedFilters?.DateRange[0],
+                      selectedFilters.DateRange[1],
+                    ]
+                  : [null, null]
+              }
+              ranges={PresetDateRanges}
+              onChange={onChangeDateRange}
+            />
+          </Space>,
           <Button
             key="1"
             type="primary"
@@ -165,23 +180,12 @@ const DatasetDetails = (): JSX.Element => {
       <Space
         align="center"
         direction="vertical"
-        size="middle"
+        size="large"
         style={{ width: "100%" }}
       >
-        {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
-        <RangePicker
-          value={
-            selectedFilters?.DateRange?.length == 2
-              ? [selectedFilters?.DateRange[0], selectedFilters.DateRange[1]]
-              : [null, null]
-          }
-          ranges={PresetDateRanges}
-          onChange={onChangeDateRange}
-        />
-
         {filteredRecords?.length ? (
           <DatasetDetailsFilterContext.Provider value={selectedFilters}>
-            <Row>
+            <Row justify="center">
               {targetStates?.map((target) => (
                 <Col
                   key={target.name}
@@ -193,7 +197,7 @@ const DatasetDetails = (): JSX.Element => {
                 >
                   <Card>
                     <Statistic
-                      title={`Percentage of ${target.name}`}
+                      title={target.name}
                       value={target.status}
                       suffix="%"
                       prefix={
