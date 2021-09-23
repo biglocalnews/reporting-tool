@@ -1,6 +1,17 @@
 import { PlusOutlined } from "@ant-design/icons";
+import DislikeTwoTone from "@ant-design/icons/lib/icons/DislikeTwoTone";
+import LikeTwoTone from "@ant-design/icons/lib/icons/LikeTwoTone";
 import { useQuery } from "@apollo/client";
-import { Button, DatePicker, Space, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Row,
+  Space,
+  Statistic,
+  Typography,
+} from "antd";
 import moment, { Moment } from "moment";
 import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
 import { useMemo, useState } from "react";
@@ -84,6 +95,40 @@ const DatasetDetails = (): JSX.Element => {
     return queryData?.dataset?.records;
   }, [queryData?.dataset?.records, selectedFilters]);
 
+  const targetStates = useMemo(() => {
+    return queryData?.dataset?.program.targets.map((target) => ({
+      name: target.categoryValue.name,
+      target: target.target,
+      status: filteredRecords
+        ? Math.round(
+            (filteredRecords.reduce((prev, curr) => {
+              return (
+                prev +
+                curr.entries.reduce((prevEntry, currEntry) => {
+                  return currEntry.categoryValue.name ===
+                    target.categoryValue.name
+                    ? currEntry.count + prevEntry
+                    : prevEntry;
+                }, 0)
+              );
+            }, 0) /
+              filteredRecords.reduce((prev, curr) => {
+                return (
+                  prev +
+                  curr.entries.reduce((prevEntry, currEntry) => {
+                    return currEntry.categoryValue.category.name ===
+                      target.categoryValue.category.name
+                      ? currEntry.count + prevEntry
+                      : prevEntry;
+                  }, 0)
+                );
+              }, 0)) *
+              100
+          )
+        : 0,
+    }));
+  }, [queryData?.dataset?.program.targets, filteredRecords]);
+
   if (queryLoading) {
     return <Loading />;
   }
@@ -117,7 +162,12 @@ const DatasetDetails = (): JSX.Element => {
         ]}
       />
 
-      <Space align="center">
+      <Space
+        align="center"
+        direction="vertical"
+        size="middle"
+        style={{ width: "100%" }}
+      >
         {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
         <RangePicker
           value={
@@ -128,45 +178,69 @@ const DatasetDetails = (): JSX.Element => {
           ranges={PresetDateRanges}
           onChange={onChangeDateRange}
         />
-      </Space>
 
-      {filteredRecords?.length ? (
-        <DatasetDetailsFilterContext.Provider value={selectedFilters}>
-          {queryData!.dataset.records.length > 0 && (
+        {filteredRecords?.length ? (
+          <DatasetDetailsFilterContext.Provider value={selectedFilters}>
+            <Row>
+              {targetStates?.map((target) => (
+                <Col
+                  key={target.name}
+                  span={
+                    targetStates?.length
+                      ? Math.round(24 / targetStates?.length)
+                      : 5
+                  }
+                >
+                  <Card>
+                    <Statistic
+                      title={`Percentage of ${target.name}`}
+                      value={target.status}
+                      suffix="%"
+                      prefix={
+                        target.status / 100 >= target.target ? (
+                          <LikeTwoTone twoToneColor="green" />
+                        ) : (
+                          <DislikeTwoTone twoToneColor="red" />
+                        )
+                      }
+                    />
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+
             <DatasetDetailsScoreCard
               data={queryData}
               datasetId={datasetId}
               filteredRecords={filteredRecords}
             />
-          )}
 
-          <DatasetDetailsRecordsTable
-            datasetId={datasetId}
-            datasetData={queryData}
-            records={filteredRecords}
-            isLoading={queryLoading}
-          />
-        </DatasetDetailsFilterContext.Provider>
-      ) : (
-        <div
-          style={{
-            marginTop: "auto",
-            marginBottom: "auto",
-            textAlign: "center",
-          }}
-        >
-          <Text strong>
-            {" "}
-            {t("noDataAvailable")}
-            {presetDate ? (
-              <span style={{ textTransform: "lowercase" }}>
-                {" "}
-                {t(presetDate)}
-              </span>
-            ) : null}
-          </Text>
-        </div>
-      )}
+            <DatasetDetailsRecordsTable
+              datasetId={datasetId}
+              datasetData={queryData}
+              records={filteredRecords}
+              isLoading={queryLoading}
+            />
+          </DatasetDetailsFilterContext.Provider>
+        ) : (
+          <div
+            style={{
+              marginTop: "auto",
+              marginBottom: "auto",
+              textAlign: "center",
+            }}
+          >
+            <Text strong>
+              {t("noDataAvailable")}
+              {presetDate && (
+                <span style={{ textTransform: "lowercase" }}>
+                  {" " + t(presetDate)}
+                </span>
+              )}
+            </Text>
+          </div>
+        )}
+      </Space>
     </div>
   );
 };
