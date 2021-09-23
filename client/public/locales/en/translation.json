@@ -294,7 +294,8 @@
   },
   "user": {
     "sidebar": {
-      "home": "Home"
+      "home": "Home",
+      "reports": "Reports"
     },
     "homePage": {
       "showAllMy": "Show All My {{term}}",

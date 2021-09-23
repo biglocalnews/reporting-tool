@@ -9,6 +9,7 @@ import { UserList } from "../pages/Admin/UserList";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 import { Home } from "../pages/Home/Home";
+import { Reports } from "../pages/Reports/Reports";
 
 interface SubRoute extends BreadcrumbsRoute {
   key?: string;
@@ -39,6 +40,13 @@ export const normalRoutes: IRoute[] = [
     exact: true,
     component: Home,
     breadcrumb: "Home",
+  },
+  {
+    path: "/reports",
+    key: "reports",
+    exact: true,
+    component: Reports,
+    breadcrumb: "Reports",
   },
   {
     path: "/dataset/:datasetId/details",

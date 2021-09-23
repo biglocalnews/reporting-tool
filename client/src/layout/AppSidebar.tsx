@@ -103,6 +103,9 @@ export const AppNormalUserSidebarMenu = (): JSX.Element => {
       <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
         <div style={{ padding: "20px", background: "#fff" }}></div>
       </SubMenu>
+      <Menu.Item key="reports" title="Reports" icon={<DatabaseOutlined />}>
+        <Link to={`/reports`}>{t("user.sidebar.reports")}</Link>
+      </Menu.Item>
     </Menu>
   );
 };
