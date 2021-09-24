@@ -1,7 +1,7 @@
 import { Gauge } from "@ant-design/charts";
 import { PlusOutlined } from "@ant-design/icons";
-import DislikeTwoTone from "@ant-design/icons/lib/icons/DislikeTwoTone";
-import LikeTwoTone from "@ant-design/icons/lib/icons/LikeTwoTone";
+import DownCircleTwoTone from "@ant-design/icons/lib/icons/DownCircleTwoTone";
+import UpCircleTwoTone from "@ant-design/icons/lib/icons/UpCircleTwoTone";
 import { useQuery } from "@apollo/client";
 import {
   Button,
@@ -243,16 +243,12 @@ const DatasetDetails = (): JSX.Element => {
                       <Statistic
                         title={target.name}
                         value={target.status - target.target * 100}
-                        suffix={`% ${
-                          target.status / 100 >= target.target
-                            ? " over target"
-                            : " below target"
-                        }`}
+                        suffix="%"
                         prefix={
                           target.status / 100 >= target.target ? (
-                            <LikeTwoTone twoToneColor="green" />
+                            <UpCircleTwoTone twoToneColor="green" />
                           ) : (
-                            <DislikeTwoTone twoToneColor="red" />
+                            <DownCircleTwoTone twoToneColor="red" />
                           )
                         }
                       />
