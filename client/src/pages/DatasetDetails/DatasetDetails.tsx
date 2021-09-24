@@ -216,7 +216,7 @@ const DatasetDetails = (): JSX.Element => {
           <DatasetDetailsFilterContext.Provider value={selectedFilters}>
             <Row justify="center">
               {targetStates
-                ?.filter((x) => x.status)
+                ?.filter((x) => !isNaN(x.status))
                 .map((target) => (
                   <Col
                     key={target.name}
