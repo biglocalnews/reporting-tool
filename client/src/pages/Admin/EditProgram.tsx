@@ -392,7 +392,7 @@ export const EditProgram = () => {
                                 );
                               }
 
-                              const sum = segments.reduce(
+                              /*const sum = segments.reduce(
                                 (total, segment) => total + segment.targetValue,
                                 0
                               );
@@ -400,7 +400,7 @@ export const EditProgram = () => {
                                 throw new Error(
                                   t("admin.program.edit.form.validation.100%")
                                 );
-                              }
+                              }*/
 
                               const uniqueNames = new Set(
                                 segments.map((segment) =>

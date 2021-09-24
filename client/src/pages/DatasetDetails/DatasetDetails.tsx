@@ -1,3 +1,4 @@
+import { Gauge } from "@ant-design/charts";
 import { PlusOutlined } from "@ant-design/icons";
 import DislikeTwoTone from "@ant-design/icons/lib/icons/DislikeTwoTone";
 import LikeTwoTone from "@ant-design/icons/lib/icons/LikeTwoTone";
@@ -129,6 +130,34 @@ const DatasetDetails = (): JSX.Element => {
     }));
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
+  const generateGuageConfig = (target: {
+    name: string;
+    target: number;
+    status: number;
+  }) => {
+    return {
+      width: 150,
+      height: 150,
+      percent: target.status / 100,
+      range: {
+        ticks: [0, target.target, 1],
+        color: ["#F4664A", "#30BF78"],
+      },
+      indicator: {
+        pointer: { style: { stroke: "#D0D0D0" } },
+        pin: { style: { stroke: "#D0D0D0" } },
+      },
+      statistic: {
+        content: {
+          style: {
+            fontSize: "18px",
+            lineHeight: "18px",
+          },
+        },
+      },
+    };
+  };
+
   if (queryLoading) {
     return <Loading />;
   }
@@ -186,31 +215,34 @@ const DatasetDetails = (): JSX.Element => {
         {filteredRecords?.length ? (
           <DatasetDetailsFilterContext.Provider value={selectedFilters}>
             <Row justify="center">
-              {targetStates?.map((target) => (
-                <Col
-                  key={target.name}
-                  span={
-                    targetStates?.length
-                      ? Math.round(24 / targetStates?.length)
-                      : 5
-                  }
-                >
-                  <Card>
-                    <Statistic
-                      title={target.name}
-                      value={target.status}
-                      suffix="%"
-                      prefix={
-                        target.status / 100 >= target.target ? (
-                          <LikeTwoTone twoToneColor="green" />
-                        ) : (
-                          <DislikeTwoTone twoToneColor="red" />
-                        )
-                      }
-                    />
-                  </Card>
-                </Col>
-              ))}
+              {targetStates
+                ?.filter((x) => x.status)
+                .map((target) => (
+                  <Col
+                    key={target.name}
+                    span={
+                      targetStates?.length
+                        ? Math.round(24 / targetStates?.length)
+                        : 5
+                    }
+                  >
+                    <Gauge {...generateGuageConfig(target)} />
+                    <Card>
+                      <Statistic
+                        title={target.name}
+                        value={target.status}
+                        suffix="%"
+                        prefix={
+                          target.status / 100 >= target.target ? (
+                            <LikeTwoTone twoToneColor="green" />
+                          ) : (
+                            <DislikeTwoTone twoToneColor="red" />
+                          )
+                        }
+                      />
+                    </Card>
+                  </Col>
+                ))}
             </Row>
 
             <DatasetDetailsScoreCard
