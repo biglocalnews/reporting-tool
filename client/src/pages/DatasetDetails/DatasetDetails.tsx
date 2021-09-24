@@ -138,10 +138,19 @@ const DatasetDetails = (): JSX.Element => {
     return {
       width: 150,
       height: 150,
+      innerRadius: 0.8,
       percent: target.status / 100,
       range: {
         ticks: [0, target.target, 1],
         color: ["#F4664A", "#30BF78"],
+      },
+      axis: {
+        label: {
+          formatter: (v: string) => {
+            return Number(v) * 100;
+          },
+        },
+        subTickLine: { count: 3 },
       },
       indicator: {
         pointer: { style: { stroke: "#D0D0D0" } },
@@ -149,6 +158,9 @@ const DatasetDetails = (): JSX.Element => {
       },
       statistic: {
         content: {
+          formatter: () => {
+            return `${target.status}%`;
+          },
           style: {
             fontSize: "18px",
             lineHeight: "18px",
@@ -230,8 +242,12 @@ const DatasetDetails = (): JSX.Element => {
                     <Card>
                       <Statistic
                         title={target.name}
-                        value={target.status}
-                        suffix="%"
+                        value={target.status - target.target * 100}
+                        suffix={`% ${
+                          target.status / 100 >= target.target
+                            ? " over target"
+                            : " below target"
+                        }`}
                         prefix={
                           target.status / 100 >= target.target ? (
                             <LikeTwoTone twoToneColor="green" />
