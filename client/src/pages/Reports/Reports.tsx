@@ -1,5 +1,11 @@
 import { UploadOutlined } from "@ant-design/icons";
+import { useQuery } from "@apollo/client";
 import { Button, Card, DatePicker, Select, Space } from "antd";
+// import { AllDatasets } from "../../graphql/__generated__/AllDatasets";
+import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
+// import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
+import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
+
 const { Meta } = Card;
 const { Option } = Select;
 
@@ -20,10 +26,16 @@ function onSearch(value: any) {
 }
 
 const onClick = (): any => {
-  console.log("ahh! I have to export!");
+  console.log("ahh! I've been clicked!");
 };
 
-export const Reports = () => {
+export const Reports = (): JSX.Element => {
+  // const auth = useAuth();
+  // const userId = auth.getUserId();
+
+  const tags = useQuery<GetAllTags>(GET_ALL_TAGS);
+  const availableTags = tags?.data?.tags || [];
+
   return (
     <>
       <Card
@@ -104,7 +116,13 @@ export const Reports = () => {
             //   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             // }
           >
-            <Option value="news">News</Option>
+            {availableTags.map((tag) => {
+              return (
+                <Option value={tag.name} key={tag.id}>
+                  {tag.name}
+                </Option>
+              );
+            })}
           </Select>
           <Button onClick={onClick} type="primary" size={"large"}>
             Apply Filter
