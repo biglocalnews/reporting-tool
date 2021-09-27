@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Button, Form, Input, DatePicker, Spin, Table, Tabs, InputNumber } from "antd";
+import { Button, Form, Input, DatePicker, Spin, Table, Tabs, InputNumber, Popconfirm } from "antd";
 import { CheckCircleTwoTone, ExclamationCircleTwoTone  } from '@ant-design/icons';
 import { FormInstance } from "antd/lib/form";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -225,7 +225,6 @@ export const EditableTable: React.FC = () => {
   });
 
   console.log(queryData);
-
   const [tableState, setTableState] = useState<EditableTableState>({
     dataSource: [
       {
@@ -256,10 +255,15 @@ export const EditableTable: React.FC = () => {
     count: 2,
   });
 
-
+  const handleDelete = (key: React.Key) => {
+    const dataSource = [...tableState.dataSource];
+    setTableState((curr) => ({
+      ...curr,
+      dataSource: dataSource.filter((item) => item.key !== key),
+    }));
+  };
 
   const handleAdd = () => {
-    console.log('-> handleAdd', handleAdd);
     const { count } = tableState;
     const dataSource = [...tableState.dataSource];
     const newData: DataType = {
@@ -380,6 +384,23 @@ export const EditableTable: React.FC = () => {
           width: "40"     
         }
       ]
+    },
+    {
+      title: "Manage",
+      dataIndex: "operation",
+      render: function someo(_: any, record: { key: React.Key })
+      {
+        console.log('tableState.dataSource.length',tableState.dataSource.length);
+        return (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <a href="/">Delete</a>
+          </Popconfirm>
+        )
+      }
+        
     },
   ];
 
