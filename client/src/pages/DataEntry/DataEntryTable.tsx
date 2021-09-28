@@ -1,39 +1,50 @@
-import { useMutation, useQuery } from "@apollo/client";
-import { Button, Form, Input, Popconfirm, Spin, Table } from "antd";
+import { useQuery } from "@apollo/client";
+import { Button, Form, Input, DatePicker, Spin, Table, Tabs, InputNumber, Popconfirm } from "antd";
+import { CheckCircleTwoTone, ExclamationCircleTwoTone  } from '@ant-design/icons';
 import { FormInstance } from "antd/lib/form";
 import React, { useContext, useEffect, useRef, useState } from "react";
+import "./DataEntryTable.css";
+
+import moment from "moment";
+
 //import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+//import { useParams } from "react-router-dom";
 import {
   GetDataset,
   GetDatasetVariables,
 } from "../../graphql/__generated__/GetDataset";
-import { UPDATE_RECORD } from "../../graphql/__mutations__/UpdateRecord.gql";
+//import { UPDATE_RECORD } from "../../graphql/__mutations__/UpdateRecord.gql";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
-
-interface RouteParams {
+import PropTypes from 'prop-types';
+/*interface RouteParams {
   datasetId: string;
   recordId?: string;
-}
+}*/
 
-const { datasetId } = useParams<RouteParams>();
-
-const [updateRecord, { loading: recordSaving }] = useMutation(UPDATE_RECORD, {
+//const { datasetId } = useParams<RouteParams>();
+const { TabPane } = Tabs;
+/*const [updateRecord, { loading: recordSaving }] = useMutation(UPDATE_RECORD, {
   refetchQueries: [
     {
       query: GET_DATASET,
       variables: { id: datasetId },
     },
   ],
-});
+});*/
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 interface Item {
   key: string;
-  name: string;
-  age: string;
-  address: string;
+  date: string,
+  cps_number: string,
+  story_title: string,
+  story_topic: string,
+  gender_men: string,
+  gender_women: string,
+  gender_nb: string,
+  disability: string,
+  non_disabled: string
 }
 
 interface EditableRowProps {
@@ -42,6 +53,7 @@ interface EditableRowProps {
 
 const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
   const [form] = Form.useForm();
+  console.log(index);
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
@@ -51,10 +63,15 @@ const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
   );
 };
 
+EditableRow.propTypes = {
+  index: PropTypes.number.isRequired
+}
+
 interface EditableCellProps {
   title: React.ReactNode;
   editable: boolean;
   children: React.ReactNode;
+  inputType: string;
   dataIndex: keyof Item;
   record: Item;
   handleSave: (record: Item) => void;
@@ -64,14 +81,17 @@ const EditableCell: React.FC<EditableCellProps> = ({
   title,
   editable,
   children,
+  inputType,
   dataIndex,
   record,
   handleSave,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef<Input>(null);
+  const inputRef = useRef<any>(null);
   const form = useContext(EditableContext)!;
+  
+
 
   useEffect(() => {
     if (editing) {
@@ -87,7 +107,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const save = async () => {
     try {
       const values = await form.validateFields();
-
+      console.log('-> save called', values);
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
@@ -96,8 +116,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
   };
 
   let childNode = children;
+  const inputNode = inputType === 'date' ? <div><DatePicker ref={inputRef} format="YYYY-MM-DD"  /></div>  : inputType === 'number' ? <InputNumber ref={inputRef}/> : <Input ref={inputRef} onPressEnter={save} onBlur={save} />;
+  
+
 
   if (editable) {
+
     childNode = editing ? (
       <Form.Item
         style={{ margin: 0 }}
@@ -109,14 +133,17 @@ const EditableCell: React.FC<EditableCellProps> = ({
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+      {inputNode}
       </Form.Item>
     ) : (
       <div
-        color={recordSaving ? "red" : "unset"}
+        //color={recordSaving ? "red" : "unset"}
         className="editable-cell-value-wrap"
         style={{ paddingRight: 24 }}
         onClick={toggleEdit}
+        onKeyDown={toggleEdit}
+        role="button"
+        tabIndex={0}
       >
         {children}
       </div>
@@ -126,13 +153,60 @@ const EditableCell: React.FC<EditableCellProps> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
+EditableCell.propTypes = {
+  editable: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+  dataIndex: PropTypes.any,
+  inputType: PropTypes.oneOf(['text','number', 'date']).isRequired,
+  handleSave: PropTypes.any,
+  children: PropTypes.node,
+  record: PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    cps_number: PropTypes.string.isRequired,
+    story_title: PropTypes.string.isRequired,
+    story_topic: PropTypes.string.isRequired,
+    gender_men: PropTypes.string.isRequired,
+    gender_women: PropTypes.string.isRequired,
+    gender_nb: PropTypes.string.isRequired,
+    disability: PropTypes.string.isRequired,
+    non_disabled: PropTypes.string.isRequired
+  }).isRequired,
+
+}
+
+EditableCell.defaultProps = {
+  editable: false,
+  inputType: "text",
+  title: "",
+  record: {
+    key: "",
+    date: "Some Date",
+    cps_number: "1000",
+    story_title: "title",
+    story_topic: "topic",
+    gender_men: "111",
+    gender_women: "111",
+    gender_nb: "111",
+    disability: "50%",
+    non_disabled: "50%"
+  },
+  children: true
+}
+
 type EditableTableProps = Parameters<typeof Table>[0];
 
 interface DataType {
   key: React.Key;
-  name: string;
-  age: string;
-  address: string;
+  date: string,
+  cps_number: string,
+  story_title: string,
+  story_topic: string,
+  gender_men: string,
+  gender_women: string,
+  gender_nb: string,
+  disability: string,
+  non_disabled: string
 }
 
 interface EditableTableState {
@@ -147,24 +221,35 @@ export const EditableTable: React.FC = () => {
     GetDataset,
     GetDatasetVariables
   >(GET_DATASET, {
-    variables: { id: datasetId },
+    variables: { id: '96336531-9245-405f-bd28-5b4b12ea3798' },
   });
 
   console.log(queryData);
-
   const [tableState, setTableState] = useState<EditableTableState>({
     dataSource: [
       {
         key: "0",
-        name: "Edward King 0",
-        age: "32",
-        address: "London, Park Lane no. 0",
+        date: "2021-09-01",
+        cps_number: "1234",
+        story_title: "Title",
+        story_topic: "Topic",
+        gender_men: "50%",
+        gender_women: "48%",
+        gender_nb: "2%",
+        disability: "50%",
+        non_disabled: "50%"
       },
       {
         key: "1",
-        name: "Edward King 1",
-        age: "32",
-        address: "London, Park Lane no. 1",
+        date: "2021-09-02",
+        cps_number: "1235",
+        story_title: "Title",
+        story_topic: "Topic",
+        gender_men: "50%",
+        gender_women: "48%",
+        gender_nb: "2%",
+        disability: "50%",
+        non_disabled: "50%"
       },
     ],
     count: 2,
@@ -180,55 +265,142 @@ export const EditableTable: React.FC = () => {
 
   const handleAdd = () => {
     const { count } = tableState;
+    const dataSource = [...tableState.dataSource];
     const newData: DataType = {
       key: count,
-      name: `Edward King ${count}`,
-      age: "32",
-      address: `London, Park Lane no. ${count}`,
+      date: moment().format('YYYY-MM-DD'),
+      cps_number: "12346",
+      story_title: "Title",
+      story_topic: "Topic",
+      gender_men: "50%",
+      gender_women: "48%",
+      gender_nb: "2%",
+      disability: "50%",
+      non_disabled: "50%"
     };
-    setTableState((curr) => ({ ...curr, ...newData, count: curr.count + 1 }));
+    setTableState((curr) => ({ ...curr, ...newData, dataSource: [...dataSource, newData], count: curr.count + 1 }));
+
+    
   };
 
+  
   const handleSave = (row: DataType) => {
-    updateRecord();
+    //updateRecord();
     const newData = [...tableState.dataSource];
+    //const dataSource = [...tableState.dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-    setTableState((curr) => ({ ...curr, dataSource: { ...newData } }));
+
+    console.log('-> new data save', newData);
+    //setTableState((curr) => ({ ...curr, dataSource: { ...newData } }));
+    //setTableState((curr) => ({ ...curr, ...newData, dataSource: [...dataSource, newData], count: curr.count }));
   };
+
   //let columns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[];
 
   const columns = [
     {
-      title: "name",
-      dataIndex: "name",
-      width: "30%",
+      title: 'date',
+      dataIndex: 'date',
+      width: '100',
       editable: true,
+      key: 'date',
     },
     {
-      title: "age",
-      dataIndex: "age",
+      title: 'CPS No.',
+      dataIndex: 'cps_number',
+      width: '150',
+      editable: true,
+      key: 'cps_number'
     },
     {
-      title: "address",
-      dataIndex: "address",
+      title: 'Story Title',
+      dataIndex: 'story_title',
+      width: '200',
+      editable: true,
+      key: 'story_title'
     },
     {
-      title: "operation",
+      title: 'Story Topic',
+      dataIndex: 'story_topic',
+      width: '100',
+      editable: true,
+      key: 'story_topic'
+    },     
+    {
+      title: 'Gender',
+      dataIndex: 'gender',
+      key: 'gender',
+      width: 120,
+      editable: true,
+      
+      children: [
+        {
+          title: 'Men',
+          dataIndex: 'gender_men',
+          key: 'gender_men',
+          editable: true,
+          width: "40"
+        },
+        {
+          title: 'Women',
+          dataIndex: 'gender_women',
+          key: 'gender_women',
+          editable: true,
+          width: "40"
+        },
+        {
+          title: 'Non Binary',
+          dataIndex: 'gender_nb',
+          key: 'gender_nb',
+          editable: true,
+          width: "40"
+        }
+      ]
+    },
+    {
+      title: 'Disability',
+      dataIndex: 'disability_status',
+      key: 'disability_status',
+      width: 80,
+      editable: true,
+      children: [
+        {
+          title: 'Disabled',
+          dataIndex: 'disability',
+          key: 'disability',
+          editable: true,
+          width: "40"          
+        },
+        {
+          title: 'Non-Disabled',
+          dataIndex: 'non_disabled',
+          key: 'non_disabled',
+          editable: true,
+          width: "40"     
+        }
+      ]
+    },
+    {
+      title: "Manage",
       dataIndex: "operation",
-      render: (_: any, record: { key: React.Key }) =>
-        tableState.dataSource.length >= 1 ? (
+      render: function someo(_: any, record: { key: React.Key })
+      {
+        console.log('tableState.dataSource.length',tableState.dataSource.length);
+        return (
           <Popconfirm
             title="Sure to delete?"
             onConfirm={() => handleDelete(record.key)}
           >
-            <a>Delete</a>
+            <a href="/">Delete</a>
           </Popconfirm>
-        ) : null,
+        )
+      }
+        
     },
   ];
 
@@ -246,32 +418,48 @@ export const EditableTable: React.FC = () => {
       ...col,
       onCell: (record: DataType) => ({
         record,
+        inputType: col.dataIndex === 'date' ? 'date' : col.dataIndex === 'cps_number' ? 'number' : 'text',
         editable: col.editable,
         dataIndex: col.dataIndex,
         title: col.title,
+        key: col.key,
         handleSave: handleSave,
       }),
     };
   });
 
   return (
-    <div>
+    <div className="card-container">
       {!queryLoading ? (
         <>
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{ marginBottom: 16 }}
-          >
-            Add a row
-          </Button>
-          <Table
-            components={components}
-            rowClassName={() => "editable-row"}
-            bordered
-            dataSource={tableState.dataSource}
-            columns={filteredColumns as ColumnTypes}
-          />
+          <Tabs type="card" size="large">
+            <TabPane tab={<span><CheckCircleTwoTone twoToneColor="#52c41a" />June</span>} key="1">
+
+              <Table
+                components={components}
+                rowClassName={() => "editable-row"}
+                bordered
+                dataSource={tableState.dataSource}
+                columns={filteredColumns as ColumnTypes}
+              />
+
+              <Button
+                onClick={handleAdd}
+                type="primary"
+                style={{ marginBottom: 16 }}
+              >
+                Add Row
+              </Button>
+
+            </TabPane>
+
+            <TabPane tab={<span><CheckCircleTwoTone twoToneColor="#52c41a" />July</span>} key="2">
+              <p></p>
+            </TabPane>
+            <TabPane tab={<span><ExclamationCircleTwoTone twoToneColor="#eb2f96" />August</span>} key="3">
+              <p></p>
+            </TabPane>
+          </Tabs>
         </>
       ) : (
         <Spin />
