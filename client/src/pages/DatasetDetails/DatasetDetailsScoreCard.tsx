@@ -6,7 +6,6 @@ import {
   GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
-
 const { TabPane } = Tabs;
 
 interface ScoreCardProps {
