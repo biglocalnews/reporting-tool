@@ -149,46 +149,60 @@ const DatasetDetails = (): JSX.Element => {
     );
   };
 
-  const groupedRecords = useMemo(() => {
+  const groupedByMonthYearRecords = useMemo(() => {
     const lang = window.navigator.language;
-    return sortedRecords?.reduce((acc, curr) => {
+    return sortedRecords?.reduce((acc: Record<string, Array<IEntry>>, curr) => {
       const recordDate = new Date(curr.publicationDate);
       const monthName = new Intl.DateTimeFormat(lang, {
         month: "long",
       }).format(recordDate);
       const monthYear = `${monthName} ${recordDate.getFullYear()}`;
       if (acc[monthYear]) {
-        acc[monthYear] = acc[monthYear].map((entry) => ({
-          ...entry,
-          AttributeCount: (entry.AttributeCount +=
-            curr.entries.find((x) => x.categoryValue.name === entry.Attribute)
-              ?.count ?? 0),
-          AttributeCategoryCount: (entry.AttributeCategoryCount +=
-            curr.entries.reduce((count, currEntry) => {
-              return currEntry.categoryValue.category.name ===
-                entry.AttributeCategory
-                ? (count += currEntry.count)
-                : count;
-            }, 0)),
-        }));
-        return acc;
+        return acc[monthYear].reduce(
+          (monthYearRecords: Record<string, Array<IEntry>>, entry: IEntry) => {
+            if (!monthYearRecords[monthYear]) {
+              monthYearRecords[monthYear] = [];
+            }
+            monthYearRecords[monthYear].push({
+              ...entry,
+              AttributeCount: (entry.AttributeCount += sumOfEntriesByAttribute(
+                curr.entries,
+                entry.Attribute
+              )),
+              AttributeCategoryCount: (entry.AttributeCategoryCount +=
+                sumOfEntriesByAttributeCategory(
+                  curr.entries,
+                  entry.AttributeCategory
+                )),
+            });
+            return monthYearRecords;
+          },
+          {} as Record<string, Array<IEntry>>
+        );
+      } else {
+        const newMonthYearRecord = (
+          entry: GetDataset_dataset_records_entries
+        ) => {
+          return {
+            MonthYear: monthYear,
+            Attribute: entry.categoryValue.name,
+            AttributeCategory: entry.categoryValue.category.name,
+            AttributeCount: entry.count,
+            AttributeCategoryCount: sumOfEntriesByAttributeCategory(
+              curr.entries,
+              entry.categoryValue.category.name
+            ),
+            Target: queryData?.dataset.program.targets.find(
+              (target) => target.categoryValue.name === entry.categoryValue.name
+            )?.target,
+            Percent: undefined,
+          };
+        };
+        acc[monthYear] = curr.entries.reduce((newMY, entry) => {
+          newMY.push(newMonthYearRecord(entry));
+          return newMY;
+        }, new Array<IEntry>());
       }
-      acc[monthYear] = curr.entries.map((entry) => ({
-        MonthYear: monthYear,
-        Attribute: entry.categoryValue.name,
-        AttributeCategory: entry.categoryValue.category.name,
-        AttributeCount: entry.count,
-        AttributeCategoryCount: curr.entries.reduce((count, currEntry) => {
-          return currEntry.categoryValue.category.name ===
-            entry.categoryValue.category.name
-            ? (count += currEntry.count)
-            : count;
-        }, 0),
-        Target: queryData?.dataset.program.targets.find(
-          (target) => target.categoryValue.name === entry.categoryValue.name
-        )?.target,
-        Percent: undefined,
-      }));
       return acc;
     }, {} as Record<string, Array<IEntry>>);
   }, [sortedRecords]);
@@ -262,19 +276,29 @@ const DatasetDetails = (): JSX.Element => {
   const progressCharts: customColumnConfig[] = useMemo(() => {
     return (
       queryData?.dataset?.program.targets.reduce((configs, target) => {
-        if (groupedRecords && Object.entries(groupedRecords).length > 0) {
-          const chartData = Object.values(groupedRecords)
-            .map((record) =>
-              record
-                .filter((x) => x.Attribute == target.categoryValue.name)
-                .map((x) => ({
-                  ...x,
+        if (
+          groupedByMonthYearRecords &&
+          Object.keys(groupedByMonthYearRecords).length > 1
+        ) {
+          const chartData = Object.values(groupedByMonthYearRecords).reduce(
+            (entryArray, record) => {
+              const targetEntry = record.find(
+                (x) => x.Attribute == target.categoryValue.name
+              );
+              if (targetEntry) {
+                entryArray.push({
+                  ...targetEntry,
                   Percent: Math.round(
-                    (x.AttributeCount / x.AttributeCategoryCount) * 100
+                    (targetEntry.AttributeCount /
+                      targetEntry.AttributeCategoryCount) *
+                      100
                   ),
-                }))
-            )
-            .flat();
+                });
+              }
+              return entryArray;
+            },
+            new Array<IEntry>()
+          );
           if (chartData.length > 1) {
             configs.push(
               progressConfig(
@@ -288,7 +312,7 @@ const DatasetDetails = (): JSX.Element => {
         return configs;
       }, [] as customColumnConfig[]) ?? new Array<customColumnConfig>()
     );
-  }, [groupedRecords, queryData?.dataset?.program.targets]);
+  }, [groupedByMonthYearRecords, queryData?.dataset?.program.targets]);
 
   const filteredRecords = useMemo(() => {
     if (selectedFilters && sortedRecords) {
@@ -382,6 +406,25 @@ const DatasetDetails = (): JSX.Element => {
     }
   }
 
+  const noDataAvailable = () => (
+    <div
+      style={{
+        marginTop: "auto",
+        marginBottom: "auto",
+        textAlign: "center",
+      }}
+    >
+      <Text strong>
+        {t("noDataAvailable")}
+        {presetDate && (
+          <span style={{ textTransform: "lowercase" }}>
+            {" " + t(presetDate)}
+          </span>
+        )}
+      </Text>
+    </div>
+  );
+
   return (
     <div className="dataset-details_container">
       <PageTitleBar
@@ -413,83 +456,78 @@ const DatasetDetails = (): JSX.Element => {
           </Button>,
         ]}
       />
+      {!!(filteredRecords?.length || progressCharts.length) && (
+        <Tabs defaultActiveKey={progressCharts.length ? "progress" : "current"}>
+          {progressCharts.length && (
+            <TabPane tab="Progress" key="progress">
+              <Tabs defaultActiveKey="Cisgender women">
+                {progressCharts &&
+                  progressCharts.map((config, i) => (
+                    <TabPane key={i} tab={config.title}>
+                      <Column {...config} />
+                    </TabPane>
+                  ))}
+              </Tabs>
+            </TabPane>
+          )}
 
-      <Tabs defaultActiveKey="Progress">
-        <TabPane tab="Progress" key="progress">
-          <Tabs defaultActiveKey="Cisgender women">
-            {progressCharts &&
-              progressCharts.map((config, i) => (
-                <TabPane key={i} tab={config.title}>
-                  <Column {...config} />
-                </TabPane>
-              ))}
-          </Tabs>
-        </TabPane>
-        <TabPane tab="Current" key="current">
-          <Row justify="center">
-            {targetStates
-              ?.filter((x) => !isNaN(x.status))
-              .map((target) => (
-                <Col
-                  key={target.name}
-                  span={
-                    targetStates?.length
-                      ? Math.round(24 / targetStates?.length)
-                      : 5
-                  }
-                >
-                  <Gauge {...generateGuageConfig(target)} />
-                  <Card>
-                    <Statistic
-                      title={target.name}
-                      value={target.status - target.target * 100}
-                      suffix="%"
-                      prefix={
-                        target.status / 100 >= target.target ? (
-                          <UpCircleTwoTone twoToneColor="green" />
-                        ) : (
-                          <DownCircleTwoTone twoToneColor="red" />
-                        )
+          <TabPane tab={presetDate ? presetDate : "Current"} key="current">
+            {filteredRecords?.length ? (
+              <Row justify="center">
+                {targetStates
+                  ?.filter((x) => !isNaN(x.status))
+                  .map((target) => (
+                    <Col
+                      key={target.name}
+                      span={
+                        targetStates?.length
+                          ? Math.round(24 / targetStates?.length)
+                          : 5
                       }
-                    />
-                  </Card>
-                </Col>
-              ))}
-          </Row>
-        </TabPane>
-      </Tabs>
-      {filteredRecords?.length ? (
-        <>
-          <DatasetDetailsScoreCard
-            data={queryData}
-            datasetId={datasetId}
-            filteredRecords={filteredRecords}
-          />
-
-          <DatasetDetailsRecordsTable
-            datasetId={datasetId}
-            datasetData={queryData}
-            records={filteredRecords}
-            isLoading={queryLoading}
-          />
-        </>
-      ) : (
-        <div
-          style={{
-            marginTop: "auto",
-            marginBottom: "auto",
-            textAlign: "center",
-          }}
-        >
-          <Text strong>
-            {t("noDataAvailable")}
-            {presetDate && (
-              <span style={{ textTransform: "lowercase" }}>
-                {" " + t(presetDate)}
-              </span>
+                    >
+                      <Gauge {...generateGuageConfig(target)} />
+                      <Card>
+                        <Statistic
+                          title={target.name}
+                          value={target.status - target.target * 100}
+                          suffix="%"
+                          prefix={
+                            target.status / 100 >= target.target ? (
+                              <UpCircleTwoTone twoToneColor="green" />
+                            ) : (
+                              <DownCircleTwoTone twoToneColor="red" />
+                            )
+                          }
+                        />
+                      </Card>
+                    </Col>
+                  ))}
+              </Row>
+            ) : (
+              noDataAvailable()
             )}
-          </Text>
-        </div>
+          </TabPane>
+          <TabPane tab="Details">
+            {filteredRecords?.length ? (
+              <Space direction="vertical">
+                <DatasetDetailsScoreCard
+                  data={queryData}
+                  datasetId={datasetId}
+                  filteredRecords={filteredRecords}
+                />
+
+                <DatasetDetailsRecordsTable
+                  datasetId={datasetId}
+                  datasetData={queryData}
+                  records={filteredRecords}
+                  isLoading={queryLoading}
+                />
+              </Space>
+            ) : (
+              noDataAvailable()
+            )}
+          </TabPane>
+        </Tabs>
       )}
     </div>
   );
