@@ -336,6 +336,9 @@ type Query {
   # Retrieve list of all programs
   programs: [Program!]! @needsPermission(permission: [ADMIN])
 
+  # Retrieve all datasets
+  datasets: [Dataset!]! @needsPermission(permission: [LOGGED_IN])
+
   # Retrieve full list of categories
   categories: [Category!]! @needsPermission(permission: [ADMIN])
 
