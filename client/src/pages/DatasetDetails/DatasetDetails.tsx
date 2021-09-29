@@ -456,7 +456,7 @@ const DatasetDetails = (): JSX.Element => {
           </Button>,
         ]}
       />
-      {!!(filteredRecords?.length || progressCharts.length) && (
+      {filteredRecords?.length || progressCharts.length ? (
         <Tabs defaultActiveKey={progressCharts.length ? "progress" : "current"}>
           {progressCharts.length && (
             <TabPane tab="Progress" key="progress">
@@ -528,6 +528,8 @@ const DatasetDetails = (): JSX.Element => {
             )}
           </TabPane>
         </Tabs>
+      ) : (
+        noDataAvailable()
       )}
     </div>
   );
