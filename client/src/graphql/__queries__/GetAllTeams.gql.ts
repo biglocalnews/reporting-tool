@@ -5,15 +5,15 @@ export const GET_ALL_TEAMS = gql`
     teams {
       id
       name
-      datasets {
-        id
-        name
-        lastUpdated
-      }
       programs {
         id
         name
         description
+        datasets {
+          id
+          name
+          lastUpdated
+        }
         targets {
           id
           target
