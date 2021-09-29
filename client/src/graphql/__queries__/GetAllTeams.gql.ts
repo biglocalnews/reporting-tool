@@ -13,6 +13,12 @@ export const GET_ALL_TEAMS = gql`
           id
           name
           lastUpdated
+          tags {
+            id
+            name
+            tagType
+            description
+          }
         }
         targets {
           id
@@ -27,12 +33,6 @@ export const GET_ALL_TEAMS = gql`
             }
           }
         }
-      }
-      tags {
-        id
-        name
-        tagType
-        description
       }
     }
   }
