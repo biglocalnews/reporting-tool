@@ -275,42 +275,44 @@ const DatasetDetails = (): JSX.Element => {
 
   const progressCharts: customColumnConfig[] = useMemo(() => {
     return (
-      queryData?.dataset?.program.targets.reduce((configs, target) => {
-        if (
-          groupedByMonthYearRecords &&
-          Object.keys(groupedByMonthYearRecords).length > 1
-        ) {
-          const chartData = Object.values(groupedByMonthYearRecords).reduce(
-            (entryArray, record) => {
-              const targetEntry = record.find(
-                (x) => x.Attribute == target.categoryValue.name
-              );
-              if (targetEntry) {
-                entryArray.push({
-                  ...targetEntry,
-                  Percent: Math.round(
-                    (targetEntry.AttributeCount /
-                      targetEntry.AttributeCategoryCount) *
-                      100
-                  ),
-                });
-              }
-              return entryArray;
-            },
-            new Array<IEntry>()
-          );
-          if (chartData.length > 1) {
-            configs.push(
-              progressConfig(
-                [chartData[0], chartData[chartData.length - 1]],
-                Math.round(target.target * 100),
-                target.categoryValue.name
-              )
+      queryData?.dataset?.program.targets
+        .filter((x) => x.target > 0.0)
+        .reduce((configs, target) => {
+          if (
+            groupedByMonthYearRecords &&
+            Object.keys(groupedByMonthYearRecords).length > 1
+          ) {
+            const chartData = Object.values(groupedByMonthYearRecords).reduce(
+              (entryArray, record) => {
+                const targetEntry = record.find(
+                  (x) => x.Attribute == target.categoryValue.name
+                );
+                if (targetEntry) {
+                  entryArray.push({
+                    ...targetEntry,
+                    Percent: Math.round(
+                      (targetEntry.AttributeCount /
+                        targetEntry.AttributeCategoryCount) *
+                        100
+                    ),
+                  });
+                }
+                return entryArray;
+              },
+              new Array<IEntry>()
             );
+            if (chartData.length > 1) {
+              configs.push(
+                progressConfig(
+                  [chartData[0], chartData[chartData.length - 1]],
+                  Math.round(target.target * 100),
+                  target.categoryValue.name
+                )
+              );
+            }
           }
-        }
-        return configs;
-      }, [] as customColumnConfig[]) ?? new Array<customColumnConfig>()
+          return configs;
+        }, [] as customColumnConfig[]) ?? new Array<customColumnConfig>()
     );
   }, [groupedByMonthYearRecords, queryData?.dataset?.program.targets]);
 
@@ -341,13 +343,15 @@ const DatasetDetails = (): JSX.Element => {
   }, [sortedRecords, selectedFilters]);
 
   const targetStates = useMemo(() => {
-    return queryData?.dataset?.program.targets.map((target) => ({
-      name: target.categoryValue.name,
-      target: target.target,
-      status: filteredRecords
-        ? percentOfAttribute(filteredRecords, target.categoryValue)
-        : 0,
-    }));
+    return queryData?.dataset?.program.targets
+      .filter((x) => x.target > 0.0)
+      .map((target) => ({
+        name: target.categoryValue.name,
+        target: target.target,
+        status: filteredRecords
+          ? percentOfAttribute(filteredRecords, target.categoryValue)
+          : 0,
+      }));
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const generateGuageConfig = (target: {
@@ -471,7 +475,10 @@ const DatasetDetails = (): JSX.Element => {
             </TabPane>
           )}
 
-          <TabPane tab={presetDate ? presetDate : "Current"} key="current">
+          <TabPane
+            tab={presetDate ? presetDate : "Selected Range"}
+            key="current"
+          >
             {filteredRecords?.length ? (
               <Row justify="center">
                 {targetStates
