@@ -438,6 +438,14 @@ const DatasetDetails = (): JSX.Element => {
           <Space key="0" size="middle">
             {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
             <RangePicker
+              format={(val) =>
+                Intl.DateTimeFormat(window.navigator.language, {
+                  weekday: "short",
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }).format(val.toDate())
+              }
               value={
                 selectedFilters?.DateRange?.length == 2
                   ? [
