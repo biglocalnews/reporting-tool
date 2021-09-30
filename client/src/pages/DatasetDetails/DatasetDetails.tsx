@@ -95,9 +95,10 @@ const DatasetDetails = (): JSX.Element => {
     personType: string | undefined
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
-      const personTypeBool = personType
-        ? currEntry.personType?.personTypeName === personType
-        : true;
+      const personTypeBool =
+        personType !== undefined
+          ? currEntry.personType?.personTypeName === personType
+          : true;
       return currEntry.categoryValue.category.name === attributeCategory &&
         personTypeBool
         ? currEntry.count + prevEntry
@@ -128,9 +129,10 @@ const DatasetDetails = (): JSX.Element => {
     personType: string | undefined
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
-      const personTypeBool = personType
-        ? currEntry.personType?.personTypeName === personType
-        : true;
+      const personTypeBool =
+        personType !== undefined
+          ? currEntry.personType?.personTypeName === personType
+          : true;
       return currEntry.categoryValue.name === attribute && personTypeBool
         ? currEntry.count + prevEntry
         : prevEntry;
@@ -338,10 +340,28 @@ const DatasetDetails = (): JSX.Element => {
               configs.push(
                 progressConfig(
                   [
-                    chartData[0],
-                    chartData[1],
-                    chartData[chartData.length - 2],
-                    chartData[chartData.length - 1],
+                    ...chartData
+                      .filter(
+                        (start) => start.MonthYear === chartData[0].MonthYear
+                      )
+                      .map((x) => ({
+                        ...x,
+                        PersonType: x.PersonType
+                          ? x.PersonType
+                          : "Unspecified person type",
+                      })),
+                    ...chartData
+                      .filter(
+                        (end) =>
+                          end.MonthYear ===
+                          chartData[chartData.length - 1].MonthYear
+                      )
+                      .map((x) => ({
+                        ...x,
+                        PersonType: x.PersonType
+                          ? x.PersonType
+                          : "Unspecified person type",
+                      })),
                   ],
                   Math.round(target.target * 100),
                   target.categoryValue.name
