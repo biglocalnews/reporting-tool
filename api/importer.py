@@ -141,7 +141,7 @@ with open("5050-data.csv", "r") as csv_file:
             program=programme,
             category_value=cat_value_cis_men,
             target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-            target=float(0.50),
+            target=float(0.0),
         )
         session.add(target_cis_men)
 

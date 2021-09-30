@@ -1,7 +1,5 @@
 import { Column, ColumnConfig, Gauge } from "@ant-design/charts";
 import { PlusOutlined } from "@ant-design/icons";
-import DownCircleTwoTone from "@ant-design/icons/lib/icons/DownCircleTwoTone";
-import UpCircleTwoTone from "@ant-design/icons/lib/icons/UpCircleTwoTone";
 import { useQuery } from "@apollo/client";
 import {
   Button,
@@ -345,13 +343,17 @@ const DatasetDetails = (): JSX.Element => {
   const targetStates = useMemo(() => {
     return queryData?.dataset?.program.targets
       .filter((x) => x.target > 0.0)
-      .map((target) => ({
-        name: target.categoryValue.name,
-        target: target.target,
-        status: filteredRecords
+      .map((target) => {
+        const status = filteredRecords
           ? percentOfAttribute(filteredRecords, target.categoryValue)
-          : 0,
-      }));
+          : 0;
+        return {
+          name: target.categoryValue.name,
+          target: target.target,
+          offset: status - target.target * 100,
+          status: status,
+        };
+      });
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const generateGuageConfig = (target: {
@@ -492,26 +494,21 @@ const DatasetDetails = (): JSX.Element => {
                 {targetStates
                   ?.filter((x) => !isNaN(x.status))
                   .map((target) => (
-                    <Col
-                      key={target.name}
-                      span={
-                        targetStates?.length
-                          ? Math.round(24 / targetStates?.length)
-                          : 5
-                      }
-                    >
+                    <Col key={target.name} span={4}>
                       <Gauge {...generateGuageConfig(target)} />
                       <Card>
                         <Statistic
                           title={target.name}
-                          value={target.status - target.target * 100}
-                          suffix="%"
+                          value={Math.abs(target.offset)}
+                          suffix={
+                            target.status / 100 >= target.target
+                              ? "% 🤗"
+                              : "% 😭"
+                          }
                           prefix={
-                            target.status / 100 >= target.target ? (
-                              <UpCircleTwoTone twoToneColor="green" />
-                            ) : (
-                              <DownCircleTwoTone twoToneColor="red" />
-                            )
+                            <span>
+                              {Math.sign(target.offset) === -1 ? "-" : "+"}
+                            </span>
                           }
                         />
                       </Card>
