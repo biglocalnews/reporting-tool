@@ -78,28 +78,28 @@ const DatasetDetails = (): JSX.Element => {
     }
   }, [queryData]);
 
-  /*const firstRecord = useMemo(() => {
-    if (sortedRecords && sortedRecords?.length) {
-      return sortedRecords[0];
-    }
-  }, [sortedRecords]);*/
-
   interface IEntry {
     MonthYear: string;
     Attribute: string;
     AttributeCategory: string;
     AttributeCount: number;
     AttributeCategoryCount: number;
+    PersonType: string | undefined;
     Percent: number | undefined;
     Target: number | undefined;
   }
 
   const sumOfEntriesByAttributeCategory = (
     entries: readonly GetDataset_dataset_records_entries[],
-    attributeCategory: string
+    attributeCategory: string,
+    personType: string | undefined
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
-      return currEntry.categoryValue.category.name === attributeCategory
+      const personTypeBool = personType
+        ? currEntry.personType?.personTypeName === personType
+        : true;
+      return currEntry.categoryValue.category.name === attributeCategory &&
+        personTypeBool
         ? currEntry.count + prevEntry
         : prevEntry;
     }, 0);
@@ -107,21 +107,31 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfRecordsByAttributeCategory = (
     records: readonly GetDataset_dataset_records[],
-    attributeCategory: string
+    attributeCategory: string,
+    personType: string | undefined
   ) => {
     return records.reduce((prev, curr) => {
       return (
-        prev + sumOfEntriesByAttributeCategory(curr.entries, attributeCategory)
+        prev +
+        sumOfEntriesByAttributeCategory(
+          curr.entries,
+          attributeCategory,
+          personType
+        )
       );
     }, 0);
   };
 
   const sumOfEntriesByAttribute = (
     entries: readonly GetDataset_dataset_records_entries[],
-    attribute: string
+    attribute: string,
+    personType: string | undefined
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
-      return currEntry.categoryValue.name === attribute
+      const personTypeBool = personType
+        ? currEntry.personType?.personTypeName === personType
+        : true;
+      return currEntry.categoryValue.name === attribute && personTypeBool
         ? currEntry.count + prevEntry
         : prevEntry;
     }, 0);
@@ -129,20 +139,28 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfRecordsByAttribute = (
     records: readonly GetDataset_dataset_records[],
-    attribute: string
+    attribute: string,
+    personType: string | undefined
   ) => {
     return records.reduce((prev, curr) => {
-      return prev + sumOfEntriesByAttribute(curr.entries, attribute);
+      return (
+        prev + sumOfEntriesByAttribute(curr.entries, attribute, personType)
+      );
     }, 0);
   };
 
   const percentOfAttribute = (
     records: readonly GetDataset_dataset_records[],
-    categoryValue: GetDataset_dataset_program_targets_categoryValue
+    categoryValue: GetDataset_dataset_program_targets_categoryValue,
+    personType: string | undefined
   ) => {
     return Math.round(
-      (sumOfRecordsByAttribute(records, categoryValue.name) /
-        sumOfRecordsByAttributeCategory(records, categoryValue.category.name)) *
+      (sumOfRecordsByAttribute(records, categoryValue.name, personType) /
+        sumOfRecordsByAttributeCategory(
+          records,
+          categoryValue.category.name,
+          personType
+        )) *
         100
     );
   };
@@ -165,12 +183,14 @@ const DatasetDetails = (): JSX.Element => {
               ...entry,
               AttributeCount: (entry.AttributeCount += sumOfEntriesByAttribute(
                 curr.entries,
-                entry.Attribute
+                entry.Attribute,
+                entry.PersonType
               )),
               AttributeCategoryCount: (entry.AttributeCategoryCount +=
                 sumOfEntriesByAttributeCategory(
                   curr.entries,
-                  entry.AttributeCategory
+                  entry.AttributeCategory,
+                  entry.PersonType
                 )),
             });
             return monthYearRecords;
@@ -186,9 +206,11 @@ const DatasetDetails = (): JSX.Element => {
             Attribute: entry.categoryValue.name,
             AttributeCategory: entry.categoryValue.category.name,
             AttributeCount: entry.count,
+            PersonType: entry.personType?.personTypeName,
             AttributeCategoryCount: sumOfEntriesByAttributeCategory(
               curr.entries,
-              entry.categoryValue.category.name
+              entry.categoryValue.category.name,
+              entry.personType?.personTypeName
             ),
             Target: queryData?.dataset.program.targets.find(
               (target) => target.categoryValue.name === entry.categoryValue.name
@@ -219,6 +241,8 @@ const DatasetDetails = (): JSX.Element => {
       data: chartData,
       xField: "MonthYear",
       yField: "Percent",
+      seriesField: "PersonType",
+      isGroup: true,
       annotations: [
         {
           type: "line",
@@ -242,6 +266,18 @@ const DatasetDetails = (): JSX.Element => {
           },
         },
       ],
+      legend: {
+        itemHeight: 50,
+        position: "top",
+      },
+      label: {
+        position: "middle",
+        content: function content(item) {
+          const labelString = `${item.Percent}%`;
+          return labelString;
+        },
+        style: { fill: "#fff" },
+      },
       conversionTag: {
         text: {
           style: {
@@ -282,19 +318,18 @@ const DatasetDetails = (): JSX.Element => {
           ) {
             const chartData = Object.values(groupedByMonthYearRecords).reduce(
               (entryArray, record) => {
-                const targetEntry = record.find(
-                  (x) => x.Attribute == target.categoryValue.name
-                );
-                if (targetEntry) {
-                  entryArray.push({
-                    ...targetEntry,
-                    Percent: Math.round(
-                      (targetEntry.AttributeCount /
-                        targetEntry.AttributeCategoryCount) *
-                        100
-                    ),
-                  });
-                }
+                record
+                  .filter((x) => x.Attribute == target.categoryValue.name)
+                  .map((targetEntry) =>
+                    entryArray.push({
+                      ...targetEntry,
+                      Percent: Math.round(
+                        (targetEntry.AttributeCount /
+                          targetEntry.AttributeCategoryCount) *
+                          100
+                      ),
+                    })
+                  );
                 return entryArray;
               },
               new Array<IEntry>()
@@ -302,7 +337,12 @@ const DatasetDetails = (): JSX.Element => {
             if (chartData.length > 1) {
               configs.push(
                 progressConfig(
-                  [chartData[0], chartData[chartData.length - 1]],
+                  [
+                    chartData[0],
+                    chartData[1],
+                    chartData[chartData.length - 2],
+                    chartData[chartData.length - 1],
+                  ],
                   Math.round(target.target * 100),
                   target.categoryValue.name
                 )
@@ -345,7 +385,7 @@ const DatasetDetails = (): JSX.Element => {
       .filter((x) => x.target > 0.0)
       .map((target) => {
         const status = filteredRecords
-          ? percentOfAttribute(filteredRecords, target.categoryValue)
+          ? percentOfAttribute(filteredRecords, target.categoryValue, undefined)
           : 0;
         return {
           name: target.categoryValue.name,

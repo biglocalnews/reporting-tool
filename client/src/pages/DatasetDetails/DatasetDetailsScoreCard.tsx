@@ -18,6 +18,7 @@ type ColStat = {
   date: string;
   count: number;
   attribute: string;
+  personType: string | undefined;
   target: number | undefined;
 };
 
@@ -29,8 +30,11 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     xField: "date",
     yField: "count",
     seriesField: "attribute",
+    groupField: "personType",
+    isGroup: true,
     isPercent: true,
     isStack: true,
+    interactions: [{ type: "tooltip", enable: false }],
     yAxis: {
       top: true,
       tickCount: isBinary ? 3 : 0,
@@ -49,10 +53,7 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     label: {
       position: "middle",
       content: function content(item) {
-        const labelString = `${(item.count * 100).toFixed(0)}`;
-        /*if (item.target) {
-          labelString = labelString + ` (${(item.target * 100).toFixed(2)}%)`;
-        }*/
+        const labelString = `${(item.count * 100).toFixed(0)}%`;
         return labelString;
       },
       style: { fill: "#fff" },
@@ -81,18 +82,22 @@ const barStats = (
       record.entries.forEach((entry) => {
         if (entry.categoryValue.category.name === category && entry.count > 0) {
           const recordDate = new Date(record.publicationDate);
-
           const monthName = new Intl.DateTimeFormat(lang, {
             month: "long",
           }).format(recordDate);
-          const yearMonthCategory = `${monthName}-${recordDate.getFullYear()}-${
+          const yearMonthCategoryPersonType = `${monthName}-${recordDate.getFullYear()}-${
             entry.categoryValue.name
+          }-${
+            entry.personType ? entry.personType.personTypeName : "Unspecified"
           }`;
           const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
-          if (!(yearMonthCategory in Object.keys(chartData))) {
-            chartData[yearMonthCategory] = {
+          if (!chartData[yearMonthCategoryPersonType]) {
+            chartData[yearMonthCategoryPersonType] = {
               date: yearMonth,
               attribute: entry.categoryValue.name,
+              personType: entry.personType
+                ? entry.personType.personTypeName
+                : "Unspecified",
               count: entry.count,
               target: data.program.targets.find(
                 (target) =>
@@ -100,12 +105,13 @@ const barStats = (
               )?.target,
             };
           } else {
-            chartData[yearMonthCategory].count += entry.count;
+            chartData[yearMonthCategoryPersonType].count += entry.count;
           }
         }
       });
     });
-  return Object.values(chartData);
+  const x = Object.values(chartData);
+  return x;
 };
 
 const DatasetDetailsScoreCard = ({
