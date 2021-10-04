@@ -42,7 +42,7 @@ const categoryData = [
     id: "6196eda7-344c-42f9-a367-59cab0b8de33",
     categoryValue: {
       id: "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-      name: "Cisgender women",
+      name: "Women",
       category: {
         id: "51349e29-290e-4398-a401-5bf7d04af75e",
         name: "Gender",
@@ -55,7 +55,7 @@ const categoryData = [
     id: "5dfb2847-ef6a-44f9-bd54-547b5e018e90",
     categoryValue: {
       id: "d237a422-5858-459c-bd01-a0abdc077e5b",
-      name: "Cisgender men",
+      name: "Men",
       category: {
         id: "51349e29-290e-4398-a401-5bf7d04af75e",
         name: "Gender",
@@ -247,7 +247,7 @@ export const mockResolvers = {
         id: "eccf90e8-3261-46c1-acd5-507f9113ff72",
         categoryValue: {
           id: "742b5971-eeb6-4f7a-8275-6111f2342bb4",
-          name: "Cisgender women",
+          name: "Women",
           category: {
             id: "51349e29-290e-4398-a401-5bf7d04af75e",
             name: "Gender",
@@ -258,7 +258,7 @@ export const mockResolvers = {
         id: "2d501688-92e3-455e-9685-01141de3dbaf",
         categoryValue: {
           id: "d237a422-5858-459c-bd01-a0abdc077e5b",
-          name: "Cisgender men",
+          name: "Men",
           category: {
             id: "51349e29-290e-4398-a401-5bf7d04af75e",
             name: "Gender",

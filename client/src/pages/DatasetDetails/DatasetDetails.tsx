@@ -534,7 +534,7 @@ const DatasetDetails = (): JSX.Element => {
         <Tabs defaultActiveKey={progressCharts.length ? "progress" : "current"}>
           {progressCharts.length && (
             <TabPane tab="Progress" key="progress">
-              <Tabs defaultActiveKey="Cisgender women">
+              <Tabs defaultActiveKey="Women">
                 {progressCharts &&
                   progressCharts.map((config, i) => (
                     <TabPane key={i} tab={config.title}>
@@ -561,9 +561,7 @@ const DatasetDetails = (): JSX.Element => {
                           title={target.name}
                           value={Math.abs(target.offset)}
                           suffix={
-                            target.status / 100 >= target.target
-                              ? "% 🤗"
-                              : "% 😭"
+                            target.status / 100 >= target.target ? "% ✔" : "%"
                           }
                           prefix={
                             <span>

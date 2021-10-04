@@ -61,9 +61,7 @@ with open("5050-data.csv", "r") as csv_file:
 
     try:
         cat_value_cis_women = (
-            session.query(CategoryValue)
-            .filter(CategoryValue.name == "Cisgender women")
-            .one()
+            session.query(CategoryValue).filter(CategoryValue.name == "Women").one()
         )
     except MultipleResultsFound as e:
         print(e)
@@ -71,7 +69,7 @@ with open("5050-data.csv", "r") as csv_file:
     except NoResultFound as e:
         print("Creating new cat_value_cis_women")
         cat_value_cis_women = CategoryValue(
-            id=uuid4(), name="cisgender women", category=category_gender
+            id=uuid4(), name="women", category=category_gender
         )
         session.add(cat_value_cis_women)
         print(cat_value_cis_women)
@@ -80,9 +78,7 @@ with open("5050-data.csv", "r") as csv_file:
 
     try:
         cat_value_cis_men = (
-            session.query(CategoryValue)
-            .filter(CategoryValue.name == "Cisgender men")
-            .one()
+            session.query(CategoryValue).filter(CategoryValue.name == "Men").one()
         )
     except MultipleResultsFound as e:
         print(e)
@@ -90,7 +86,7 @@ with open("5050-data.csv", "r") as csv_file:
     except NoResultFound as e:
         print("Creating new cat_value_cis_men")
         cat_value_cis_men = CategoryValue(
-            id=uuid4(), name="cisgender men", category=category_gender
+            id=uuid4(), name="men", category=category_gender
         )
         session.add(cat_value_cis_men)
         print(cat_value_cis_men)

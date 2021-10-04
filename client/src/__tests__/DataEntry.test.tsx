@@ -186,8 +186,8 @@ test("should render add entry form with today's date when a record id does not e
 
   expect(screen.getAllByRole("spinbutton")).toHaveLength(8);
 
-  screen.getByRole("spinbutton", { name: /cisgender women/i });
-  screen.getByRole("spinbutton", { name: /cisgender men/i });
+  screen.getByRole("spinbutton", { name: /women/i });
+  screen.getByRole("spinbutton", { name: /men/i });
   screen.getByRole("spinbutton", { name: /trans men/i });
   screen.getByRole("spinbutton", { name: /trans women/i });
   screen.getByRole("spinbutton", { name: /non-binary/i });

@@ -975,14 +975,14 @@ def create_dummy_data(session):
 
     CategoryValue(
         id="742b5971-eeb6-4f7a-8275-6111f2342bb4",
-        name="cisgender women",
+        name="women",
         category=category_gender,
         targets=[target_cis_women],
         entries=[entry2, entry2_b],
     )
     CategoryValue(
         id="d237a422-5858-459c-bd01-a0abdc077e5b",
-        name="cisgender men",
+        name="men",
         category=category_gender,
         targets=[target_cis_men],
         entries=[entry3, entry3_b],
