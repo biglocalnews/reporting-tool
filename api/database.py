@@ -384,10 +384,10 @@ class Tag(Base):
 
     @classmethod
     def clean_name(cls, name):
-        return name.strip().capitalize()
+        return name.strip()
 
     @validates("name")
-    def capitalize_tag_name(self, key, name):
+    def clean_tag_name(self, key, name):
         # NOTE: `self.__class__` basically just means `Category` here. It's slightly
         # better to avoid referencing the class explicitly by name in case a) we change
         # the name of the class, or b) we extend the class and want to allow the child
@@ -892,7 +892,7 @@ def create_dummy_data(session):
 
     Tag(
         id="4a2142c0-5416-431d-b62f-0dbfe7574688",
-        name="news",
+        name="News Channels",
         description="tag for all news programming",
         tag_type="news",
         programs=[program],

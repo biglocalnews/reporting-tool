@@ -141,6 +141,8 @@ with open("5050-data.csv", "r") as csv_file:
         )
         session.add(target_cis_men)
 
+    session.commit()
+
     csv_reader = csv.reader(
         csv_file,
         quotechar='"',
@@ -164,6 +166,21 @@ with open("5050-data.csv", "r") as csv_file:
 
         print(ProgrammeName)
 
+        tag = None
+
+        try:
+            tag = session.query(Tag).filter(Tag.name == GroupName.strip()).one()
+        except MultipleResultsFound as e:
+            print(e)
+            exit(1)
+        except NoResultFound as e:
+            print(f"Creating new group name tag {GroupName}")
+            tag = Tag(
+                id=uuid4(), name=GroupName.strip(), description="", tag_type="imported"
+            )
+            session.add(tag)
+            session.commit()
+
         dataset = None
 
         try:
@@ -176,10 +193,7 @@ with open("5050-data.csv", "r") as csv_file:
             print(e)
             exit(1)
         except NoResultFound as e:
-            print(e)
             print("Creating new dataset")
-            tag = Tag(id=uuid4(), name=GroupName, description="", tag_type="imported")
-            session.add(tag)
             # BBC Contributor
             ptype_id = "1c9b9573-726f-46c4-86a8-ed6412eb0c35"
             ptype = session.query(PersonType).get(ptype_id)

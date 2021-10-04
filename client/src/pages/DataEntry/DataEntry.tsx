@@ -18,7 +18,6 @@ import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
 import { EditableTable } from "./DataEntryTable";
 
-
 const { Title } = Typography;
 
 interface RouteParams {

@@ -1,11 +1,11 @@
 import {
   BarChartOutlined,
   DatabaseOutlined,
+  SettingOutlined,
   TableOutlined,
   TeamOutlined,
-  SettingOutlined,
-  VideoCameraOutlined,
   UserSwitchOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Layout, Menu } from "antd";
@@ -141,21 +141,19 @@ export const AppSidebarMenu = () => {
   );
 
   return (
-    
     <Menu
       mode="inline"
       theme="dark"
       /*defaultOpenKeys={["admin"]}*/
       style={{ height: "100%", borderRight: 0, paddingTop: "10px" }}
     >
-
-
       {auth.isAdmin() ? (
-      
-      <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
-        <Link to="/">{t("admin.sidebar.viewAll")}</Link>
-      </Menu.Item>
-      ) : ""}
+        <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
+          <Link to="/">{t("admin.sidebar.viewAll")}</Link>
+        </Menu.Item>
+      ) : (
+        ""
+      )}
       <SubMenu
         key="teams"
         title={t("teamsSideBarTitle")}
@@ -167,19 +165,24 @@ export const AppSidebarMenu = () => {
           sidebarPrograms?.map(
             (program: { key: string; team: string; datasets: Dataset[] }) => {
               return (
-                <SubMenu className="ds-container" key={program.key} title={program.team}>
-                  {
-                  program.datasets.sort((a,b) => a.title.localeCompare(b.title)).map((dataset) => (
-                    <Menu.Item key={dataset.id}>
-                      <Link
-                        to={{
-                          pathname: `/dataset/${dataset.id}/details`,
-                        }}
-                      >
-                        {dataset.title}
-                      </Link>
-                    </Menu.Item>
-                  ))}
+                <SubMenu
+                  className="ds-container"
+                  key={program.key}
+                  title={program.team}
+                >
+                  {program.datasets
+                    .sort((a, b) => a.title.localeCompare(b.title))
+                    .map((dataset) => (
+                      <Menu.Item key={dataset.id}>
+                        <Link
+                          to={{
+                            pathname: `/dataset/${dataset.id}/details`,
+                          }}
+                        >
+                          {dataset.title}
+                        </Link>
+                      </Menu.Item>
+                    ))}
                 </SubMenu>
               );
             }
@@ -191,42 +194,48 @@ export const AppSidebarMenu = () => {
           </SubMenu>*/}
 
       {auth.isAdmin() ? (
-          <SubMenu key="stats" title="Reports" icon={<BarChartOutlined />}>
-            <Menu.Item key="reports" role="menuitem">
-              <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
-            </Menu.Item>
-          </SubMenu>
-      ) : ""}
+        <SubMenu key="stats" title="Reports" icon={<BarChartOutlined />}>
+          <Menu.Item key="reports" role="menuitem">
+            <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
+          </Menu.Item>
+        </SubMenu>
+      ) : (
+        ""
+      )}
 
       {auth.isAdmin() ? (
-            <SubMenu 
-            key="admin"
-            title="Admin"
-            icon={<SettingOutlined />}>            
-            <Menu.Item key="users" role="menuitem">
-              <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
-            </Menu.Item>
-            <Menu.Item key="teams" role="menuitem">
-              <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
-            </Menu.Item>
-            <Menu.Item key="programs" role="menuitem">
-              <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
-            </Menu.Item>
-            
-          </SubMenu>
-      ) : ""}
+        <SubMenu key="admin" title="Admin" icon={<SettingOutlined />}>
+          <Menu.Item key="users" role="menuitem">
+            <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
+          </Menu.Item>
+          <Menu.Item key="teams" role="menuitem">
+            <Link to="/admin/teams">{t("admin.sidebar.manageTeams")}</Link>
+          </Menu.Item>
+          <Menu.Item key="programs" role="menuitem">
+            <Link to="/admin/programs">
+              {t("admin.sidebar.managePrograms")}
+            </Link>
+          </Menu.Item>
+        </SubMenu>
+      ) : (
+        ""
+      )}
     </Menu>
   );
 };
-
 
 /**
  * App sidebar content: info and navigation links
  */
 const AppSidebar = (): JSX.Element => {
   return (
-    <Sider width={300} className="sidebar" breakpoint="md" theme="dark" collapsible>
-
+    <Sider
+      width={300}
+      className="sidebar"
+      breakpoint="md"
+      theme="dark"
+      collapsible
+    >
       <AppSidebarMenu />
       {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
