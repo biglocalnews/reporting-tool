@@ -6,6 +6,7 @@ import {
   Card,
   Col,
   DatePicker,
+  Divider,
   Row,
   Space,
   Statistic,
@@ -30,6 +31,7 @@ import {
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
+import { DataEntryTable } from "../DataEntry/DataEntryTable";
 const { TabPane } = Tabs;
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -592,6 +594,10 @@ const DatasetDetails = (): JSX.Element => {
                   records={filteredRecords}
                   isLoading={queryLoading}
                 />
+
+                <Divider orientation="left" plain>Temporary Table</Divider>
+                <DataEntryTable />
+
               </Space>
             ) : (
               noDataAvailable()
@@ -601,6 +607,7 @@ const DatasetDetails = (): JSX.Element => {
       ) : (
         noDataAvailable()
       )}
+
     </div>
   );
 };

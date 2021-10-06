@@ -16,7 +16,6 @@ import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { GET_RECORD } from "../../graphql/__queries__/GetRecord.gql";
 import "./DataEntry.css";
 import { DataEntryAggregateDataEntryForm } from "./DataEntryAggregateDataEntryForm";
-import { EditableTable } from "./DataEntryTable";
 
 const { Title } = Typography;
 
@@ -104,7 +103,7 @@ const DataEntry = (): JSX.Element => {
           {` ${programAndDatasetPageTitle}`}
         </Link>
       </Title>
-      <EditableTable />
+      
       <DataEntryAggregateDataEntryForm
         datasetData={datasetData}
         datasetId={datasetId}

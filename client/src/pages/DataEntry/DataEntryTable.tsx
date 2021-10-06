@@ -1,7 +1,3 @@
-import {
-  CheckCircleTwoTone,
-  ExclamationCircleTwoTone,
-} from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import {
   Button,
@@ -12,7 +8,6 @@ import {
   Popconfirm,
   Spin,
   Table,
-  Tabs,
 } from "antd";
 import { FormInstance } from "antd/lib/form";
 import moment from "moment";
@@ -34,7 +29,7 @@ import "./DataEntryTable.css";
 }*/
 
 //const { datasetId } = useParams<RouteParams>();
-const { TabPane } = Tabs;
+
 /*const [updateRecord, { loading: recordSaving }] = useMutation(UPDATE_RECORD, {
   refetchQueries: [
     {
@@ -231,7 +226,7 @@ interface EditableTableState {
 
 type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
 
-export const EditableTable: React.FC = () => {
+export const DataEntryTable: React.FC = () => {
   const { data: queryData, loading: queryLoading } = useQuery<
     GetDataset,
     GetDatasetVariables
@@ -312,7 +307,6 @@ export const EditableTable: React.FC = () => {
       ...row,
     });
 
-    console.log("-> new data save", newData);
     //setTableState((curr) => ({ ...curr, dataSource: { ...newData } }));
     //setTableState((curr) => ({ ...curr, ...newData, dataSource: [...dataSource, newData], count: curr.count }));
   };
@@ -337,6 +331,7 @@ export const EditableTable: React.FC = () => {
       dataType: "number",
       fixed: "left",
       width: 150,
+      className: "green"
     },
     {
       title: "Story Title",
@@ -515,57 +510,22 @@ export const EditableTable: React.FC = () => {
     <div className="card-container">
       {!queryLoading ? (
         <>
-          <Tabs type="card" size="large">
-            <TabPane
-              tab={
-                <span>
-                  <CheckCircleTwoTone twoToneColor="#52c41a" />
-                  June
-                </span>
-              }
-              key="1"
-            >
-              <Table
-                components={components}
-                rowClassName={() => "editable-row"}
-                bordered
-                dataSource={tableState.dataSource}
-                columns={filteredColumns as ColumnTypes}
-                scroll={{ x: 1800 }}
-              />
+          <Table
+            components={components}
+            rowClassName={() => "editable-row"}
+            bordered
+            dataSource={tableState.dataSource}
+            columns={filteredColumns as ColumnTypes}
+            scroll={{ x: 1800 }}
+          />
 
-              <Button
-                onClick={handleAdd}
-                type="primary"
-                style={{ marginBottom: 16 }}
-              >
-                Add Row
-              </Button>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <CheckCircleTwoTone twoToneColor="#52c41a" />
-                  July
-                </span>
-              }
-              key="2"
-            >
-              <p></p>
-            </TabPane>
-            <TabPane
-              tab={
-                <span>
-                  <ExclamationCircleTwoTone twoToneColor="#eb2f96" />
-                  August
-                </span>
-              }
-              key="3"
-            >
-              <p></p>
-            </TabPane>
-          </Tabs>
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            style={{ marginBottom: 16 }}
+          >
+            Add new Record
+          </Button>
         </>
       ) : (
         <Spin />
