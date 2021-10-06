@@ -326,6 +326,8 @@ export const EditableTable: React.FC = () => {
       editable: true,
       key: "date",
       dataType: "date",
+      fixed: "left",
+      width: 150,
     },
     {
       title: "CPS No.",
@@ -333,6 +335,8 @@ export const EditableTable: React.FC = () => {
       editable: true,
       key: "cps_number",
       dataType: "number",
+      fixed: "left",
+      width: 150,
     },
     {
       title: "Story Title",
@@ -340,6 +344,7 @@ export const EditableTable: React.FC = () => {
       editable: true,
       key: "story_title",
       dataType: "text",
+      width: 250,
     },
     {
       title: "Story Topic",
@@ -347,13 +352,13 @@ export const EditableTable: React.FC = () => {
       editable: true,
       key: "story_topic",
       dataType: "text",
+      width: 150,
     },
     {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
       editable: true,
-      
 
       children: [
         {
@@ -402,7 +407,39 @@ export const EditableTable: React.FC = () => {
       ],
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+      editable: true,
+
+      children: [
+        {
+          title: "Men",
+          dataIndex: "gender_men",
+          key: "gender_men",
+          editable: true,
+          dataType: "number",
+        },
+        {
+          title: "Women",
+          dataIndex: "gender_women",
+          key: "gender_women",
+          editable: true,
+          dataType: "number",
+        },
+        {
+          title: "Non Binary",
+          dataIndex: "gender_nb",
+          key: "gender_nb",
+          editable: true,
+          dataType: "number",
+        },
+      ],
+    },
+    {
       title: "Manage",
+      fixed: "right",
+      width: 100,
       dataIndex: "operation",
       render: function someo(_: any, record: { key: React.Key }) {
         console.log(
@@ -494,6 +531,7 @@ export const EditableTable: React.FC = () => {
                 bordered
                 dataSource={tableState.dataSource}
                 columns={filteredColumns as ColumnTypes}
+                scroll={{ x: 1800 }}
               />
 
               <Button
