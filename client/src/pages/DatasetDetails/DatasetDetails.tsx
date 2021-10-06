@@ -594,10 +594,6 @@ const DatasetDetails = (): JSX.Element => {
                   records={filteredRecords}
                   isLoading={queryLoading}
                 />
-
-                <Divider orientation="left" plain>Temporary Table</Divider>
-                <DataEntryTable />
-
               </Space>
             ) : (
               noDataAvailable()
@@ -607,7 +603,8 @@ const DatasetDetails = (): JSX.Element => {
       ) : (
         noDataAvailable()
       )}
-
+      <Divider orientation="left" plain>Data</Divider>
+      <DataEntryTable />
     </div>
   );
 };
