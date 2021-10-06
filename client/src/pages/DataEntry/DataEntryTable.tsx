@@ -203,8 +203,8 @@ EditableCell.defaultProps = {
     gender_men: "111",
     gender_women: "111",
     gender_nb: "111",
-    disability: "50%",
-    non_disabled: "50%",
+    disability: "50",
+    non_disabled: "50",
   },
   children: true,
 };
@@ -248,11 +248,11 @@ export const EditableTable: React.FC = () => {
         cps_number: "1234",
         story_title: "Title",
         story_topic: "Topic",
-        gender_men: "50%",
-        gender_women: "48%",
-        gender_nb: "2%",
-        disability: "50%",
-        non_disabled: "50%",
+        gender_men: "50",
+        gender_women: "48",
+        gender_nb: "2",
+        disability: "50",
+        non_disabled: "50",
       },
       {
         key: "1",
@@ -260,11 +260,11 @@ export const EditableTable: React.FC = () => {
         cps_number: "1235",
         story_title: "Title",
         story_topic: "Topic",
-        gender_men: "50%",
-        gender_women: "48%",
-        gender_nb: "2%",
-        disability: "50%",
-        non_disabled: "50%",
+        gender_men: "50",
+        gender_women: "48",
+        gender_nb: "2",
+        disability: "50",
+        non_disabled: "50",
       },
     ],
     count: 2,
@@ -287,11 +287,11 @@ export const EditableTable: React.FC = () => {
       cps_number: "12346",
       story_title: "Title",
       story_topic: "Topic",
-      gender_men: "50%",
-      gender_women: "48%",
-      gender_nb: "2%",
-      disability: "50%",
-      non_disabled: "50%",
+      gender_men: "50",
+      gender_women: "48",
+      gender_nb: "2",
+      disability: "50",
+      non_disabled: "50",
     };
     setTableState((curr) => ({
       ...curr,
@@ -323,37 +323,37 @@ export const EditableTable: React.FC = () => {
     {
       title: "date",
       dataIndex: "date",
-      width: "100",
       editable: true,
       key: "date",
+      dataType: "date",
     },
     {
       title: "CPS No.",
       dataIndex: "cps_number",
-      width: "150",
       editable: true,
       key: "cps_number",
+      dataType: "number",
     },
     {
       title: "Story Title",
       dataIndex: "story_title",
-      width: "200",
       editable: true,
       key: "story_title",
+      dataType: "text",
     },
     {
       title: "Story Topic",
       dataIndex: "story_topic",
-      width: "100",
       editable: true,
       key: "story_topic",
+      dataType: "text",
     },
     {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
-      width: 120,
       editable: true,
+      
 
       children: [
         {
@@ -361,21 +361,21 @@ export const EditableTable: React.FC = () => {
           dataIndex: "gender_men",
           key: "gender_men",
           editable: true,
-          width: "40",
+          dataType: "number",
         },
         {
           title: "Women",
           dataIndex: "gender_women",
           key: "gender_women",
           editable: true,
-          width: "40",
+          dataType: "number",
         },
         {
           title: "Non Binary",
           dataIndex: "gender_nb",
           key: "gender_nb",
           editable: true,
-          width: "40",
+          dataType: "number",
         },
       ],
     },
@@ -383,7 +383,6 @@ export const EditableTable: React.FC = () => {
       title: "Disability",
       dataIndex: "disability_status",
       key: "disability_status",
-      width: 80,
       editable: true,
       children: [
         {
@@ -391,14 +390,14 @@ export const EditableTable: React.FC = () => {
           dataIndex: "disability",
           key: "disability",
           editable: true,
-          width: "40",
+          dataType: "number",
         },
         {
           title: "Non-Disabled",
           dataIndex: "non_disabled",
           key: "non_disabled",
           editable: true,
-          width: "40",
+          dataType: "number",
         },
       ],
     },
@@ -428,7 +427,8 @@ export const EditableTable: React.FC = () => {
       cell: EditableCell,
     },
   };
-  const filteredColumns = columns.map((col) => {
+  
+  /*const filteredColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
     }
@@ -449,7 +449,30 @@ export const EditableTable: React.FC = () => {
         handleSave: handleSave,
       }),
     };
-  });
+  });*/
+
+  const mapColumns = (col:any) => {
+    if (!col.editable) {
+      return col;
+    }
+    const newCol = {
+      ...col,
+      onCell: (record:any) => ({
+        record,
+        inputType: col.dataType,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave: handleSave
+      })
+    };
+    if (col.children) {
+      newCol.children = col.children.map(mapColumns);
+    }
+    return newCol;
+  };
+
+  const filteredColumns = columns.map(mapColumns);
 
   return (
     <div className="card-container">
