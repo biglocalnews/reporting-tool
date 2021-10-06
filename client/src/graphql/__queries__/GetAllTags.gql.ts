@@ -7,27 +7,6 @@ export const GET_ALL_TAGS = gql`
       name
       tagType
       description
-      datasets {
-        id
-        name
-        lastUpdated
-      }
-      programs {
-        name
-        targets {
-          id
-          target
-          categoryValue {
-            id
-            name
-            category {
-              id
-              name
-              description
-            }
-          }
-        }
-      }
     }
   }
 `;
