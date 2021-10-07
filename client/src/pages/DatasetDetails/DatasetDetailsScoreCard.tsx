@@ -23,8 +23,6 @@ type ColStat = {
 };
 
 const generateColChartConfig = (chartData: Array<ColStat>) => {
-  const isBinary =
-    Array.from(new Set(chartData.map((e) => e.attribute))).length === 2;
   const config: ColumnConfig = {
     data: chartData,
     xField: "date",
@@ -37,18 +35,9 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     interactions: [{ type: "tooltip", enable: false }],
     yAxis: {
       top: true,
-      tickCount: isBinary ? 3 : 0,
+      tickCount: 0,
       tickLine: null,
       grid: { line: { style: { stroke: "black" } } },
-      label: isBinary
-        ? {
-            formatter: (text) => {
-              return text === "0.5"
-                ? `${(Number.parseFloat(text) * 100).toFixed(0)}%`
-                : null;
-            },
-          }
-        : null,
     },
     label: {
       position: "middle",
