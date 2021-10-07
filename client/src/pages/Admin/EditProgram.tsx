@@ -12,13 +12,13 @@ import {
   Divider,
   Form,
   Input,
-  InputNumber,
   List,
   PageHeader,
   Popconfirm,
   Row,
   Select,
   Spin,
+  Switch,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -250,7 +250,9 @@ export const EditProgram = () => {
       <Form
         form={editForm}
         scrollToFirstError
-        onFieldsChange={() => setDirty(true)}
+        onFieldsChange={() => {
+          setDirty(true);
+        }}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
         initialValues={initialFormValues}
@@ -441,37 +443,54 @@ export const EditProgram = () => {
                                   "categoryValueName",
                                 ])}
                               >
-                                <Form.Item
-                                  noStyle
-                                  name={[segmentField.name, "targetValue"]}
-                                >
-                                  <InputNumber
-                                    disabled={inactive}
-                                    aria-label={editForm.getFieldValue([
+                                <Switch
+                                  defaultChecked={
+                                    editForm.getFieldValue([
                                       "targets",
                                       targetField.name,
                                       "segments",
                                       segmentField.name,
-                                      "categoryValueName",
-                                    ])}
-                                    min={0 as number}
-                                    max={1 as number}
-                                    step={0.01}
-                                    formatter={(value) =>
-                                      typeof value == "string"
-                                        ? `${Math.round(
-                                            parseFloat(value) * 100
-                                          )}%`
-                                        : ""
-                                    }
-                                    parser={(value) =>
-                                      value
-                                        ? parseFloat(value.replace("%", "")) /
-                                          100
-                                        : 0
-                                    }
-                                  />
-                                </Form.Item>
+                                      "targetValue",
+                                    ]) > 0
+                                      ? true
+                                      : false
+                                  }
+                                  onChange={(e) => {
+                                    e.valueOf()
+                                      ? editForm.setFields([
+                                          {
+                                            name: [
+                                              "targets",
+                                              targetField.name,
+                                              "segments",
+                                              segmentField.name,
+                                              "targetValue",
+                                            ],
+                                            value: 1,
+                                          },
+                                        ])
+                                      : editForm.setFields([
+                                          {
+                                            name: [
+                                              "targets",
+                                              targetField.name,
+                                              "segments",
+                                              segmentField.name,
+                                              "targetValue",
+                                            ],
+                                            value: 0,
+                                          },
+                                        ]);
+                                    setDirty(true);
+                                  }}
+                                  aria-label={editForm.getFieldValue([
+                                    "targets",
+                                    targetField.name,
+                                    "segments",
+                                    segmentField.name,
+                                    "categoryValueName",
+                                  ])}
+                                />
                                 <Popconfirm
                                   title={t(
                                     "admin.program.edit.form.confirmStopTrackingSegment"
