@@ -430,28 +430,12 @@ const DatasetDetails = (): JSX.Element => {
             configs.push(
               progressConfig(
                 [
-                  ...chartData
-                    .filter(
-                      (start) => start.MonthYear === chartData[0].MonthYear
-                    )
-                    .map((x) => ({
-                      ...x,
-                      PersonType: x.PersonType
-                        ? x.PersonType
-                        : "Unspecified person type",
-                    })),
-                  ...chartData
-                    .filter(
-                      (end) =>
-                        end.MonthYear ===
-                        chartData[chartData.length - 1].MonthYear
-                    )
-                    .map((x) => ({
-                      ...x,
-                      PersonType: x.PersonType
-                        ? x.PersonType
-                        : "Unspecified person type",
-                    })),
+                  ...chartData.slice(-3).map((x) => ({
+                    ...x,
+                    PersonType: x.PersonType
+                      ? x.PersonType
+                      : "Unspecified person type",
+                  })),
                 ],
                 Math.round(getTarget(targetCategory) * 100),
                 targetCategory
