@@ -28,9 +28,9 @@ import {
   GetDataset_dataset_records_entries,
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+import { DataEntryTable } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
-import { DataEntryTable } from "../DataEntry/DataEntryTable";
 const { TabPane } = Tabs;
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -403,17 +403,17 @@ const DatasetDetails = (): JSX.Element => {
                         Math.round(
                           (newCount / currEntry.AttributeCategoryCount) * 100
                         );
+                    } else {
+                      reducedEntry[targetCategoryPersonTypeKey] = {
+                        ...currEntry,
+                        Attribute: targetCategory,
+                        Percent: Math.round(
+                          (currEntry.AttributeCount /
+                            currEntry.AttributeCategoryCount) *
+                            100
+                        ),
+                      };
                     }
-                  } else {
-                    reducedEntry[targetCategoryPersonTypeKey] = {
-                      ...currEntry,
-                      Attribute: targetCategory,
-                      Percent: Math.round(
-                        (currEntry.AttributeCount /
-                          currEntry.AttributeCategoryCount) *
-                          100
-                      ),
-                    };
                   }
                   return reducedEntry;
                 }, {} as Record<string, IEntry>);
@@ -701,7 +701,9 @@ const DatasetDetails = (): JSX.Element => {
       ) : (
         noDataAvailable()
       )}
-      <Divider orientation="left" plain>Data</Divider>
+      <Divider orientation="left" plain>
+        Data
+      </Divider>
       <DataEntryTable />
     </div>
   );
