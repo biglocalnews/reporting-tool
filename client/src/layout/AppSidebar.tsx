@@ -142,7 +142,7 @@ export const AppSidebarMenu = () => {
 
   const sidebarTeams = data?.user?.teams.flatMap((team) => {
     return {
-      key: "id",
+      key: team.name,
       name: team.name,
       programmes:
         team.programs.map((program) => {
