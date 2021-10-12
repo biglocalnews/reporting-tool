@@ -140,6 +140,29 @@ export const AppSidebarMenu = () => {
     })
   );
 
+  const sidebarTeams = data?.user?.teams.flatMap((team) => {
+    return {
+      key: team.name,
+      name: team.name,
+      programmes:
+        team.programs.map((program) => {
+          return {
+            key: program.id,
+            team: program.name,
+            datasets: program.datasets.map((dataset) => {
+              return {
+                id: dataset.id,
+                title: dataset.name,
+              };
+            }),
+          };
+        })
+    };
+  }
+
+
+  );
+
   return (
     <Menu
       mode="inline"
@@ -189,6 +212,53 @@ export const AppSidebarMenu = () => {
           )
         )}
       </SubMenu>
+
+      <SubMenu
+        key="my-teams"
+        title="My Teams"
+        icon={<TeamOutlined />}
+      >
+        {loading ? (
+          <h1>Loading...</h1>
+        ) : (
+          sidebarTeams?.map((item) => {
+            return (
+              <SubMenu
+                className="ds-container"
+                key={item.key}
+                title={item.name}
+              >
+                {item.programmes
+                  .sort((a, b) => a.team.localeCompare(b.team))
+                  .map((item) => (
+                    <SubMenu
+                      className="ds-container"
+                      key={item.key}
+                      title={item.team}
+                    >
+                      {item.datasets.map((dataset) => (
+                        <Menu.Item key={dataset.id}>
+                          <Link
+                            to={{
+                              pathname: `/dataset/${dataset.id}/details`,
+                            }}
+                          >
+                            {dataset.title}
+                          </Link>
+                        </Menu.Item>
+                      ))
+
+                      }
+
+                    </SubMenu>
+                  ))}
+              </SubMenu>
+            );
+          }
+          )
+        )}
+      </SubMenu>
+
       {/*<SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
         <div style={{ padding: "20px", background: "#fff" }}></div>
           </SubMenu>*/}
