@@ -1,15 +1,14 @@
-import { Column, ColumnConfig, Gauge } from "@ant-design/charts";
+import { Column, ColumnConfig, Pie } from "@ant-design/charts";
 import { PlusOutlined } from "@ant-design/icons";
+import { Datum } from "@antv/g2plot";
 import { useQuery } from "@apollo/client";
 import {
   Button,
-  Card,
   Col,
   DatePicker,
   Divider,
   Row,
   Space,
-  Statistic,
   Tabs,
   Typography,
 } from "antd";
@@ -61,6 +60,19 @@ const getTarget = (targetCategory: string) => {
       return 0.12;
     default:
       return 0.0;
+  }
+};
+
+const getPalette = (targetCategory: string) => {
+  switch (targetCategory) {
+    case "Gender":
+      return ["rgba(255,51,0,1)", "rgba(46,117,182,1)"];
+    case "Race / ethnicity":
+      return ["rgba(112,48,160,1)", "rgba(189,215,238,1)"];
+    case "Disability":
+      return ["rgba(255,255,0,1)", "rgba(255,192,0,1)"];
+    default:
+      return ["rgba(255,51,0,1)", "rgba(46,117,182,1)"];
   }
 };
 
@@ -194,7 +206,7 @@ const DatasetDetails = (): JSX.Element => {
         prev +
         sumOfEntriesByInTargetAttribute(
           curr.entries,
-          personType,
+          undefined, //personType, this causes personType to be ignored in the sum
           attributesInTarget
         )
       );
@@ -253,13 +265,13 @@ const DatasetDetails = (): JSX.Element => {
               AttributeCount: (entry.AttributeCount += sumOfEntriesByAttribute(
                 curr.entries,
                 entry.Attribute,
-                entry.PersonType
+                undefined //entry.PersonType Ignore PersonType in count
               )),
               AttributeCategoryCount: (entry.AttributeCategoryCount +=
                 sumOfEntriesByAttributeCategory(
                   curr.entries,
                   entry.AttributeCategory,
-                  entry.PersonType
+                  undefined //entry.PersonType Ignore PersonType in count
                 )),
             });
             return monthYearRecords;
@@ -279,7 +291,7 @@ const DatasetDetails = (): JSX.Element => {
             AttributeCategoryCount: sumOfEntriesByAttributeCategory(
               curr.entries,
               entry.categoryValue.category.name,
-              entry.personType?.personTypeName
+              undefined //entry.personType?.personTypeName Ignore PersonType in count
             ),
             Target: queryData?.dataset.program.targets.find(
               (target) => target.categoryValue.name === entry.categoryValue.name
@@ -308,63 +320,61 @@ const DatasetDetails = (): JSX.Element => {
     const config: customColumnConfig = {
       title: title,
       data: chartData,
+      color: ({ Attribute }) =>
+        Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
+      columnStyle: { stroke: "black" },
+      padding: 70,
       xField: "MonthYear",
       yField: "Percent",
-      seriesField: "PersonType",
-      isGroup: true,
+      intervalPadding: 0,
+      seriesField: "Attribute",
+      isStack: true,
+      isPercent: true,
       annotations: [
         {
           type: "line",
           top: true,
-          start: ["start", target],
-          end: ["end", target],
+          start: ["-5%", 100 - target],
+          end: ["105%", 100 - target],
           style: {
-            stroke: "red",
+            lineWidth: 3,
+            stroke: "black",
           },
-        },
-        {
-          type: "text",
-          top: true,
-          position: ["median", target],
-          content: `${target}%`,
-          style: {
-            fontSize: 20,
-            textAlign: "center",
-            textBaseline: "bottom",
-            stroke: "red",
+          text: {
+            content: "",
+            position: "start",
+            offsetY: 10,
+            offsetX: -35,
+            style: { fontSize: 20, fontWeight: 300 },
           },
         },
       ],
-      legend: {
-        itemHeight: 50,
-        position: "top",
-      },
-      label: {
-        position: "middle",
-        content: function content(item) {
-          const labelString = `${item.Percent}%`;
-          return labelString;
+      legend: false,
+      tooltip: {
+        formatter: function content(item) {
+          const labelString = `${Math.round(item.Percent * 100)}%`;
+          return { name: item.Attribute, value: labelString };
         },
-        style: { fill: "#fff" },
       },
-      conversionTag: {
+      /*conversionTag: {
         text: {
           style: {
             fontSize: 25,
           },
           formatter: (prev: number, next: number) => {
             const val = next - prev;
-            return `${
-              Math.sign(val) == -1 || Math.sign(val) == 0 ? "-" : "+"
-            }${Math.abs(val)}%`;
+            return `${Math.sign(val) == -1 || Math.sign(val) == 0 ? "-" : "+"
+              }${Math.abs(val)}%`;
           },
         },
-      },
+      },*/
       yAxis: {
+        tickCount: 0,
         max: 100,
-        label: {
-          formatter: (text) => `${text}%`,
-        },
+        /*label: {
+          formatter: (text) => `${Math.round(parseFloat(text) * 100)}%`,
+        },*/
+        label: null,
       },
       xAxis: {
         label: {
@@ -390,37 +400,44 @@ const DatasetDetails = (): JSX.Element => {
               const reducedRecord = record
                 .filter((x) => x.AttributeCategory === targetCategory)
                 .reduce((reducedEntry, currEntry) => {
-                  const targetCategoryPersonTypeKey =
-                    targetCategory + currEntry.PersonType;
+                  const targetCategoryKey = targetCategory;
+                  /*const targetCategoryPersonTypeKey =
+                    targetCategory + currEntry.PersonType;*/
                   if (currEntry.Target && currEntry.Target > 0) {
-                    if (reducedEntry[targetCategoryPersonTypeKey]) {
+                    if (reducedEntry[targetCategoryKey]) {
                       const newCount = (reducedEntry[
-                        targetCategoryPersonTypeKey
+                        targetCategoryKey
                       ].AttributeCount += currEntry.AttributeCount);
-                      reducedEntry[targetCategoryPersonTypeKey].AttributeCount =
-                        newCount;
-                      reducedEntry[targetCategoryPersonTypeKey].Percent =
-                        Math.round(
-                          (newCount / currEntry.AttributeCategoryCount) * 100
-                        );
+                      reducedEntry[targetCategoryKey].AttributeCount = newCount;
+                      reducedEntry[targetCategoryKey].Percent =
+                        currEntry.AttributeCategoryCount === 0
+                          ? 0
+                          : newCount / currEntry.AttributeCategoryCount;
                     } else {
-                      reducedEntry[targetCategoryPersonTypeKey] = {
+                      reducedEntry[targetCategoryKey] = {
                         ...currEntry,
                         Attribute: targetCategory,
-                        Percent: Math.round(
-                          (currEntry.AttributeCount /
-                            currEntry.AttributeCategoryCount) *
-                            100
-                        ),
+                        Percent:
+                          currEntry.AttributeCategoryCount === 0
+                            ? 0
+                            : currEntry.AttributeCount /
+                              currEntry.AttributeCategoryCount,
                       };
                     }
                   }
                   return reducedEntry;
                 }, {} as Record<string, IEntry>);
               if (reducedRecord && Object.values(reducedRecord).length) {
-                Object.values(reducedRecord).map((x) =>
-                  reducedByCategoryRecord.push(x)
-                );
+                Object.values(reducedRecord).map((x) => {
+                  reducedByCategoryRecord.push({
+                    ...x,
+                    Attribute: "Other",
+                    AttributeCategory: "Other",
+                    AttributeCount: x.AttributeCategoryCount - x.AttributeCount,
+                    Percent: x.Percent ? 1 - x.Percent : 1,
+                  });
+                  reducedByCategoryRecord.push(x);
+                });
               }
               return reducedByCategoryRecord;
             },
@@ -430,7 +447,7 @@ const DatasetDetails = (): JSX.Element => {
             configs.push(
               progressConfig(
                 [
-                  ...chartData.slice(-3).map((x) => ({
+                  ...chartData.slice(-6).map((x) => ({
                     ...x,
                     PersonType: x.PersonType
                       ? x.PersonType
@@ -498,7 +515,7 @@ const DatasetDetails = (): JSX.Element => {
     });
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
-  const generateGuageConfig = (target: {
+  const generatePieConfig = (target: {
     name: string;
     target: number;
     status: number;
@@ -506,35 +523,22 @@ const DatasetDetails = (): JSX.Element => {
     return {
       width: 150,
       height: 150,
-      innerRadius: 0.8,
-      percent: target.status / 100,
-      range: {
-        ticks: [0, target.target, 1],
-        color: ["#F4664A", "#30BF78"],
+      data: [
+        { targetName: target.name, value: target.status },
+        { targetName: "Other", value: 100 - target.status },
+      ],
+      innerRadius: 0.5,
+      angleField: "value",
+      colorField: "targetName",
+      color: (datum: Datum) => {
+        return datum.targetName === "Other"
+          ? getPalette(target.name)[1]
+          : getPalette(target.name)[0];
       },
-      axis: {
-        label: {
-          formatter: (v: string) => {
-            return Number(v) * 100;
-          },
-        },
-        subTickLine: { count: 3 },
-      },
-      indicator: {
-        pointer: { style: { stroke: "#D0D0D0" } },
-        pin: { style: { stroke: "#D0D0D0" } },
-      },
-      statistic: {
-        content: {
-          formatter: () => {
-            return `${target.status}%`;
-          },
-          style: {
-            fontSize: "18px",
-            lineHeight: "18px",
-          },
-        },
-      },
+      //percent: target.status / 100,
+      legend: false,
+      statistic: () => undefined,
+      label: false,
     };
   };
 
@@ -616,51 +620,38 @@ const DatasetDetails = (): JSX.Element => {
         <Tabs defaultActiveKey={progressCharts ? "progress" : "current"}>
           {progressCharts && progressCharts.length && (
             <TabPane tab="Progress" key="progress">
-              <Tabs defaultActiveKey="Women">
+              <h2>{presetDate}</h2>
+              <Row justify="center">
+                {filteredRecords?.length
+                  ? targetStates.map((target) => (
+                      <Col key={target.name} span={8}>
+                        {!isNaN(target.status) ? (
+                          <Pie {...generatePieConfig(target)} />
+                        ) : (
+                          noDataAvailable()
+                        )}
+                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                      </Col>
+                    ))
+                  : noDataAvailable()}
+                <hr />
+              </Row>
+              <hr />
+              <h2>3 Month Trend</h2>
+              <Row>
                 {progressCharts.map(
-                  (config, i) =>
+                  (config) =>
                     config && (
-                      <TabPane key={i} tab={config.title}>
+                      <Col span={8}>
                         <Column {...config} />
-                      </TabPane>
+                      </Col>
                     )
                 )}
-              </Tabs>
+                <hr />
+              </Row>
             </TabPane>
           )}
 
-          <TabPane
-            tab={presetDate ? presetDate : "Selected Range"}
-            key="current"
-          >
-            {filteredRecords?.length ? (
-              <Row justify="center">
-                {targetStates
-                  ?.filter((x) => !isNaN(x.status))
-                  .map((target) => (
-                    <Col key={target.name} span={4}>
-                      <Gauge {...generateGuageConfig(target)} />
-                      <Card>
-                        <Statistic
-                          title={target.name}
-                          value={Math.abs(target.offset)}
-                          suffix={
-                            target.status / 100 >= target.target ? "% ✔" : "%"
-                          }
-                          prefix={
-                            <span>
-                              {Math.sign(target.offset) === -1 ? "-" : "+"}
-                            </span>
-                          }
-                        />
-                      </Card>
-                    </Col>
-                  ))}
-              </Row>
-            ) : (
-              noDataAvailable()
-            )}
-          </TabPane>
           <TabPane tab="Details">
             {filteredRecords?.length ? (
               <Space direction="vertical">
