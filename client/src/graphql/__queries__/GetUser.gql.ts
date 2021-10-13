@@ -6,6 +6,7 @@ export const GET_USER = gql`
       firstName
       lastName
       teams {
+        id
         name
         programs {
           id

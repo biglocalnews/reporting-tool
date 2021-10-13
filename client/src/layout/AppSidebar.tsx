@@ -5,7 +5,6 @@ import {
   TableOutlined,
   TeamOutlined,
   UserSwitchOutlined,
-  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Layout, Menu } from "antd";
@@ -18,82 +17,9 @@ import "./AppSidebar.css";
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-interface Dataset {
-  id: string;
-  title: string;
-}
 
 /**
- * Sidebar content for normal (non-admin) users.
- */
-export const AppNormalUserSidebarMenu = () => {
-  const { t } = useTranslation();
-  const userId = useAuth().getUserId();
-
-  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
-    variables: { id: userId },
-  });
-
-  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
-    team.programs.map((program) => {
-      return {
-        key: program.id,
-        team: program.name,
-        datasets: program.datasets.map((dataset) => {
-          return {
-            id: dataset.id,
-            title: dataset.name,
-          };
-        }),
-      };
-    })
-  );
-
-  return (
-    <Menu
-      mode="inline"
-      theme="light"
-      defaultOpenKeys={["teams", "stats"]}
-      style={{ height: "100%", borderRight: 0 }}
-    >
-      <SubMenu
-        key="teams"
-        title={t("teamsSideBarTitle")}
-        icon={<TeamOutlined />}
-      >
-        {loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          sidebarPrograms?.map(
-            (program: { key: string; team: string; datasets: Dataset[] }) => {
-              return (
-                <Menu.ItemGroup key={program.key} title={program.team}>
-                  {program.datasets.map((dataset) => (
-                    <Menu.Item key={dataset.id}>
-                      <Link
-                        to={{
-                          pathname: `/dataset/${dataset.id}/details`,
-                        }}
-                      >
-                        {dataset.title}
-                      </Link>
-                    </Menu.Item>
-                  ))}
-                </Menu.ItemGroup>
-              );
-            }
-          )
-        )}
-      </SubMenu>
-      <SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
-        <div style={{ padding: "20px", background: "#fff" }}></div>
-      </SubMenu>
-    </Menu>
-  );
-};
-
-/**
- * Sidebar content for admin users.
+ * Sidebar content for all users.
  */
 export const AppAdminSidebarMenu = () => {
   const { t } = useTranslation();
@@ -125,24 +51,9 @@ export const AppSidebarMenu = () => {
     variables: { id: userId },
   });
 
-  const sidebarPrograms = data?.user?.teams.flatMap((team) =>
-    team.programs.map((program) => {
-      return {
-        key: program.id,
-        team: program.name,
-        datasets: program.datasets.map((dataset) => {
-          return {
-            id: dataset.id,
-            title: dataset.name,
-          };
-        }),
-      };
-    })
-  );
-
   const sidebarTeams = data?.user?.teams.flatMap((team) => {
     return {
-      key: team.name,
+      key: team.id,
       name: team.name,
       programmes:
         team.programs.map((program) => {
@@ -177,41 +88,7 @@ export const AppSidebarMenu = () => {
       ) : (
         ""
       )}
-      <SubMenu
-        key="teams"
-        title={t("teamsSideBarTitle")}
-        icon={<VideoCameraOutlined />}
-      >
-        {loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          sidebarPrograms?.map(
-            (program: { key: string; team: string; datasets: Dataset[] }) => {
-              return (
-                <SubMenu
-                  className="ds-container"
-                  key={program.key}
-                  title={program.team}
-                >
-                  {program.datasets
-                    .sort((a, b) => a.title.localeCompare(b.title))
-                    .map((dataset) => (
-                      <Menu.Item key={dataset.id}>
-                        <Link
-                          to={{
-                            pathname: `/dataset/${dataset.id}/details`,
-                          }}
-                        >
-                          {dataset.title}
-                        </Link>
-                      </Menu.Item>
-                    ))}
-                </SubMenu>
-              );
-            }
-          )
-        )}
-      </SubMenu>
+
 
       <SubMenu
         key="my-teams"
