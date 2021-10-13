@@ -282,7 +282,7 @@ const DatasetDetails = (): JSX.Element => {
       tooltip: {
         formatter: function content(item) {
           const labelString = `${Math.round(item.Percent * 100)}%`;
-          return { name: item.Attribute, value: labelString };
+          return { name: item.Attribute === "Other" ? "Other" : `${item.Attribute} target`, value: labelString };
         },
       },
       yAxis: {
@@ -313,7 +313,7 @@ const DatasetDetails = (): JSX.Element => {
       Attribute: entry.categoryValue.name,
       AttributeCategory: entry.categoryValue.category.name,
       AttributeCount: entry.count,
-      PersonType: entry.personType?.personTypeName,
+      PersonType: undefined, //entry.personType?.personTypeName,
       AttributeCategoryCount: sumOfEntriesByAttributeCategory(
         record.entries,
         entry.categoryValue.category.name,
