@@ -38,6 +38,21 @@ interface RouteParams {
   datasetId: string;
 }
 
+interface customColumnConfig extends ColumnConfig {
+  title: string;
+}
+
+interface IEntry {
+  MonthYear: string;
+  Attribute: string;
+  AttributeCategory: string;
+  AttributeCount: number;
+  AttributeCategoryCount: number;
+  PersonType: string | undefined;
+  Percent: number | undefined;
+  Target: number | undefined;
+}
+
 const PresetDateRanges: Record<
   string,
   [EventValue<Moment>, EventValue<Moment>]
@@ -95,25 +110,6 @@ const DatasetDetails = (): JSX.Element => {
   } = useQuery<GetDataset, GetDatasetVariables>(GET_DATASET, {
     variables: { id: datasetId },
   });
-
-  const sortedRecords = useMemo(() => {
-    if (queryData?.dataset?.records) {
-      return Array.from(queryData.dataset.records).sort(
-        (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
-      );
-    }
-  }, [queryData]);
-
-  interface IEntry {
-    MonthYear: string;
-    Attribute: string;
-    AttributeCategory: string;
-    AttributeCount: number;
-    AttributeCategoryCount: number;
-    PersonType: string | undefined;
-    Percent: number | undefined;
-    Target: number | undefined;
-  }
 
   const sumOfEntriesByAttributeCategory = (
     entries: readonly GetDataset_dataset_records_entries[],
@@ -184,18 +180,6 @@ const DatasetDetails = (): JSX.Element => {
     }, 0);
   };
 
-  /*const sumOfRecordsByAttribute = (
-    records: readonly GetDataset_dataset_records[],
-    attribute: string,
-    personType: string | undefined
-  ) => {
-    return records.reduce((prev, curr) => {
-      return (
-        prev + sumOfEntriesByAttribute(curr.entries, attribute, personType)
-      );
-    }, 0);
-  };*/
-
   const sumOfRecordsByInTargetAttribute = (
     records: readonly GetDataset_dataset_records[],
     personType: string | undefined,
@@ -213,22 +197,6 @@ const DatasetDetails = (): JSX.Element => {
     }, 0);
   };
 
-  /*const percentOfAttribute = (
-    records: readonly GetDataset_dataset_records[],
-    categoryValue: GetDataset_dataset_program_targets_categoryValue,
-    personType: string | undefined
-  ) => {
-    return Math.round(
-      (sumOfRecordsByAttribute(records, categoryValue.name, personType) /
-        sumOfRecordsByAttributeCategory(
-          records,
-          categoryValue.category.name,
-          personType
-        )) *
-      100
-    );
-  };*/
-
   const percentOfInTargetAttributeCategories = (
     records: readonly GetDataset_dataset_records[],
     category: string,
@@ -245,6 +213,166 @@ const DatasetDetails = (): JSX.Element => {
         100
     );
   };
+
+  const generatePieConfig = (target: {
+    name: string;
+    target: number;
+    status: number;
+  }) => {
+    return {
+      width: 150,
+      height: 150,
+      data: [
+        { targetName: target.name, value: target.status },
+        { targetName: "Other", value: 100 - target.status },
+      ],
+      innerRadius: 0.5,
+      angleField: "value",
+      colorField: "targetName",
+      color: (datum: Datum) => {
+        return datum.targetName === "Other"
+          ? getPalette(target.name)[1]
+          : getPalette(target.name)[0];
+      },
+      //percent: target.status / 100,
+      legend: false,
+      statistic: () => undefined,
+      label: false,
+    };
+  };
+
+  const progressConfig = (
+    chartData: IEntry[],
+    target: number,
+    title: string
+  ) => {
+    const config: customColumnConfig = {
+      title: title,
+      data: chartData,
+      color: ({ Attribute }) =>
+        Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
+      columnStyle: { stroke: "black" },
+      padding: 70,
+      xField: "MonthYear",
+      yField: "Percent",
+      intervalPadding: 0,
+      seriesField: "Attribute",
+      isStack: true,
+      isPercent: true,
+      annotations: [
+        {
+          type: "line",
+          top: true,
+          start: ["-5%", 100 - target],
+          end: ["105%", 100 - target],
+          style: {
+            lineWidth: 3,
+            stroke: "black",
+          },
+          text: {
+            content: "",
+            position: "start",
+            offsetY: 10,
+            offsetX: -35,
+            style: { fontSize: 20, fontWeight: 300 },
+          },
+        },
+      ],
+      legend: false,
+      tooltip: {
+        formatter: function content(item) {
+          const labelString = `${Math.round(item.Percent * 100)}%`;
+          return { name: item.Attribute, value: labelString };
+        },
+      },
+      yAxis: {
+        tickCount: 0,
+        max: 100,
+        /*label: {
+          formatter: (text) => `${Math.round(parseFloat(text) * 100)}%`,
+        },*/
+        label: null,
+      },
+      xAxis: {
+        label: {
+          autoHide: true,
+          autoRotate: false,
+        },
+      },
+    };
+    return config;
+  };
+
+  const sortedRecords = useMemo(() => {
+    if (queryData?.dataset?.records) {
+      return Array.from(queryData.dataset.records)
+        .sort(
+          (a, b) =>
+            Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
+        )
+        .map((x) => ({
+          ...x,
+          entries: Array.from(x.entries).sort(
+            (a, b) =>
+              (queryData.dataset.program.targets.find(
+                (target) => target.categoryValue.id === a.categoryValue.id
+              )?.target ?? 0) -
+              (queryData.dataset.program.targets.find(
+                (target) => target.categoryValue.id === b.categoryValue.id
+              )?.target ?? 0)
+          ),
+        }));
+    }
+  }, [queryData]);
+
+  const filteredRecords = useMemo(() => {
+    if (selectedFilters && sortedRecords) {
+      if (selectedFilters.DateRange && selectedFilters.DateRange.length === 2) {
+        const from = selectedFilters.DateRange[0];
+        const to = selectedFilters.DateRange[1];
+        if (from && to) {
+          const presetDate = Object.entries(PresetDateRanges).find(
+            ([, v]) => v === selectedFilters.DateRange
+          )?.[0];
+          if (presetDate) {
+            setPresetDate(presetDate);
+          } else {
+            setPresetDate(null);
+          }
+          return sortedRecords.filter(
+            (record: GetDataset_dataset_records) =>
+              moment(record.publicationDate) >= from &&
+              moment(record.publicationDate) <= to
+          );
+        }
+      }
+    }
+    setPresetDate("All Time");
+    return queryData?.dataset?.records;
+  }, [sortedRecords, selectedFilters]);
+
+  const targetStates = useMemo(() => {
+    return ["Gender", "Race / ethnicity", "Disability"].map((target) => {
+      const status = filteredRecords
+        ? percentOfInTargetAttributeCategories(
+            filteredRecords,
+            target,
+            undefined,
+            queryData?.dataset?.program.targets
+              .filter(
+                (x) => x.target > 0 && x.categoryValue.category.name === target
+              )
+              .map((x) => x.categoryValue.name) ?? new Array<string>()
+          )
+        : 0;
+      return {
+        name: target,
+        target: getTarget(target),
+        offset: status - getTarget(target) * 100,
+        status: status,
+      };
+    });
+  }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const groupedByMonthYearRecords = useMemo(() => {
     const lang = window.navigator.language;
@@ -308,84 +436,6 @@ const DatasetDetails = (): JSX.Element => {
     }, {} as Record<string, Array<IEntry>>);
   }, [sortedRecords]);
 
-  interface customColumnConfig extends ColumnConfig {
-    title: string;
-  }
-
-  const progressConfig = (
-    chartData: IEntry[],
-    target: number,
-    title: string
-  ) => {
-    const config: customColumnConfig = {
-      title: title,
-      data: chartData,
-      color: ({ Attribute }) =>
-        Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
-      columnStyle: { stroke: "black" },
-      padding: 70,
-      xField: "MonthYear",
-      yField: "Percent",
-      intervalPadding: 0,
-      seriesField: "Attribute",
-      isStack: true,
-      isPercent: true,
-      annotations: [
-        {
-          type: "line",
-          top: true,
-          start: ["-5%", 100 - target],
-          end: ["105%", 100 - target],
-          style: {
-            lineWidth: 3,
-            stroke: "black",
-          },
-          text: {
-            content: "",
-            position: "start",
-            offsetY: 10,
-            offsetX: -35,
-            style: { fontSize: 20, fontWeight: 300 },
-          },
-        },
-      ],
-      legend: false,
-      tooltip: {
-        formatter: function content(item) {
-          const labelString = `${Math.round(item.Percent * 100)}%`;
-          return { name: item.Attribute, value: labelString };
-        },
-      },
-      /*conversionTag: {
-        text: {
-          style: {
-            fontSize: 25,
-          },
-          formatter: (prev: number, next: number) => {
-            const val = next - prev;
-            return `${Math.sign(val) == -1 || Math.sign(val) == 0 ? "-" : "+"
-              }${Math.abs(val)}%`;
-          },
-        },
-      },*/
-      yAxis: {
-        tickCount: 0,
-        max: 100,
-        /*label: {
-          formatter: (text) => `${Math.round(parseFloat(text) * 100)}%`,
-        },*/
-        label: null,
-      },
-      xAxis: {
-        label: {
-          autoHide: true,
-          autoRotate: false,
-        },
-      },
-    };
-    return config;
-  };
-
   const progressCharts: customColumnConfig[] | undefined = useMemo(() => {
     //return Array.from(new Set(queryData?.dataset.program.targets.map(x => x.categoryValue.category.name)))
     //yes this is a bit hard to read!
@@ -403,6 +453,7 @@ const DatasetDetails = (): JSX.Element => {
                   const targetCategoryKey = targetCategory;
                   /*const targetCategoryPersonTypeKey =
                     targetCategory + currEntry.PersonType;*/
+                  //here the target number is treated like a bool
                   if (currEntry.Target && currEntry.Target > 0) {
                     if (reducedEntry[targetCategoryKey]) {
                       const newCount = (reducedEntry[
@@ -468,82 +519,6 @@ const DatasetDetails = (): JSX.Element => {
       ([] as customColumnConfig[]) ?? new Array<customColumnConfig>()
     );
   }, [groupedByMonthYearRecords, queryData?.dataset?.program.targets]);
-
-  const filteredRecords = useMemo(() => {
-    if (selectedFilters && sortedRecords) {
-      if (selectedFilters.DateRange && selectedFilters.DateRange.length === 2) {
-        const from = selectedFilters.DateRange[0];
-        const to = selectedFilters.DateRange[1];
-        if (from && to) {
-          const presetDate = Object.entries(PresetDateRanges).find(
-            ([, v]) => v === selectedFilters.DateRange
-          )?.[0];
-          if (presetDate) {
-            setPresetDate(presetDate);
-          } else {
-            setPresetDate(null);
-          }
-          return sortedRecords.filter(
-            (record: GetDataset_dataset_records) =>
-              moment(record.publicationDate) >= from &&
-              moment(record.publicationDate) <= to
-          );
-        }
-      }
-    }
-    setPresetDate("All Time");
-    return queryData?.dataset?.records;
-  }, [sortedRecords, selectedFilters]);
-
-  const targetStates = useMemo(() => {
-    return ["Gender", "Race / ethnicity", "Disability"].map((target) => {
-      const status = filteredRecords
-        ? percentOfInTargetAttributeCategories(
-            filteredRecords,
-            target,
-            undefined,
-            queryData?.dataset?.program.targets
-              .filter(
-                (x) => x.target > 0 && x.categoryValue.category.name === target
-              )
-              .map((x) => x.categoryValue.name) ?? new Array<string>()
-          )
-        : 0;
-      return {
-        name: target,
-        target: getTarget(target),
-        offset: status - getTarget(target) * 100,
-        status: status,
-      };
-    });
-  }, [queryData?.dataset?.program.targets, filteredRecords]);
-
-  const generatePieConfig = (target: {
-    name: string;
-    target: number;
-    status: number;
-  }) => {
-    return {
-      width: 150,
-      height: 150,
-      data: [
-        { targetName: target.name, value: target.status },
-        { targetName: "Other", value: 100 - target.status },
-      ],
-      innerRadius: 0.5,
-      angleField: "value",
-      colorField: "targetName",
-      color: (datum: Datum) => {
-        return datum.targetName === "Other"
-          ? getPalette(target.name)[1]
-          : getPalette(target.name)[0];
-      },
-      //percent: target.status / 100,
-      legend: false,
-      statistic: () => undefined,
-      label: false,
-    };
-  };
 
   if (queryLoading) {
     return <Loading />;
