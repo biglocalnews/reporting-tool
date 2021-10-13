@@ -210,7 +210,7 @@ const DatasetDetails = (): JSX.Element => {
         attributesInTarget
       ) /
         sumOfRecordsByAttributeCategory(records, category, personType)) *
-        100
+      100
     );
   };
 
@@ -355,15 +355,15 @@ const DatasetDetails = (): JSX.Element => {
     return ["Gender", "Race / ethnicity", "Disability"].map((target) => {
       const status = filteredRecords
         ? percentOfInTargetAttributeCategories(
-            filteredRecords,
-            target,
-            undefined,
-            queryData?.dataset?.program.targets
-              .filter(
-                (x) => x.target > 0 && x.categoryValue.category.name === target
-              )
-              .map((x) => x.categoryValue.name) ?? new Array<string>()
-          )
+          filteredRecords,
+          target,
+          undefined,
+          queryData?.dataset?.program.targets
+            .filter(
+              (x) => x.target > 0 && x.categoryValue.category.name === target
+            )
+            .map((x) => x.categoryValue.name) ?? new Array<string>()
+        )
         : 0;
       return {
         name: target,
@@ -376,7 +376,7 @@ const DatasetDetails = (): JSX.Element => {
 
   const groupedByMonthYearRecords = useMemo(() => {
     const lang = window.navigator.language;
-    return sortedRecords?.reduce((acc: Record<string, Array<IEntry>>, curr) => {
+    const test = sortedRecords?.reduce((acc: Record<string, Array<IEntry>>, curr) => {
       const recordDate = new Date(curr.publicationDate);
       const monthName = new Intl.DateTimeFormat(lang, {
         month: "long",
@@ -434,6 +434,7 @@ const DatasetDetails = (): JSX.Element => {
       }
       return acc;
     }, {} as Record<string, Array<IEntry>>);
+    return test;
   }, [sortedRecords]);
 
   const progressCharts: customColumnConfig[] | undefined = useMemo(() => {
@@ -472,7 +473,7 @@ const DatasetDetails = (): JSX.Element => {
                           currEntry.AttributeCategoryCount === 0
                             ? 0
                             : currEntry.AttributeCount /
-                              currEntry.AttributeCategoryCount,
+                            currEntry.AttributeCategoryCount,
                       };
                     }
                   }
@@ -575,9 +576,9 @@ const DatasetDetails = (): JSX.Element => {
               value={
                 selectedFilters?.DateRange?.length == 2
                   ? [
-                      selectedFilters?.DateRange[0],
-                      selectedFilters.DateRange[1],
-                    ]
+                    selectedFilters?.DateRange[0],
+                    selectedFilters.DateRange[1],
+                  ]
                   : [null, null]
               }
               ranges={PresetDateRanges}
@@ -602,15 +603,15 @@ const DatasetDetails = (): JSX.Element => {
               <Row justify="center">
                 {filteredRecords?.length
                   ? targetStates.map((target) => (
-                      <Col key={target.name} span={8}>
-                        {!isNaN(target.status) ? (
-                          <Pie {...generatePieConfig(target)} />
-                        ) : (
-                          noDataAvailable()
-                        )}
-                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                      </Col>
-                    ))
+                    <Col key={target.name} span={8}>
+                      {!isNaN(target.status) ? (
+                        <Pie {...generatePieConfig(target)} />
+                      ) : (
+                        noDataAvailable()
+                      )}
+                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                    </Col>
+                  ))
                   : noDataAvailable()}
                 <hr />
               </Row>
