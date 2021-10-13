@@ -388,14 +388,16 @@ const DatasetDetails = (): JSX.Element => {
             if (!monthYearRecords[monthYear]) {
               monthYearRecords[monthYear] = [];
             }
+            let entryCount = entry.AttributeCount ?? 0;
+            let entryCategoryCount = entry.AttributeCategoryCount ?? 0;
             monthYearRecords[monthYear].push({
               ...entry,
-              AttributeCount: (entry.AttributeCount += sumOfEntriesByAttribute(
+              AttributeCount: (entryCount += sumOfEntriesByAttribute(
                 curr.entries,
                 entry.Attribute,
                 undefined //entry.PersonType Ignore PersonType in count
               )),
-              AttributeCategoryCount: (entry.AttributeCategoryCount +=
+              AttributeCategoryCount: (entryCategoryCount +=
                 sumOfEntriesByAttributeCategory(
                   curr.entries,
                   entry.AttributeCategory,
