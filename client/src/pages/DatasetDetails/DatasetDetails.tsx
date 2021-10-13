@@ -303,6 +303,29 @@ const DatasetDetails = (): JSX.Element => {
     return config;
   };
 
+  const newMonthYearRecord = (
+    entry: GetDataset_dataset_records_entries,
+    monthYear: string,
+    record: GetDataset_dataset_records
+  ) => {
+    return {
+      MonthYear: monthYear,
+      Attribute: entry.categoryValue.name,
+      AttributeCategory: entry.categoryValue.category.name,
+      AttributeCount: entry.count,
+      PersonType: entry.personType?.personTypeName,
+      AttributeCategoryCount: sumOfEntriesByAttributeCategory(
+        record.entries,
+        entry.categoryValue.category.name,
+        undefined //entry.personType?.personTypeName Ignore PersonType in count
+      ),
+      Target: queryData?.dataset.program.targets.find(
+        (target) => target.categoryValue.name === entry.categoryValue.name
+      )?.target,
+      Percent: undefined,
+    };
+  };
+
   const sortedRecords = useMemo(() => {
     if (queryData?.dataset?.records) {
       return Array.from(queryData.dataset.records)
@@ -382,58 +405,36 @@ const DatasetDetails = (): JSX.Element => {
         month: "long",
       }).format(recordDate);
       const monthYear = `${monthName} ${recordDate.getFullYear()}`;
-      if (acc[monthYear]) {
-        return acc[monthYear].reduce(
-          (monthYearRecords: Record<string, Array<IEntry>>, entry: IEntry) => {
-            if (!monthYearRecords[monthYear]) {
-              monthYearRecords[monthYear] = [];
-            }
-            let entryCount = entry.AttributeCount ?? 0;
-            let entryCategoryCount = entry.AttributeCategoryCount ?? 0;
-            monthYearRecords[monthYear].push({
-              ...entry,
-              AttributeCount: (entryCount += sumOfEntriesByAttribute(
-                curr.entries,
-                entry.Attribute,
-                undefined //entry.PersonType Ignore PersonType in count
-              )),
-              AttributeCategoryCount: (entryCategoryCount +=
-                sumOfEntriesByAttributeCategory(
+      const newMonthYearEntries = curr.entries.reduce((newEntries, entry) => {
+        if (acc[monthYear]) {
+          const oldEntry = acc[monthYear].find(x => x.Attribute === entry.categoryValue.name);
+          if (!oldEntry) {
+            newEntries.push(newMonthYearRecord(entry, monthYear, curr));
+          }
+          else {
+            newEntries.push(
+              {
+                ...oldEntry,
+                AttributeCount: (oldEntry.AttributeCount += sumOfEntriesByAttribute(
                   curr.entries,
-                  entry.AttributeCategory,
+                  oldEntry.Attribute,
                   undefined //entry.PersonType Ignore PersonType in count
                 )),
-            });
-            return monthYearRecords;
-          },
-          {} as Record<string, Array<IEntry>>
-        );
-      } else {
-        const newMonthYearRecord = (
-          entry: GetDataset_dataset_records_entries
-        ) => {
-          return {
-            MonthYear: monthYear,
-            Attribute: entry.categoryValue.name,
-            AttributeCategory: entry.categoryValue.category.name,
-            AttributeCount: entry.count,
-            PersonType: entry.personType?.personTypeName,
-            AttributeCategoryCount: sumOfEntriesByAttributeCategory(
-              curr.entries,
-              entry.categoryValue.category.name,
-              undefined //entry.personType?.personTypeName Ignore PersonType in count
-            ),
-            Target: queryData?.dataset.program.targets.find(
-              (target) => target.categoryValue.name === entry.categoryValue.name
-            )?.target,
-            Percent: undefined,
-          };
-        };
-        acc[monthYear] = curr.entries.reduce((newMY, entry) => {
-          newMY.push(newMonthYearRecord(entry));
-          return newMY;
-        }, new Array<IEntry>());
-      }
+                AttributeCategoryCount: (oldEntry.AttributeCategoryCount +=
+                  sumOfEntriesByAttributeCategory(
+                    curr.entries,
+                    oldEntry.AttributeCategory,
+                    undefined //entry.PersonType Ignore PersonType in count
+                  ))
+              });
+          }
+        }
+        else {
+          newEntries.push(newMonthYearRecord(entry, monthYear, curr));
+        }
+        return newEntries;
+      }, new Array<IEntry>());
+      acc[monthYear] = newMonthYearEntries;
       return acc;
     }, {} as Record<string, Array<IEntry>>);
     return test;
