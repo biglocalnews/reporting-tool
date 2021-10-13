@@ -37,6 +37,7 @@ export interface GetUser_user_teams_programs {
 
 export interface GetUser_user_teams {
   readonly __typename: "Team";
+  readonly id: string;
   readonly name: string;
   readonly programs: ReadonlyArray<GetUser_user_teams_programs>;
 }
