@@ -428,16 +428,19 @@ const DatasetDetails = (): JSX.Element => {
                   return reducedEntry;
                 }, {} as Record<string, IEntry>);
               if (reducedRecord && Object.values(reducedRecord).length) {
-                Object.values(reducedRecord).map((x) => {
-                  reducedByCategoryRecord.push({
-                    ...x,
-                    Attribute: "Other",
-                    AttributeCategory: "Other",
-                    AttributeCount: x.AttributeCategoryCount - x.AttributeCount,
-                    Percent: x.Percent ? 1 - x.Percent : 1,
+                Object.values(reducedRecord)
+                  .filter((x) => x.AttributeCategoryCount > 0)
+                  .map((x) => {
+                    reducedByCategoryRecord.push({
+                      ...x,
+                      Attribute: "Other",
+                      AttributeCategory: "Other",
+                      AttributeCount:
+                        x.AttributeCategoryCount - x.AttributeCount,
+                      Percent: x.Percent ? 1 - x.Percent : 1,
+                    });
+                    reducedByCategoryRecord.push(x);
                   });
-                  reducedByCategoryRecord.push(x);
-                });
               }
               return reducedByCategoryRecord;
             },
