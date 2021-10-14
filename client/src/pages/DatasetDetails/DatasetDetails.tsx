@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import {
   Button,
   Col,
+  Collapse,
   DatePicker,
   Divider,
   Row,
@@ -12,6 +13,7 @@ import {
   Tabs,
   Typography,
 } from "antd";
+const { Panel } = Collapse;
 import moment, { Moment } from "moment";
 import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
 import { useMemo, useState } from "react";
@@ -624,19 +626,23 @@ const DatasetDetails = (): JSX.Element => {
                     : noDataAvailable()}
                   <hr />
                 </Row>
-                <hr />
-                <h2>3 Month Trend</h2>
-                <Row>
-                  {progressCharts.map(
-                    (config) =>
-                      config && (
-                        <Col span={8}>
-                          <Column {...config} />
-                        </Col>
-                      )
-                  )}
-                  <hr />
-                </Row>
+
+                <Collapse>
+                  <Panel header={<span style={{ fontSize: "1rem", fontWeight: 600 }}>3 Month Trend</span>} key="1">
+                    <Row>
+                      {progressCharts.map(
+                        (config) =>
+                          config && (
+                            <Col span={8}>
+                              <Column {...config} />
+                            </Col>
+                          )
+                      )}
+
+                    </Row>
+                  </Panel>
+                </Collapse>
+
               </TabPane>
             )}
 
