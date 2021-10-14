@@ -260,7 +260,7 @@ const DatasetDetails = (): JSX.Element => {
       color: ({ Attribute }) =>
         Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
       columnStyle: { stroke: "black" },
-      padding: 70,
+      padding: 30,
       xField: "MonthYear",
       yField: "Percent",
       intervalPadding: 0,
@@ -410,7 +410,7 @@ const DatasetDetails = (): JSX.Element => {
     const test = sortedRecords?.reduce((acc: Record<string, Array<IEntry>>, curr) => {
       const recordDate = new Date(curr.publicationDate);
       const monthName = new Intl.DateTimeFormat(lang, {
-        month: "long",
+        month: "short",
       }).format(recordDate);
       const monthYear = `${monthName} ${recordDate.getFullYear()} `;
       const newMonthYearEntries = curr.entries.reduce((newEntries, entry) => {
@@ -613,25 +613,26 @@ const DatasetDetails = (): JSX.Element => {
               <TabPane tab="Progress" key="progress">
                 <h2>{presetDate}</h2>
                 <Row justify="center">
-                  {targetStates.map((target) => (
-                    <Col key={target.name} span={8}>
-                      {!isNaN(target.status) ? (
-                        <Pie {...generatePieConfig(target)} />
-                      ) : (
-                        noDataAvailable()
-                      )}
-                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                    </Col>
-                  ))
+                  {
+                    targetStates.map((target, i) => (
+                      <Col key={target.name} span={4} offset={i ? 4 : 0}>
+                        {!isNaN(target.status) ? (
+                          <Pie {...generatePieConfig(target)} />
+                        ) : (
+                          noDataAvailable()
+                        )}
+                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                      </Col>
+                    ))
                   }
                 </Row>
                 <Collapse>
                   <Panel showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
-                    <Row>
+                    <Row justify="center">
                       {progressCharts.map(
-                        (config) =>
+                        (config, i) =>
                           config && (
-                            <Col span={8}>
+                            <Col span={4} offset={i ? 4 : 0}>
                               <Column {...config} />
                             </Col>
                           )
