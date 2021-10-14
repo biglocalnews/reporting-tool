@@ -600,7 +600,7 @@ const DatasetDetails = (): JSX.Element => {
             key="1"
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => history.push(`/ dataset / ${datasetId} /entry`)}
+            onClick={() => history.push(`/dataset/${datasetId}/entry`)}
           >
             {t("addData")}
           </Button >,
