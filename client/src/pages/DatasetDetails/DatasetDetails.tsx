@@ -1,5 +1,6 @@
 import { Column, ColumnConfig, Pie } from "@ant-design/charts";
 import { PlusOutlined } from "@ant-design/icons";
+import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
 import { Datum } from "@antv/g2plot";
 import { useQuery } from "@apollo/client";
 import {
@@ -624,11 +625,10 @@ const DatasetDetails = (): JSX.Element => {
                       </Col>
                     ))
                     : noDataAvailable()}
-                  <hr />
-                </Row>
 
+                </Row>
                 <Collapse>
-                  <Panel header={<span style={{ fontSize: "1rem", fontWeight: 600 }}>3 Month Trend</span>} key="1">
+                  <Panel showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
                     <Row>
                       {progressCharts.map(
                         (config) =>
