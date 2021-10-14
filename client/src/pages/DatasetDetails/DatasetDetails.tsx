@@ -33,6 +33,7 @@ import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DataEntryTable } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
+import "./DatasetDetails.css"
 const { TabPane } = Tabs;
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -261,6 +262,7 @@ const DatasetDetails = (): JSX.Element => {
         Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
       columnStyle: { stroke: "black" },
       padding: 30,
+      height: 300,
       xField: "MonthYear",
       yField: "Percent",
       intervalPadding: 0,
@@ -627,7 +629,7 @@ const DatasetDetails = (): JSX.Element => {
                   }
                 </Row>
                 <Collapse>
-                  <Panel showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
+                  <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
                     <Row justify="center">
                       {progressCharts.map(
                         (config, i) =>
