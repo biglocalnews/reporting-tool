@@ -613,19 +613,17 @@ const DatasetDetails = (): JSX.Element => {
               <TabPane tab="Progress" key="progress">
                 <h2>{presetDate}</h2>
                 <Row justify="center">
-                  {filteredRecords?.length
-                    ? targetStates.map((target) => (
-                      <Col key={target.name} span={8}>
-                        {!isNaN(target.status) ? (
-                          <Pie {...generatePieConfig(target)} />
-                        ) : (
-                          noDataAvailable()
-                        )}
-                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                      </Col>
-                    ))
-                    : noDataAvailable()}
-
+                  {targetStates.map((target) => (
+                    <Col key={target.name} span={8}>
+                      {!isNaN(target.status) ? (
+                        <Pie {...generatePieConfig(target)} />
+                      ) : (
+                        noDataAvailable()
+                      )}
+                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                    </Col>
+                  ))
+                  }
                 </Row>
                 <Collapse>
                   <Panel showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
