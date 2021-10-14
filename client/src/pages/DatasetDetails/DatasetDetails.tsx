@@ -234,6 +234,11 @@ const DatasetDetails = (): JSX.Element => {
           ? getPalette(target.name)[1]
           : getPalette(target.name)[0];
       },
+      tooltip: {
+        formatter: (datum: Datum) => datum.targetName === "Other" ? { name: "Not in target", value: `${datum.value}%` } : {
+          value: `${datum.value}%`, name: `${datum.targetName} target`
+        }
+      },
       //percent: target.status / 100,
       legend: false,
       statistic: () => undefined,
@@ -281,7 +286,7 @@ const DatasetDetails = (): JSX.Element => {
       legend: false,
       tooltip: {
         formatter: function content(item) {
-          const labelString = `${Math.round(item.Percent * 100)}%`;
+          const labelString = `${Math.round(item.Percent * 100)}% `;
           return { name: item.Attribute === "Other" ? "Other" : `${item.Attribute} target`, value: labelString };
         },
       },
@@ -289,7 +294,7 @@ const DatasetDetails = (): JSX.Element => {
         tickCount: 0,
         max: 100,
         /*label: {
-          formatter: (text) => `${Math.round(parseFloat(text) * 100)}%`,
+          formatter: (text) => `${ Math.round(parseFloat(text) * 100) }% `,
         },*/
         label: null,
       },
@@ -404,7 +409,7 @@ const DatasetDetails = (): JSX.Element => {
       const monthName = new Intl.DateTimeFormat(lang, {
         month: "long",
       }).format(recordDate);
-      const monthYear = `${monthName} ${recordDate.getFullYear()}`;
+      const monthYear = `${monthName} ${recordDate.getFullYear()} `;
       const newMonthYearEntries = curr.entries.reduce((newEntries, entry) => {
         if (acc[monthYear]) {
           const oldEntry = acc[monthYear].find(x => x.Attribute === entry.categoryValue.name);
@@ -592,77 +597,79 @@ const DatasetDetails = (): JSX.Element => {
             key="1"
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => history.push(`/dataset/${datasetId}/entry`)}
+            onClick={() => history.push(`/ dataset / ${datasetId} /entry`)}
           >
             {t("addData")}
-          </Button>,
+          </Button >,
         ]}
       />
-      {filteredRecords?.length || (progressCharts && progressCharts.length) ? (
-        <Tabs defaultActiveKey={progressCharts ? "progress" : "current"}>
-          {progressCharts && progressCharts.length && (
-            <TabPane tab="Progress" key="progress">
-              <h2>{presetDate}</h2>
-              <Row justify="center">
-                {filteredRecords?.length
-                  ? targetStates.map((target) => (
-                    <Col key={target.name} span={8}>
-                      {!isNaN(target.status) ? (
-                        <Pie {...generatePieConfig(target)} />
-                      ) : (
-                        noDataAvailable()
-                      )}
-                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                    </Col>
-                  ))
-                  : noDataAvailable()}
-                <hr />
-              </Row>
-              <hr />
-              <h2>3 Month Trend</h2>
-              <Row>
-                {progressCharts.map(
-                  (config) =>
-                    config && (
-                      <Col span={8}>
-                        <Column {...config} />
+      {
+        filteredRecords?.length || (progressCharts && progressCharts.length) ? (
+          <Tabs defaultActiveKey={progressCharts ? "progress" : "current"}>
+            {progressCharts && progressCharts.length && (
+              <TabPane tab="Progress" key="progress">
+                <h2>{presetDate}</h2>
+                <Row justify="center">
+                  {filteredRecords?.length
+                    ? targetStates.map((target) => (
+                      <Col key={target.name} span={8}>
+                        {!isNaN(target.status) ? (
+                          <Pie {...generatePieConfig(target)} />
+                        ) : (
+                          noDataAvailable()
+                        )}
+                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
                       </Col>
-                    )
-                )}
+                    ))
+                    : noDataAvailable()}
+                  <hr />
+                </Row>
                 <hr />
-              </Row>
-            </TabPane>
-          )}
-
-          <TabPane tab="Details">
-            {filteredRecords?.length ? (
-              <Space direction="vertical">
-                <DatasetDetailsScoreCard
-                  data={queryData}
-                  datasetId={datasetId}
-                  filteredRecords={filteredRecords}
-                />
-
-                <DatasetDetailsRecordsTable
-                  datasetId={datasetId}
-                  datasetData={queryData}
-                  records={filteredRecords}
-                  isLoading={queryLoading}
-                />
-              </Space>
-            ) : (
-              noDataAvailable()
+                <h2>3 Month Trend</h2>
+                <Row>
+                  {progressCharts.map(
+                    (config) =>
+                      config && (
+                        <Col span={8}>
+                          <Column {...config} />
+                        </Col>
+                      )
+                  )}
+                  <hr />
+                </Row>
+              </TabPane>
             )}
-          </TabPane>
-        </Tabs>
-      ) : (
-        noDataAvailable()
-      )}
+
+            <TabPane tab="Details">
+              {filteredRecords?.length ? (
+                <Space direction="vertical">
+                  <DatasetDetailsScoreCard
+                    data={queryData}
+                    datasetId={datasetId}
+                    filteredRecords={filteredRecords}
+                  />
+
+                  <DatasetDetailsRecordsTable
+                    datasetId={datasetId}
+                    datasetData={queryData}
+                    records={filteredRecords}
+                    isLoading={queryLoading}
+                  />
+                </Space>
+              ) : (
+                noDataAvailable()
+              )}
+            </TabPane>
+          </Tabs>
+        ) : (
+          noDataAvailable()
+        )
+      }
       <Divider orientation="left" plain>
         Data
       </Divider>
       <DataEntryTable />
-    </div>
+    </div >
   );
 };
 
