@@ -25,7 +25,13 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
-from sqlalchemy.orm import relationship, sessionmaker, validates
+from sqlalchemy.orm import (
+    relationship,
+    selectinload,
+    sessionmaker,
+    validates,
+    with_loader_criteria,
+)
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
@@ -333,6 +339,10 @@ class Program(Base, PermissionsMixin):
     def get_not_deleted(cls, session, id_):
         return (
             session.query(Program)
+            .options(
+                selectinload(Program.datasets),
+                with_loader_criteria(Dataset, Dataset.deleted == None),
+            )
             .filter(Program.id == id_, Program.deleted == None)
             .scalar()
         )
@@ -589,6 +599,10 @@ class Dataset(Base, PermissionsMixin):
     def get_not_deleted(cls, session, id_):
         return (
             session.query(Dataset)
+            .options(
+                selectinload(Dataset.records),
+                with_loader_criteria(Record, Record.deleted == None),
+            )
             .filter(Dataset.id == id_, Dataset.deleted == None)
             .scalar()
         )

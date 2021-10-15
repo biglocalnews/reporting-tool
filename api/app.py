@@ -382,7 +382,7 @@ async def get_context(request: Request):
 
 
 # Mount ariadne to fastapi
-app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
+app.mount("/graphql", GraphQL(schema, debug=True, context_value=get_context))
 
 
 def home():
