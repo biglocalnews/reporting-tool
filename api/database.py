@@ -6,16 +6,13 @@ Run this as a script to create the database tables:
 Can also add dummy data for development with:
     python database.py --dummy-data
 """
-import databases
 import uuid
-
 import click
 from datetime import datetime
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import (
     create_engine,
     Table,
-    Boolean,
     Column,
     Integer,
     Float,
@@ -34,9 +31,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable

@@ -50,8 +50,8 @@ interface IEntry {
   MonthYear: string;
   Attribute: string;
   AttributeCategory: string;
+  AttributeCategoryCount: number | undefined;
   AttributeCount: number;
-  AttributeCategoryCount: number;
   PersonType: string | undefined;
   Percent: number | undefined;
   Target: number | undefined;
@@ -149,7 +149,7 @@ const DatasetDetails = (): JSX.Element => {
     }, 0);
   };
 
-  const sumOfEntriesByAttribute = (
+  /*const sumOfEntriesByAttribute = (
     entries: readonly GetDataset_dataset_records_entries[],
     attribute: string,
     personType: string | undefined
@@ -163,7 +163,7 @@ const DatasetDetails = (): JSX.Element => {
         ? currEntry.count + prevEntry
         : prevEntry;
     }, 0);
-  };
+  };*/
 
   const sumOfEntriesByInTargetAttribute = (
     entries: readonly GetDataset_dataset_records_entries[],
@@ -259,7 +259,7 @@ const DatasetDetails = (): JSX.Element => {
       title: title,
       data: chartData,
       color: ({ Attribute }) =>
-        Attribute === "Other" ? getPalette(title)[1] : getPalette(title)[0],
+        Attribute.indexOf("Other") > -1 ? getPalette(title)[1] : getPalette(title)[0],
       columnStyle: { stroke: "black" },
       padding: 30,
       height: 300,
@@ -292,7 +292,7 @@ const DatasetDetails = (): JSX.Element => {
       tooltip: {
         formatter: function content(item) {
           const labelString = `${Math.round(item.Percent * 100)}% `;
-          return { name: item.Attribute === "Other" ? "Other" : `${item.Attribute} target`, value: labelString };
+          return { name: item.Attribute.indexOf("Other") > -1 ? "Other" : `${item.Attribute} target`, value: labelString };
         },
       },
       yAxis: {
@@ -315,20 +315,15 @@ const DatasetDetails = (): JSX.Element => {
 
   const newMonthYearRecord = (
     entry: GetDataset_dataset_records_entries,
-    monthYear: string,
-    record: GetDataset_dataset_records
+    monthYear: string
   ) => {
     return {
       MonthYear: monthYear,
       Attribute: entry.categoryValue.name,
       AttributeCategory: entry.categoryValue.category.name,
+      AttributeCategoryCount: undefined,
       AttributeCount: entry.count,
       PersonType: undefined, //entry.personType?.personTypeName,
-      AttributeCategoryCount: sumOfEntriesByAttributeCategory(
-        record.entries,
-        entry.categoryValue.category.name,
-        undefined //entry.personType?.personTypeName Ignore PersonType in count
-      ),
       Target: queryData?.dataset.program.targets.find(
         (target) => target.categoryValue.name === entry.categoryValue.name
       )?.target,
@@ -408,126 +403,116 @@ const DatasetDetails = (): JSX.Element => {
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const groupedByMonthYearRecords = useMemo(() => {
-    const lang = window.navigator.language;
-    const test = sortedRecords?.reduce((acc: Record<string, Array<IEntry>>, curr) => {
+    return sortedRecords?.reduce((groupedByMonthYearRecords, curr) => {
       const recordDate = new Date(curr.publicationDate);
-      const monthName = new Intl.DateTimeFormat(lang, {
+      const monthName = new Intl.DateTimeFormat(window.navigator.language, {
         month: "short",
       }).format(recordDate);
-      const monthYear = `${monthName} ${recordDate.getFullYear()} `;
-      const newMonthYearEntries = curr.entries.reduce((newEntries, entry) => {
-        if (acc[monthYear]) {
-          const oldEntry = acc[monthYear].find(x => x.Attribute === entry.categoryValue.name);
-          if (!oldEntry) {
-            newEntries.push(newMonthYearRecord(entry, monthYear, curr));
-          }
-          else {
-            newEntries.push(
-              {
-                ...oldEntry,
-                AttributeCount: (oldEntry.AttributeCount += sumOfEntriesByAttribute(
-                  curr.entries,
-                  oldEntry.Attribute,
-                  undefined //entry.PersonType Ignore PersonType in count
-                )),
-                AttributeCategoryCount: (oldEntry.AttributeCategoryCount +=
-                  sumOfEntriesByAttributeCategory(
-                    curr.entries,
-                    oldEntry.AttributeCategory,
-                    undefined //entry.PersonType Ignore PersonType in count
-                  ))
-              });
-          }
+      const monthYear = `${monthName} ${recordDate.getFullYear()}`;
+      const reducedEntries = curr.entries.reduce((newEntries, entry) => {
+        const oldEntry = newEntries[entry.categoryValue.name];
+        if (!oldEntry) {
+          newEntries[entry.categoryValue.name] = newMonthYearRecord(entry, monthYear);
         }
         else {
-          newEntries.push(newMonthYearRecord(entry, monthYear, curr));
+          newEntries[entry.categoryValue.name] =
+          {
+            ...oldEntry,
+            AttributeCount: oldEntry.AttributeCount += entry.count
+          };
         }
         return newEntries;
-      }, new Array<IEntry>());
-      acc[monthYear] = newMonthYearEntries;
-      return acc;
-    }, {} as Record<string, Array<IEntry>>);
-    return test;
+      }, {} as Record<string, IEntry>);
+
+      const oldMonthYearRecord = groupedByMonthYearRecords[monthYear];
+      if (!oldMonthYearRecord) {
+        groupedByMonthYearRecords[monthYear] = Object.values(reducedEntries);
+      }
+      else {
+        const reducedRecord = Object.values(reducedEntries).reduce((newEntries, entry) => {
+          const oldEntry = newEntries[entry.Attribute];
+          if (!oldEntry) {
+            newEntries[entry.Attribute] = entry;
+          }
+          else {
+            newEntries[entry.Attribute] =
+            {
+              ...oldEntry,
+              AttributeCount: oldEntry.AttributeCount += entry.AttributeCount
+            };
+          }
+          return newEntries;
+        }, {} as Record<string, IEntry>);
+        groupedByMonthYearRecords[monthYear] = Object.values(reducedRecord);
+      }
+      return groupedByMonthYearRecords;
+    }, {} as Record<string, IEntry[]>);
   }, [sortedRecords]);
 
   const progressCharts: customColumnConfig[] | undefined = useMemo(() => {
     //return Array.from(new Set(queryData?.dataset.program.targets.map(x => x.categoryValue.category.name)))
     //yes this is a bit hard to read!
+    if (
+      !groupedByMonthYearRecords ||
+      Object.keys(groupedByMonthYearRecords).length < 2
+    ) { return undefined; }
     return ["Gender", "Race / ethnicity", "Disability"].reduce(
       (configs, targetCategory) => {
-        if (
-          groupedByMonthYearRecords &&
-          Object.keys(groupedByMonthYearRecords).length > 1
-        ) {
-          const chartData = Object.values(groupedByMonthYearRecords).reduce(
-            (reducedByCategoryRecord, record) => {
-              const reducedRecord = record
-                .filter((x) => x.AttributeCategory === targetCategory)
-                .reduce((reducedEntry, currEntry) => {
-                  const targetCategoryKey = targetCategory;
-                  /*const targetCategoryPersonTypeKey =
-                    targetCategory + currEntry.PersonType;*/
-                  //here the target number is treated like a bool
-                  if (currEntry.Target && currEntry.Target > 0) {
-                    if (reducedEntry[targetCategoryKey]) {
-                      const newCount = (reducedEntry[
-                        targetCategoryKey
-                      ].AttributeCount += currEntry.AttributeCount);
-                      reducedEntry[targetCategoryKey].AttributeCount = newCount;
-                      reducedEntry[targetCategoryKey].Percent =
-                        currEntry.AttributeCategoryCount === 0
-                          ? 0
-                          : newCount / currEntry.AttributeCategoryCount;
-                    } else {
-                      reducedEntry[targetCategoryKey] = {
-                        ...currEntry,
-                        Attribute: targetCategory,
-                        Percent:
-                          currEntry.AttributeCategoryCount === 0
-                            ? 0
-                            : currEntry.AttributeCount /
-                            currEntry.AttributeCategoryCount,
-                      };
-                    }
-                  }
-                  return reducedEntry;
-                }, {} as Record<string, IEntry>);
-              if (reducedRecord && Object.values(reducedRecord).length) {
-                Object.values(reducedRecord)
-                  .filter((x) => x.AttributeCategoryCount > 0)
-                  .map((x) => {
-                    reducedByCategoryRecord.push({
-                      ...x,
-                      Attribute: "Other",
-                      AttributeCategory: "Other",
-                      AttributeCount:
-                        x.AttributeCategoryCount - x.AttributeCount,
-                      Percent: x.Percent ? 1 - x.Percent : 1,
-                    });
-                    reducedByCategoryRecord.push(x);
-                  });
-              }
-              return reducedByCategoryRecord;
-            },
-            new Array<IEntry>()
+        const chartData = Object.values(groupedByMonthYearRecords).reduce(
+          (chartData, record) => {
+            const totalAttributeCategoryCount = record
+              .filter(x => x.AttributeCategory === targetCategory)
+              .reduce((count, currEntry) => {
+                count += currEntry.AttributeCount;
+                return count;
+              }, 0);
+            if (totalAttributeCategoryCount === 0) {
+              return chartData;
+            }
+            const reducedRecord = record
+              .filter(x => x.AttributeCategory === targetCategory)
+              .reduce((reducedRecord, currEntry) => {
+                let categoryKey = targetCategory;
+                /*const targetCategoryPersonTypeKey =
+                  targetCategory + currEntry.PersonType;*/
+                //here the target number is treated like a bool
+                if (currEntry.Target === 0 || currEntry.Target === 0.0) {
+                  categoryKey = `Other ${targetCategory}`;
+                }
+
+                if (reducedRecord[categoryKey]) {
+                  reducedRecord[categoryKey].AttributeCount += currEntry.AttributeCount;
+                  reducedRecord[categoryKey].Percent = (reducedRecord[categoryKey].AttributeCount / totalAttributeCategoryCount) * 100
+                } else {
+                  reducedRecord[categoryKey] = {
+                    ...currEntry,
+                    Attribute: categoryKey,
+                    AttributeCategoryCount: totalAttributeCategoryCount,
+                    Percent: (currEntry.AttributeCount / totalAttributeCategoryCount) * 100
+                  };
+                }
+                return reducedRecord;
+              }, {} as Record<string, IEntry>);
+            Object.values(reducedRecord).forEach(x => chartData.push(x));
+            return chartData;
+          }, new Array<IEntry>());
+        if (chartData.length > 1) {
+          configs.push(
+            progressConfig(
+              [
+                ...chartData.slice(-6).map((x) => ({
+                  ...x,
+                  PersonType: x.PersonType
+                    ? x.PersonType
+                    : "Unspecified person type",
+                })),
+              ],
+              Math.round(getTarget(targetCategory) * 100),
+              targetCategory
+            )
           );
-          if (chartData.length > 1) {
-            configs.push(
-              progressConfig(
-                [
-                  ...chartData.slice(-6).map((x) => ({
-                    ...x,
-                    PersonType: x.PersonType
-                      ? x.PersonType
-                      : "Unspecified person type",
-                  })),
-                ],
-                Math.round(getTarget(targetCategory) * 100),
-                targetCategory
-              )
-            );
-          }
         }
+
         return configs;
       },
       ([] as customColumnConfig[]) ?? new Array<customColumnConfig>()

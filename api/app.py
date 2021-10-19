@@ -1,25 +1,19 @@
 import json
-from logging import debug
 from uuid import uuid4
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
-from onelogin.saml2.utils import OneLogin_Saml2_Utils
-from requests.sessions import session
 from starlette.responses import RedirectResponse
 import uvicorn
-import databases
-import sqlalchemy
+
 import datetime
 
 from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
-from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 import dateutil.parser
 
 from ariadne import (
     load_schema_from_path,
     make_executable_schema,
     snake_case_fallback_resolvers,
-    ObjectType,
     ScalarType,
 )
 from ariadne.asgi import GraphQL
@@ -382,7 +376,7 @@ async def get_context(request: Request):
 
 
 # Mount ariadne to fastapi
-app.mount("/graphql", GraphQL(schema, debug=True, context_value=get_context))
+app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
 
 def home():

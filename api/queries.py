@@ -1,5 +1,4 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
-from ariadne.objects import QueryType
 from sqlalchemy.sql.expression import func
 from database import (
     Dataset,
@@ -15,7 +14,6 @@ from database import (
     Organization,
     Tag,
 )
-from sqlalchemy.orm.exc import NoResultFound
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
