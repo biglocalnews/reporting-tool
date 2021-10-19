@@ -409,6 +409,7 @@ const DatasetDetails = (): JSX.Element => {
         month: "short",
       }).format(recordDate);
       const monthYear = `${monthName} ${recordDate.getFullYear()}`;
+      //reduced to ignore people types
       const reducedEntries = curr.entries.reduce((newEntries, entry) => {
         const oldEntry = newEntries[entry.categoryValue.name];
         if (!oldEntry) {
@@ -418,35 +419,36 @@ const DatasetDetails = (): JSX.Element => {
           newEntries[entry.categoryValue.name] =
           {
             ...oldEntry,
-            AttributeCount: oldEntry.AttributeCount += entry.count
+            AttributeCount: oldEntry.AttributeCount + entry.count
           };
         }
         return newEntries;
       }, {} as Record<string, IEntry>);
 
-      const oldMonthYearRecord = groupedByMonthYearRecords[monthYear];
-      if (!oldMonthYearRecord) {
+
+      if (!groupedByMonthYearRecords[monthYear]) {
         groupedByMonthYearRecords[monthYear] = Object.values(reducedEntries);
       }
       else {
-        const reducedRecord = Object.values(reducedEntries).reduce((newEntries, entry) => {
-          const oldEntry = newEntries[entry.Attribute];
-          if (!oldEntry) {
-            newEntries[entry.Attribute] = entry;
+        Object.values(reducedEntries).forEach((entry) => {
+          const entryIdx = groupedByMonthYearRecords[monthYear].findIndex(x => x.Attribute === entry.Attribute);
+          const oldEntry = groupedByMonthYearRecords[monthYear][entryIdx]
+          if (entryIdx === -1) {
+            groupedByMonthYearRecords[monthYear].push(entry);
           }
           else {
-            newEntries[entry.Attribute] =
+            groupedByMonthYearRecords[monthYear][entryIdx] =
             {
               ...oldEntry,
-              AttributeCount: oldEntry.AttributeCount += entry.AttributeCount
+              AttributeCount: oldEntry.AttributeCount + entry.AttributeCount
             };
           }
-          return newEntries;
-        }, {} as Record<string, IEntry>);
-        groupedByMonthYearRecords[monthYear] = Object.values(reducedRecord);
+
+        });
       }
       return groupedByMonthYearRecords;
     }, {} as Record<string, IEntry[]>);
+
   }, [sortedRecords]);
 
   const progressCharts: customColumnConfig[] | undefined = useMemo(() => {
