@@ -32,7 +32,7 @@ const generateColChartConfig = (chartData: Array<ColStat>) => {
     isGroup: true,
     isPercent: true,
     isStack: true,
-    interactions: [{ type: "tooltip", enable: false }],
+    interactions: [{ type: "tooltip", enable: true }],
     yAxis: {
       top: true,
       tickCount: 0,
@@ -74,11 +74,9 @@ const barStats = (
           const monthName = new Intl.DateTimeFormat(lang, {
             month: "long",
           }).format(recordDate);
-          const yearMonthCategoryPersonType = `${monthName}-${recordDate.getFullYear()}-${
-            entry.categoryValue.name
-          }-${
-            entry.personType ? entry.personType.personTypeName : "Unspecified"
-          }`;
+          const yearMonthCategoryPersonType = `${monthName}-${recordDate.getFullYear()}-${entry.categoryValue.name
+            }-${entry.personType ? entry.personType.personTypeName : "Unspecified"
+            }`;
           const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
           if (!chartData[yearMonthCategoryPersonType]) {
             chartData[yearMonthCategoryPersonType] = {

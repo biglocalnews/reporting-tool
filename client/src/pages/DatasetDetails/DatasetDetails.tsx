@@ -556,35 +556,37 @@ const DatasetDetails = (): JSX.Element => {
     </div>
   );
 
+  const dateRangePicker = <Space key="0" size="middle">
+
+    {presetDate && <Text strong>{t(presetDate)}</Text>}
+    <RangePicker
+      format={(val) =>
+        Intl.DateTimeFormat(window.navigator.language, {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }).format(val.toDate())
+      }
+      value={
+        selectedFilters?.DateRange?.length == 2
+          ? [
+            selectedFilters?.DateRange[0],
+            selectedFilters.DateRange[1],
+          ]
+          : [null, null]
+      }
+      ranges={PresetDateRanges}
+      onChange={onChangeDateRange}
+    />
+  </Space>
+
   return (
     <div className="dataset-details_container">
       <PageTitleBar
         title={queryData?.dataset?.program.name}
         subtitle={queryData?.dataset?.name}
         extra={[
-          <Space key="0" size="middle">
-            {presetDate ? <Text strong>{t(presetDate)}</Text> : null}
-            <RangePicker
-              format={(val) =>
-                Intl.DateTimeFormat(window.navigator.language, {
-                  weekday: "short",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                }).format(val.toDate())
-              }
-              value={
-                selectedFilters?.DateRange?.length == 2
-                  ? [
-                    selectedFilters?.DateRange[0],
-                    selectedFilters.DateRange[1],
-                  ]
-                  : [null, null]
-              }
-              ranges={PresetDateRanges}
-              onChange={onChangeDateRange}
-            />
-          </Space>,
           <Button
             key="1"
             type="primary"
@@ -595,30 +597,31 @@ const DatasetDetails = (): JSX.Element => {
           </Button >,
         ]}
       />
-      {
-        filteredRecords?.length || (progressCharts && progressCharts.length) ? (
-          <Tabs defaultActiveKey={progressCharts ? "progress" : "current"}>
-            {progressCharts && progressCharts.length && (
-              <TabPane tab="Progress" key="progress">
-                <h2>{presetDate}</h2>
-                <Row justify="center">
-                  {
-                    targetStates.map((target, i) => (
-                      <Col key={target.name} span={4} offset={i ? 4 : 0}>
-                        {!isNaN(target.status) ? (
-                          <Pie {...generatePieConfig(target)} />
-                        ) : (
-                          noDataAvailable()
-                        )}
-                        <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                      </Col>
-                    ))
-                  }
-                </Row>
-                <Collapse>
-                  <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
-                    <Row justify="center">
-                      {progressCharts.map(
+      <Tabs defaultActiveKey={progressCharts ? "progress" : "current"} tabBarExtraContent={dateRangePicker}>
+
+        <TabPane tab="Progress" key="progress">
+          <h2>{presetDate}</h2>
+          <Row justify="center">
+            {
+              targetStates.map((target, i) => (
+                <Col key={target.name} span={4} offset={i ? 4 : 0}>
+                  {!isNaN(target.status) ? (
+                    <Pie {...generatePieConfig(target)} />
+                  ) : (
+                    noDataAvailable()
+                  )}
+                  <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                </Col>
+              ))
+            }
+          </Row>
+          <Collapse>
+            <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
+              {
+                progressCharts && progressCharts.length ?
+                  <Row justify="center">
+                    {
+                      progressCharts.map(
                         (config, i) =>
                           config && (
                             <Col span={4} offset={i ? 4 : 0}>
@@ -627,38 +630,34 @@ const DatasetDetails = (): JSX.Element => {
                           )
                       )}
 
-                    </Row>
-                  </Panel>
-                </Collapse>
+                  </Row>
+                  : noDataAvailable()
+              }
+            </Panel>
+          </Collapse>
 
-              </TabPane>
-            )}
+        </TabPane>
+        <TabPane tab="Details">
+          {filteredRecords?.length ? (
+            <Space direction="vertical">
+              <DatasetDetailsScoreCard
+                data={queryData}
+                datasetId={datasetId}
+                filteredRecords={filteredRecords}
+              />
 
-            <TabPane tab="Details">
-              {filteredRecords?.length ? (
-                <Space direction="vertical">
-                  <DatasetDetailsScoreCard
-                    data={queryData}
-                    datasetId={datasetId}
-                    filteredRecords={filteredRecords}
-                  />
-
-                  <DatasetDetailsRecordsTable
-                    datasetId={datasetId}
-                    datasetData={queryData}
-                    records={filteredRecords}
-                    isLoading={queryLoading}
-                  />
-                </Space>
-              ) : (
-                noDataAvailable()
-              )}
-            </TabPane>
-          </Tabs>
-        ) : (
-          noDataAvailable()
-        )
-      }
+              <DatasetDetailsRecordsTable
+                datasetId={datasetId}
+                datasetData={queryData}
+                records={filteredRecords}
+                isLoading={queryLoading}
+              />
+            </Space>
+          ) : (
+            noDataAvailable()
+          )}
+        </TabPane>
+      </Tabs>
       <Divider orientation="left" plain>
         Data
       </Divider>
