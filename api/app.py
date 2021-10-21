@@ -92,7 +92,7 @@ app.include_router(
 
 
 @app.get("/reset-my-password")
-def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_user)):
+def get_reset_password_token(dbuser = Depends(user.fastapi_users.current_user)):
     """Get a token to reset one's own password."""
     token = user.get_valid_token(
         RESET_PASSWORD_TOKEN_AUDIENCE,
