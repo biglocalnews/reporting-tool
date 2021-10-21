@@ -1,5 +1,6 @@
 aiosmtplib==1.1.6
 aiosqlite==0.17.0
+anyio==3.3.4
 ariadne==0.13.0
 asyncpg==0.22.0
 attrs==19.3.0
@@ -13,7 +14,7 @@ databases==0.5.3
 Deprecated==1.2.12
 dnspython==2.1.0
 email-validator==1.1.2
-fastapi==0.64.0
+fastapi==0.65.0
 FastAPI-SQLAlchemy==0.2.1
 fastapi-users==6.1.0
 graphql-core==3.1.5
@@ -49,9 +50,10 @@ python-multipart==0.0.5
 PyYAML==5.4.1
 requests==2.25.1
 six==1.15.0
+sniffio==1.2.0
 SQLAlchemy==1.4.26
 sqlalchemy-json==0.4.0
-starlette==0.13.6
+starlette==0.14.2
 toml==0.10.2
 tomlkit==0.5.11
 typing-extensions==3.10.0.0
