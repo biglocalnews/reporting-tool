@@ -2,7 +2,7 @@ import unittest
 import sqlalchemy
 from unittest.mock import Mock, patch
 
-from fastapi_users.utils import generate_jwt, JWT_ALGORITHM
+from fastapi_users.jwt import generate_jwt, JWT_ALGORITHM
 from fastapi_users.password import verify_and_update_password
 from fastapi.testclient import TestClient
 from ariadne import graphql_sync, graphql
