@@ -123,13 +123,20 @@ const useSaveUser = (id: string, t: TFunction) => {
      *
      * Returns boolean indicating whether save succeeded.
      */
-    saveUser: async (formData: EditUserFormData) => {
+    saveUser: async (initialFormState: EditUserFormData, formData: EditUserFormData) => {
       setSaving(true);
       setSaveError(null);
       setSaving(false);
 
       try {
-        await account.editUser(id, formData);
+        if (initialFormState.email === formData.email) {
+          const { email, ...restOfTheProps } = formData;
+          email;//Keep linter happy by using it lol
+          await account.editUser(id, restOfTheProps);
+        } else {
+          await account.editUser(id, formData);
+        }
+
         message.success(t("admin.user.saveSuccess"));
         return true;
       } catch (e) {
@@ -305,7 +312,7 @@ export const EditUser = () => {
         wrapperCol={{ span: 14 }}
         initialValues={initialFormState}
         onFinish={async (values) => {
-          if (await saveUser(values)) {
+          if (await saveUser(initialFormState, values)) {
             setDirty(false);
           }
         }}
@@ -343,9 +350,9 @@ export const EditUser = () => {
             disabled={inactive}
           />
         </Form.Item>
-
         <Form.Item
           name="email"
+
           label={t("admin.user.fields.email")}
           rules={[
             { type: "email", message: t("admin.user.validation.email") },

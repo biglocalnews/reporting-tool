@@ -13,7 +13,7 @@ export type CreateUserFormValues = Readonly<{
 export type EditUserFormData = Readonly<{
   first_name: string;
   last_name: string;
-  email: string;
+  email?: string;
   roles: string[];
   teams: string[];
 }>;
