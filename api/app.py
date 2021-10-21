@@ -102,25 +102,7 @@ def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_use
         "token": token,
         }
 
-
-# HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
-# None value for a 204 response. FastAPI chooses the JSONResponse class if no
-# other one is specified, which causes the None value to be encoded as "null".
-# This is an illegal response for a 204 "No data" status code, so it causes
-# various different errors in servers and browsers.
-#
-# I submitted a pull request to fix this in fastapi-users here:
-# https://github.com/frankie567/fastapi-users/pull/650
-# 
-# More info here:
-# https://github.com/tiangolo/fastapi/issues/717
-#
-# When the PR is merged, bump the fastapi-users version and remove the hack.
-# For now, reach into the router's delete_user route and set the response class
-# explicitly to the bare Response class to avoid issues.
 users_router = user.fastapi_users.get_users_router()
-delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
-delete_route.response_class = Response
 
 # Separately, to implement "blank slate" mode, use a dependency that returns
 # a 418 code when the app is not yet configured.
