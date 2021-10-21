@@ -80,6 +80,13 @@ exports[`renders App correctly 1`] = `
               "path": "/",
             },
             Object {
+              "breadcrumb": "Reports",
+              "component": [Function],
+              "exact": true,
+              "key": "reports",
+              "path": "/reports",
+            },
+            Object {
               "breadcrumb": "Dataset Details",
               "component": [Function],
               "key": "dataset-details",
@@ -218,6 +225,13 @@ exports[`renders admin stuff when authed as admin 1`] = `
               "exact": true,
               "key": "home",
               "path": "/",
+            },
+            Object {
+              "breadcrumb": "Reports",
+              "component": [Function],
+              "exact": true,
+              "key": "reports",
+              "path": "/reports",
             },
             Object {
               "breadcrumb": "Dataset Details",
