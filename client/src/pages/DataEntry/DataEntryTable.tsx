@@ -1,66 +1,38 @@
-import { useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { PlusOutlined, DeleteOutlined, SaveOutlined } from "@ant-design/icons";
+import { Button, Popconfirm, Space, Table, Form, DatePicker, InputNumber, Input, Tabs } from "antd";
+import dayjs from "dayjs";
 import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Popconfirm,
-  Spin,
-  Table,
-} from "antd";
-import { FormInstance } from "antd/lib/form";
-import moment from "moment";
-import PropTypes from "prop-types";
-import React, { useContext, useEffect, useRef, useState } from "react";
-//import { useTranslation } from "react-i18next";
-//import { useParams } from "react-router-dom";
+  messageError,
+  messageInfo,
+  messageSuccess,
+} from "../../components/Message";
 import {
   GetDataset,
-  GetDatasetVariables,
+  GetDataset_dataset_records
+  
 } from "../../graphql/__generated__/GetDataset";
+import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 //import { UPDATE_RECORD } from "../../graphql/__mutations__/UpdateRecord.gql";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import "./DataEntryTable.css";
-
-/*interface RouteParams {
-  datasetId: string;
-  recordId?: string;
-}*/
-
-//const { datasetId } = useParams<RouteParams>();
-
-/*const [updateRecord, { loading: recordSaving }] = useMutation(UPDATE_RECORD, {
-  refetchQueries: [
-    {
-      query: GET_DATASET,
-      variables: { id: datasetId },
-    },
-  ],
-});*/
+import { FormInstance } from "antd/lib/form";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
+import moment from "moment";
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
-interface Item {
-  key: string;
-  date: string;
-  cps_number: string;
-  story_title: string;
-  story_topic: string;
-  gender_men: string;
-  gender_women: string;
-  gender_nb: string;
-  disability: string;
-  non_disabled: string;
-}
+// =============================================================
+// Editable Rows
+// =============================================================
 
-interface EditableRowProps {
+/*interface EditableRowProps {
   index: number;
-}
+}*/
 
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+const EditableRow: React.FC = ({ ...props }) => {
   const [form] = Form.useForm();
-  console.log(index);
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
@@ -70,18 +42,22 @@ const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
   );
 };
 
-EditableRow.propTypes = {
+/*EditableRow.propTypes = {
   index: PropTypes.number.isRequired,
-};
+};*/
+
+// =============================================================
+// Editable Cells
+// =============================================================
 
 interface EditableCellProps {
   title: React.ReactNode;
   editable: boolean;
   children: React.ReactNode;
   inputType: string;
-  dataIndex: keyof Item;
-  record: Item;
-  handleSave: (record: Item) => void;
+  dataIndex: keyof TableData;
+  record: TableData;
+  handleSave: (record: TableData) => void;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -95,24 +71,25 @@ const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<Input>(null);
+  const inputNumberRef = useRef(null);
+  const datePickerRef = useRef(null);
   const form = useContext(EditableContext)!;
 
   useEffect(() => {
     if (editing) {
-      inputRef.current!.focus();
+      inputRef.current?.focus();
     }
   }, [editing]);
 
   const toggleEdit = () => {
     setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
+    dataIndex == "publicationDate" ? form.setFieldsValue({ [dataIndex]: moment(record[dataIndex]) }) : form.setFieldsValue({ [dataIndex]: record[dataIndex] });    
   };
 
   const save = async () => {
     try {
       const values = await form.validateFields();
-      console.log("-> save called", values);
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
@@ -121,13 +98,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
   };
 
   let childNode = children;
+
   const inputNode =
-    inputType === "date" ? (
+  inputType === "date" ? (
       <div>
-        <DatePicker ref={inputRef} format="YYYY-MM-DD" />
+        <DatePicker ref={datePickerRef} format="YYYY-MM-DD" value={moment(record.publicationDate)} />
       </div>
     ) : inputType === "number" ? (
-      <InputNumber ref={inputRef} />
+      <InputNumber placeholder="0" min={0} ref={inputNumberRef} onBlur={save}/>
     ) : (
       <Input ref={inputRef} onPressEnter={save} onBlur={save} />
     );
@@ -147,17 +125,16 @@ const EditableCell: React.FC<EditableCellProps> = ({
         {inputNode}
       </Form.Item>
     ) : (
-      <div
-        //color={recordSaving ? "red" : "unset"}
+        <div
         className="editable-cell-value-wrap"
         style={{ paddingRight: 24 }}
         onClick={toggleEdit}
         onKeyDown={toggleEdit}
         role="button"
         tabIndex={0}
-      >
-        {children}
-      </div>
+        >
+          {children}
+        </div>
     );
   }
 
@@ -172,16 +149,10 @@ EditableCell.propTypes = {
   handleSave: PropTypes.any,
   children: PropTypes.node,
   record: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
-    cps_number: PropTypes.string.isRequired,
-    story_title: PropTypes.string.isRequired,
-    story_topic: PropTypes.string.isRequired,
-    gender_men: PropTypes.string.isRequired,
-    gender_women: PropTypes.string.isRequired,
-    gender_nb: PropTypes.string.isRequired,
-    disability: PropTypes.string.isRequired,
-    non_disabled: PropTypes.string.isRequired,
+    publicationDate: PropTypes.string.isRequired
+
   }).isRequired,
 };
 
@@ -190,80 +161,104 @@ EditableCell.defaultProps = {
   inputType: "text",
   title: "",
   record: {
+    id: "",
     key: "",
-    date: "Some Date",
-    cps_number: "1000",
-    story_title: "title",
-    story_topic: "topic",
-    gender_men: "111",
-    gender_women: "111",
-    gender_nb: "111",
-    disability: "50",
-    non_disabled: "50",
+    publicationDate: moment().format("YYYY-MM-DD")
   },
   children: true,
 };
 
-type EditableTableProps = Parameters<typeof Table>[0];
+const components = {
+  body: {
+    row: EditableRow,
+    cell: EditableCell,
+  },
+};
 
-interface DataType {
-  key: React.Key;
-  date: string;
-  cps_number: string;
-  story_title: string;
-  story_topic: string;
-  gender_men: string;
-  gender_women: string;
-  gender_nb: string;
-  disability: string;
-  non_disabled: string;
-}
+type EditableTableProps = Parameters<typeof Table>[0];
+type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
+//var columns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string; id: string })[];
 
 interface EditableTableState {
-  dataSource: DataType[];
+  dataSource: any[];
   count: number;
 }
 
-type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
+// =============================================================
+// DataEntry Table
+// =============================================================
 
-export const DataEntryTable: React.FC = () => {
-  const { data: queryData, loading: queryLoading } = useQuery<
-    GetDataset,
-    GetDatasetVariables
-  >(GET_DATASET, {
-    variables: { id: "96336531-9245-405f-bd28-5b4b12ea3798" },
-  });
+interface DataEntryTableProps {
+  datasetId: string;
+  datasetData: GetDataset | undefined;
+  records: readonly GetDataset_dataset_records[] | undefined;
+  isLoading: boolean;
+}
 
-  console.log(queryData);
-  const [tableState, setTableState] = useState<EditableTableState>({
-    dataSource: [
+interface TableData {
+  id: string;
+  key: React.Key;
+  publicationDate: string;
+  [key: string]: string | number;
+}
+
+const DataEntryTable = ({
+  datasetId,
+  datasetData,
+  records,
+  isLoading,
+}: DataEntryTableProps): JSX.Element => {
+
+  /*const [updateRecord] = useMutation(UPDATE_RECORD, {
+    refetchQueries: [
       {
-        key: "0",
-        date: "2021-09-01",
-        cps_number: "1234",
-        story_title: "Title",
-        story_topic: "Topic",
-        gender_men: "50",
-        gender_women: "48",
-        gender_nb: "2",
-        disability: "50",
-        non_disabled: "50",
-      },
-      {
-        key: "1",
-        date: "2021-09-02",
-        cps_number: "1235",
-        story_title: "Title",
-        story_topic: "Topic",
-        gender_men: "50",
-        gender_women: "48",
-        gender_nb: "2",
-        disability: "50",
-        non_disabled: "50",
+        query: GET_DATASET,
+        variables: { id: datasetId },
       },
     ],
-    count: 2,
+  });*/
+
+
+  const tableData = records?.map((record) => {
+
+    return record.entries.reduce((accumulator, currentItem) => {
+      const catValName = currentItem.categoryValue.name;
+      const previousCount = accumulator[catValName] as number | undefined;
+      accumulator[catValName] = (previousCount || 0) + currentItem.count;
+      accumulator["id"] = record.id;
+      accumulator["key"] = record.id;
+      accumulator["dataIndex"] = record.id;
+      accumulator["publicationDate"] = record.publicationDate;
+      return accumulator;
+    }, {} as TableData);
+
   });
+
+  const [deleteRecord, { loading: deleteRecordLoader }] = useMutation(
+    DELETE_RECORD,
+    {
+      onError: (error) => {
+        messageError(`${error.message}. Please try again later.`);
+      },
+      onCompleted: (deleted) => {
+        if (deleted) messageSuccess("Succesfully deleted record!");
+      }, // TODO: update cache instead of refetching
+      refetchQueries: [
+        {
+          query: GET_DATASET,
+          variables: { id: datasetId },
+        },
+      ],
+    }
+  );
+
+  /*const confirmDelete = (recordId: string) => {
+    deleteRecord({ variables: { id: recordId } });
+  };*/
+
+  const cancelDelete = () => {
+    messageInfo("Delete cancelled");
+  };
 
   const handleDelete = (key: React.Key) => {
     const dataSource = [...tableState.dataSource];
@@ -271,23 +266,33 @@ export const DataEntryTable: React.FC = () => {
       ...curr,
       dataSource: dataSource.filter((item) => item.key !== key),
     }));
+
+    if(key)
+    {
+      deleteRecord({ variables: { id: key } });
+    }
+    else {
+      messageSuccess("Succesfully deleted row");
+    }
+    
   };
 
   const handleAdd = () => {
-    const { count } = tableState;
     const dataSource = [...tableState.dataSource];
-    const newData: DataType = {
-      key: count,
-      date: moment().format("YYYY-MM-DD"),
-      cps_number: "12346",
-      story_title: "Title",
-      story_topic: "Topic",
-      gender_men: "50",
-      gender_women: "48",
-      gender_nb: "2",
-      disability: "50",
-      non_disabled: "50",
+    const newData = {
+      id: new Date().valueOf(),
+      key: new Date().valueOf(),
+      publicationDate: moment().format("YYYY-MM-DD"),
     };
+
+    // Add dynamic elements and default the value to 0
+    for (const [key] of Object.entries(dataSource[0])) {
+      if(key != "publicationDate" && key != "id" && key != "key")
+      {
+        Object.defineProperty(newData, `${key}`, {value : 0, writable : true, enumerable : true, configurable : true});
+      }
+    }
+    
     setTableState((curr) => ({
       ...curr,
       ...newData,
@@ -296,192 +301,17 @@ export const DataEntryTable: React.FC = () => {
     }));
   };
 
-  const handleSave = (row: DataType) => {
+  const handleSave = (row:any) => {
     //updateRecord();
     const newData = [...tableState.dataSource];
-    //const dataSource = [...tableState.dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
+    const index = newData.findIndex(item => row.key === item.key);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-
-    //setTableState((curr) => ({ ...curr, dataSource: { ...newData } }));
-    //setTableState((curr) => ({ ...curr, ...newData, dataSource: [...dataSource, newData], count: curr.count }));
+    setTableState({ dataSource: newData, count: 1 });
   };
-
-  //let columns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[];
-
-  const columns = [
-    {
-      title: "date",
-      dataIndex: "date",
-      editable: true,
-      key: "date",
-      dataType: "date",
-      fixed: "left",
-      width: 150,
-    },
-    {
-      title: "CPS No.",
-      dataIndex: "cps_number",
-      editable: true,
-      key: "cps_number",
-      dataType: "number",
-      fixed: "left",
-      width: 150,
-      className: "green"
-    },
-    {
-      title: "Story Title",
-      dataIndex: "story_title",
-      editable: true,
-      key: "story_title",
-      dataType: "text",
-      width: 250,
-    },
-    {
-      title: "Story Topic",
-      dataIndex: "story_topic",
-      editable: true,
-      key: "story_topic",
-      dataType: "text",
-      width: 150,
-    },
-    {
-      title: "Gender",
-      dataIndex: "gender",
-      key: "gender",
-      editable: true,
-
-      children: [
-        {
-          title: "Men",
-          dataIndex: "gender_men",
-          key: "gender_men",
-          editable: true,
-          dataType: "number",
-        },
-        {
-          title: "Women",
-          dataIndex: "gender_women",
-          key: "gender_women",
-          editable: true,
-          dataType: "number",
-        },
-        {
-          title: "Non Binary",
-          dataIndex: "gender_nb",
-          key: "gender_nb",
-          editable: true,
-          dataType: "number",
-        },
-      ],
-    },
-    {
-      title: "Disability",
-      dataIndex: "disability_status",
-      key: "disability_status",
-      editable: true,
-      children: [
-        {
-          title: "Disabled",
-          dataIndex: "disability",
-          key: "disability",
-          editable: true,
-          dataType: "number",
-        },
-        {
-          title: "Non-Disabled",
-          dataIndex: "non_disabled",
-          key: "non_disabled",
-          editable: true,
-          dataType: "number",
-        },
-      ],
-    },
-    {
-      title: "Gender",
-      dataIndex: "gender",
-      key: "gender",
-      editable: true,
-
-      children: [
-        {
-          title: "Men",
-          dataIndex: "gender_men",
-          key: "gender_men",
-          editable: true,
-          dataType: "number",
-        },
-        {
-          title: "Women",
-          dataIndex: "gender_women",
-          key: "gender_women",
-          editable: true,
-          dataType: "number",
-        },
-        {
-          title: "Non Binary",
-          dataIndex: "gender_nb",
-          key: "gender_nb",
-          editable: true,
-          dataType: "number",
-        },
-      ],
-    },
-    {
-      title: "Manage",
-      fixed: "right",
-      width: 100,
-      dataIndex: "operation",
-      render: function someo(_: any, record: { key: React.Key }) {
-        console.log(
-          "tableState.dataSource.length",
-          tableState.dataSource.length
-        );
-        return (
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <a href="/">Delete</a>
-          </Popconfirm>
-        );
-      },
-    },
-  ];
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-  
-  /*const filteredColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: DataType) => ({
-        record,
-        inputType:
-          col.dataIndex === "date"
-            ? "date"
-            : col.dataIndex === "cps_number"
-            ? "number"
-            : "text",
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        key: col.key,
-        handleSave: handleSave,
-      }),
-    };
-  });*/
 
   const mapColumns = (col:any) => {
     if (!col.editable) {
@@ -489,12 +319,14 @@ export const DataEntryTable: React.FC = () => {
     }
     const newCol = {
       ...col,
-      onCell: (record:any) => ({
+      onCell: (record: TableData) => ({
         record,
-        inputType: col.dataType,
-        editable: col.editable,
+        id: col.id,
+        key: col.key,
         dataIndex: col.dataIndex,
         title: col.title,
+        editable: col.editable,
+        inputType: col.inputType,
         handleSave: handleSave
       })
     };
@@ -504,32 +336,136 @@ export const DataEntryTable: React.FC = () => {
     return newCol;
   };
 
-  const filteredColumns = columns.map(mapColumns);
+  console.log('-> dataset ', datasetData?.dataset);
+
+  const categoryGroups = datasetData?.dataset.program.targets.map(item => item.categoryValue.category.name).filter((value, index, self) => self.indexOf(value) === index);
+  const personTypeGroups = datasetData?.dataset.personTypes.map(item => item.personTypeName).filter((value,index,self) => self.indexOf(value) === index);
+
+  // Build the table columns
+  const dateColumn = {
+    title: "Date",
+    dataIndex: "publicationDate",
+    editable: true,
+    width: 150,
+    inputType: "date",
+    fixed: "left",
+    defaultSortOrder: "descend",
+    render: function fdates(date: string) { return (dayjs(date).format("YYYY-MM-DD") )},
+    sorter: function sdates(dateA: TableData, dateB: TableData) { return (dayjs(dateA.publicationDate).unix() - dayjs(dateB.publicationDate).unix())}
+  };
+
+  // Loop over people types to create parent columns and add the columns as children
+  const dataColumnsTemp = categoryGroups?.map(category => { return (
+    {
+      title: category,
+      dataIndex: category,
+      key: category,
+      editable: true,
+      width: 65,
+      //children: categoryGroups?.flatMap(category => category != null ? {title: category, editable: true, width: 90, children: datasetData?.dataset.program.targets.flatMap(item => item.categoryValue.category.name == category ? {title: item.categoryValue.name, dataIndex: item.categoryValue.name, editable: true, width: 100, inputType: "number"} : "") } : "")
+      children: datasetData?.dataset.program.targets.flatMap(item => item.categoryValue.category.name == category ? {title: item.categoryValue.name, dataIndex: item.categoryValue.name, editable: true, width: 90, inputType: "number", } : "")
+    }
+  )});
+  
+  // This isn't the right way to do this but remove any null values
+  const dataColumns = JSON.parse(JSON.stringify(dataColumnsTemp), (key, value) => {
+    if (value == null || value == '' || value == [] || value == {})
+        return undefined;
+    return value;
+  });
+
+  // Add column for delete icons
+  const manageColumn = {
+    title: "",
+    fixed: "right",
+    width: 15,
+    editable: false,
+    className: "not-editable",
+    dataIndex: "deleteItem",
+    key: "deleteItem",
+
+    render: function someo(_: any, record: { key: React.Key }) {
+      return (
+        <Space>
+          <Popconfirm
+            title="Permanently delete this record?"
+            onCancel={cancelDelete}
+            okText="Yes, delete"
+            okType="danger"
+            cancelText="No, cancel"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <DeleteOutlined color="red" />
+          </Popconfirm>
+        </Space>
+      );
+    },
+  };
+
+  const columns = [];
+  columns.push(dateColumn);
+  Object.values({...dataColumns}).forEach(obj => {
+    columns.push(obj);
+  });
+  columns.push(manageColumn);
+  
+  const tableColumns = columns.map(mapColumns);
+    
+  const [tableState, setTableState] = useState<EditableTableState>({
+    dataSource: tableData || [{ id: "", key: "", publicationDate: ""}],
+    count: 0,
+  });
+  const { TabPane } = Tabs;
 
   return (
     <div className="card-container">
-      {!queryLoading ? (
-        <>
-          <Table
-            components={components}
-            rowClassName={() => "editable-row"}
-            bordered
-            dataSource={tableState.dataSource}
-            columns={filteredColumns as ColumnTypes}
-            scroll={{ x: 1800 }}
-          />
 
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{ marginBottom: 16 }}
-          >
-            Add new Record
+        <Tabs defaultActiveKey="1" type="card" tabPosition="top" size="large" style={{ marginTop: 30 }}>
+
+        {personTypeGroups?.map(pane => (
+          <TabPane closable={true} tab={pane} key={pane}>
+            <Table
+              components={components}
+              rowClassName={() => 'editable-row'}
+              bordered
+              dataSource={tableState.dataSource}
+              columns={tableColumns as ColumnTypes}
+              size="small"
+              scroll={{ x: 1800 }}
+              sticky
+              pagination={{ hideOnSinglePage: true }}
+              loading={isLoading || deleteRecordLoader}
+            />
+
+            <Button
+              onClick={handleAdd}
+              type="dashed"
+              style={{ marginTop: 15 }}
+              icon={<PlusOutlined />}
+            >
+              Add Row
+            </Button>
+            <Button
+              type="dashed"
+              style={{ marginTop: 15, marginLeft: 10 }}
+              icon={<SaveOutlined />}
+              disabled={true}
+            >
+              Save Changes
           </Button>
-        </>
-      ) : (
-        <Spin />
-      )}
+          <Button
+              type="dashed"
+              style={{ marginTop: 15, marginLeft: 10 }}
+              icon={<SaveOutlined />}
+              disabled={true}
+            >
+              Submit Entries
+          </Button>
+          </TabPane>
+        ))}
+        </Tabs>
     </div>
   );
 };
+
+export { DataEntryTable }

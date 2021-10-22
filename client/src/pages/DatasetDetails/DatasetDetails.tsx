@@ -661,7 +661,12 @@ const DatasetDetails = (): JSX.Element => {
       <Divider orientation="left" plain>
         Data
       </Divider>
-      <DataEntryTable />
+      <DataEntryTable 
+        datasetId={datasetId}
+        datasetData={queryData}
+        records={filteredRecords}
+        isLoading={queryLoading}
+      />
     </div >
   );
 };
