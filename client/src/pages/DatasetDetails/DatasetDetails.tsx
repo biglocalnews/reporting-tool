@@ -514,6 +514,9 @@ const DatasetDetails = (): JSX.Element => {
             )
           );
         }
+        else {
+          configs.push({} as customColumnConfig)
+        }
 
         return configs;
       },
@@ -618,20 +621,19 @@ const DatasetDetails = (): JSX.Element => {
           <Collapse>
             <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
               {
-                progressCharts && progressCharts.length ?
-                  <Row justify="center">
-                    {
-                      progressCharts.map(
-                        (config, i) =>
-                          config && (
-                            <Col span={4} offset={i ? 4 : 0}>
-                              <Column {...config} />
-                            </Col>
-                          )
-                      )}
+                <Row justify="center">
+                  {
+                    progressCharts && progressCharts.length ? progressCharts.map(
+                      (config, i) =>
+                        <Col span={4} offset={i ? 4 : 0} key={i}>
+                          {
+                            config && Object.keys(config).length ? <Column {...config} /> : null
+                          }
+                        </Col>
 
-                  </Row>
-                  : noDataAvailable()
+                    ) : noDataAvailable()
+                  }
+                </Row>
               }
             </Panel>
           </Collapse>
