@@ -8,7 +8,6 @@ import {
   Col,
   Collapse,
   DatePicker,
-  Divider,
   Row,
   Space,
   Tabs,
@@ -658,9 +657,7 @@ const DatasetDetails = (): JSX.Element => {
           )}
         </TabPane>
       </Tabs>
-      <Divider orientation="left" plain>
-        Data
-      </Divider>
+
       <DataEntryTable 
         datasetId={datasetId}
         datasetData={queryData}

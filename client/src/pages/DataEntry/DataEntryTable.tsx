@@ -336,11 +336,17 @@ const DataEntryTable = ({
     return newCol;
   };
 
-  console.log('-> dataset ', datasetData?.dataset);
+  //console.log('-> dataset ', datasetData?.dataset);
 
   const categoryGroups = datasetData?.dataset.program.targets.map(item => item.categoryValue.category.name).filter((value, index, self) => self.indexOf(value) === index);
-  const personTypeGroups = datasetData?.dataset.personTypes.map(item => item.personTypeName).filter((value,index,self) => self.indexOf(value) === index);
+  
+  const personTypeArrayFromDataset = datasetData?.dataset.personTypes.map(x => x.personTypeName ?? "Unknown") ?? [];
+  const personTypeArrayFromRecords = datasetData?.dataset.records.map(r => r.entries).flat().map(x => x.personType?.personTypeName ?? "Unknown") ?? [];
+  
+  const mergedPersonTypes = personTypeArrayFromDataset.concat(personTypeArrayFromRecords);
+  const personTypeGroups = Array.from(new Set(Array.from(mergedPersonTypes))).sort();
 
+  
   // Build the table columns
   const dateColumn = {
     title: "Date",
