@@ -1,6 +1,7 @@
 import json
 from uuid import uuid4
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
+from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
 from starlette.responses import RedirectResponse
 import uvicorn
 
@@ -118,16 +119,20 @@ def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)
     }
 
 
-# idp_data = OneLogin_Saml2_IdPMetadataParser.parse_remote(
-#    "https://gateway.id.stage.tools.bbc.co.uk/.well-known/saml-metadata", timeout=5
-# )
+"""
+idp_data = OneLogin_Saml2_IdPMetadataParser.parse_remote(
+    "https://gateway.id.tools.bbc.co.uk/.well-known/saml-metadata", timeout=5
+)
+with open("saml_settings.prod.json", "w") as saml_settings:
+    saml_settings.write(json.dumps(idp_data))
+"""
 
 
 def init_saml_auth(req):
     # idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
     # idp_data["sp"]["assertionConsumerService"] = {}
     # idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
-    with open("saml_settings.stage.json", "r") as saml_settings:
+    with open("saml_settings.prod.json", "r") as saml_settings:
         idp_data = json.loads(saml_settings.read())
     return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
 

@@ -1,7 +1,7 @@
 import { MutationFunction, MutationResult, useMutation } from "@apollo/client";
 import { GetRecord } from "../../graphql/__generated__/GetRecord";
 import { UpdateRecord } from "../../graphql/__generated__/UpdateRecord";
-import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord";
+import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord.gql";
 import { UPDATE_RECORD } from "../../graphql/__mutations__/UpdateRecord.gql";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 

@@ -1,0 +1,22 @@
+{
+    "idp": {
+        "entityId": "https://bbclogin.id.tools.bbc.co.uk/v3",
+        "singleSignOnService": {
+            "url": "https://gateway.id.tools.bbc.co.uk:443/eiam/SSORedirect/metaAlias/v3",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "singleLogoutService": {
+            "url": "https://gateway.id.tools.bbc.co.uk:443/eiam/IDPSloRedirect/metaAlias/v3",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        },
+        "x509cert": "MIICzzCCAbegAwIBAgIEKd+kujANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDEw1CQkNMT0dJTiBTQU1MMB4XDTIxMDMzMTEwMzkyNloXDTIzMDMzMTEwMzkyNlowGDEWMBQGA1UEAxMNQkJDTE9HSU4gU0FNTDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMzsKeT44ZAWqjqlHZ/h0j7Elex8F/R74b8ZvJez0XRrnGagNs+cmfXR9EABcN5tYl1d99MNZ5QfDbRUzr7WP+fJg0T4mP4KtH9RAP1gcwiPruPYDHjc4p1U5QASoGgW8brjR8uUvxGV+gMzqizwQXF0TZQ6nPCjIrus0Mm1WJxYjylrFXNj0HVYbrK/vCDCU5+1xNrb7AheGiFEI7sPsEXEweiphnLrOOn0h0JJmtf7C+WQipYfehilczQuWzmaKMqAHliqBGiXXaaKxFClxnKc4FDP0irg9dR/12DYCpk65dEq6uSte4/JCXVUwGrvhCrgyzhqI1THOqOfub9cx7UCAwEAAaMhMB8wHQYDVR0OBBYEFHC+ywUcKyUYoOh2n3fFwVz/m+1iMA0GCSqGSIb3DQEBCwUAA4IBAQBySPM1gjJlZZ2JOPtMci66DWFuoGmSFelCRTqT6ILxw+YlGZamGecgF1WBdWasRlDaFAuoINTG45hzCgdzzUHCEbFZOSZ/4xqoCJC+DeGzo+qGTWFIFjsEJZlvGGm9N4LzeDXtttfU4w3BwdqDAXMTX3wEimzrq4zAvgYdDtiiVNsD/wY43ro0cET22JwaUu4Ud5W4ar1idf4E6fBxxd+SyMRMXDGpP1VNc6tRpHld6ZxfOmRx5B58lj4jwfnTA+iKLYUrbTVyIIertQISJzsdx/d0OcligU5S+Lc33AlXmEzx3apFdjS6uqY/GwNnMz64Rh6qC55gS1X6QrUSybly"
+    },
+    "sp": {
+        "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+        "entityId": "https://5050.ni.bbc.co.uk/",
+        "assertionConsumerService": {
+            "url": "https://5050.ni.bbc.co.uk/acs",
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        }
+    }
+}

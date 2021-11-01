@@ -2,6 +2,7 @@ from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
 from database import (
     Dataset,
+    PublishedRecordSet,
     User,
     Record,
     Category,
@@ -279,3 +280,25 @@ def resolve_person_types(obj, info):
     """
     session = info.context["dbsession"]
     return session.query(PersonType).order_by(PersonType.person_type_name.asc()).all()
+
+
+@query.field("publishedRecordSet")
+def resolve_published_record_set(obj, info, id):
+    """GraphQL query to find a Record based on Record ID.
+    :param id: Id for the Record to be fetched
+    :returns: Record OR None if Record was soft-deleted
+    """
+    session = info.context["dbsession"]
+    record_set = PublishedRecordSet.get_not_deleted(session, id)
+    return record_set
+
+
+@query.field("publishedRecordSets")
+def resolve_published_record_sets(obj, info):
+    """GraphQL query to find a Record based on Record ID.
+    :param id: Id for the Record to be fetched
+    :returns: Record OR None if Record was soft-deleted
+    """
+    session = info.context["dbsession"]
+    record_sets = session.query(PublishedRecordSet).all()
+    return record_sets

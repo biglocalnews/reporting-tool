@@ -31,6 +31,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -576,6 +578,7 @@ class Dataset(Base, PermissionsMixin):
     program = relationship("Program", back_populates="datasets")
     program_id = Column(GUID, ForeignKey("program.id"), index=True)
     records = relationship("Record")
+    # published_record_sets = relationship("PublishedRecordSet")
     tags = relationship("Tag", secondary=dataset_tags, back_populates="datasets")
     person_types = relationship(
         "PersonType",
@@ -754,6 +757,44 @@ class PersonType(Base, PermissionsMixin):
         return cls(person_type_name=person_type)
 
 
+"""
+class PublishedRecordSet(Base, PermissionsMixin):
+    __tablename__ = "published_record_set"
+
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+
+    dataset = relationship("Dataset", back_populates="published_record_sets")
+    dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True, nullable=False)
+
+    month = Column(Integer, nullable=False)
+    year = Column(Integer, nullable=False)
+
+    __table_args__ = (UniqueConstraint("dataset_id", "month", "year"),)
+
+    team = Column(String)
+    programme = Column(String)
+
+    record = Column(MutableDict.as_mutable(JSONB))
+    targets = Column(MutableDict.as_mutable(JSONB))
+    tags = Column(MutableDict.as_mutable(JSONB))
+
+    created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+    def soft_delete(self, session):
+        self.deleted = func.now()
+
+    @classmethod
+    def get_not_deleted(cls, session, id_):
+        return (
+            session.query(PublishedRecordSet)
+            .filter(PublishedRecordSet.id == id_, PublishedRecordSet.deleted == None)
+            .scalar()
+        )
+"""
+
+
 def create_tables(session):
     """Initialize the database with tables and objects.
 
@@ -866,9 +907,10 @@ def create_dummy_data(session):
         last_name="Carrot",
         last_changed_password=datetime.now(),
         last_login=datetime.now(),
+        roles=[],
     )
-    admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-    admin_user.roles.append(admin)
+    admin_role = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
+    admin_user.roles.append(admin_role)
     session.add(admin_user)
 
     ds1 = Dataset(

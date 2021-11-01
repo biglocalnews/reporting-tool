@@ -26,6 +26,15 @@ export interface CreateProgramInput {
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
 }
 
+export interface CreatePublishedRecordSetInput {
+  readonly datasetId: string;
+  readonly month: number;
+  readonly year: number;
+  readonly record?: ReadonlyArray<(RecordSetEntryInput | null)> | null;
+  readonly targets?: ReadonlyArray<(RecordSetTargetInput | null)> | null;
+  readonly tags?: ReadonlyArray<(string | null)> | null;
+}
+
 export interface CreateRecordInput {
   readonly datasetId: string;
   readonly publicationDate: any;
@@ -51,6 +60,20 @@ export interface FirstTimeAppConfigurationInput {
   readonly email: string;
   readonly firstName: string;
   readonly lastName: string;
+}
+
+export interface RecordSetEntryInput {
+  readonly percentOfCategory: number;
+  readonly percentOfCategoryPersonType: number;
+  readonly attribute: string;
+  readonly attributeCategory: string;
+  readonly personType: string;
+}
+
+export interface RecordSetTargetInput {
+  readonly attributeCategory: string;
+  readonly percent: number;
+  readonly attributes: ReadonlyArray<string>;
 }
 
 export interface TagInput {

@@ -37,6 +37,7 @@ schema {
 }
 
 scalar DateTime
+scalar JSON
 
 type Organization @needsPermission(permission: [LOGGED_IN]) {
   id: ID!
@@ -118,6 +119,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   lastUpdated: DateTime
   program: Program!
   records: [Record!]!
+  published_record_sets: [PublishedRecordSet!]!
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
   personTypes: [PersonType!]!
@@ -160,6 +162,32 @@ type SumEntriesByCategoryValue {
   dataset: Dataset!
   categoryValue: CategoryValue!
   sumOfCounts: Int!
+}
+
+type PublishedRecordSet {
+  id: ID!
+  datasetId: ID!
+  created: DateTime!
+  deleted: DateTime
+  month: Int!
+  year: Int!
+  record: [RecordSetEntry]
+  targets: [RecordSetTarget]
+  tags: [String]
+}
+
+type RecordSetTarget {
+  attributeCategory: String!
+  percent: Float!
+  attributes: [String!]!
+}
+
+type RecordSetEntry {
+  percentOfCategory: Float!
+  percentOfCategoryPersonType: Float!
+  attribute: String!
+  attributeCategory: String!
+  personType: String!
 }
 
 input UpsertUserInput {
@@ -297,6 +325,29 @@ input FirstTimeAppConfigurationInput {
   lastName: String!
 }
 
+input RecordSetEntryInput {
+  percentOfCategory: Float!
+  percentOfCategoryPersonType: Float!
+  attribute: String!
+  attributeCategory: String!
+  personType: String!
+}
+
+input RecordSetTargetInput {
+  attributeCategory: String!
+  percent: Float!
+  attributes: [String!]!
+}
+
+input CreatePublishedRecordSetInput {
+  datasetId: ID!
+  month: Int!
+  year: Int!
+  record: [RecordSetEntryInput]
+  targets: [RecordSetTargetInput]
+  tags: [String]
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -322,6 +373,8 @@ type Query {
   categoryValue(id: ID!): CategoryValue!
     @needsPermission(permission: [LOGGED_IN])
 
+  publishedRecordSet(id: ID!): PublishedRecordSet!
+
   # Retrieve all tags. Server-side search not currently supported.
   tags: [Tag!]! @needsPermission(permission: [LOGGED_IN])
 
@@ -345,6 +398,8 @@ type Query {
 
   # Retrieve full list of person types
   personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
+
+  publishedRecordSets: [PublishedRecordSet!]!
 }
 
 type Mutation {
@@ -420,4 +475,7 @@ type Mutation {
   # First-time app configuration
   configureApp(input: FirstTimeAppConfigurationInput!): ID!
     @needsPermission(permission: [BLANK_SLATE])
+
+  # Create a Program
+  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet!
 }
