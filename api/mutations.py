@@ -12,7 +12,7 @@ from database import (
     Entry,
     Organization,
     Program,
-    PublishedRecordSet,
+    # PublishedRecordSet,
     Record,
     Role,
     Tag,
@@ -519,14 +519,10 @@ async def resolve_configure_app(obj, info, input):
     return user.id
 
 
+"""
 @mutation.field("createPublishedRecordSet")
 @convert_kwargs_to_snake_case
 def resolve_create_published_record_set(obj, info, input):
-    """GraphQL mutation to create a Published Record Set.
-    :param input: params for new Published Record Set
-    :returns: Published Record Set dictionary
-    """
-
     session = info.context["dbsession"]
     # current_user = info.context["current_user"]
     record = PublishedRecordSet(**input)
@@ -534,3 +530,4 @@ def resolve_create_published_record_set(obj, info, input):
     session.commit()
 
     return record
+"""
