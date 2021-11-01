@@ -3,9 +3,8 @@ from datetime import datetime
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from fastapi_users import models
-from fastapi_users.utils import generate_jwt
+from fastapi_users.jwt import generate_jwt
 from fastapi_users.db.base import BaseUserDatabase
-from fastapi_users.db.sqlalchemy import GUID
 from sqlalchemy.sql import func
 from typing import Optional, List, Dict
 from settings import settings

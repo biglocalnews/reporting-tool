@@ -6,6 +6,7 @@ Run this as a script to create the database tables:
 Can also add dummy data for development with:
     python database.py --dummy-data
 """
+from typing import Optional
 import databases
 import uuid
 
@@ -32,7 +33,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
-from fastapi_users.db.sqlalchemy import GUID
+from fastapi_users_db_sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from lazy_object_proxy import Proxy
 
