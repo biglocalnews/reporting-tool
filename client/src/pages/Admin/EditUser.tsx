@@ -305,6 +305,20 @@ export const EditUser = () => {
         wrapperCol={{ span: 14 }}
         initialValues={initialFormState}
         onFinish={async (values) => {
+          // TODO: Remove this hack when Ariadne updates starlette dependency for fastapi-users v8 to work
+          if (initialFormState.email === values.email) {
+            const temp_values = { ...values };
+            // Remove email field if it has not changed so the PATCH endpoint doesn't throw a dupe email error
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { email, ...rest } = temp_values;
+            // Save new object without dupe email for user id
+            if (await saveUser(rest)) {
+              setDirty(false);
+            }
+
+            return;
+          }
+
           if (await saveUser(values)) {
             setDirty(false);
           }
