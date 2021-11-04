@@ -183,7 +183,8 @@ it("allows admin to modify user", async () => {
     {
       first_name: "Cat",
       last_name: "Berry",
-      email: "tester@notrealemail.info",
+      // TODO: Uncomment when Ariadne version is updated. See: https://github.com/stanford-policylab/bbc-50-50/pull/116
+      // email: "tester@notrealemail.info",
       roles: ["be5f8cac-ac65-4f75-8052-8d1b5d40dffe"],
       teams: ["472d17da-ff8b-4743-823f-3f01ea21a349"],
     }
