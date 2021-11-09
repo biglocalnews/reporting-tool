@@ -432,10 +432,15 @@ class Category(Base):
         return name.strip().capitalize()
 
     @classmethod
-    def get_sum_of_category_values(cls, session, id_):
-        return session.query(Entry.category_value_id, func.sum(Entry.count).label('sum_of_counts')).\
-        join(Entry.category_value).filter(CategoryValue.category_id == id_, Entry.deleted == None).\
-        group_by(Entry.category_value_id).all()
+    def get_sum_of_category_values(cls, session, id_):  
+        query = session.query(
+            CategoryValue.name.label('category_value_name'),
+            CategoryValue.id.label('category_value_id'),
+            func.sum(Entry.count).label('sum_of_counts')).\
+            join(Entry).\
+                group_by(CategoryValue.id).filter(CategoryValue.category_id == id_, Entry.deleted == None)
+
+        return query
 
     @classmethod
     def get_not_deleted(cls, session, id_):
