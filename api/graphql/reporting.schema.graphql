@@ -1,0 +1,21 @@
+# overview
+type CategoryOverview {
+  id: ID!
+  name: String!
+  description: String!
+  sumCategoryValues: [SumCategoryValues]!
+}
+
+type SumCategoryValues {
+  categoryValueId: ID!
+  categoryValue: String!
+  sum: Int!
+}
+
+extend type Query {
+  # Retrieve a single category overview.
+  categoryOverview(id: ID!): CategoryOverview!
+
+  # Retrieve full list of category overviews
+  categoriesOverview: [CategoryOverview!]!
+}

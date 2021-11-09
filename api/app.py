@@ -13,6 +13,7 @@ from ariadne.asgi import GraphQL
 
 from database import connection, User, is_blank_slate
 from queries import queries
+from reporting_queries import reporting_queries
 from mutations import mutation
 from settings import settings
 import mailer
@@ -133,10 +134,11 @@ def parse_datetime(value: str) -> datetime.datetime:
 
 
 # Adds graphql schema and mounts schema + resolvers to fastapi app
-type_defs = load_schema_from_path("schema.graphql")
+type_defs = load_schema_from_path("./graphql")
 schema = make_executable_schema(
     type_defs, 
     queries, 
+    reporting_queries,
     mutation, 
     datetime_scalar, 
     snake_case_fallback_resolvers,

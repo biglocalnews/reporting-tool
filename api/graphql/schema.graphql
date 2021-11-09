@@ -1,0 +1,428 @@
+directive @needsPermission(
+  # Permissions are checked with ANY semantics. E.g., [ADMIN, CURRENT_USER]
+  # means that either the user is an Admin OR they are the user who owns the
+  # given object being queried.
+  #
+  # This directive can be used on either a field definition or an object. In
+  # case both are defined, the field definition takes precedence over the
+  # object definition. (The permissions lists are *not* merged; the field
+  # definition simply overrides the object definition).
+  #
+  # See the documentation in the directive implementation for more details.
+  permission: [Permission!]!
+) on FIELD_DEFINITION | OBJECT
+
+enum Permission {
+  # The ADMIN permission checks that the user has the Admin role.
+  # can access.
+  ADMIN
+  # The LOGGED_IN permission only checks that a user is logged in as any user.
+  LOGGED_IN
+  # The CURRENT_USER permission checks that the user who is currently logged in
+  # directly owns the object in question (e.g., the User object with the same
+  # ID as the one who is logged in).
+  CURRENT_USER
+  # The TEAM_MEMBER permission checks that the currently logged in user
+  # belongs to the team that owns the object in question (e.g., they are on
+  # the team that owns the Program they are querying).
+  TEAM_MEMBER
+  # When the app has not been configured yet, it is in the blank slate mode
+  # that allows any visitor to configure it.
+  BLANK_SLATE
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+type Organization @needsPermission(permission: [LOGGED_IN]) {
+  id: ID!
+  name: String!
+  teams: [Team!]!
+}
+
+type Team @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  name: String!
+  users: [User!]!
+  programs: [Program!]!
+  organization: Organization!
+}
+
+type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  roles: [Role!]!
+  teams: [Team!]!
+  active: Boolean!
+}
+
+type Role {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  name: String!
+  description: String!
+  team: Team
+  datasets: [Dataset!]!
+  targets: [Target!]!
+  tags: [Tag!]!
+  deleted: DateTime
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  description: String
+  tagType: String!
+  programs: [Program!]!
+  datasets: [Dataset!]!
+}
+
+input TagInput {
+  id: ID
+  name: String
+  description: String
+  tagType: String
+}
+
+type Target @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  # Assumption: all datasets in a program have the same targets
+  program: Program!
+  categoryValue: CategoryValue!
+  target: Float!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  description: String!
+  categoryValues: [CategoryValue!]!
+}
+
+type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  name: String!
+  description: String
+  lastUpdated: DateTime
+  program: Program!
+  records: [Record!]!
+  tags: [Tag!]!
+  sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
+  personTypes: [PersonType!]!
+}
+
+type PersonType {
+  id: ID!
+  dataset: Dataset!
+  personTypeName: String!
+  description: String
+}
+
+type Record @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  dataset: Dataset!
+  publicationDate: DateTime!
+  entries: [Entry!]!
+}
+
+type CategoryValue {
+  id: ID!
+  name: String!
+  category: Category!
+}
+
+type Entry @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  id: ID!
+  categoryValue: CategoryValue!
+  count: Int!
+  inputter: User!
+  personType: PersonType
+}
+
+type Description {
+  id: ID!
+  description: String!
+}
+
+type SumEntriesByCategoryValue {
+  dataset: Dataset!
+  categoryValue: CategoryValue!
+  sumOfCounts: Int!
+}
+
+input UpsertUserInput {
+  id: ID
+  firstName: String!
+  lastName: String!
+  email: String!
+  role: String!
+}
+
+input CreateDatasetInput {
+  name: String!
+  description: String!
+  programId: ID!
+  tags: [TagInput!]!
+}
+
+input UpdateDatasetInput {
+  id: ID!
+  name: String
+  description: String
+  programId: ID
+  inputterId: ID
+  tags: [TagInput!]
+}
+
+input UpdateRecordInput {
+  id: ID!
+  datasetId: ID
+  publicationDate: DateTime
+  entries: [EntryInput!]
+}
+
+input CreateRecordInput {
+  datasetId: ID!
+  publicationDate: DateTime!
+  entries: [EntryInput!]
+}
+
+input CreateCategoryInput {
+  name: String!
+  description: String!
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name: String
+  description: String
+}
+
+input CreateCategoryValueInput {
+  name: String!
+  categoryId: ID!
+}
+
+input UpdateCategoryValueInput {
+  id: ID!
+  name: String
+  categoryId: ID
+}
+
+input CreateTeamInput {
+  name: String!
+  organizationId: ID!
+  userIds: [ID!]
+  programIds: [ID!]
+}
+
+input UpdateTeamInput {
+  id: ID!
+  name: String
+  userIds: [ID!]
+  programIds: [ID!]
+}
+
+input EntryInput {
+  id: ID
+  categoryValueId: ID!
+  count: Int!
+  personTypeId: ID
+}
+
+input CategoryInput {
+  id: ID
+  name: String!
+  description: String!
+}
+
+input BaseCategoryInput {
+  id: ID!
+}
+
+input CategoryValueInput {
+  id: ID
+  name: String
+  category: BaseCategoryInput!
+}
+
+input TargetInput {
+  id: ID
+  target: Float
+  categoryValue: CategoryValueInput
+}
+
+input CreateProgramInput {
+  name: String!
+  description: String
+  teamId: ID!
+  targets: [TargetInput!]
+  tags: [TagInput!]
+  datasets: [UpsertDatasetInput!]
+}
+
+input UpsertDatasetInput {
+  id: ID
+  name: String
+  description: String
+  personTypes: [String!]
+}
+
+input UpdateProgramInput {
+  id: ID!
+  name: String
+  teamId: ID
+  description: String
+  targets: [TargetInput!]
+  tags: [TagInput!]
+  datasets: [UpsertDatasetInput!]
+}
+
+input FirstTimeAppConfigurationInput {
+  organization: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+}
+
+type Query {
+  # NOTE: Permissions are enforced at the object-level as objects are returned.
+
+  # Retrieve a single user.
+  user(id: ID!): User! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve all users
+  users: [User!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve a single dataset.
+  dataset(id: ID!): Dataset! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a single Record.
+  record(id: ID!): Record! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a single program.
+  program(id: ID!): Program! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a single category.
+  category(id: ID!): Category! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a single categoryValue.
+  categoryValue(id: ID!): CategoryValue!
+    @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve all tags. Server-side search not currently supported.
+  tags: [Tag!]! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve a team.
+  team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve list of all teams.
+  teams: [Team!]! @needsPermission(permission: [ADMIN])
+
+  # Retrive list of all roles.
+  roles: [Role!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve list of all programs
+  programs: [Program!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve all datasets
+  datasets: [Dataset!]! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve full list of categories
+  categories: [Category!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of organizations
+  organizations: [Organization!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of person types
+  personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of person types
+  datasetsAtTarget: [PersonType!]! @needsPermission(permission: [ADMIN])
+}
+
+type Mutation {
+  # Create a Dataset
+  createDataset(input: CreateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a Dataset
+  deleteDataset(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Update a Dataset
+  updateDataset(input: UpdateDatasetInput): Dataset!
+    @needsPermission(permission: [ADMIN])
+
+  # Create a Record
+  createRecord(input: CreateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+
+  # Update a Record
+  updateRecord(input: UpdateRecordInput!): Record!
+    @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+
+  # Delete a Record
+  deleteRecord(id: ID!): ID! @needsPermission(permission: [ADMIN, TEAM_MEMBER])
+
+  # Create a Category
+  createCategory(input: CreateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a Category
+  updateCategory(input: UpdateCategoryInput): Category!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a Category
+  deleteCategory(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a CategoryValue
+  createCategoryValue(input: CreateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a CategoryValue
+  updateCategoryValue(input: UpdateCategoryValueInput!): CategoryValue!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a CategoryValue
+  deleteCategoryValue(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a Team
+  createTeam(input: CreateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a Team
+  updateTeam(input: UpdateTeamInput!): Team!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a Team
+  deleteTeam(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Create a Program
+  createProgram(input: CreateProgramInput!): Program!
+    @needsPermission(permission: [ADMIN])
+
+  # Update a Program
+  updateProgram(input: UpdateProgramInput!): Program!
+    @needsPermission(permission: [ADMIN])
+
+  # Delete a Program
+  deleteProgram(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  # Restore a Program
+  restoreProgram(id: ID!): Program! @needsPermission(permission: [ADMIN])
+
+  # First-time app configuration
+  configureApp(input: FirstTimeAppConfigurationInput!): ID!
+    @needsPermission(permission: [BLANK_SLATE])
+}
