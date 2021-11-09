@@ -1,12 +1,12 @@
 # overview
-type CategoryOverview {
+type CategoryOverview @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
   description: String!
   sumCategoryValues: [SumCategoryValues]!
 }
 
-type SumCategoryValues {
+type SumCategoryValues @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   categoryValueId: ID!
   categoryValue: String!
   sum: Int!
@@ -15,7 +15,8 @@ type SumCategoryValues {
 extend type Query {
   # Retrieve a single category overview.
   categoryOverview(id: ID!): CategoryOverview!
+    @needsPermission(permission: [ADMIN])
 
   # Retrieve full list of category overviews
-  categoriesOverview: [CategoryOverview!]!
+  categoriesOverview: [CategoryOverview!]! @needsPermission(permission: [ADMIN])
 }
