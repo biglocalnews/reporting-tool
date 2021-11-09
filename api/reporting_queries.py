@@ -31,11 +31,9 @@ def resolve_sum_category_values(category, info):
     '''
     session = info.context['dbsession']
     stmt = Category.get_sum_of_category_values(session, category.id)
-    rel = [
-        {'category_value_id': row[0],
-        'category_value': CategoryValue.get_not_deleted(session, row[0]).name,
-        'sum': row[1]
-        } 
+    return [
+        {'category_value_id': row.category_value_id,
+        'category_value': row.category_value_name,
+        'sum': row.sum_of_counts} 
         for row in stmt]
-
-    return rel
+        
