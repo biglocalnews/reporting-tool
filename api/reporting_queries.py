@@ -30,11 +30,12 @@ def resolve_sum_category_values(category, info):
         :returns: Dictionary
     '''
     session = info.context['dbsession']
-
-    stmt = session.query(Entry.category_value_id, func.sum(Entry.count).label('sum_of_counts')).\
-        join(Entry.category_value).filter(CategoryValue.category_id == category.id, 
-        Entry.deleted == None).group_by(Entry.category_value_id).all()
-
-    rel = [{'category_value_id': row[0], 'category_value': CategoryValue.get_not_deleted(session, row[0]).name,'sum': row[1]} for row in stmt]
+    stmt = Category.get_sum_of_category_values(session, category.id)
+    rel = [
+        {'category_value_id': row[0],
+        'category_value': CategoryValue.get_not_deleted(session, row[0]).name,
+        'sum': row[1]
+        } 
+        for row in stmt]
 
     return rel
