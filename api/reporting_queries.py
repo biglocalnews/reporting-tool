@@ -19,7 +19,6 @@ def resolve_category_overview(obj: Any, info: GraphQLResolveInfo, id, **kwargs):
     :returns: category object
     '''
 
-    print("obj", obj)
     return resolve_category(obj, info, id)
 
 
