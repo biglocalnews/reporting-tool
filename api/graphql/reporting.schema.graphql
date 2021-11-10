@@ -12,11 +12,17 @@ type SumCategoryValues @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   sum: Int!
 }
 
+input DateRange {
+  start_date: DateTime
+  end_date: DateTime
+}
+
 extend type Query {
-  # Retrieve a single category overview.
-  categoryOverview(id: ID!): CategoryOverview!
+  # Retrieve a single category overview filtered by records published within start and end date
+  categoryOverview(id: ID!, dateRange: DateRange): CategoryOverview!
     @needsPermission(permission: [ADMIN])
 
-  # Retrieve full list of category overviews
-  categoriesOverview: [CategoryOverview!]! @needsPermission(permission: [ADMIN])
+  # Retrieve full list of category overviews filtered by records published within start and end date
+  categoriesOverview(dateRange: DateRange): [CategoryOverview!]!
+    @needsPermission(permission: [ADMIN])
 }
