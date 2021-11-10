@@ -1,10 +1,5 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
-from sqlalchemy.sql.expression import func
-from database import (
-        Category,
-        CategoryValue,
-        Entry,
-        )
+from database import (Category)
 
 query = ObjectType("Query")
 category_overview = ObjectType("CategoryOverview")
@@ -33,7 +28,6 @@ def resolve_sum_category_values(category, info):
     stmt = Category.get_sum_of_category_values(session, category.id)
     return [
         {'category_value_id': row.category_value_id,
-        'category_value': row.category_value_name,
-        'sum': row.sum_of_counts} 
+         'category_value': row.category_value_name,
+         'sum': row.sum_of_counts}
         for row in stmt]
-        
