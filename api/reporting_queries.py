@@ -2,13 +2,11 @@ from typing import Any
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from ariadne.types import GraphQLResolveInfo
 from sqlalchemy.sql.functions import func
-from database import (CategoryValue, Entry, Record)
-from queries import resolve_category, resolve_categories
+from database import (CategoryValue, Entry, Record, Category)
 
 query = ObjectType("Query")
 category_overview = ObjectType("CategoryOverview")
 
-reporting_queries = [query, category_overview]
 
 @query.field("categoryOverview")
 @convert_kwargs_to_snake_case
@@ -18,8 +16,9 @@ def resolve_category_overview(obj: Any, info: GraphQLResolveInfo, id, **kwargs):
     :param kwargs: Optional parameters passed to resolver
     :returns: category object
     '''
-
-    return resolve_category(obj, info, id)
+    session = info.context['dbsession']
+    return session.query().with_entities(Category.id, Category.name, Category.description).\
+        filter(Category.id == id, Category.deleted == None).first()
 
 
 @category_overview.field("sumCategoryValues")
@@ -60,4 +59,6 @@ def resolve_categories_overview(obj: Any, info: GraphQLResolveInfo, **kwargs):
     '''GraphQL query to fetch overview for all categories
     :returns: category object
     '''
-    return resolve_categories(obj, info)
+    session = info.context['dbsession']
+    return session.query().with_entities(Category.id, Category.name, Category.description).\
+        filter(Category.deleted == None).all()
