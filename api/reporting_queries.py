@@ -56,7 +56,6 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
         :returns: Dictionary
     '''
     session = info.context['dbsession']
-
     stmt = session.query(
             CategoryValue.name.label('category_value_name'),
             CategoryValue.id.label('category_value_id'),
