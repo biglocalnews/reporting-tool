@@ -31,7 +31,6 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import select, text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from fastapi_users_db_sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
