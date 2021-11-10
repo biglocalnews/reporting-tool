@@ -57,7 +57,7 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
 
 @query.field("categoriesOverview")
 @convert_kwargs_to_snake_case
-def resolve_categories_overview(obj: Any, info: GraphQLResolveInfo):
+def resolve_categories_overview(obj: Any, info: GraphQLResolveInfo, **kwargs):
     '''GraphQL query to fetch overview for all categories
     :returns: category object
     '''
