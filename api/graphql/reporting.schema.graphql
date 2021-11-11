@@ -23,6 +23,11 @@ type CountData @needsPermission(permission: [ADMIN]) {
   tagsCount: Int!
 }
 
+# input Filters {
+#   date_range: DateRange
+#   specifyTarget
+# }
+
 input DateRange {
   startDate: DateTime
   endDate: DateTime
