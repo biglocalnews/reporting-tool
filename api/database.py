@@ -213,6 +213,10 @@ class Team(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
+
     def user_is_team_member(self, user):
         if not user:
             return False
@@ -324,6 +328,10 @@ class Program(Base, PermissionsMixin):
 
 class Tag(Base):
     __tablename__ = 'tag'
+
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
     
     @classmethod
     def get_or_create(cls, session, tag_dict) -> "Tag":
@@ -549,6 +557,10 @@ class Dataset(Base, PermissionsMixin):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
 
     @classmethod
     def get_not_deleted(cls, session, id_):
