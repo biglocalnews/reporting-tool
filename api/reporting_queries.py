@@ -2,10 +2,37 @@ from typing import Any
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from ariadne.types import GraphQLResolveInfo
 from sqlalchemy.sql.functions import func
-from database import (CategoryValue, Entry, Record, Category)
+from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team
 
 query = ObjectType("Query")
 category_overview = ObjectType("CategoryOverview")
+reporting_overview = ObjectType("ReportingOverview")
+
+reporting_queries = [query, category_overview, reporting_overview]
+
+
+@query.field("reportingOverview")
+@reporting_overview.field("categoriesOverview")
+@convert_kwargs_to_snake_case
+def resolve_reporting_overview(obj: Any, info: GraphQLResolveInfo, **kwargs):
+    '''GraphQL query to fetch fields for reporting overview.
+    :returns: reporting overview object fields
+    '''
+    categories_overview = resolve_categories_overview(obj, info, **kwargs)
+    return categories_overview
+
+@reporting_overview.field("countData")
+def resolve_count_data(obj: Any, info: GraphQLResolveInfo, **kwargs):
+    '''GraphQL query to fetch counts for teams, datasets, and tags
+    :returns: dict of counts for teams, datasets, and tags
+    '''
+    session = info.context['dbsession']
+
+    teams_count = Team.get_unfiltered_count(session)
+    datasets_count = Dataset.get_unfiltered_count(session)
+    tags_count = Tag.get_unfiltered_count(session)
+
+    return {'teams_count': teams_count, 'datasets_count': datasets_count, 'tags_count': tags_count}
 
 
 @query.field("categoryOverview")

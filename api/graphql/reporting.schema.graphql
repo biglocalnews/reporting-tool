@@ -1,4 +1,9 @@
 # overview
+type ReportingOverview @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  categoriesOverview: [CategoryOverview!]!
+  countData: CountData!
+}
+
 type CategoryOverview @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   name: String!
@@ -12,12 +17,22 @@ type SumCategoryValues @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   sum: Int!
 }
 
+type CountData @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+  teamsCount: Int!
+  datasetsCount: Int!
+  tagsCount: Int!
+}
+
 input DateRange {
   start_date: DateTime
   end_date: DateTime
 }
 
 extend type Query {
+  # Retrieve all fields for the reporting overview page
+  reportingOverview(dateRange: DateRange): ReportingOverview!
+    @needsPermission(permission: [ADMIN])
+
   # Retrieve a single category overview filtered by records published within start and end date
   categoryOverview(id: ID!, dateRange: DateRange): CategoryOverview!
     @needsPermission(permission: [ADMIN])
