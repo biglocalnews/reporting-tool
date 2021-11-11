@@ -23,9 +23,14 @@ type CountData @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   tagsCount: Int!
 }
 
+# input Filters {
+#   date_range: DateRange
+#   specifyTarget
+# }
+
 input DateRange {
-  start_date: DateTime
-  end_date: DateTime
+  startDate: DateTime
+  endDate: DateTime
 }
 
 extend type Query {

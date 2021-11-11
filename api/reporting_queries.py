@@ -68,8 +68,8 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
 
     # optional start and end date params passed to categoryOverview
     if 'dateRange' in info.variable_values:
-        start = info.variable_values['dateRange']['start_date']
-        end = info.variable_values['dateRange']['end_date']
+        start = info.variable_values['dateRange']['startDate']
+        end = info.variable_values['dateRange']['endDate']
         # filter results by date range if provided in thr query
         stmt = stmt.filter(Record.publication_date >= start, Record.publication_date <= end)
                                 
