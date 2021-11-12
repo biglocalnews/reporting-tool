@@ -59,8 +59,7 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
     '''
     session = info.context['dbsession']
 
-    # only sum counts for entries that have not been removed
-    filters = [Entry.deleted == None, CategoryValue.deleted == None]
+    filters = list()
 
     if 'filters' in info.variable_values:
         # optional start and end date params passed to resolver
@@ -79,7 +78,8 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
                 join(CategoryValue.entries).\
                 join(Entry.record).\
                     group_by(CategoryValue.id).\
-                    filter(*filters, CategoryValue.category_id == category.id)        
+                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None,
+                    *filters)        
                                 
     return [
         {'category_value_id': row.category_value_id,
