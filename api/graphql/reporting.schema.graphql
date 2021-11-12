@@ -35,6 +35,7 @@ input Filters {
   specifiedCategoryTarget: SpecifyTargetForCategoryValue
 }
 
+# To be used for filtering on a global target set by admin in the reporting overview
 input SpecifyTargetForCategoryValue { # NOTE: can only specify one value per category for now
   categoryValueId: ID!
   target: String!
