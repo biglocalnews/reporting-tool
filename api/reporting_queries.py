@@ -1,8 +1,10 @@
+from operator import and_
 from typing import Any
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from ariadne.types import GraphQLResolveInfo
+from sqlalchemy.orm.util import outerjoin
 from sqlalchemy.sql.functions import func
-from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team
+from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team, Target
 
 query = ObjectType("Query")
 category_overview = ObjectType("CategoryOverview")
@@ -57,26 +59,41 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
     '''
     session = info.context['dbsession']
 
-    stmt = session.query(
+    # only sum counts for entries that have not been removed
+    filters = [Entry.deleted == None, CategoryValue.deleted == None]
+
+    # optional start and end date params passed to resolver
+    if 'dateRange' in info.variable_values:
+        start = info.variable_values['dateRange']['startDate']
+        end = info.variable_values['dateRange']['endDate']
+        # conditionally apply filters if date range exists for the query
+        filters.append(Record.publication_date >= start)
+        filters.append(Record.publication_date <= end)
+
+    sub_stmt = session.query(
+            CategoryValue.category_id.label('category_id'),
             CategoryValue.name.label('category_value_name'),
             CategoryValue.id.label('category_value_id'),
             func.sum(Entry.count).label('sum_of_counts')).\
                 join(CategoryValue.entries).\
                 join(Entry.record).\
                     group_by(CategoryValue.id).\
-                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None)
-
-    # optional start and end date params passed to categoryOverview
-    if 'dateRange' in info.variable_values:
-        start = info.variable_values['dateRange']['startDate']
-        end = info.variable_values['dateRange']['endDate']
-        # filter results by date range if provided in thr query
-        stmt = stmt.filter(Record.publication_date >= start, Record.publication_date <= end)
+                    filter(*filters).\
+                        subquery()
+    
+    stmt = session.query(Target.target.label('target'), sub_stmt).\
+        outerjoin(sub_stmt, Target.category_value_id == sub_stmt.c.category_value_id).\
+            filter(sub_stmt.c.category_id == category.id, Target.deleted == None)
+        
+    # sum across all category attribute counts
+    total_sum_of_category_values = sum(row.sum_of_counts for row in stmt)
                                 
     return [
         {'category_value_id': row.category_value_id,
          'category_value': row.category_value_name,
-         'sum': row.sum_of_counts}
+         'category_value_target': row.target,
+         'sum': row.sum_of_counts,
+         'percentage_of_total_sum': row.sum_of_counts / total_sum_of_category_values}
         for row in stmt]
 
 

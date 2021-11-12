@@ -14,7 +14,9 @@ type CategoryOverview @needsPermission(permission: [ADMIN]) {
 type SumCategoryValues @needsPermission(permission: [ADMIN]) {
   categoryValueId: ID!
   categoryValue: String!
+  categoryValueTarget: Float!
   sum: Int!
+  percentageOfTotalSum: Float!
 }
 
 type CountData @needsPermission(permission: [ADMIN]) {
@@ -28,16 +30,26 @@ input DateRange {
   endDate: DateTime
 }
 
+input Filters {
+  dateRange: DateRange
+  specifiedCategoryTarget: SpecifyTargetForCategoryValue
+}
+
+input SpecifyTargetForCategoryValue { # NOTE: can only specify one value per category for now
+  categoryValueId: ID!
+  target: String!
+}
+
 extend type Query {
   # Retrieve all fields for the reporting overview page
-  reportingOverview(dateRange: DateRange): ReportingOverview!
+  reportingOverview(filters: Filters): ReportingOverview!
     @needsPermission(permission: [ADMIN])
 
   # Retrieve a single category overview filtered by records published within start and end date
-  categoryOverview(id: ID!, dateRange: DateRange): CategoryOverview!
+  categoryOverview(id: ID!, filters: Filters): CategoryOverview!
     @needsPermission(permission: [ADMIN])
 
   # Retrieve full list of category overviews filtered by records published within start and end date
-  categoriesOverview(dateRange: DateRange): [CategoryOverview!]!
+  categoriesOverview(filters: Filters): [CategoryOverview!]!
     @needsPermission(permission: [ADMIN])
 }
