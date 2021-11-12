@@ -62,13 +62,14 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
     # only sum counts for entries that have not been removed
     filters = [Entry.deleted == None, CategoryValue.deleted == None]
 
-    # optional start and end date params passed to resolver
-    if 'dateRange' in info.variable_values:
-        start = info.variable_values['dateRange']['startDate']
-        end = info.variable_values['dateRange']['endDate']
-        # conditionally apply filters if date range exists for the query
-        filters.append(Record.publication_date >= start)
-        filters.append(Record.publication_date <= end)
+    if 'filters' in info.variable_values:
+        # optional start and end date params passed to resolver
+        if 'dateRange' in info.variable_values['filters']:
+            params = info.variable_values['filters']
+            start, end =  params['dateRange']['startDate'], params['dateRange']['endDate']
+            # conditionally apply filters if date range exists for the query
+            filters.append(Record.publication_date >= start)
+            filters.append(Record.publication_date <= end)
 
     sub_stmt = session.query(
             CategoryValue.category_id.label('category_id'),
