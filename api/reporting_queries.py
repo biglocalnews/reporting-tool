@@ -50,7 +50,7 @@ def resolve_category_overview(obj: Any, info: GraphQLResolveInfo, id, **kwargs):
         filter(Category.id == id, Category.deleted == None).first()
 
 
-@category_overview.field("sumCategoryValues")
+@category_overview.field("categoryValueDetails")
 @convert_kwargs_to_snake_case
 def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
     '''GraphQL query to sum the counts by category value

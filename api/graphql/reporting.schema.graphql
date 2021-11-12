@@ -8,7 +8,7 @@ type CategoryOverview @needsPermission(permission: [ADMIN]) {
   id: ID!
   name: String!
   description: String!
-  sumCategoryValues: [SumCategoryValues]!
+  categoryValueDetails: [CategoryValueDetails]!
 }
 
 type SumCategoryValues @needsPermission(permission: [ADMIN]) {
@@ -30,15 +30,15 @@ input DateRange {
   endDate: DateTime
 }
 
-input Filters {
-  dateRange: DateRange
-  specifiedCategoryTarget: SpecifyTargetForCategoryValue
-}
-
 # To be used for filtering on a global target set by admin in the reporting overview
 input SpecifyTargetForCategoryValue { # NOTE: can only specify one value per category for now
   categoryValueId: ID!
   target: String!
+}
+
+input Filters {
+  dateRange: DateRange
+  specifiedCategoryTarget: SpecifyTargetForCategoryValue
 }
 
 extend type Query {
