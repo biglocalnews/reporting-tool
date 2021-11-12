@@ -14,9 +14,7 @@ type CategoryOverview @needsPermission(permission: [ADMIN]) {
 type SumCategoryValues @needsPermission(permission: [ADMIN]) {
   categoryValueId: ID!
   categoryValue: String!
-  categoryValueTarget: Float!
   sum: Int!
-  percentageOfTotalSum: Float!
 }
 
 type CountData @needsPermission(permission: [ADMIN]) {

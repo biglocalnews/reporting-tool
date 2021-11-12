@@ -71,7 +71,7 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
             filters.append(Record.publication_date >= start)
             filters.append(Record.publication_date <= end)
 
-    sub_stmt = session.query(
+    stmt = session.query(
             CategoryValue.category_id.label('category_id'),
             CategoryValue.name.label('category_value_name'),
             CategoryValue.id.label('category_value_id'),
@@ -79,22 +79,12 @@ def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
                 join(CategoryValue.entries).\
                 join(Entry.record).\
                     group_by(CategoryValue.id).\
-                    filter(*filters).\
-                        subquery()
-    
-    stmt = session.query(Target.target.label('target'), sub_stmt).\
-        outerjoin(sub_stmt, Target.category_value_id == sub_stmt.c.category_value_id).\
-            filter(sub_stmt.c.category_id == category.id, Target.deleted == None)
-        
-    # sum across all category attribute counts
-    total_sum_of_category_values = sum(row.sum_of_counts for row in stmt)
+                    filter(*filters, CategoryValue.category_id == category.id)        
                                 
     return [
         {'category_value_id': row.category_value_id,
          'category_value': row.category_value_name,
-         'category_value_target': row.target,
-         'sum': row.sum_of_counts,
-         'percentage_of_total_sum': row.sum_of_counts / total_sum_of_category_values}
+         'sum': row.sum_of_counts }
         for row in stmt]
 
 
