@@ -1,0 +1,43 @@
+# overview
+type ReportingOverview @needsPermission(permission: [ADMIN]) {
+  categoriesOverview: [CategoryOverview!]!
+  countData: CountData!
+}
+
+type CategoryOverview @needsPermission(permission: [ADMIN]) {
+  id: ID!
+  name: String!
+  description: String!
+  sumCategoryValues: [SumCategoryValues]!
+}
+
+type SumCategoryValues @needsPermission(permission: [ADMIN]) {
+  categoryValueId: ID!
+  categoryValue: String!
+  sum: Int!
+}
+
+type CountData @needsPermission(permission: [ADMIN]) {
+  teamsCount: Int!
+  datasetsCount: Int!
+  tagsCount: Int!
+}
+
+input DateRange {
+  startDate: DateTime
+  endDate: DateTime
+}
+
+extend type Query {
+  # Retrieve all fields for the reporting overview page
+  reportingOverview(dateRange: DateRange): ReportingOverview!
+    @needsPermission(permission: [ADMIN])
+
+  # Retrieve a single category overview filtered by records published within start and end date
+  categoryOverview(id: ID!, dateRange: DateRange): CategoryOverview!
+    @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of category overviews filtered by records published within start and end date
+  categoriesOverview(dateRange: DateRange): [CategoryOverview!]!
+    @needsPermission(permission: [ADMIN])
+}
