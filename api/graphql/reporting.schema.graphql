@@ -1,23 +1,23 @@
 # overview
-type ReportingOverview @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+type ReportingOverview @needsPermission(permission: [ADMIN]) {
   categoriesOverview: [CategoryOverview!]!
   countData: CountData!
 }
 
-type CategoryOverview @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+type CategoryOverview @needsPermission(permission: [ADMIN]) {
   id: ID!
   name: String!
   description: String!
   sumCategoryValues: [SumCategoryValues]!
 }
 
-type SumCategoryValues @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+type SumCategoryValues @needsPermission(permission: [ADMIN]) {
   categoryValueId: ID!
   categoryValue: String!
   sum: Int!
 }
 
-type CountData @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
+type CountData @needsPermission(permission: [ADMIN]) {
   teamsCount: Int!
   datasetsCount: Int!
   tagsCount: Int!
