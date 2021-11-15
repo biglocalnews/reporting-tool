@@ -1,5 +1,5 @@
 import { ApolloProvider } from "@apollo/client";
-import { act, render } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { axe } from "jest-axe";
 import { Router } from "react-router-dom";
@@ -23,140 +23,138 @@ async function wait(ms = 0) {
   });
 }
 
-// test("should render home page datasets and formatted 'last updated' date", async () => {
-//   const { auth } = mockUserLoggedIn();
-//   await auth.init();
+// skipping some tests due to issues with responsive columns
 
-//   const mockDateTime = {
-//     DateTime: () => {
-//       return "2021-05-10T03:04:59";
-//     },
-//   };
+test.skip("should render home page datasets and formatted 'last updated' date", async () => {
+  const { auth } = mockUserLoggedIn();
+  await auth.init();
 
-//   const client = autoMockedClient(mockDateTime);
+  const mockDateTime = {
+    DateTime: () => {
+      return "2021-05-10T03:04:59";
+    },
+  };
 
-//   render(
-//     <AuthProvider auth={auth}>
-//       <ApolloProvider client={client}>
-//         <Router history={history}>
-//           <Home />
-//         </Router>
-//       </ApolloProvider>
-//     </AuthProvider>
-//   );
+  const client = autoMockedClient(mockDateTime);
 
-//   await wait();
+  render(
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={history}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
+  );
 
-//   screen.getAllByText(/Search team and dataset/i);
-//   screen.getByRole("table");
+  await wait();
 
-//   // resizeWindow(500, 300);
-//   // console.log("after resizing of screen");
-//   // expect(screen).toEqual("<div>500 x 300</div>");
+  screen.getAllByText(/Search team and dataset/i);
+  screen.getByRole("table");
 
-//   const row = screen.getAllByRole("row")[1];
-//   expect(row).toHaveTextContent(/breakfast hour/i);
-//   expect(within(row).getAllByRole("cell")[2].textContent).toBe("May 10, 2021");
-// });
+  const row = screen.getAllByRole("row")[1];
+  expect(row).toHaveTextContent(/breakfast hour/i);
+  expect(within(row).getAllByRole("cell")[2].textContent).toBe("May 10, 2021");
+});
 
-// test("should render No Data Available Yet for 'last updated' date when no records exist", async () => {
-//   const { auth } = mockUserLoggedIn();
-//   await auth.init();
+test.skip("should render No Data Available Yet for 'last updated' date when no records exist", async () => {
+  const { auth } = mockUserLoggedIn();
+  await auth.init();
 
-//   const mockDateTime = {
-//     DateTime: () => {
-//       return "";
-//     },
-//   };
+  const mockDateTime = {
+    DateTime: () => {
+      return "";
+    },
+  };
 
-//   const client = autoMockedClient(mockDateTime);
+  const client = autoMockedClient(mockDateTime);
 
-//   render(
-//     <AuthProvider auth={auth}>
-//       <ApolloProvider client={client}>
-//         <Router history={history}>
-//           <Home />
-//         </Router>
-//       </ApolloProvider>
-//     </AuthProvider>
-//   );
+  render(
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={history}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
+  );
 
-//   await wait();
+  await wait();
 
-//   const row = screen.getAllByRole("row")[1];
-//   expect(row).toHaveTextContent(/breakfast hour/i);
-//   expect(within(row).getAllByRole("cell")[2].textContent).toBe(
-//     "No Data Available Yet"
-//   );
-// });
+  const row = screen.getAllByRole("row")[1];
+  expect(row).toHaveTextContent(/breakfast hour/i);
+  expect(within(row).getAllByRole("cell")[2].textContent).toBe(
+    "No Data Available Yet"
+  );
+});
 
-// test("should render filter alert box and no search bar when filtering by a search term ", async () => {
-//   const hist = createMemoryHistory();
+test.skip("should render filter alert box and no search bar when filtering by a search term ", async () => {
+  const hist = createMemoryHistory();
 
-//   const { auth } = mockUserLoggedIn();
-//   await auth.init();
+  const { auth } = mockUserLoggedIn();
+  await auth.init();
 
-//   const client = autoMockedClient();
+  const client = autoMockedClient();
 
-//   render(
-//     <AuthProvider auth={auth}>
-//       <ApolloProvider client={client}>
-//         <Router history={hist}>
-//           <Home />
-//         </Router>
-//       </ApolloProvider>
-//     </AuthProvider>
-//   );
+  render(
+    <AuthProvider auth={auth}>
+      <ApolloProvider client={client}>
+        <Router history={hist}>
+          <Home />
+        </Router>
+      </ApolloProvider>
+    </AuthProvider>
+  );
 
-//   // check for team found
-//   const queryParamRoute = "/?team=BBC News";
-//   hist.push(queryParamRoute);
+  // check for team found
+  const queryParamRoute = "/?team=BBC News";
+  hist.push(queryParamRoute);
 
-//   await wait();
+  await wait();
 
-//   // search bar should not appear
-//   expect(
-//     screen.queryByText(/Search team and dataset/i)
-//   ).not.toBeInTheDocument();
+  // search bar should not appear
+  expect(
+    screen.queryByText(/Search team and dataset/i)
+  ).not.toBeInTheDocument();
 
-//   // filter alert should be visible
-//   expect(screen.getByRole("alert")).toHaveTextContent(
-//     /user.homePage.showingDatasetsFor: BBC News/i
-//   );
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /user.homePage.showingDatasetsFor: BBC News/i
+  );
 
-//   expect(screen.getByRole("button", { name: /user.homePage.showAllMy/i }));
+  expect(screen.getByRole("button", { name: /user.homePage.showAllMy/i }));
 
-//   // table should have header and two rows
-//   expect(screen.getAllByRole("row")).toHaveLength(3);
+  // table should have header and two rows
+  expect(screen.getAllByRole("row")).toHaveLength(3);
 
-//   // check alert box for team not found
-//   const teamNotFound = "/?team=t";
-//   hist.push(teamNotFound);
+  // check alert box for team not found
+  const teamNotFound = "/?team=t";
+  hist.push(teamNotFound);
 
-//   await wait();
+  await wait();
 
-//   // filter alert should be visible
-//   expect(screen.getByRole("alert")).toHaveTextContent(
-//     /user.homePage.showingDatasetsFor: t/i
-//   );
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /user.homePage.showingDatasetsFor: t/i
+  );
 
-//   // table should have header and one row
-//   expect(screen.getAllByRole("row")).toHaveLength(2);
+  // table should have header and one row
+  expect(screen.getAllByRole("row")).toHaveLength(2);
 
-//   // check alert box for team param value not found
-//   const queryParamNotFound = "/?team=";
-//   hist.push(queryParamNotFound);
+  // check alert box for team param value not found
+  const queryParamNotFound = "/?team=";
+  hist.push(queryParamNotFound);
 
-//   await wait();
+  await wait();
 
-//   // filter alert should be visible
-//   expect(screen.getByRole("alert")).toHaveTextContent(
-//     /Oops! We couldn't find the team name provided. Please refresh and try again/i
-//   );
+  // filter alert should be visible
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Oops! We couldn't find the team name provided. Please refresh and try again/i
+  );
 
-//   // table should have no data
-//   expect(screen.getByRole("table")).toHaveTextContent(/No Data/i);
-// });
+  // table should have no data
+  expect(screen.getByRole("table")).toHaveTextContent(/No Data/i);
+});
 
 describe("accessibility", () => {
   // The violation in the following test does not appear to be an issue when
