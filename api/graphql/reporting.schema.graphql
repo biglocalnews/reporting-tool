@@ -11,7 +11,7 @@ type CategoryOverview @needsPermission(permission: [ADMIN]) {
   categoryValueDetails: [CategoryValueDetails]!
 }
 
-type SumCategoryValues @needsPermission(permission: [ADMIN]) {
+type CategoryValueDetails @needsPermission(permission: [ADMIN]) {
   categoryValueId: ID!
   categoryValue: String!
   sum: Int!

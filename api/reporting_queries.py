@@ -52,7 +52,7 @@ def resolve_category_overview(obj: Any, info: GraphQLResolveInfo, id, **kwargs):
 
 @category_overview.field("categoryValueDetails")
 @convert_kwargs_to_snake_case
-def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
+def resolve_category_value_details(category: Any, info: GraphQLResolveInfo):
     '''GraphQL query to sum the counts by category value
         :param category: Category object to filter counts for
         :returns: Dictionary
