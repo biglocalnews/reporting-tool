@@ -1,8 +1,7 @@
-from operator import and_
 from typing import Any
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from ariadne.types import GraphQLResolveInfo
-from sqlalchemy.orm.util import outerjoin
+from sqlalchemy.sql.expression import label
 from sqlalchemy.sql.functions import func
 from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team, Target
 
@@ -97,3 +96,52 @@ def resolve_categories_overview(obj: Any, info: GraphQLResolveInfo, **kwargs):
     session = info.context['dbsession']
     return session.query().with_entities(Category.id, Category.name, Category.description).\
         filter(Category.deleted == None).all()
+
+
+@category_overview.field("categoryDatasets")
+@convert_kwargs_to_snake_case
+def resolve_category_overview_datasets(category: Any, info: GraphQLResolveInfo):
+    '''GraphQL query to fetch overview for all categories
+    :returns: category object
+    '''
+    session = info.context['dbsession']
+
+    filters = list()
+
+    if 'filters' in info.variable_values:
+        # optional start and end date params passed to resolver
+        if 'dateRange' in info.variable_values['filters']:
+            params = info.variable_values['filters']
+            start, end =  params['dateRange']['startDate'], params['dateRange']['endDate']
+            # conditionally apply filters if date range exists for the query
+            filters.append(Record.publication_date >= start)
+            filters.append(Record.publication_date <= end)
+
+    sub_stmt = session.query(
+            Dataset.id.label('dataset_id'),
+            Dataset.name.label('dataset_name'),
+            CategoryValue.category_id.label('category_id'),
+            CategoryValue.name.label('category_value_name'),
+            CategoryValue.id.label('category_value_id'),
+            func.sum(Entry.count).label('sum_of_counts_for_category_value')).\
+                join(Dataset.records).\
+                    join(Record.entries).\
+                    join(Entry.category_value).\
+                    group_by(CategoryValue.id, Dataset.id).\
+                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None,
+                    Dataset.deleted == None, *filters).\
+                        subquery()
+
+    stmt = session.query(sub_stmt, Target.target.label('category_value_target')).\
+        outerjoin(sub_stmt, Target.category_value_id == sub_stmt.c.category_value_id).\
+            filter(sub_stmt.c.category_id == category.id, Target.deleted == None)
+
+    return [
+        {
+            'dataset_id': row.dataset_id,
+            'dataset_name': row.dataset_name,
+            'category_value_id': row.category_value_id,
+            'category_value_name': row.category_value_name,
+            'category_value_target': row.category_value_target,
+            'sum_counts_for_category_value': row.sum_of_counts_for_category_value} 
+        for row in stmt]
