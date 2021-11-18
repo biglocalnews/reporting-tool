@@ -1,7 +1,7 @@
 # overview
 type ReportingOverview @needsPermission(permission: [ADMIN]) {
-  categoriesOverview: [CategoryOverview!]!
   countData: CountData!
+  categoriesOverview: [CategoryOverview!]!
 }
 
 type CategoryOverview @needsPermission(permission: [ADMIN]) {
@@ -9,6 +9,16 @@ type CategoryOverview @needsPermission(permission: [ADMIN]) {
   name: String!
   description: String!
   categoryValueDetails: [CategoryValueDetails]!
+  categoryDatasets: [CategoryDatasets]!
+}
+
+type CategoryDatasets @needsPermission(permission: [ADMIN]) {
+  datasetId: ID!
+  datasetName: String!
+  categoryValueId: ID!
+  categoryValueName: String!
+  categoryValueTarget: Float!
+  sumCountsForCategoryValue: Int!
 }
 
 type CategoryValueDetails @needsPermission(permission: [ADMIN]) {
