@@ -5,6 +5,8 @@ import { Button, Card, Col, DatePicker, Divider, Row, Space, Tabs } from "antd";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 
+const { RangePicker } = DatePicker;
+
 const { TabPane } = Tabs;
 
 const { Meta } = Card;
@@ -37,29 +39,53 @@ const genderConfig = {
   interactions: [{ type: "pie-legend-active" }, { type: "element-active" }],
 };
 
-// const raceData = [
-//   {
-//     type: "BAME",
-//     value: 34,
-//   },
-//   {
-//     type: "Other",
-//     value: 66,
-//   },
-// ];
+const ethnicityData = [
+  {
+    type: "BAME",
+    value: 34,
+  },
+  {
+    type: "Other",
+    value: 66,
+  },
+];
 
-// const raceConfig = {
-//   appendPadding: 10,
-//   data: raceData,
-//   angleField: "value",
-//   colorField: "type",
-//   radius: 0.8,
-//   label: {
-//     type: "outer",
-//     content: "{name} {percentage}",
-//   },
-//   interactions: [{ type: "pie-legend-active" }, { type: "element-active" }],
-// };
+const ethnicityConfig = {
+  appendPadding: 10,
+  data: ethnicityData,
+  angleField: "value",
+  colorField: "type",
+  radius: 0.8,
+  label: {
+    type: "outer",
+    content: "{name} {percentage}",
+  },
+  interactions: [{ type: "pie-legend-active" }, { type: "element-active" }],
+};
+
+const disabilityData = [
+  {
+    type: "Disabled",
+    value: 15,
+  },
+  {
+    type: "Non-Disabled",
+    value: 85,
+  },
+];
+
+const disabilityConfig = {
+  appendPadding: 10,
+  data: disabilityData,
+  angleField: "value",
+  colorField: "type",
+  radius: 0.8,
+  label: {
+    type: "outer",
+    content: "{name} {percentage}",
+  },
+  interactions: [{ type: "pie-legend-active" }, { type: "element-active" }],
+};
 
 const Overview = () => (
   <>
@@ -142,50 +168,264 @@ const circleStyle = {
 
 const GenderOverView = () => (
   <Card>
-    <Row justify="center" align="top" gutter={16}>
+    <Row>
       <Col span={12}>
         <h2>Gender Overview</h2>
-        <p>YTD</p>
+        <Space direction="vertical" size={12}>
+          <p style={{ fontSize: "12px", color: "rgb(109,109,109)" }}>
+            Select date range:
+          </p>
+          <RangePicker />
+        </Space>
         <Divider />
         <Card>
+          <h2>Gender overall</h2>
+          <p style={{ fontSize: "15px", color: "rgb(109,109,109)" }}>
+            Category attributes summed over all datasets
+          </p>
           <Pie {...genderConfig} />
         </Card>
       </Col>
       <Col span={12}>
-        <Col span={12}>
-          <Circle />
-          <Space>
-            <h1 style={{ fontSize: "45px" }}>10%</h1>
-          </Space>
-          <p>Datasets did not meet their minimum target</p>
-        </Col>
-        <Col span={12}>
-          <Space>
-            <PercentageOutlined />
-            <h1>90%</h1>
-          </Space>
-          <p>Datasets met their minimum target</p>
-        </Col>
+        <Row style={{ marginTop: "7em" }} gutter={10}>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>10%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets did not meet their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>90%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets met their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                  color: "rgb(231, 82, 93)",
+                }}
+              >
+                5
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets require attention
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                }}
+              >
+                35
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets showed improvement
+            </p>
+          </Col>
+        </Row>
       </Col>
     </Row>
   </Card>
 );
 
-// const RaceOverview = () => (
-//   <Card>
-//     <Row>
-//       <Col span={12}>
-//         <h2>Race / Ethnicity</h2>
-//         <p>YTD</p>
-//         <Divider />
-//         <Card>
-//           <Pie {...raceConfig} />
-//         </Card>
-//       </Col>
-//       <Col span={12}>col-12</Col>
-//     </Row>
-//   </Card>
-// );
+const EthnicityOverview = () => (
+  <Card>
+    <Row>
+      <Col span={12}>
+        <h2>Ethnicity Overview</h2>
+        <Space direction="vertical" size={12}>
+          <p style={{ fontSize: "12px", color: "rgb(109,109,109)" }}>
+            Select date range:
+          </p>
+          <RangePicker />
+        </Space>
+        <Divider />
+        <Card>
+          <h2>Ethnicity overall</h2>
+          <p style={{ fontSize: "15px", color: "rgb(109,109,109)" }}>
+            Category attributes summed over all datasets
+          </p>
+          <Pie {...ethnicityConfig} />
+        </Card>
+      </Col>
+      <Col span={12}>
+        <Row style={{ marginTop: "7em" }} gutter={10}>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>30%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets did not meet their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>60%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets met their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                  color: "rgb(231, 82, 93)",
+                }}
+              >
+                16
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets require attention
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                }}
+              >
+                5
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets showed improvement
+            </p>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
+  </Card>
+);
+
+const DisabilityOverview = () => (
+  <Card>
+    <Row>
+      <Col span={12}>
+        <h2>Disability Overview</h2>
+        <Space direction="vertical" size={12}>
+          <p style={{ fontSize: "12px", color: "rgb(109,109,109)" }}>
+            Select date range:
+          </p>
+          <RangePicker />
+        </Space>
+        <Divider />
+        <Card>
+          <h2>Disability overall</h2>
+          <p style={{ fontSize: "15px", color: "rgb(109,109,109)" }}>
+            Category attributes summed over all datasets
+          </p>
+          <Pie {...disabilityConfig} />
+        </Card>
+      </Col>
+      <Col span={12}>
+        <Row style={{ marginTop: "7em" }} gutter={10}>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>30%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets did not meet their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Circle />
+            <Space>
+              <h1 style={{ fontSize: "35px" }}>70%</h1>
+            </Space>
+            <p style={{ marginLeft: "7em", color: "rgb(109,109,109)" }}>
+              Datasets met their minimum target
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                  color: "rgb(231, 82, 93)",
+                }}
+              >
+                35
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets require attention
+            </p>
+          </Col>
+          <Col span={12}>
+            <Space>
+              <h1
+                style={{
+                  fontSize: "35px",
+                  margin: "55px 20px 20px 20px",
+                }}
+              >
+                67
+              </h1>
+            </Space>
+            <p
+              style={{
+                color: "rgb(109,109,109)",
+                margin: "0 20px 20px 20px",
+              }}
+            >
+              Datasets showed improvement
+            </p>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
+  </Card>
+);
 
 const Cat = () => (
   <Card
@@ -226,7 +466,8 @@ export const Reports = (): JSX.Element => {
             <h2>Reporting Insights: Overview</h2>
             <Overview />
             <GenderOverView />
-            {/* <RaceOverview /> */}
+            <EthnicityOverview />
+            <DisabilityOverview />
           </TabPane>
           <TabPane tab="Comparison" key="2">
             <h2>Reporting Insights: Comparison</h2>
