@@ -2,7 +2,9 @@ import { Pie } from "@ant-design/charts";
 import { PercentageOutlined, UploadOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Card, Col, DatePicker, Divider, Row, Space, Tabs } from "antd";
+import { AdminGetAllReportingQueries } from "../../graphql/__generated__/AdminGetAllReportingQueries";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
+import { ADMIN_GET_ALL_REPORTING_QUERIES } from "../../graphql/__queries__/AdminGetAllReportingQueries.gql";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 
 const { RangePicker } = DatePicker;
@@ -445,6 +447,10 @@ const Cat = () => (
 export const Reports = (): JSX.Element => {
   const tags = useQuery<GetAllTags>(GET_ALL_TAGS);
   const availableTags = tags?.data?.tags || [];
+  const reportingOverview = useQuery<AdminGetAllReportingQueries>(
+    ADMIN_GET_ALL_REPORTING_QUERIES
+  );
+  console.log(reportingOverview, "reportingOverview");
 
   console.log(availableTags, "checking tags");
   return (
