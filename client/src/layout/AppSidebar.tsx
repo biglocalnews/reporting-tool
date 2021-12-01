@@ -2,6 +2,7 @@ import {
   BarChartOutlined,
   DashboardOutlined,
   DatabaseOutlined,
+  LineChartOutlined,
   TableOutlined,
   TeamOutlined,
   UserSwitchOutlined,
@@ -129,6 +130,9 @@ export const AppAdminSidebarMenu = () => {
         </Menu.Item>
         <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
           <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
+        </Menu.Item>
+        <Menu.Item key="reports" icon={<LineChartOutlined />} role="menuitem">
+          <Link to="/admin/reports">Reports</Link>
         </Menu.Item>
       </Menu.ItemGroup>
     </Menu>
