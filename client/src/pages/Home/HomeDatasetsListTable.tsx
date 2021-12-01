@@ -36,7 +36,7 @@ const HomeDatasetsListTable = ({
     );
   };
 
-  const renderRowActionButtons = (datasetId: string) => {
+  const renderRowActionButtons = (small: boolean) => (datasetId: string) => {
     return (
       <Space>
         <Link
@@ -44,16 +44,28 @@ const HomeDatasetsListTable = ({
             pathname: `/dataset/${datasetId}/entry`,
           }}
         >
-          <Button type="primary" icon={<PlusOutlined />}>
-            {t("addData")}
-          </Button>
+          {small ? (
+            <Button type="primary" shape="circle" icon={<PlusOutlined />} />
+          ) : (
+            <Button type="primary" icon={<PlusOutlined />}>
+              {t("addData")}
+            </Button>
+          )}
         </Link>
         <Link
           to={{
             pathname: `/dataset/${datasetId}/details`,
           }}
         >
-          <Button icon={<InfoCircleOutlined />}>{t("viewDetails")}</Button>
+          {small ? (
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<InfoCircleOutlined />}
+            />
+          ) : (
+            <Button icon={<InfoCircleOutlined />}>{t("viewDetails")}</Button>
+          )}
         </Link>
       </Space>
     );
@@ -71,24 +83,49 @@ const HomeDatasetsListTable = ({
 
   const columns: ColumnsType<TableData> = [
     {
+      title: `Team & Dataset`,
+      key: "teamDataset",
+      render: (record) => (
+        <>
+          {record.team}
+          <br />
+          {record.dataset}
+        </>
+      ),
+      responsive: ["xs"],
+    },
+    {
+      title: "Actions ",
+      key: "actions",
+      dataIndex: "id",
+      render: renderRowActionButtons(true),
+      responsive: ["xs"],
+    },
+    {
       title: "Team",
       dataIndex: "team",
       key: "team",
+      width: 250,
       render: (text: string) =>
         teamNameFilterText ? highlightTeamName(text) : text,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.team.localeCompare(b.team),
+      responsive: ["sm"],
     },
     {
       title: "Dataset",
       dataIndex: "dataset",
       key: "dataset",
+      width: 250,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.dataset.localeCompare(b.dataset),
+      responsive: ["sm"],
     },
     {
       title: "Last Updated",
       dataIndex: "lastUpdated",
+      responsive: ["sm"],
+      width: 250,
     },
     {
       title: "Tags",
@@ -96,11 +133,14 @@ const HomeDatasetsListTable = ({
       dataIndex: "tags",
       width: 250,
       render: renderTags,
+      responsive: ["sm"],
     },
     {
       dataIndex: "id",
-      width: 250,
-      render: renderRowActionButtons,
+      width: 280,
+      render: renderRowActionButtons(false),
+      responsive: ["sm"],
+      fixed: "right",
     },
   ];
 
@@ -117,6 +157,7 @@ const HomeDatasetsListTable = ({
       loading={loading}
       dataSource={tableData}
       columns={columns}
+      scroll={{ y: 1300 }}
       rowKey={(dataset) => dataset.id}
       footer={() => resultsFoundText}
     />

@@ -757,6 +757,7 @@ it("can add and remove tracked categories", async () => {
   await tick();
   const cat = document.querySelector("[title='Cat2']");
   expect(cat).toBeInTheDocument();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   fireEvent.click(cat!);
   await tick();
 

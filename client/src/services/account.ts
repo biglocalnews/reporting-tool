@@ -96,7 +96,8 @@ const checkError = async (
     case httpStatus.FORBIDDEN:
       throw new Error("FORBIDDEN");
     default:
-      throw new Error("UNKNOWN_ERROR");
+      json = await response.json();
+      throw new Error(json.detail || "UNKNOWN_ERROR");
   }
 };
 

@@ -83,3 +83,7 @@ assets that are served by `nginx`.)
 NOTE: Currently you are not able to replicate postgres with this configuration.
 You should **not** try to increase the replicas, as it will not behave as you
 hope. We will add support for high-availability eventually.
+
+## License
+
+[Apache License 2.0](LICENSE)

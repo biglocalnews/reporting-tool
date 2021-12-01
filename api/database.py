@@ -6,6 +6,7 @@ Run this as a script to create the database tables:
 Can also add dummy data for development with:
     python database.py --dummy-data
 """
+from typing import Optional
 import databases
 import uuid
 
@@ -30,9 +31,8 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, event
 from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
-from fastapi_users.db.sqlalchemy import GUID
+from fastapi_users_db_sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from lazy_object_proxy import Proxy
 
@@ -213,6 +213,10 @@ class Team(Base, PermissionsMixin):
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
 
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
+
     def user_is_team_member(self, user):
         if not user:
             return False
@@ -324,6 +328,10 @@ class Program(Base, PermissionsMixin):
 
 class Tag(Base):
     __tablename__ = 'tag'
+
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
     
     @classmethod
     def get_or_create(cls, session, tag_dict) -> "Tag":
@@ -549,6 +557,10 @@ class Dataset(Base, PermissionsMixin):
     updated = Column(TIMESTAMP,
                      server_default=func.now(), onupdate=func.now())
     deleted = Column(TIMESTAMP)
+
+    @classmethod
+    def get_unfiltered_count(cls, session):
+        return session.query(func.count(cls.id)).scalar()
 
     @classmethod
     def get_not_deleted(cls, session, id_):

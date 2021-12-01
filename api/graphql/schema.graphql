@@ -347,6 +347,9 @@ type Query {
 
   # Retrieve full list of person types
   personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
+
+  # Retrieve full list of person types
+  datasetsAtTarget: [PersonType!]! @needsPermission(permission: [ADMIN])
 }
 
 type Mutation {

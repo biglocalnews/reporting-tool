@@ -13,6 +13,7 @@ from ariadne.asgi import GraphQL
 
 from database import connection, User, is_blank_slate
 from queries import queries
+from reporting_queries import reporting_queries
 from mutations import mutation
 from settings import settings
 import mailer
@@ -92,7 +93,7 @@ app.include_router(
 
 
 @app.get("/reset-my-password")
-def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_user)):
+def get_reset_password_token(dbuser = Depends(user.fastapi_users.current_user())):
     """Get a token to reset one's own password."""
     token = user.get_valid_token(
         RESET_PASSWORD_TOKEN_AUDIENCE,
@@ -102,25 +103,7 @@ def get_reset_password_token(dbuser = Depends(user.fastapi_users.get_current_use
         "token": token,
         }
 
-
-# HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
-# None value for a 204 response. FastAPI chooses the JSONResponse class if no
-# other one is specified, which causes the None value to be encoded as "null".
-# This is an illegal response for a 204 "No data" status code, so it causes
-# various different errors in servers and browsers.
-#
-# I submitted a pull request to fix this in fastapi-users here:
-# https://github.com/frankie567/fastapi-users/pull/650
-# 
-# More info here:
-# https://github.com/tiangolo/fastapi/issues/717
-#
-# When the PR is merged, bump the fastapi-users version and remove the hack.
-# For now, reach into the router's delete_user route and set the response class
-# explicitly to the bare Response class to avoid issues.
 users_router = user.fastapi_users.get_users_router()
-delete_route = [r for r in users_router.routes if r.name == 'delete_user'][0]
-delete_route.response_class = Response
 
 # Separately, to implement "blank slate" mode, use a dependency that returns
 # a 418 code when the app is not yet configured.
@@ -151,10 +134,11 @@ def parse_datetime(value: str) -> datetime.datetime:
 
 
 # Adds graphql schema and mounts schema + resolvers to fastapi app
-type_defs = load_schema_from_path("schema.graphql")
+type_defs = load_schema_from_path("./graphql")
 schema = make_executable_schema(
     type_defs, 
     queries, 
+    reporting_queries,
     mutation, 
     datetime_scalar, 
     snake_case_fallback_resolvers,
