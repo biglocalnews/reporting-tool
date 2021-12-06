@@ -112,8 +112,12 @@ export const DataEntryTable = (props: IProps) => {
         .filter(x => !personTypeArrayFromRecords.some(y => y?.personTypeName === x.personTypeName))
         .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[]);
 
-    const currentTrackedAttributes = (attributeCategory: string) => getDatasetData.dataset.program.targets
+    const currentTrackedAttributesByCategory = (attributeCategory: string) => getDatasetData.dataset.program.targets
         .filter(x => x.category.name === attributeCategory)
+        .flatMap(x => x.tracks)
+        .map(x => x.categoryValue);
+
+    const currentTrackedAttributes = getDatasetData.dataset.program.targets
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
@@ -133,8 +137,8 @@ export const DataEntryTable = (props: IProps) => {
             .flatMap(x => x.entries)
             .filter(x => x.categoryValue.category.name === attributeCategory && x.personType?.id === personType.id)
             .map(x => x.categoryValue)
-            .filter(x => !currentTrackedAttributes(attributeCategory).some(y => y.name === x.name))
-            .concat(currentTrackedAttributes(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
+            .filter(x => !currentTrackedAttributesByCategory(attributeCategory).some(y => y.name === x.name))
+            .concat(currentTrackedAttributesByCategory(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
                 title: t(x.name),
@@ -290,7 +294,20 @@ export const DataEntryTable = (props: IProps) => {
                                                 variables: {
                                                     input: {
                                                         publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
-                                                        datasetId: getDatasetData.dataset.id
+                                                        datasetId: getDatasetData.dataset.id,
+                                                        entries: currentTrackedAttributes.map(cv => {
+                                                            if (personTypeArrayFromDataset.length) {
+                                                                return personTypeArrayFromDataset.map(pt => ({
+                                                                    personTypeId: pt.id,
+                                                                    categoryValueId: cv.id,
+                                                                    count: 0,
+                                                                }))
+                                                            }
+                                                            return ({
+                                                                categoryValueId: cv.id,
+                                                                count: 0,
+                                                            })
+                                                        }).flat()
                                                     }
                                                 }
                                             })
