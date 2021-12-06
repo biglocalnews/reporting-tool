@@ -51,6 +51,7 @@ interface IEntry {
   PersonType: string | undefined;
   Percent: number | undefined;
   Target: number | undefined;
+  TargetMember: boolean | undefined;
 }
 
 const PresetDateRanges: Record<
@@ -65,18 +66,6 @@ const PresetDateRanges: Record<
   "This Year": [moment().startOf("year"), moment().endOf("year")],
 };
 
-const getTarget = (targetCategory: string) => {
-  switch (targetCategory) {
-    case "Gender":
-      return 0.5;
-    case "Race / ethnicity":
-      return 0.2;
-    case "Disability":
-      return 0.12;
-    default:
-      return 0.0;
-  }
-};
 
 export const getPalette = (targetCategory: string) => {
   switch (targetCategory) {
@@ -319,9 +308,11 @@ const DatasetDetails = (): JSX.Element => {
       AttributeCategoryCount: undefined,
       AttributeCount: entry.count,
       PersonType: undefined, //entry.personType?.personTypeName,
-      Target: queryData?.dataset.program.targets.find(
-        (target) => target.category.name === entry.categoryValue.category.name
-      )?.target,
+      Target: queryData?.dataset.program.targets.find(x => x.category.id === entry.categoryValue.category.id)?.target,
+      TargetMember: queryData?.dataset.program.targets
+        .find(x => x.category.id === entry.categoryValue.category.id)?.
+        tracks.find(x => x.categoryValue.id === entry.categoryValue.id)?.
+        targetMember,
       Percent: undefined,
     };
   };
@@ -377,24 +368,25 @@ const DatasetDetails = (): JSX.Element => {
     return queryData?.dataset?.records;
   }, [sortedRecords, selectedFilters]);
 
+
   const targetStates = useMemo(() => {
-    return ["Gender", "Race / ethnicity", "Disability"].map((target) => {
+    return queryData?.dataset?.program.targets.map((target) => {
       const status = filteredRecords
         ? percentOfInTargetAttributeCategories(
           filteredRecords,
-          target,
+          target.category.name,
           undefined,
           queryData?.dataset?.program.targets
-            .find((x) => x.category.name === target)
+            .find((x) => x.category.id === target.category.id)
             ?.tracks
             .filter(x => x.targetMember)
             .map((x) => x.categoryValue.name) ?? new Array<string>()
         )
         : 0;
       return {
-        name: target,
-        target: getTarget(target),
-        offset: status - getTarget(target) * 100,
+        name: target.category.name,
+        target: target.target,
+        offset: status - target.target * 100,
         status: status,
       };
     });
@@ -456,12 +448,12 @@ const DatasetDetails = (): JSX.Element => {
       !groupedByMonthYearRecords ||
       Object.keys(groupedByMonthYearRecords).length < 2
     ) { return undefined; }
-    return ["Gender", "Race / ethnicity", "Disability"].reduce(
-      (configs, targetCategory) => {
+    return queryData?.dataset?.program.targets.reduce(
+      (configs, target) => {
         const chartData = Object.values(groupedByMonthYearRecords).reduce(
           (chartData, record) => {
             const totalAttributeCategoryCount = record
-              .filter(x => x.AttributeCategory === targetCategory)
+              .filter(x => x.AttributeCategory === target.category.name)
               .reduce((count, currEntry) => {
                 count += currEntry.AttributeCount;
                 return count;
@@ -470,14 +462,14 @@ const DatasetDetails = (): JSX.Element => {
               return chartData;
             }
             const reducedRecord = record
-              .filter(x => x.AttributeCategory === targetCategory)
+              .filter(x => x.AttributeCategory === target.category.name)
               .reduce((reducedRecord, currEntry) => {
-                let categoryKey = targetCategory;
+                let categoryKey = target.category.name;
                 /*const targetCategoryPersonTypeKey =
                   targetCategory + currEntry.PersonType;*/
-                //here the target number is treated like a bool
-                if (currEntry.Target === 0 || currEntry.Target === 0.0) {
-                  categoryKey = `Other ${targetCategory}`;
+                //i.e. not in target
+                if (!currEntry.TargetMember) {
+                  categoryKey = `Other ${target.category.name}`;
                 }
 
                 if (reducedRecord[categoryKey]) {
@@ -493,6 +485,7 @@ const DatasetDetails = (): JSX.Element => {
                 }
                 return reducedRecord;
               }, {} as Record<string, IEntry>);
+            if (Object.values(reducedRecord).length === 1) return chartData;
             Object.values(reducedRecord).forEach(x => chartData.push(x));
             return chartData;
           }, new Array<IEntry>());
@@ -507,8 +500,8 @@ const DatasetDetails = (): JSX.Element => {
                     : "Unspecified person type",
                 })),
               ],
-              Math.round(getTarget(targetCategory) * 100),
-              targetCategory
+              Math.round(target.target * 100),
+              target.category.name
             )
           );
         }
@@ -600,8 +593,8 @@ const DatasetDetails = (): JSX.Element => {
               <h2>{presetDate}</h2>
               <Row justify="center">
                 {
-                  targetStates.map((target, i) => (
-                    <Col key={target.name} span={4} offset={i ? 4 : 0}>
+                  targetStates?.map((target, i) => (
+                    <Col key={i} span={4} offset={i ? 4 : 0}>
                       {!isNaN(target.status) ? (
                         <Pie {...generatePieConfig(target)} />
                       ) : (
