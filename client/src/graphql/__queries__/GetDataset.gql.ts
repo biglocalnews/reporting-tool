@@ -27,16 +27,23 @@ export const GET_DATASET = gql`
         targets {
           id
           target
-          categoryValue {
-            id
-            name
-            category {
+          category {
               id
               name
               description
-            }
+          }
+          tracks {
+          targetMember
+          categoryValue {
+            id
+            name
           }
         }
+        }
+      reportingPeriods {
+        range
+        description
+      }
       }
       records {
         id

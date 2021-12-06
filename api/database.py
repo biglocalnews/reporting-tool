@@ -35,7 +35,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
-from sqlalchemy.sql.sqltypes import TIMESTAMP
+from sqlalchemy.sql.expression import null
+from sqlalchemy.sql.sqltypes import TIMESTAMP, Boolean
 from fastapi_users.db.sqlalchemy import GUID
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from lazy_object_proxy import Proxy
@@ -317,6 +318,8 @@ class Program(Base, PermissionsMixin):
     description = Column(String(255), nullable=False)
     team_id = Column(GUID, ForeignKey("team.id", ondelete="SET NULL"), index=True)
     team = relationship("Team", back_populates="programs")
+    reporting_period_type = Column(String(255), nullable=False)
+    reporting_periods = relationship("ReportingPeriod")
     datasets = relationship("Dataset")
     # Targets only returns active targets, but keeps the relationship intact
     # for old ones.
@@ -418,12 +421,14 @@ class Target(Base, PermissionsMixin):
     __tablename__ = "target"
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
-    program_id = Column(GUID, ForeignKey("program.id"), index=True)
+    program_id = Column(GUID, ForeignKey("program.id"), index=True, nullable=False)
     program = relationship("Program", back_populates="targets")
     target_date = Column(DateTime, nullable=True)
     target = Column(Float, nullable=False)
-    category_value_id = Column(GUID, ForeignKey("category_value.id"), index=True)
-    category_value = relationship("CategoryValue", back_populates="targets")
+    tracks = relationship("Track")
+
+    category_id = Column(GUID, ForeignKey("category.id"), index=True, nullable=False)
+    category = relationship("Category", back_populates="targets")
 
     created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
@@ -432,6 +437,69 @@ class Target(Base, PermissionsMixin):
     def user_is_team_member(self, user):
         return self.program.user_is_team_member(user)
 
+    @classmethod
+    def get_by_programme_category(self, session, prog_id, category_id):
+        return (
+            session.query(self)
+            .filter(self.category_id == category_id, self.program_id == prog_id)
+            .first()
+        )
+
+    @classmethod
+    def get_or_create(self, session, prog_id, target_dict) -> "Target":
+        if "id" in target_dict:
+            target_dict["id"] = uuid.UUID(target_dict["id"])
+        else:
+            existing_target = self.get_by_programme_category(
+                session, prog_id, target_dict["category"]["id"]
+            )
+            if existing_target:
+                target_dict = {"id": existing_target.id}
+
+        return session.merge(self(**target_dict))
+
+
+class Track(Base, PermissionsMixin):
+    __tablename__ = "track"
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    target_id = Column(GUID, ForeignKey("target.id"), index=True)
+    target = relationship("Target", back_populates="tracks")
+    category_value_id = Column(GUID, ForeignKey("category_value.id"), index=True)
+    category_value = relationship("CategoryValue")
+
+    target_member = Column(Boolean, nullable=False)
+
+    created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+    def user_is_team_member(self, user):
+        return self.program.user_is_team_member(user)
+
+    @classmethod
+    def get_by_target_category_value(self, session, target_id, category_value_id):
+        return (
+            session.query(self)
+            .filter(
+                self.category_value_id == category_value_id, self.target_id == target_id
+            )
+            .first()
+        )
+
+    @classmethod
+    def get_or_create(self, session, target_id, category_id, track_dict) -> "Track":
+        if "id" in track_dict:
+            track_dict["id"] = uuid.UUID(track_dict["id"])
+        else:
+            existing_target = self.get_by_target_category_value(
+                session, target_id, category_id
+            )
+            if existing_target:
+                track_dict = {"id": existing_target.id}
+
+        return session.merge(self(**track_dict))
+
 
 class Category(Base):
     __tablename__ = "category"
@@ -439,6 +507,7 @@ class Category(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     category_values = relationship("CategoryValue", back_populates="category")
+    targets = relationship("Target", back_populates="category")
 
     created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
@@ -459,6 +528,30 @@ class Category(Base):
             .filter(Category.id == id_, Category.deleted == None)
             .scalar()
         )
+
+    @classmethod
+    def get_or_create(cls, session, spec):
+        """Idempotently create the category value.
+
+        :session: Database session
+        :spec: Dict containing category parameters
+        :returns: Category object
+        """
+        if "id" in spec:
+            spec = {
+                "id": uuid.UUID(spec["id"]),
+            }
+        else:
+            # Ensure that if the value exists it is not duplicated
+            existing = cls.get_by_name(session, spec["name"])
+            if existing:
+                return existing
+            else:
+                spec = {
+                    "name": spec["name"],
+                }
+
+        return session.merge(cls(**spec))
 
     @validates("name")
     def capitalize_category(self, key, name):
@@ -483,7 +576,7 @@ class CategoryValue(Base):
     name = Column(String(255), nullable=False)
     category = relationship("Category", back_populates="category_values")
     category_id = Column(GUID, ForeignKey("category.id"), index=True)
-    targets = relationship("Target", back_populates="category_value")
+    tracks = relationship("Track", back_populates="category_value")
     entries = relationship("Entry", back_populates="category_value")
 
     UniqueConstraint("category_id", "name")
@@ -524,10 +617,10 @@ class CategoryValue(Base):
                 return existing
             else:
                 spec = {
+                    "id": None,
                     "name": spec["name"],
                     "category_id": spec["category"]["id"],
                 }
-
         return session.merge(cls(**spec))
 
     @classmethod
@@ -578,7 +671,7 @@ class Dataset(Base, PermissionsMixin):
     program = relationship("Program", back_populates="datasets")
     program_id = Column(GUID, ForeignKey("program.id"), index=True)
     records = relationship("Record")
-    # published_record_sets = relationship("PublishedRecordSet")
+    published_record_sets = relationship("PublishedRecordSet")
     tags = relationship("Tag", secondary=dataset_tags, back_populates="datasets")
     person_types = relationship(
         "PersonType",
@@ -638,6 +731,41 @@ class Dataset(Base, PermissionsMixin):
         return datasets
 
 
+class ReportingPeriod(Base, PermissionsMixin):
+    __tablename__ = "reporting_period"
+
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+    program = relationship("Program", back_populates="reporting_periods")
+    program_id = Column(GUID, ForeignKey("program.id"), index=True)
+    begin = Column(DateTime, nullable=False)
+    end = Column(DateTime, nullable=False)
+    description = Column(String)
+
+    @property
+    def range(self):
+        return [self.begin, self.end]
+
+    @classmethod
+    def get_or_create(cls, session, spec):
+
+        if "id" in spec:
+            spec = {
+                "id": uuid.UUID(spec["id"]),
+            }
+        else:
+            # Ensure that if the value exists it is not duplicated
+            existing = cls.get_by_name(session, spec["name"])
+            if existing:
+                return existing
+            else:
+                spec = {
+                    "id": None,
+                    "name": spec["name"],
+                    "category_id": spec["category"]["id"],
+                }
+        return session.merge(cls(**spec))
+
+
 class Record(Base, PermissionsMixin):
     __tablename__ = "record"
 
@@ -645,6 +773,7 @@ class Record(Base, PermissionsMixin):
     dataset = relationship("Dataset", back_populates="records")
     dataset_id = Column(GUID, ForeignKey("dataset.id"), nullable=False, index=True)
     publication_date = Column(DateTime, index=True)
+
     entries = relationship("Entry", back_populates="record")
     __table_args__ = (
         UniqueConstraint(
@@ -757,7 +886,6 @@ class PersonType(Base, PermissionsMixin):
         return cls(person_type_name=person_type)
 
 
-"""
 class PublishedRecordSet(Base, PermissionsMixin):
     __tablename__ = "published_record_set"
 
@@ -766,10 +894,10 @@ class PublishedRecordSet(Base, PermissionsMixin):
     dataset = relationship("Dataset", back_populates="published_record_sets")
     dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True, nullable=False)
 
-    month = Column(Integer, nullable=False)
-    year = Column(Integer, nullable=False)
+    begin = Column(DateTime, nullable=False)
+    end = Column(DateTime, nullable=False)
 
-    __table_args__ = (UniqueConstraint("dataset_id", "month", "year"),)
+    __table_args__ = (UniqueConstraint("dataset_id", "begin", "end"),)
 
     team = Column(String)
     programme = Column(String)
@@ -792,7 +920,6 @@ class PublishedRecordSet(Base, PermissionsMixin):
             .filter(PublishedRecordSet.id == id_, PublishedRecordSet.deleted == None)
             .scalar()
         )
-"""
 
 
 def create_tables(session):
@@ -928,6 +1055,7 @@ def create_dummy_data(session):
         id="1e73e788-0808-4ee8-9b25-682b6fa3868b",
         name="BBC News",
         description="All BBC news programming",
+        reporting_period_type="monthly",
         datasets=[ds1, ds2],
     )
 
@@ -957,55 +1085,70 @@ def create_dummy_data(session):
     category_disability = session.query(Category).get(
         "55119215-71e9-43ca-b2c1-7e7fb8cec2fd"
     )
-    category_race = session.query(Category).get("2f98f223-417f-41ea-8fdb-35f0c5fe5b41")
+    category_ethnicity = session.query(Category).get(
+        "2f98f223-417f-41ea-8fdb-35f0c5fe5b41"
+    )
 
-    target_non_binary = Target(
+    target_gender = Target(
+        program=program,
+        category=category_gender,
+        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
+        target=float(0.5),
+    )
+
+    target_disabled = Target(
+        program=program,
+        category=category_disability,
+        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
+        target=float(0.12),
+    )
+
+    target_ethnicity = Target(
+        program=program,
+        category=category_ethnicity,
+        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
+        target=float(0.20),
+    )
+
+    track_non_binary = Track(
         id="40eaeafc-3311-4294-a639-a826eb6495ab",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.17),
+        target=target_gender,
+        target_member=False,
     )
-    target_cis_women = Target(
+    track_cis_women = Track(
         id="eccf90e8-3261-46c1-acd5-507f9113ff72",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.17),
+        target=target_gender,
+        target_member=False,
     )
-    target_cis_men = Target(
+    track_cis_men = Track(
         id="2d501688-92e3-455e-9685-01141de3dbaf",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.16),
+        target=target_gender,
+        target_member=False,
     )
-    target_trans_women = Target(
+    track_trans_women = Track(
         id="4f7897c2-32a1-4b1e-9749-1a8066faca01",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.17),
+        target=target_gender,
+        target_member=False,
     )
-    target_trans_men = Target(
+    track_trans_men = Track(
         id="9352b16b-2607-4f7d-a272-fe6dedd8165a",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.17),
+        target=target_gender,
+        target_member=False,
     )
-    target_gender_non_conforming = Target(
+    track_gender_non_conforming = Track(
         id="a459ed7f-5573-4d5b-ade6-3070bc8bd2db",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.16),
+        target=target_gender,
+        target_member=False,
     )
-    target_disabed = Target(
+    track_disabled = Track(
         id="b5be10ce-103f-41f2-b4c4-603228724993",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.50),
+        target=target_disabled,
+        target_member=True,
     )
-    target_non_disabled = Target(
+    track_non_disabled = Track(
         id="6e6edce5-3d24-4296-b929-5eec26d52afc",
-        program=program,
-        target_date=datetime.strptime("2022-12-31 00:00:00", "%Y-%m-%d %H:%M:%S"),
-        target=float(0.50),
+        target=target_disabled,
+        target_member=False,
     )
 
     entry1 = Entry(id="64677dc1-a1cd-4cd3-965d-6565832d307a", count=1, inputter=user)
@@ -1029,61 +1172,63 @@ def create_dummy_data(session):
         id="742b5971-eeb6-4f7a-8275-6111f2342bb4",
         name="women",
         category=category_gender,
-        targets=[target_cis_women],
+        tracks=[track_cis_women],
         entries=[entry2, entry2_b],
     )
     CategoryValue(
         id="d237a422-5858-459c-bd01-a0abdc077e5b",
         name="men",
         category=category_gender,
-        targets=[target_cis_men],
+        tracks=[track_cis_men],
         entries=[entry3, entry3_b],
     )
     CategoryValue(
         id="662557e5-aca8-4cec-ad72-119ad9cda81b",
         name="trans women",
         category=category_gender,
-        targets=[target_trans_women],
+        tracks=[track_trans_women],
         entries=[entry4, entry4_b],
     )
     CategoryValue(
         id="1525cce8-7db3-4e73-b5b0-d2bd14777534",
         name="trans men",
         category=category_gender,
-        targets=[target_trans_men],
+        tracks=[track_trans_men],
         entries=[entry5, entry5_b],
     )
     CategoryValue(
         id="a72ced2b-b1a6-4d3d-b003-e35e980960df",
         name="gender non-conforming",
         category=category_gender,
-        targets=[target_gender_non_conforming],
+        tracks=[track_gender_non_conforming],
         entries=[entry6, entry6_b],
     )
     CategoryValue(
         id="6cae6d26-97e1-4e9c-b1ad-954b4110e83b",
         name="non-binary",
         category=category_gender,
-        targets=[target_non_binary],
+        tracks=[track_non_binary],
         entries=[entry1, entry1_b],
     )
     CategoryValue(
         id="c36958cb-cc62-479e-ab61-eb03896a981c",
         name="disabled",
         category=category_disability,
-        targets=[target_disabed],
+        tracks=[track_disabled],
         entries=[entry7, entry7_b],
     )
     CategoryValue(
         id="55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
         name="non-disabled",
         category=category_disability,
-        targets=[target_non_disabled],
+        tracks=[track_non_disabled],
         entries=[entry8, entry8_b],
     )
 
     category_value_white = CategoryValue(
-        id="0034d015-0652-497d-ab4a-d42b0bdf08cb", name="white", category=category_race
+        id="0034d015-0652-497d-ab4a-d42b0bdf08cb",
+        name="white",
+        category=category_ethnicity,
     )
 
     # datetime.strptime converts a string to a datetime object bc of SQLite DateTime limitation- must be explicit about format

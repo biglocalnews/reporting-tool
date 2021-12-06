@@ -19,19 +19,14 @@ export interface AdminGetAllPrograms_programs_tags {
   readonly name: string;
 }
 
-export interface AdminGetAllPrograms_programs_targets_categoryValue_category {
+export interface AdminGetAllPrograms_programs_targets_category {
   readonly __typename: "Category";
   readonly name: string;
 }
 
-export interface AdminGetAllPrograms_programs_targets_categoryValue {
-  readonly __typename: "CategoryValue";
-  readonly category: AdminGetAllPrograms_programs_targets_categoryValue_category;
-}
-
 export interface AdminGetAllPrograms_programs_targets {
   readonly __typename: "Target";
-  readonly categoryValue: AdminGetAllPrograms_programs_targets_categoryValue;
+  readonly category: AdminGetAllPrograms_programs_targets_category;
 }
 
 export interface AdminGetAllPrograms_programs {

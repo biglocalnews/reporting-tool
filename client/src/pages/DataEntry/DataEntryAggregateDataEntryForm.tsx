@@ -82,16 +82,18 @@ export const renderFormEntries = (
 
   for (const personType of personTypes) {
     for (const target of metadata?.dataset.program.targets || []) {
-      form.push({
-        index: addIndex++,
-        category: target.categoryValue.category.name,
-        description: target.categoryValue.category.description,
-        categoryValueId: target.categoryValue.id,
-        categoryValue: target.categoryValue.name,
-        categoryValueLabel: target.categoryValue.name.replace(/\s+/g, "-"),
-        count: 0,
-        personType: personType,
-      });
+      for (const track of target.tracks) {
+        form.push({
+          index: addIndex++,
+          category: target.category.name,
+          description: target.category.description,
+          categoryValueId: track.categoryValue.id,
+          categoryValue: track.categoryValue.name,
+          categoryValueLabel: track.categoryValue.name.replace(/\s+/g, "-"),
+          count: 0,
+          personType: personType,
+        });
+      }
     }
   }
 

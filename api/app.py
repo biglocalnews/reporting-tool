@@ -1,4 +1,5 @@
 import json
+import logging
 from uuid import uuid4
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
@@ -161,6 +162,7 @@ seed_admins = [
     "khany88",
     "oconnk11",
     "wrighg24",
+    "weberd01",
 ]
 
 
@@ -195,9 +197,13 @@ async def acs(request: Request, status_code=200):
         errors = auth.get_errors()
 
         if errors:
-            return "Error when processing SAML Response: %s %s" % (
-                ", ".join(errors),
-                auth.get_last_error_reason(),
+            raise HTTPException(
+                status_code=500,
+                detail="Error when processing SAML Response: %s %s"
+                % (
+                    ", ".join(errors),
+                    auth.get_last_error_reason(),
+                ),
             )
 
         if not auth.is_authenticated():
@@ -389,4 +395,4 @@ def home():
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app")
+    uvicorn.run("app:app", reload=True)

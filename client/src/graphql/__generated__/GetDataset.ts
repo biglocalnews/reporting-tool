@@ -33,31 +33,44 @@ export interface GetDataset_dataset_sumOfCategoryValueCounts {
   readonly sumOfCounts: number;
 }
 
-export interface GetDataset_dataset_program_targets_categoryValue_category {
+export interface GetDataset_dataset_program_targets_category {
   readonly __typename: "Category";
   readonly id: string;
   readonly name: string;
   readonly description: string;
 }
 
-export interface GetDataset_dataset_program_targets_categoryValue {
+export interface GetDataset_dataset_program_targets_tracks_categoryValue {
   readonly __typename: "CategoryValue";
   readonly id: string;
   readonly name: string;
-  readonly category: GetDataset_dataset_program_targets_categoryValue_category;
+}
+
+export interface GetDataset_dataset_program_targets_tracks {
+  readonly __typename: "Track";
+  readonly targetMember: boolean;
+  readonly categoryValue: GetDataset_dataset_program_targets_tracks_categoryValue;
 }
 
 export interface GetDataset_dataset_program_targets {
   readonly __typename: "Target";
   readonly id: string;
   readonly target: number;
-  readonly categoryValue: GetDataset_dataset_program_targets_categoryValue;
+  readonly category: GetDataset_dataset_program_targets_category;
+  readonly tracks: ReadonlyArray<GetDataset_dataset_program_targets_tracks>;
+}
+
+export interface GetDataset_dataset_program_reportingPeriods {
+  readonly __typename: "ReportingPeriod";
+  readonly range: ReadonlyArray<any>;
+  readonly description: string | null;
 }
 
 export interface GetDataset_dataset_program {
   readonly __typename: "Program";
   readonly name: string;
   readonly targets: ReadonlyArray<GetDataset_dataset_program_targets>;
+  readonly reportingPeriods: ReadonlyArray<GetDataset_dataset_program_reportingPeriods> | null;
 }
 
 export interface GetDataset_dataset_records_entries_categoryValue_category {

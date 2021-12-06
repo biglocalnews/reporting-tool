@@ -107,13 +107,17 @@ const DatasetDetailsRecordsTable = ({
         width={120}
         render={(date: string) => dayjs(date).format("YYYY-MM-DD")}
       />
-      {datasetData?.dataset.program.targets.map((target) => (
-        <Table.Column<TableData>
-          title={target.categoryValue.name}
-          dataIndex={target.categoryValue.name}
-          key="id"
-        />
-      ))}
+      {
+        datasetData?.dataset.program.targets
+          .flatMap((target) => target.tracks)
+          .map(track =>
+            <Table.Column<TableData>
+              title={track.categoryValue.name}
+              dataIndex={track.categoryValue.name}
+              key="id"
+            />
+          )
+      }
       <Table.Column<TableData>
         dataIndex="id"
         key="id"

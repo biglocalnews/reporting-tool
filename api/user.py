@@ -55,6 +55,7 @@ class UserTeam(BaseModel):
 class UserModel(models.BaseUser):
     first_name: str
     last_name: str
+    username: str
     roles: Optional[List[UserRole]]
     teams: Optional[List[UserTeam]]
     last_login: Optional[datetime]
@@ -66,6 +67,7 @@ class UserCreateModel(BaseUserCreateUpdate):
     password: str
     first_name: str
     last_name: str
+    username: str
     roles: Optional[List[UserRole]]
     teams: Optional[List[UserTeam]]
 
@@ -75,6 +77,7 @@ class UserUpdateModel(BaseUserCreateUpdate):
     password: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
+    username: Optional[str]
     roles: Optional[List[UserRole]]
     teams: Optional[List[UserTeam]]
     is_active: Optional[bool]

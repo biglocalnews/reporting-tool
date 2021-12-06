@@ -86,10 +86,9 @@ const barStats = (
                 ? entry.personType.personTypeName
                 : "Unspecified",
               count: entry.count,
-              target: data.program.targets.find(
-                (target) =>
-                  target.categoryValue.name === entry.categoryValue.name
-              )?.target,
+              target: data.program.targets
+                .find(x => x.category.name === category)
+                ?.target,
             };
           } else {
             chartData[yearMonthCategoryPersonType].count += entry.count;
@@ -109,7 +108,7 @@ const DatasetDetailsScoreCard = ({
     Array.from(
       new Set(
         data.dataset.program.targets.map(
-          (target) => target.categoryValue.category.name
+          (target) => target.category.name
         )
       )
     );

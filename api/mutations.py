@@ -12,12 +12,14 @@ from database import (
     Entry,
     Organization,
     Program,
-    # PublishedRecordSet,
+    PublishedRecordSet,
+    ReportingPeriod,
     Record,
     Role,
     Tag,
     User,
     Target,
+    Track,
     Team,
 )
 from sqlalchemy.orm import joinedload
@@ -369,8 +371,9 @@ def resolve_create_program(obj, info, input):
     """
     session = info.context["dbsession"]
     datasets = input.pop("datasets", [])
-    targets = input.pop("targets", [])
+    targets_input = input.pop("targets", [])
     tags = input.pop("tags", [])
+    reporting_periods = input.pop("reporting_periods", [])
     if "description" not in input:
         input["description"] = ""
 
@@ -380,10 +383,22 @@ def resolve_create_program(obj, info, input):
         tag = Tag.get_or_create(session, tag_dict)
         program.tags.append(tag)
 
-    for target_dict in targets:
-        cv_dict = target_dict.pop("category_value")
-        cv = CategoryValue.get_or_create(session, cv_dict)
-        target = Target(target_date=func.now(), category_value=cv, **target_dict)
+    for target_input in targets_input:
+
+        category_input = target_input.pop("category")
+        tracks_input = target_input.pop("tracks")
+
+        c = session.query(Category).get(category_input["id"])
+
+        target = Target(**target_input, target_date=func.now(), category=c)
+
+        for track_input in tracks_input:
+            cv_input = track_input.pop("category_value")
+            cv = session.query(CategoryValue).get(cv_input["id"])
+            track = Track.get_or_create(session, target.id, cv.id, track_input)
+            track.category_value = cv
+            target.tracks.append(track)
+
         program.targets.append(target)
 
     session.add(program)
@@ -407,27 +422,44 @@ def resolve_update_program(obj, info, input):
 
     if "targets" in input:
         program.targets = []
-        # TODO: We want to keep a record of all changes to targets so we can
-        # view changes over time.
-        # The actual update procedure should be a little more complicated:
-        #  1) Find existing target with the same category_value
-        #  2) If the target % hasn't changed, keep it intact
-        #  3) If the target did change, mark the old as `deleted` and create
-        #     a new Target with the new %
-        #  4) Make sure that the old target keeps the program_id even though
-        #     it is not active. This can be configured in the relationship join
-        #     parameters in the database objects.
-        # https://app.clubhouse.io/stanford-computational-policy-lab/story/324/keep-historical-record-of-targets-in-the-database
-        for target_dict in input.pop("targets"):
-            cv_dict = target_dict.pop("category_value", None)
-            target = session.merge(Target(**target_dict))
-            if cv_dict:
-                cv = CategoryValue.get_or_create(session, cv_dict)
-                target.category_value = cv
+        # child dicts and arrays need to be popped out of the input dictionary because in order to be saved to the Db, they need to be
+        # actual sql alchemy entities
+
+        for target_input in input.pop("targets"):
+
+            category_input = target_input.pop("category")
+            tracks_input = target_input.pop("tracks")
+
+            target = Target.get_or_create(session, program.id, target_input)
+
+            c = Category.get_or_create(session, category_input)
+            target.category = c
+
+            for track_input in tracks_input:
+                cv_input = track_input.pop("category_value")
+                cv = CategoryValue.get_or_create(session, cv_input)
+                track = Track.get_or_create(session, target.id, cv.id, track_input)
+                track.category_value = cv
+                target.tracks.append(track)
+
             program.targets.append(target)
 
     if "datasets" in input:
         program.datasets = Dataset.upsert_datasets(session, input.pop("datasets"))
+
+    if "reporting_periods" in input:
+        program.reporting_periods = []
+        # child dicts and arrays need to be popped out of the input dictionary because in order to be saved to the Db, they need to be
+        # actual sql alchemy entities
+
+        for rp_input in input.pop("reporting_periods"):
+            if "program_id" not in rp_input or not rp_input["program_id"]:
+                rp_input["program_id"] = program.id
+            if "id" in rp_input and rp_input["id"]:
+                rp_input["id"] = uuid.UUID(rp_input["id"])
+            [rp_input["begin"], rp_input["end"]] = rp_input.pop("range")
+            rp = session.merge(ReportingPeriod(**rp_input))
+            program.reporting_periods.append(rp)
 
     if "tags" in input:
         program.tags = []
@@ -519,7 +551,6 @@ async def resolve_configure_app(obj, info, input):
     return user.id
 
 
-"""
 @mutation.field("createPublishedRecordSet")
 @convert_kwargs_to_snake_case
 def resolve_create_published_record_set(obj, info, input):
@@ -530,4 +561,16 @@ def resolve_create_published_record_set(obj, info, input):
     session.commit()
 
     return record
-"""
+
+
+@mutation.field("createReportingPeriod")
+@convert_kwargs_to_snake_case
+def resolve_create_reporting_period(obj, info, input):
+    session = info.context["dbsession"]
+    # current_user = info.context["current_user"]
+    [input["begin"], input["end"]] = input.pop("range")
+    rp = ReportingPeriod(**input)
+    session.add(rp)
+    session.commit()
+
+    return rp

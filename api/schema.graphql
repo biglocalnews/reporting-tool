@@ -31,6 +31,13 @@ enum Permission {
   BLANK_SLATE
 }
 
+enum ReportingPeriodType {
+  monthly
+  quarterly
+  annual
+  custom
+}
+
 schema {
   query: Query
   mutation: Mutation
@@ -76,6 +83,8 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   description: String!
   team: Team
   datasets: [Dataset!]!
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriod!]
   targets: [Target!]!
   tags: [Tag!]!
   deleted: DateTime
@@ -101,14 +110,23 @@ type Target @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   id: ID!
   # Assumption: all datasets in a program have the same targets
   program: Program!
-  categoryValue: CategoryValue!
+  category: Category!
   target: Float!
+  targetDate: DateTime
+  tracks: [Track!]!
+}
+
+type Track {
+  id: ID!
+  categoryValue: CategoryValue!
+  targetMember: Boolean!
 }
 
 type Category {
   id: ID!
   name: String!
   description: String!
+  targets:[Target!]
   categoryValues: [CategoryValue!]!
 }
 
@@ -169,11 +187,20 @@ type PublishedRecordSet {
   datasetId: ID!
   created: DateTime!
   deleted: DateTime
-  month: Int!
-  year: Int!
+  begin: DateTime!
+  end: DateTime!
   record: [RecordSetEntry]
   targets: [RecordSetTarget]
   tags: [String]
+}
+
+type ReportingPeriod {
+  id: ID!
+  programmeId: ID!
+  range: [DateTime!]!
+  begin: DateTime
+  end: DateTime
+  description: String
 }
 
 type RecordSetTarget {
@@ -196,6 +223,7 @@ input UpsertUserInput {
   lastName: String!
   email: String!
   role: String!
+  username: String!
 }
 
 input CreateDatasetInput {
@@ -266,7 +294,7 @@ input UpdateTeamInput {
 input EntryInput {
   id: ID
   categoryValueId: ID!
-  count: Int!
+  count: Int
   personTypeId: ID
 }
 
@@ -282,14 +310,22 @@ input BaseCategoryInput {
 
 input CategoryValueInput {
   id: ID
-  name: String
+  name: String!
   category: BaseCategoryInput!
 }
 
 input TargetInput {
   id: ID
-  target: Float
-  categoryValue: CategoryValueInput
+  target: Float!
+  targetDate: DateTime
+  category: CategoryInput!
+  tracks: [TrackInput!]!
+}
+
+input TrackInput {
+  id: ID
+  categoryValue: CategoryValueInput!
+  targetMember: Boolean!
 }
 
 input CreateProgramInput {
@@ -299,6 +335,8 @@ input CreateProgramInput {
   targets: [TargetInput!]
   tags: [TagInput!]
   datasets: [UpsertDatasetInput!]
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriodInput!]
 }
 
 input UpsertDatasetInput {
@@ -316,6 +354,17 @@ input UpdateProgramInput {
   targets: [TargetInput!]
   tags: [TagInput!]
   datasets: [UpsertDatasetInput!]
+  reportingPeriodType: ReportingPeriodType!
+  reportingPeriods: [ReportingPeriodInput!]
+}
+
+input ReportingPeriodInput {
+  id: ID
+  programId: ID!
+  range: [DateTime!]
+  begin: DateTime
+  end: DateTime
+  description: String
 }
 
 input FirstTimeAppConfigurationInput {
@@ -341,11 +390,18 @@ input RecordSetTargetInput {
 
 input CreatePublishedRecordSetInput {
   datasetId: ID!
-  month: Int!
-  year: Int!
-  record: [RecordSetEntryInput]
-  targets: [RecordSetTargetInput]
-  tags: [String]
+  begin: DateTime!
+  end: DateTime!
+  record: [RecordSetEntryInput!]!
+  targets: [RecordSetTargetInput]!
+  tags: [String]!
+}
+
+input CreateReportingPeriodInput {
+  programmeId: ID!
+  range: [DateTime!]
+  begin: DateTime
+  end: DateTime
 }
 
 type Query {
@@ -375,6 +431,8 @@ type Query {
 
   publishedRecordSet(id: ID!): PublishedRecordSet!
 
+  reportingPeriod(id: ID!): ReportingPeriod!
+
   # Retrieve all tags. Server-side search not currently supported.
   tags: [Tag!]! @needsPermission(permission: [LOGGED_IN])
 
@@ -400,6 +458,8 @@ type Query {
   personTypes: [PersonType!]! @needsPermission(permission: [ADMIN])
 
   publishedRecordSets: [PublishedRecordSet!]!
+
+  reportingPeriods: [ReportingPeriod!]!
 }
 
 type Mutation {
@@ -478,4 +538,6 @@ type Mutation {
 
   # Create a Program
   createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet!
+
+  createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod!
 }

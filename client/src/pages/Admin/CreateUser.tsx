@@ -84,7 +84,22 @@ export const CreateUser = ({ form }: CreateUserProps) => {
           aria-required="true"
         />
       </Form.Item>
-
+      <Form.Item
+        name="username"
+        label={t("admin.user.fields.username")}
+        rules={[
+          {
+            required: true,
+            message: t("admin.user.validation.userNameRequired"),
+          },
+        ]}
+      >
+        <Input
+          allowClear
+          aria-label={t("admin.user.fields.username")}
+          aria-required="true"
+        />
+      </Form.Item>
       <Form.Item
         name="email"
         label={t("admin.user.fields.email")}

@@ -17,7 +17,7 @@ import { EditLink } from "./EditLink";
  */
 const CategoriesCell = (_: string, record: AdminGetAllPrograms_programs) => {
   const uniqCategories = record.targets.reduce((agg, current) => {
-    agg.add(current.categoryValue.category.name);
+    agg.add(current.category.name);
     return agg;
   }, new Set());
   const categories = Array.from(uniqCategories).sort();

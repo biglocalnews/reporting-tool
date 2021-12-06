@@ -3,6 +3,8 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
+import { ReportingPeriodType } from "./globalTypes";
+
 // ====================================================
 // GraphQL query operation: AdminGetProgram
 // ====================================================
@@ -33,25 +35,47 @@ export interface AdminGetProgram_program_datasets {
   readonly personTypes: ReadonlyArray<AdminGetProgram_program_datasets_personTypes>;
 }
 
-export interface AdminGetProgram_program_targets_categoryValue_category {
+export interface AdminGetProgram_program_reportingPeriods {
+  readonly __typename: "ReportingPeriod";
+  readonly id: string;
+  readonly begin: any | null;
+  readonly end: any | null;
+  readonly range: ReadonlyArray<any>;
+  readonly description: string | null;
+}
+
+export interface AdminGetProgram_program_targets_category {
   readonly __typename: "Category";
   readonly id: string;
   readonly name: string;
   readonly description: string;
 }
 
-export interface AdminGetProgram_program_targets_categoryValue {
+export interface AdminGetProgram_program_targets_tracks_categoryValue_category {
+  readonly __typename: "Category";
+  readonly id: string;
+}
+
+export interface AdminGetProgram_program_targets_tracks_categoryValue {
   readonly __typename: "CategoryValue";
   readonly id: string;
   readonly name: string;
-  readonly category: AdminGetProgram_program_targets_categoryValue_category;
+  readonly category: AdminGetProgram_program_targets_tracks_categoryValue_category;
+}
+
+export interface AdminGetProgram_program_targets_tracks {
+  readonly __typename: "Track";
+  readonly id: string;
+  readonly targetMember: boolean;
+  readonly categoryValue: AdminGetProgram_program_targets_tracks_categoryValue;
 }
 
 export interface AdminGetProgram_program_targets {
   readonly __typename: "Target";
   readonly id: string;
-  readonly categoryValue: AdminGetProgram_program_targets_categoryValue;
+  readonly category: AdminGetProgram_program_targets_category;
   readonly target: number;
+  readonly tracks: ReadonlyArray<AdminGetProgram_program_targets_tracks>;
 }
 
 export interface AdminGetProgram_program {
@@ -62,6 +86,8 @@ export interface AdminGetProgram_program {
   readonly deleted: any | null;
   readonly tags: ReadonlyArray<AdminGetProgram_program_tags>;
   readonly datasets: ReadonlyArray<AdminGetProgram_program_datasets>;
+  readonly reportingPeriodType: ReportingPeriodType;
+  readonly reportingPeriods: ReadonlyArray<AdminGetProgram_program_reportingPeriods> | null;
   readonly targets: ReadonlyArray<AdminGetProgram_program_targets>;
 }
 

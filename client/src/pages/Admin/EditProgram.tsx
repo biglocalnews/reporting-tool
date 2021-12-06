@@ -9,18 +9,24 @@ import {
   Alert,
   Button,
   Col,
+  DatePicker,
   Divider,
   Form,
   Input,
+  InputNumber,
   List,
   PageHeader,
   Popconfirm,
+  Radio,
   Row,
   Select,
   Spin,
   Switch,
   Typography,
 } from "antd";
+import { FormListOperation } from "antd/lib/form/FormList";
+import moment from "moment";
+const { RangePicker } = DatePicker;
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Prompt, useHistory, useParams } from "react-router-dom";
@@ -40,6 +46,8 @@ import {
   AllDatasets_teams_programs_datasets,
 } from "../../graphql/__generated__/AllDatasets";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
+import { ReportingPeriodType } from "../../graphql/__generated__/globalTypes";
+
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
 import { ADMIN_GET_ALL_PERSON_TYPES } from "../../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
@@ -47,12 +55,13 @@ import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 import {
-  CategoryTarget,
-  CategoryTargetSegment,
+  Target,
+  TargetTrack,
   ProgramUpdateFormValues,
   useDeactivate,
   useRestore,
   useSave,
+  ReportingPeriod,
 } from "./programHooks";
 
 /**
@@ -62,42 +71,110 @@ export type EditProgramRouteParams = Readonly<{
   programId: string;
 }>;
 
-/**
- * Group the targets by category in a way that's reasonable for a UI form.
- *
- * This basically means turning the GraphQL query response inside out.
- */
 const getGroupedTargets = (
   targets: readonly AdminGetProgram_program_targets[]
 ) => {
-  const groupedByCategory = new Map<string, CategoryTarget>();
-
-  for (const target of targets) {
-    const categoryId = target.categoryValue.category.id;
-    if (!groupedByCategory.has(categoryId)) {
-      groupedByCategory.set(categoryId, {
-        categoryId,
-        categoryName: target.categoryValue.category.name,
-        categoryDescription: target.categoryValue.category.description,
-        segments: [],
+  const groupedByCategory = Array.from(targets)
+    .sort((a, b) => a.category.name.localeCompare(b.category.name))
+    .reduce((grouped, currTarget) => {
+      if (!grouped.has(currTarget.category.id)) {
+        grouped.set(currTarget.category.id, {
+          id: currTarget.id,
+          category: currTarget.category,
+          target: currTarget.target,
+          tracks: [],
+        });
+      }
+      currTarget.tracks.forEach(track => {
+        grouped.get(currTarget.category.id)?.tracks.push(
+          {
+            id: track.id,
+            categoryValue: track.categoryValue,
+            targetMember: track.targetMember,
+          }
+        );
       });
+
+      return grouped;
+    }, new Map<string, Target>());
+
+  return Array.from(groupedByCategory.values());
+
+}
+
+const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], reportingPeriodType: ReportingPeriodType, formOperations: FormListOperation) => {
+  const lastDate = reportingPeriods.filter(x => x && x.range).length ? [...reportingPeriods]
+    .filter(x => x && x.range)
+    .sort((a, b) => b.range[1].unix() - a.range[1].unix())
+  [0].range[1].clone() : null;
+
+  switch (reportingPeriodType) {
+    case "monthly": {
+      const addArrayOfMonths = (startDate: moment.Moment) => {
+        const endOfYear = startDate.clone().endOf("year");
+        startDate.startOf("year");
+        while (startDate.isBefore(endOfYear)) {
+          formOperations.add({
+            range: [
+              startDate.clone().startOf("month"),
+              startDate.clone().endOf("month")
+            ],
+            description: `${startDate.format("MMMM")}`,
+            groupKey: `${startDate.format("YYYY")}-months`
+          })
+          startDate.add(1, "month");
+        }
+      }
+      if (!reportingPeriods || !reportingPeriods.length || !lastDate) {
+        return addArrayOfMonths(moment());
+      }
+
+      return addArrayOfMonths(lastDate.add(1, "month"));
     }
+    case "quarterly": {
+      const addArrayOfQuarters = (startDate: moment.Moment) => {
+        const endOfYear = startDate.clone().endOf("year");
+        startDate.startOf("quarter");
+        while (startDate.isBefore(endOfYear)) {
+          formOperations.add({
+            range: [
+              startDate.clone().startOf("quarter"),
+              startDate.clone().endOf("quarter")
+            ],
+            description: `Quarter ${startDate.quarter()}`,
+            groupKey: `${startDate.format("YYYY")}-quarters`
+          })
+          startDate.add(1, "quarter");
+        }
+      }
+      if (!reportingPeriods || !reportingPeriods.length || !lastDate) {
+        return addArrayOfQuarters(moment());
+      }
 
-    const category = groupedByCategory.get(categoryId)!;
-    category.segments.push({
-      categoryValueId: target.categoryValue.id,
-      categoryValueName: target.categoryValue.name,
-      targetId: target.id,
-      targetValue: target.target,
-    });
+      return addArrayOfQuarters(lastDate.add(1, "quarter"));
+    }
+    case "annual": {
+      const addArrayOfYears = (startDate: moment.Moment) => {
+        formOperations.add({
+          range: [
+            startDate.clone().startOf("year"),
+            startDate.clone().endOf("year")
+          ],
+          description: `${startDate.format("YYYY")}`
+        })
+
+      }
+      if (!reportingPeriods || !reportingPeriods.length || !lastDate) {
+        return addArrayOfYears(moment());
+      }
+
+      return addArrayOfYears(lastDate.year(lastDate.year() + 1));
+    }
+    default: {
+      return formOperations.add();
+    }
   }
-
-  // Return the categories as a list sorted by name.
-  const asList = Array.from(groupedByCategory.values());
-  asList.sort((a, b) => (a.categoryName < b.categoryName ? -1 : 1));
-
-  return asList;
-};
+}
 
 /**
  * Form to edit or delete a program.
@@ -189,6 +266,12 @@ export const EditProgram = () => {
       value: id,
     })),
     targets: getGroupedTargets(programResponse.data!.program.targets),
+    reportingPeriodType: programResponse.data!.program.reportingPeriodType,
+    reportingPeriods: programResponse.data!.program.reportingPeriods!
+      .map(rp => ({
+        ...rp,
+        range: [moment(rp?.range?.[0]), moment(rp?.range?.[1])]
+      })),
     datasets: programResponse.data!.program.datasets.map((ds) => ({
       ...ds,
       personTypes: ds.personTypes.map(({ personTypeName }) => personTypeName),
@@ -342,244 +425,235 @@ export const EditProgram = () => {
         <Form.List name="targets">
           {(targetFields, targetOps) => (
             <>
-              {targetFields.map((targetField) => (
-                <React.Fragment key={targetField.key}>
-                  <Row>
-                    <Col offset={2} span={20}>
-                      <Divider orientation="left">
-                        {editForm.getFieldValue([
-                          "targets",
-                          targetField.name,
-                          "categoryName",
-                        ])}
-                      </Divider>
-                    </Col>
-                  </Row>
-                  <Row key={targetField.key}>
-                    <Col span={10} offset={2}>
-                      <Typography.Paragraph>
-                        {editForm.getFieldValue([
-                          "targets",
-                          targetField.name,
-                          "categoryDescription",
-                        ])}
-                      </Typography.Paragraph>
-                      <Popconfirm
-                        title={t(
-                          "admin.program.edit.form.stopTrackingCategoryConfirm"
-                        )}
-                        onConfirm={() => targetOps.remove(targetField.name)}
-                        okText={t("confirm.yes")}
-                        cancelText={t("confirm.no")}
-                        disabled={inactive}
-                      >
-                        <Button danger disabled={inactive}>
-                          {t("admin.program.edit.form.stopTrackingCategory")}
-                        </Button>
-                      </Popconfirm>
-                    </Col>
-                    <Col span={10}>
-                      <Form.List
-                        rules={[
+              {
+                targetFields.map((targetField) => (
+                  <React.Fragment key={targetField.key}>
+                    <Row>
+                      <Col offset={2} span={20}>
+                        <Divider orientation="left">
                           {
-                            validator: async (
-                              _,
-                              segments: CategoryTargetSegment[]
-                            ) => {
-                              if (segments.length === 0) {
-                                throw new Error(
-                                  t(
-                                    "admin.program.edit.form.validation.needSegments"
+                            editForm.getFieldValue([
+                              "targets",
+                              targetField.name,
+                              "category",
+                              "name"
+                            ])
+
+                          }
+                        </Divider>
+                      </Col>
+                    </Row>
+                    <Row key={targetField.key}>
+                      <Col span={6} offset={2}>
+                        <Form.Item
+                          name={[targetField.name, "target"]}
+                          labelCol={{ span: 10 }}
+                          wrapperCol={{ span: 14 }}
+                          label={t(
+                            "admin.program.edit.form.targetNumber"
+                          )}>
+                          <InputNumber
+                            type="number"
+                            step={0.01}
+                            addonAfter="%"
+                            onChange={(e) => console.log(e)}
+                            formatter={value => `${Math.round(Number(value ?? 0) * 100)}`}
+                            parser={value => (Number(value ?? 0) / 100).toFixed(2)}
+                          />
+                        </Form.Item>
+                        <Popconfirm
+                          title={t(
+                            "admin.program.edit.form.stopTrackingCategoryConfirm"
+                          )}
+                          onConfirm={() => targetOps.remove(targetField.name)}
+                          okText={t("confirm.yes")}
+                          cancelText={t("confirm.no")}
+                          disabled={inactive}
+                        >
+                          <Button danger disabled={inactive}>
+                            {t("admin.program.edit.form.stopTrackingCategory")}
+                          </Button>
+                        </Popconfirm>
+                      </Col>
+                      <Col span={14}>
+                        <Form.List
+                          rules={[
+                            {
+                              validator: async (
+                                _,
+                                segments: TargetTrack[]
+                              ) => {
+                                if (segments.length === 0) {
+                                  throw new Error(
+                                    t(
+                                      "admin.program.edit.form.validation.needSegments"
+                                    )
+                                  );
+                                }
+
+                                const uniqueNames = new Set(
+                                  segments.map((segment) =>
+                                    segment.categoryValue.name?.toLowerCase().trim()
                                   )
                                 );
-                              }
-
-                              /*const sum = segments.reduce(
-                                (total, segment) => total + segment.targetValue,
-                                0
-                              );
-                              if (sum !== 1) {
-                                throw new Error(
-                                  t("admin.program.edit.form.validation.100%")
-                                );
-                              }*/
-
-                              const uniqueNames = new Set(
-                                segments.map((segment) =>
-                                  segment.categoryValueName.toLowerCase().trim()
-                                )
-                              );
-                              if (uniqueNames.size !== segments.length) {
-                                throw new Error(
-                                  t(
-                                    "admin.program.edit.form.validation.uniqueTargets"
-                                  )
-                                );
-                              }
+                                if (uniqueNames.size !== segments.length) {
+                                  throw new Error(
+                                    t(
+                                      "admin.program.edit.form.validation.uniqueTargets"
+                                    )
+                                  );
+                                }
+                              },
                             },
-                          },
-                        ]}
-                        name={[targetField.name, "segments"]}
-                      >
-                        {(segmentFields, segmentOps, segmentMeta) => (
-                          <>
-                            {segmentMeta.errors && (
-                              <Row>
-                                <Col offset={2}>
-                                  <Form.ErrorList errors={segmentMeta.errors} />
-                                </Col>
-                              </Row>
-                            )}
-                            {segmentFields.map((segmentField) => (
-                              <Form.Item
-                                key={segmentField.key}
-                                labelCol={{ span: 12 }}
-                                wrapperCol={{ span: 12 }}
-                                label={editForm.getFieldValue([
-                                  "targets",
-                                  targetField.name,
-                                  "segments",
-                                  segmentField.name,
-                                  "categoryValueName",
-                                ])}
-                              >
-                                <Switch
-                                  defaultChecked={
-                                    editForm.getFieldValue([
-                                      "targets",
-                                      targetField.name,
-                                      "segments",
-                                      segmentField.name,
-                                      "targetValue",
-                                    ]) > 0
-                                      ? true
-                                      : false
-                                  }
-                                  onChange={(e) => {
-                                    e.valueOf()
-                                      ? editForm.setFields([
-                                          {
-                                            name: [
-                                              "targets",
-                                              targetField.name,
-                                              "segments",
-                                              segmentField.name,
-                                              "targetValue",
-                                            ],
-                                            value: 1,
-                                          },
-                                        ])
-                                      : editForm.setFields([
-                                          {
-                                            name: [
-                                              "targets",
-                                              targetField.name,
-                                              "segments",
-                                              segmentField.name,
-                                              "targetValue",
-                                            ],
-                                            value: 0,
-                                          },
-                                        ]);
-                                    setDirty(true);
-                                  }}
-                                  aria-label={editForm.getFieldValue([
-                                    "targets",
-                                    targetField.name,
-                                    "segments",
-                                    segmentField.name,
-                                    "categoryValueName",
-                                  ])}
-                                />
-                                <Popconfirm
-                                  title={t(
-                                    "admin.program.edit.form.confirmStopTrackingSegment"
-                                  )}
-                                  onConfirm={() =>
-                                    segmentOps.remove(segmentField.name)
-                                  }
-                                  okText={t("confirm.yes")}
-                                  cancelText={t("confirm.no")}
-                                  disabled={inactive}
-                                >
-                                  <Button
-                                    disabled={inactive}
-                                    danger
-                                    aria-label={t(
-                                      "admin.program.edit.form.stopTrackingSegment",
-                                      {
-                                        segment: editForm
-                                          .getFieldValue([
+                          ]}
+                          name={[targetField.name, "tracks"]}
+                        >
+                          {(trackFields, trackOps, trackMeta) => (
+                            <>
+                              {
+                                trackMeta.errors && (
+                                  <Row>
+                                    <Col offset={2}>
+                                      <Form.ErrorList errors={trackMeta.errors} />
+                                    </Col>
+                                  </Row>
+                                )}
+                              {
+                                trackFields.map((segmentField) => (
+                                  <Row justify="end" key={segmentField.key}>
+                                    <Col span={23}>
+                                      <Form.Item
+                                        wrapperCol={{ span: 2 }}
+                                        labelCol={{ span: 22 }}
+                                        label={editForm.getFieldValue([
+                                          "targets",
+                                          targetField.name,
+                                          "tracks",
+                                          segmentField.name,
+                                          "categoryValue",
+                                          "name",
+                                        ])}
+                                        name={[segmentField.name, "targetMember"]}
+                                        valuePropName="checked"
+                                      >
+                                        <Switch
+                                          aria-label={editForm.getFieldValue([
                                             "targets",
                                             targetField.name,
-                                            "segments",
+                                            "tracks",
                                             segmentField.name,
-                                            "categoryValueName",
-                                          ])
-                                          .toLowerCase(),
+                                            "categoryValue",
+                                            "name",
+                                          ])}
+                                        />
+                                      </Form.Item>
+                                    </Col>
+                                    <Col span={1}>
+                                      <Form.Item>
+                                        <Popconfirm
+
+                                          title={t(
+                                            "admin.program.edit.form.confirmStopTrackingSegment"
+                                          )}
+                                          onConfirm={() =>
+                                            trackOps.remove(segmentField.name)
+                                          }
+                                          okText={t("confirm.yes")}
+                                          cancelText={t("confirm.no")}
+                                          disabled={inactive}
+                                        >
+                                          <Button
+                                            style={{ display: "inline" }}
+                                            disabled={inactive}
+                                            danger
+                                            aria-label={t(
+                                              "admin.program.edit.form.stopTrackingSegment",
+                                              {
+                                                segment: editForm
+                                                  .getFieldValue([
+                                                    "targets",
+                                                    targetField.name,
+                                                    "tracks",
+                                                    segmentField.name,
+                                                    "categoryValue",
+                                                    "name",
+                                                  ])
+                                                  ?.toLowerCase(),
+                                              }
+                                            )}
+                                            icon={<CloseCircleOutlined />}
+                                            type="text"
+                                          ></Button>
+                                        </Popconfirm>
+                                      </Form.Item>
+                                    </Col>
+                                  </Row>
+                                ))}
+                              <Row justify="end">
+                                <Col>
+                                  <NewStringInput
+                                    disabled={inactive}
+                                    options={(() => {
+                                      const target: Target =
+                                        editForm.getFieldValue([
+                                          "targets",
+                                          targetField.name,
+                                        ]);
+                                      const values =
+                                        catsResponse
+                                          .data!.categories.find(
+                                            (cat) =>
+                                              cat.id === target.category.id
+                                          )
+                                          ?.categoryValues.map((cv) => cv.name) ||
+                                        [];
+                                      return values.filter(
+                                        (value) =>
+                                          !target.tracks.some(
+                                            (segment) =>
+                                              segment.categoryValue.name?.toLowerCase() ===
+                                              value.toLowerCase()
+                                          )
+                                      );
+                                    })()}
+                                    placeholder={t(
+                                      "admin.program.edit.form.addNewSegment",
+                                      {
+                                        category: editForm.getFieldValue([
+                                          "targets",
+                                          targetField.name,
+                                          "category",
+                                          "name",
+                                        ]),
                                       }
                                     )}
-                                    icon={<CloseCircleOutlined />}
-                                    type="text"
+                                    onAdd={(newSegment) => {
+                                      if (newSegment) {
+                                        trackOps.add({
+                                          categoryValue: {
+                                            name: newSegment, category: {
+                                              id: editForm.getFieldValue([
+                                                "targets",
+                                                targetField.name,
+                                                "category",
+                                                "id",
+                                              ])
+                                            }
+                                          },
+                                          targetMember: true,
+                                        });
+                                      }
+                                    }}
                                   />
-                                </Popconfirm>
-                              </Form.Item>
-                            ))}
-                            <Row>
-                              <Col offset={5} span={16}>
-                                <NewStringInput
-                                  disabled={inactive}
-                                  options={(() => {
-                                    const category: CategoryTarget =
-                                      editForm.getFieldValue([
-                                        "targets",
-                                        targetField.name,
-                                      ]);
-                                    const values =
-                                      catsResponse
-                                        .data!.categories.find(
-                                          (cat) =>
-                                            cat.name === category.categoryName
-                                        )
-                                        ?.categoryValues.map((cv) => cv.name) ||
-                                      [];
-                                    return values.filter(
-                                      (value) =>
-                                        !category.segments.some(
-                                          (segment) =>
-                                            segment.categoryValueName.toLowerCase() ===
-                                            value.toLowerCase()
-                                        )
-                                    );
-                                  })()}
-                                  placeholder={t(
-                                    "admin.program.edit.form.addNewSegment",
-                                    {
-                                      category: editForm.getFieldValue([
-                                        "targets",
-                                        targetField.name,
-                                        "categoryName",
-                                      ]),
-                                    }
-                                  )}
-                                  onAdd={(newSegment) => {
-                                    if (newSegment) {
-                                      segmentOps.add({
-                                        categoryValueName: newSegment,
-                                        targetValue: 0,
-                                      });
-                                    }
-                                  }}
-                                />
-                              </Col>
-                            </Row>
-                          </>
-                        )}
-                      </Form.List>
-                    </Col>
-                  </Row>
-                </React.Fragment>
-              ))}
+                                </Col>
+                              </Row>
+                            </>
+                          )}
+                        </Form.List>
+                      </Col>
+                    </Row>
+                  </React.Fragment>
+                ))}
 
               <Row>
                 <Col offset={2} span={20}>
@@ -606,10 +680,8 @@ export const EditProgram = () => {
                         return;
                       }
                       targetOps.add({
-                        categoryId: newCategory.id,
-                        categoryName: newCategory.name,
-                        categoryDescription: newCategory.description,
-                        segments: [],
+                        category: newCategory,
+                        tracks: [],
                       });
                     }}
                   >
@@ -618,8 +690,8 @@ export const EditProgram = () => {
                         (category) =>
                           !(
                             (editForm?.getFieldValue("targets") ||
-                              []) as CategoryTarget[]
-                          ).find((target) => target.categoryId === category.id)
+                              []) as Target[]
+                          ).find((target) => target.category.id === category.id)
                       )
                       .map((category) => (
                         <Select.Option key={category.id} value={category.id}>
@@ -814,6 +886,205 @@ export const EditProgram = () => {
             </Form.List>
           </Col>
         </Row>
+        <Typography.Title level={4} style={{ paddingTop: 48 }}>
+          {t("admin.program.edit.reportingPeriodTitle")}
+        </Typography.Title>
+
+        <Row>
+          <Col offset={2} span={20}>
+            <Form.Item name="reportingPeriodType">
+              <Radio.Group>
+                {
+                  ["monthly", "quarterly", "annual", "custom"].map(
+                    option => (
+                      <Radio key={option} value={option}>{t(option)}</Radio>
+                    )
+                  )
+                }
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row>
+          <Col offset={2} span={20}>
+            <Form.Item
+              wrapperCol={{ span: 24 }}
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues.reportingPeriods !== currentValues.reportingPeriods
+              }
+            >
+              {
+                ({ getFieldValue }) =>
+                  Array.from(
+                    new Set(
+                      (getFieldValue("reportingPeriods") as ReportingPeriod[])
+                        .filter(x => x && x.range)
+                        .flatMap(rp => [rp.range[0].year(), rp.range[1].year()])
+                    )
+                  )
+                    .map((year, i) =>
+                      <Button
+                        key={i}
+                        aria-label={t("admin.program.edit.form.removeReportingPeriodGroup")}
+                        icon={<CloseCircleOutlined />}
+                        size="large"
+                        type="text"
+                        danger
+                        title={t("admin.program.edit.form.removeReportingPeriodGroup")}
+                        onClick={() => {
+                          editForm.setFieldsValue({
+                            reportingPeriods: (getFieldValue("reportingPeriods") as ReportingPeriod[])
+                              .filter(x => !x || !x.range || !x.range || !(x.range[0].year() === year && x.range[1].year() === year))
+                          });
+                          setDirty(true);
+                        }
+                        }
+                      >
+                        {year}
+                      </Button>
+
+                    )
+              }
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.List
+          name="reportingPeriods"
+          rules={[
+            {
+              validator: async (
+                _,
+                reportingPeriods: ReportingPeriod[]
+              ) => {
+                if (reportingPeriods.length === 0) {
+                  return Promise.reject(new Error(
+                    t(
+                      "admin.program.edit.form.validation.needReportingPeriods"
+                    )
+                  ));
+                }
+              }
+            }
+          ]}
+        >
+          {
+            (rpFields, rpOps, errors) =>
+              <>
+                <Row>
+                  <Col offset={2} span={20}>
+                    <Form.ErrorList errors={errors.errors} />
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col offset={2} span={20}>
+                    <List>
+                      {
+                        rpFields.map(({ key, name, fieldKey, ...restField }) => (
+                          <List.Item key={key}>
+                            <Row gutter={16} justify="center" style={{ width: "100%" }}>
+                              <Col span={6}>
+                                <Form.Item
+                                  wrapperCol={{ span: 24 }}
+                                  shouldUpdate={(prevValues, currentValues) =>
+                                    prevValues.reportingPeriodType !== currentValues.reportingPeriodType
+                                  }
+                                >
+                                  {
+                                    ({ getFieldValue }) => {
+                                      switch (getFieldValue('reportingPeriodType')) {
+                                        default: {
+                                          return (
+                                            <Form.Item
+                                              fieldKey={[fieldKey, "range"]}
+                                              name={[name, "range"]}
+                                              rules={[
+                                                { required: true, message: 'Please enter a date range' },
+                                                {
+                                                  validator: (_, value: [moment.Moment, moment.Moment]) => {
+                                                    const overlappingPeriods = (getFieldValue("reportingPeriods") as ReportingPeriod[])
+                                                      .filter(x => x.range &&
+                                                        (value[0].isBetween(x.range[0], x.range[1]) || value[1].isBetween(x.range[0], x.range[1]))
+                                                      );
+                                                    if (value && overlappingPeriods.length) {
+                                                      return Promise.reject(new Error(`
+                                                      ${t(
+                                                        "admin.program.edit.form.validation.overlappingReportingPeriod"
+                                                      )}, ${overlappingPeriods.map(p => p.description)}`
+                                                      ));
+                                                    }
+                                                    else {
+                                                      return Promise.resolve();
+                                                    }
+                                                  }
+                                                }
+                                              ]}
+                                              {...restField}
+                                            >
+                                              <RangePicker />
+                                            </Form.Item>
+                                          )
+                                        }
+
+                                      }
+                                    }
+                                  }
+                                </Form.Item>
+                              </Col>
+                              <Col span={16}>
+                                <Form.Item
+                                  {...restField}
+                                  fieldKey={[fieldKey, "description"]}
+                                  name={[name, "description"]}
+                                  wrapperCol={{ span: 24 }}
+                                  style={{ width: "100%" }}
+                                >
+                                  <Input style={{ width: "100%" }} placeholder="Description"></Input>
+                                </Form.Item>
+                              </Col>
+                              <Col span={2} style={{ textAlign: "right" }}>
+                                <Button
+                                  type="text"
+                                  aria-label={t("admin.program.edit.form.removeReportingPeriod")}
+                                  icon={<CloseCircleOutlined />}
+                                  danger
+                                  title={t("admin.program.edit.form.removeReportingPeriod")}
+                                  onClick={() => rpOps.remove(name)}
+                                />
+                              </Col>
+
+                            </Row>
+                          </List.Item>
+
+                        ))
+                      }
+                    </List>
+
+                  </Col>
+                </Row>
+                <Row>
+                  <Col offset={2} span={20}>
+                    <Form.Item
+                      wrapperCol={{ span: 24 }}
+                      shouldUpdate={(prevValues, currentValues) => prevValues.reportingPeriodType !== currentValues.reportingPeriodType}
+                    >
+                      {
+                        ({ getFieldValue }) =>
+                          <Button
+                            icon={<PlusCircleOutlined />}
+                            onClick={() => onClickAddNewReportingPeriod(getFieldValue('reportingPeriods'), getFieldValue('reportingPeriodType'), rpOps)}
+                          >
+                            {t("admin.program.edit.form.addCustomReportingPeriod")}
+                          </Button>
+                      }
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </>
+          }
+        </Form.List>
+
+
 
         <Row justify="center">
           <Form.Item style={{ paddingTop: 48 }} wrapperCol={{ span: 24 }}>
@@ -849,6 +1120,6 @@ export const EditProgram = () => {
           </Form.Item>
         </Row>
       </Form>
-    </div>
+    </div >
   );
 };

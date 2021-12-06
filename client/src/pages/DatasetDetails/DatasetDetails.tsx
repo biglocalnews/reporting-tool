@@ -1,10 +1,8 @@
 import { Column, ColumnConfig, Pie } from "@ant-design/charts";
-import { PlusOutlined } from "@ant-design/icons";
 import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
 import { Datum } from "@antv/g2plot";
 import { useQuery } from "@apollo/client";
 import {
-  Button,
   Col,
   Collapse,
   DatePicker,
@@ -18,7 +16,7 @@ import moment, { Moment } from "moment";
 import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { IDatasetDetailsFilter } from "../../components/DatasetDetailsFilterProvider";
 import { Loading } from "../../components/Loading/Loading";
 import { PageTitleBar } from "../../components/PageTitleBar";
@@ -30,7 +28,6 @@ import {
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DataEntryTable } from "../DataEntry/DataEntryTable";
-import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 import "./DatasetDetails.css"
 const { TabPane } = Tabs;
@@ -81,7 +78,7 @@ const getTarget = (targetCategory: string) => {
   }
 };
 
-const getPalette = (targetCategory: string) => {
+export const getPalette = (targetCategory: string) => {
   switch (targetCategory) {
     case "Gender":
       return ["rgba(255,51,0,1)", "rgba(46,117,182,1)"];
@@ -96,7 +93,6 @@ const getPalette = (targetCategory: string) => {
 
 const DatasetDetails = (): JSX.Element => {
   const { datasetId } = useParams<RouteParams>();
-  const history = useHistory();
   const { t } = useTranslation();
   const defaultPresetDate = "This Month";
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
@@ -324,11 +320,19 @@ const DatasetDetails = (): JSX.Element => {
       AttributeCount: entry.count,
       PersonType: undefined, //entry.personType?.personTypeName,
       Target: queryData?.dataset.program.targets.find(
-        (target) => target.categoryValue.name === entry.categoryValue.name
+        (target) => target.category.name === entry.categoryValue.category.name
       )?.target,
       Percent: undefined,
     };
   };
+
+  const isTargetMember = (categoryValueId: string) => {
+    return queryData?.dataset.program.targets
+      .flat()
+      .flatMap(x => x.tracks)
+      .find((track) => track.categoryValue.id === categoryValueId)
+      ?.targetMember ?? false
+  }
 
   const sortedRecords = useMemo(() => {
     if (queryData?.dataset?.records) {
@@ -341,12 +345,7 @@ const DatasetDetails = (): JSX.Element => {
           ...x,
           entries: Array.from(x.entries).sort(
             (a, b) =>
-              (queryData.dataset.program.targets.find(
-                (target) => target.categoryValue.id === a.categoryValue.id
-              )?.target ?? 0) -
-              (queryData.dataset.program.targets.find(
-                (target) => target.categoryValue.id === b.categoryValue.id
-              )?.target ?? 0)
+              Number(isTargetMember(a.categoryValue.id)) - Number(isTargetMember(b.categoryValue.id))
           ),
         }));
     }
@@ -386,9 +385,9 @@ const DatasetDetails = (): JSX.Element => {
           target,
           undefined,
           queryData?.dataset?.program.targets
-            .filter(
-              (x) => x.target > 0 && x.categoryValue.category.name === target
-            )
+            .find((x) => x.category.name === target)
+            ?.tracks
+            .filter(x => x.targetMember)
             .map((x) => x.categoryValue.name) ?? new Array<string>()
         )
         : 0;
@@ -585,87 +584,81 @@ const DatasetDetails = (): JSX.Element => {
 
   return (
     <div className="dataset-details_container">
-      <PageTitleBar
-        title={queryData?.dataset?.program.name}
-        subtitle={queryData?.dataset?.name}
-        extra={[
-          <Button
-            key="1"
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => history.push(`/dataset/${datasetId}/entry`)}
-          >
-            {t("addData")}
-          </Button >,
-        ]}
-      />
-      <Tabs defaultActiveKey={progressCharts ? "progress" : "current"} tabBarExtraContent={dateRangePicker}>
+      <Row gutter={[0, 40]}>
+        <Col span={24}>
+          <PageTitleBar
+            title={queryData?.dataset?.program.name}
+            subtitle={queryData?.dataset?.name}
 
-        <TabPane tab="Progress" key="progress">
-          <h2>{presetDate}</h2>
-          <Row justify="center">
-            {
-              targetStates.map((target, i) => (
-                <Col key={target.name} span={4} offset={i ? 4 : 0}>
-                  {!isNaN(target.status) ? (
-                    <Pie {...generatePieConfig(target)} />
-                  ) : (
-                    noDataAvailable()
-                  )}
-                  <h2 style={{ textAlign: "center" }}>{target.name}</h2>
-                </Col>
-              ))
-            }
-          </Row>
-          <Collapse>
-            <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
-              {
-                <Row justify="center">
-                  {
-                    progressCharts && progressCharts.length ? progressCharts.map(
-                      (config, i) =>
-                        <Col span={4} offset={i ? 4 : 0} key={i}>
+          />
+        </Col>
+
+        <Col span={24}>
+          <Tabs defaultActiveKey={progressCharts ? "progress" : "current"} tabBarExtraContent={dateRangePicker}>
+
+            <TabPane tab="Progress" key="progress">
+              <h2>{presetDate}</h2>
+              <Row justify="center">
+                {
+                  targetStates.map((target, i) => (
+                    <Col key={target.name} span={4} offset={i ? 4 : 0}>
+                      {!isNaN(target.status) ? (
+                        <Pie {...generatePieConfig(target)} />
+                      ) : (
+                        noDataAvailable()
+                      )}
+                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                    </Col>
+                  ))
+                }
+              </Row>
+              <Row>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
+                      {
+                        <Row justify="center">
                           {
-                            config && Object.keys(config).length ? <Column {...config} /> : null
+                            progressCharts && progressCharts.length ? progressCharts.map(
+                              (config, i) =>
+                                <Col span={4} offset={i ? 4 : 0} key={i}>
+                                  {
+                                    config && Object.keys(config).length ? <Column {...config} /> : null
+                                  }
+                                </Col>
+
+                            ) : noDataAvailable()
                           }
-                        </Col>
-
-                    ) : noDataAvailable()
-                  }
+                        </Row>
+                      }
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+            </TabPane>
+            <TabPane tab="Details">
+              {filteredRecords?.length ? (
+                <Row>
+                  <Col span={24}>
+                    <DatasetDetailsScoreCard
+                      data={queryData}
+                      datasetId={datasetId}
+                      filteredRecords={filteredRecords}
+                    />
+                  </Col>
                 </Row>
-              }
-            </Panel>
-          </Collapse>
-
-        </TabPane>
-        <TabPane tab="Details">
-          {filteredRecords?.length ? (
-            <Space direction="vertical">
-              <DatasetDetailsScoreCard
-                data={queryData}
-                datasetId={datasetId}
-                filteredRecords={filteredRecords}
-              />
-
-              <DatasetDetailsRecordsTable
-                datasetId={datasetId}
-                datasetData={queryData}
-                records={filteredRecords}
-                isLoading={queryLoading}
-              />
-            </Space>
-          ) : (
-            noDataAvailable()
-          )}
-        </TabPane>
-      </Tabs>
-
-      <DataEntryTable 
-        datasetId={datasetId}
-        datasetData={queryData}
-        records={filteredRecords}
-        isLoading={queryLoading}
-      />
+              ) : (
+                noDataAvailable()
+              )}
+            </TabPane>
+          </Tabs>
+        </Col>
+        <Col span={24}>
+          <DataEntryTable
+            id={datasetId}
+          />
+        </Col>
+      </Row>
     </div >
   );
 };

@@ -25,7 +25,7 @@ import {
   AdminGetProgram,
   AdminGetProgramVariables,
 } from "../../graphql/__generated__/AdminGetProgram";
-import { CreateProgramInput } from "../../graphql/__generated__/globalTypes";
+import { CreateProgramInput, ReportingPeriodType } from "../../graphql/__generated__/globalTypes";
 import { ADMIN_CREATE_PROGRAM } from "../../graphql/__mutations__/AdminCreateProgram.gql";
 import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
@@ -38,6 +38,7 @@ export type CreateProgramFormValues = {
   name: string;
   team: string;
   basedOn?: string;
+  reportingPeriodType: ReportingPeriodType;
 };
 
 export type CreateProgramProps = {
@@ -82,6 +83,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
     let newProgram: CreateProgramInput = {
       name: values.name,
       teamId: values.team,
+      reportingPeriodType: values.reportingPeriodType
     };
 
     try {
@@ -101,17 +103,18 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         // future updates to each program / target will have to be made
         // independently.
         const targets = progResponse.data.program.targets.map((target) => ({
-          categoryValue: {
-            id: target.categoryValue.id,
-            category: {
-              id: target.categoryValue.category.id,
-            },
-          },
-          target: target.target,
+          category: { id: target.category.id, name: target.category.name, description: target.category.description },
+          tracks: target.tracks.map((track) => ({
+            categoryValue: { id: track.categoryValue.id, name: track.categoryValue.name, category: { id: target.category.id } },
+            targetMember: track.targetMember
+          })),
+          target: target.target
         }));
 
+        const reportingPeriodType = progResponse.data.program.reportingPeriodType;
+
         // Revise the program input to include the targets.
-        newProgram = { ...newProgram, targets };
+        newProgram = { ...newProgram, targets, reportingPeriodType };
       }
 
       // Issue the creation request and handle errors.

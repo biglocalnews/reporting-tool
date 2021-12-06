@@ -53,38 +53,38 @@ def run():
         lara_admin.roles.append(admin)
         session.add(lara_admin)
 
-    susanne_id = "1d492c1c-426c-44ba-9cee-2e565e868dc1"
-    susanne_db = session.query(User).get(susanne_id)
-    if not susanne_db:
-        susanne = User(
-            id=susanne_id,
-            email="susannetester@test.com",
-            username="susannetester@test.com",
+    daniel_id = "1d492c1c-426c-44ba-9cee-2e565e868dc1"
+    daniel_db = session.query(User).get(daniel_id)
+    if not daniel_db:
+        daniel = User(
+            id=daniel_id,
+            email="danieltester@test.com",
+            username="danieltester@test.com",
             hashed_password=hash_test_password("password"),
-            first_name="Susanne",
+            first_name="Daniel",
             last_name="Weber",
             last_changed_password=datetime.datetime.now(),
             last_login=datetime.datetime.now(),
         )
-        session.add(susanne)
+        session.add(daniel)
 
     # Admin user
-    susanne_admin_id = "38eb8ce1-8456-4ae0-b77c-9bf0d81b6a40"
-    susanne_admin_db = session.query(User).get(susanne_admin_id)
-    if not susanne_admin_db:
-        susanne_admin = User(
-            id=susanne_admin_id,
-            email="susanneadmintester@test.com",
-            username="susanneadmintester@test.com",
+    daniel_admin_id = "38eb8ce1-8456-4ae0-b77c-9bf0d81b6a40"
+    daniel_admin_db = session.query(User).get(daniel_admin_id)
+    if not daniel_admin_db:
+        daniel_admin = User(
+            id=daniel_admin_id,
+            email="danieladmintester@test.com",
+            username="danieladmintester@test.com",
             hashed_password=hash_test_password("password"),
-            first_name="Susanne",
+            first_name="Daniel",
             last_name="Weber",
             last_changed_password=datetime.datetime.now(),
             last_login=datetime.datetime.now(),
         )
         admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-        susanne_admin.roles.append(admin)
-        session.add(susanne_admin)
+        daniel_admin.roles.append(admin)
+        session.add(daniel_admin)
 
     yasmin_id = "4f56c00d-c41a-45e6-b356-ac579f3f61da"
     yasmin_db = session.query(User).get(yasmin_id)

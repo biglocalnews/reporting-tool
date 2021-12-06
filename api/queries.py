@@ -2,7 +2,8 @@ from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
 from database import (
     Dataset,
-    # PublishedRecordSet,
+    PublishedRecordSet,
+    ReportingPeriod,
     User,
     Record,
     Category,
@@ -282,7 +283,6 @@ def resolve_person_types(obj, info):
     return session.query(PersonType).order_by(PersonType.person_type_name.asc()).all()
 
 
-"""
 @query.field("publishedRecordSet")
 def resolve_published_record_set(obj, info, id):
     session = info.context["dbsession"]
@@ -295,4 +295,17 @@ def resolve_published_record_sets(obj, info):
     session = info.context["dbsession"]
     record_sets = session.query(PublishedRecordSet).all()
     return record_sets
-"""
+
+
+@query.field("reportingPeriod")
+def resolve_reporting_period(obj, info, id):
+    session = info.context["dbsession"]
+    rp = session.query(ReportingPeriod).get(id)
+    return rp
+
+
+@query.field("reportingPeriods")
+def resolve_reporting_periods(obj, info):
+    session = info.context["dbsession"]
+    rps = session.query(ReportingPeriod).all()
+    return rps

@@ -7,13 +7,26 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum ReportingPeriodType {
+  annual = "annual",
+  custom = "custom",
+  monthly = "monthly",
+  quarterly = "quarterly",
+}
+
 export interface BaseCategoryInput {
   readonly id: string;
 }
 
+export interface CategoryInput {
+  readonly id?: string | null;
+  readonly name: string;
+  readonly description: string;
+}
+
 export interface CategoryValueInput {
   readonly id?: string | null;
-  readonly name?: string | null;
+  readonly name: string;
   readonly category: BaseCategoryInput;
 }
 
@@ -24,15 +37,17 @@ export interface CreateProgramInput {
   readonly targets?: ReadonlyArray<TargetInput> | null;
   readonly tags?: ReadonlyArray<TagInput> | null;
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
+  readonly reportingPeriodType: ReportingPeriodType;
+  readonly reportingPeriods?: ReadonlyArray<ReportingPeriodInput> | null;
 }
 
 export interface CreatePublishedRecordSetInput {
   readonly datasetId: string;
-  readonly month: number;
-  readonly year: number;
-  readonly record?: ReadonlyArray<(RecordSetEntryInput | null)> | null;
-  readonly targets?: ReadonlyArray<(RecordSetTargetInput | null)> | null;
-  readonly tags?: ReadonlyArray<(string | null)> | null;
+  readonly begin: any;
+  readonly end: any;
+  readonly record: ReadonlyArray<RecordSetEntryInput>;
+  readonly targets: ReadonlyArray<(RecordSetTargetInput | null)>;
+  readonly tags: ReadonlyArray<(string | null)>;
 }
 
 export interface CreateRecordInput {
@@ -51,7 +66,7 @@ export interface CreateTeamInput {
 export interface EntryInput {
   readonly id?: string | null;
   readonly categoryValueId: string;
-  readonly count: number;
+  readonly count?: number | null;
   readonly personTypeId?: string | null;
 }
 
@@ -76,6 +91,15 @@ export interface RecordSetTargetInput {
   readonly attributes: ReadonlyArray<string>;
 }
 
+export interface ReportingPeriodInput {
+  readonly id?: string | null;
+  readonly programId: string;
+  readonly range?: ReadonlyArray<any> | null;
+  readonly begin?: any | null;
+  readonly end?: any | null;
+  readonly description?: string | null;
+}
+
 export interface TagInput {
   readonly id?: string | null;
   readonly name?: string | null;
@@ -85,8 +109,16 @@ export interface TagInput {
 
 export interface TargetInput {
   readonly id?: string | null;
-  readonly target?: number | null;
-  readonly categoryValue?: CategoryValueInput | null;
+  readonly target: number;
+  readonly targetDate?: any | null;
+  readonly category: CategoryInput;
+  readonly tracks: ReadonlyArray<TrackInput>;
+}
+
+export interface TrackInput {
+  readonly id?: string | null;
+  readonly categoryValue: CategoryValueInput;
+  readonly targetMember: boolean;
 }
 
 export interface UpdateProgramInput {
@@ -97,6 +129,8 @@ export interface UpdateProgramInput {
   readonly targets?: ReadonlyArray<TargetInput> | null;
   readonly tags?: ReadonlyArray<TagInput> | null;
   readonly datasets?: ReadonlyArray<UpsertDatasetInput> | null;
+  readonly reportingPeriodType: ReportingPeriodType;
+  readonly reportingPeriods?: ReadonlyArray<ReportingPeriodInput> | null;
 }
 
 export interface UpdateRecordInput {
