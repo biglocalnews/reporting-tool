@@ -58,7 +58,7 @@ export const DataEntryTable = (props: IProps) => {
             }
         }
     );
-    const [saveRecord, { loading: updateRecordloading, error: updateRecordError }] = useMutation<UpdateRecordInput>(UPDATE_RECORD, {
+    const [saveRecord,] = useMutation<UpdateRecordInput>(UPDATE_RECORD, {
         refetchQueries: [
             {
                 query: GET_DATASET,
@@ -123,8 +123,7 @@ export const DataEntryTable = (props: IProps) => {
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         attributeCategory: string,
-        personType: GetRecord_record_entries_personType,
-        i: number) =>
+        personType: GetRecord_record_entries_personType) =>
         getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
@@ -138,7 +137,7 @@ export const DataEntryTable = (props: IProps) => {
             .concat(currentTrackedAttributes(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
-                title: x.name,
+                title: t(x.name),
                 dataIndex: x.name,
                 key: x.name,
                 render: function pd(entry: ITableEntry, record: ITableRow) {
@@ -151,9 +150,8 @@ export const DataEntryTable = (props: IProps) => {
                             elementId: `${record.id}-${personType}-${x.name}`
                         }
                     }
-                    const index = i + record.index;
                     const save = async () => {
-                        if (!selectedForInput) return;
+                        if (!selectedForInput || selectedForInput.count === undefined || selectedForInput.count === null) return;
                         const { elementId, ...entryInput } = selectedForInput;
                         //remove elementId and keep linter happy by using it!
                         elementId;
@@ -178,16 +176,18 @@ export const DataEntryTable = (props: IProps) => {
                             })
                         await promise
                             .catch((e) => setSelectedForInput(() => alert(e) as undefined))
-                            .finally(() => setSelectedForInput(undefined));
+                            .finally(() => setSelectedForInput((curr) => curr?.id === entry.id ? undefined : curr));
 
                     }
                     return selectedForInput?.elementId === entry.elementId ?
                         <InputNumber
+                            tabIndex={0}
+                            autoFocus={true}
                             min={0}
-                            tabIndex={index}
                             style={{ width: "60px" }}
                             value={selectedForInput?.count === null ? undefined : selectedForInput?.count}
-                            title={record.date}
+                            title={`${t("numberOf")} ${t(x.name)}`}
+                            aria-label={`${t("numberOf")} ${t(x.name)}`}
                             onChange={(e) => setSelectedForInput({
                                 ...entry,
                                 count: e === undefined ? undefined : e
@@ -196,8 +196,10 @@ export const DataEntryTable = (props: IProps) => {
                             onBlur={() => save()}
                         /> :
                         <div
-                            tabIndex={index}
+                            tabIndex={0}
                             role="button"
+                            title={`${t("numberOf")} ${t(x.name)}`}
+                            aria-label={`${t("numberOf")} ${t(x.name)}`}
                             onKeyDown={() => setSelectedForInput(entry)}
                             onClick={() => setSelectedForInput(entry)}
                             onFocus={() => setSelectedForInput(entry)}
@@ -214,9 +216,9 @@ export const DataEntryTable = (props: IProps) => {
             .map(x => x.categoryValue.category.name)
             .filter(x => !currentTrackedAttributeCategories.includes(x))
             .concat(currentTrackedAttributeCategories)
-            .map((attributeCategory, i) => ({
+            .map((attributeCategory) => ({
                 title: attributeCategory,
-                children: getChildren(reportingPeriod, attributeCategory, personType, i)
+                children: getChildren(reportingPeriod, attributeCategory, personType)
             }));
 
     const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods, personType: GetRecord_record_entries_personType) => {
@@ -260,22 +262,24 @@ export const DataEntryTable = (props: IProps) => {
 
     const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().subtract(1, "day").unix(), date.unix()));
 
-    return (
+    const getReportingPeriods = getDatasetData.dataset.program.reportingPeriods?.
+        filter(x => x.range)
+        .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
+
+    return getReportingPeriods?.length ?
         <Tabs
             tabPosition="left"
-            tabBarExtraContent={{ left: <b>{t("Reporting Periods")}</b> }}
+            centered
+            tabBarExtraContent={{ left: <div style={{ minHeight: "6em" }} /> }}
         >
             {
-                getDatasetData.dataset.program
-                    .reportingPeriods?.
-                    filter(x => x.range)
-                    .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix())
-                    .map((reportingPeriod, i) =>
+                getReportingPeriods?.
+                    map((reportingPeriod, i) =>
                         <TabPane
                             tab={`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
                             key={i}
                         >
-                            <Row key={i}>
+                            <Row>
                                 <Col span={24} style={{ display: "flex" }}>
                                     <h2>{reportingPeriod.description}</h2>
                                     <div style={{ flexGrow: 1 }} />
@@ -309,8 +313,11 @@ export const DataEntryTable = (props: IProps) => {
                                                             {
                                                                 render: function d(record) {
                                                                     return <Button
+                                                                        tabIndex={-1}
                                                                         type="text"
                                                                         danger
+                                                                        title={t("deleteRecord")}
+                                                                        aria-label={t("deleteRecord")}
                                                                         icon={<CloseCircleOutlined />}
                                                                         onClick={async () => await deleteRecord({
                                                                             variables: {
@@ -345,6 +352,8 @@ export const DataEntryTable = (props: IProps) => {
                                                                     }
                                                                     if (selectedForRowInput?.id === record.id) {
                                                                         return <DatePicker
+                                                                            aria-label={t("recordDate")}
+                                                                            tabIndex={0}
                                                                             value={moment(selectedForRowInput.date)}
                                                                             onChange={(e) => e && setSelectedForRowInput({
                                                                                 ...record,
@@ -354,7 +363,9 @@ export const DataEntryTable = (props: IProps) => {
                                                                         />
                                                                     }
                                                                     return <div
-                                                                        tabIndex={i}
+                                                                        title={t("recordDate")}
+                                                                        aria-label={t("recordDate")}
+                                                                        tabIndex={0}
                                                                         role="button"
                                                                         onKeyDown={() => setSelectedForRowInput(record)}
                                                                         onClick={() => setSelectedForRowInput(record)}
@@ -380,12 +391,5 @@ export const DataEntryTable = (props: IProps) => {
                         </TabPane >
 
                     )}
-            {
-                updateRecordError && <p>{updateRecordError.message}</p>
-            }
-            {
-                updateRecordloading && <p>Saving record..</p>
-            }
-        </Tabs >
-    )
+        </Tabs > : <p>No reporting periods configured</p>
 }

@@ -1,6 +1,6 @@
-import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Space, Table, Tag } from "antd";
+import { Button, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -68,26 +68,19 @@ const columns: ColumnsType<TableData> = [
   {
     dataIndex: "id",
     width: 250,
+    align: "center",
     render: function btn(datasetId: string) {
       return (
-        <Space>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/entry`,
-            }}
-          >
-            <Button type="primary" icon={<PlusOutlined />}>
-              Add Data
-            </Button>
-          </Link>
-          <Link
-            to={{
-              pathname: `/dataset/${datasetId}/details`,
-            }}
-          >
-            <Button icon={<InfoCircleOutlined />}>View Details</Button>
-          </Link>
-        </Space>
+
+
+        <Link
+          to={{
+            pathname: `/dataset/${datasetId}/details`,
+          }}
+        >
+          <Button icon={<InfoCircleOutlined />}>View Details</Button>
+        </Link>
+
       );
     },
   },
