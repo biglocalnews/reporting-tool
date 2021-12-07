@@ -12,6 +12,7 @@
   "recordDate": "Date of record",
   "numberOf": "Number of",
   "reportingPeriod": "Reporting Period",
+  "unknownPersonType": "Default Person Type",
   "deleteRecord": "Delete Record",
   "goToDataset": "Go to Dataset",
   "addMoreData": "Add More Data",

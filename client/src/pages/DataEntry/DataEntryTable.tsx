@@ -110,7 +110,8 @@ export const DataEntryTable = (props: IProps) => {
 
     const mergedPersonTypes = personTypeArrayFromDataset
         .filter(x => !personTypeArrayFromRecords.some(y => y?.personTypeName === x.personTypeName))
-        .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[]);
+        .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
+        .map(x => ({ id: x.id, personTypeName: x.personTypeName }));
 
     const currentTrackedAttributesByCategory = (attributeCategory: string) => getDatasetData.dataset.program.targets
         .filter(x => x.category.name === attributeCategory)
@@ -127,7 +128,7 @@ export const DataEntryTable = (props: IProps) => {
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         attributeCategory: string,
-        personType: GetRecord_record_entries_personType) =>
+        personType: { id: string | undefined, personTypeName: string }) =>
         getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
@@ -214,7 +215,8 @@ export const DataEntryTable = (props: IProps) => {
                 }
             }));
 
-    const getColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods, personType: GetRecord_record_entries_personType) =>
+    const getColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
+        personType: { id: string | undefined, personTypeName: string }) =>
         getDatasetData.dataset.records
             .flatMap(x => x.entries)
             .map(x => x.categoryValue.category.name)
@@ -225,7 +227,8 @@ export const DataEntryTable = (props: IProps) => {
                 children: getChildren(reportingPeriod, attributeCategory, personType)
             }));
 
-    const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods, personType: GetRecord_record_entries_personType) => {
+    const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
+        personType: { id: string | undefined, personTypeName: string }) => {
         const tableData = getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
@@ -320,88 +323,89 @@ export const DataEntryTable = (props: IProps) => {
                                 <Col span={24}>
                                     <Tabs centered={true}>
                                         {
-                                            mergedPersonTypes.map(personType =>
-                                                <TabPane tab={personType.personTypeName} key={personType.id}>
-                                                    <Table
-                                                        pagination={false}
-                                                        scroll={{ x: "max-content" }}
-                                                        key={i}
-                                                        columns={[
-                                                            {
-                                                                render: function d(record) {
-                                                                    return <Button
-                                                                        tabIndex={-1}
-                                                                        type="text"
-                                                                        danger
-                                                                        title={t("deleteRecord")}
-                                                                        aria-label={t("deleteRecord")}
-                                                                        icon={<CloseCircleOutlined />}
-                                                                        onClick={async () => await deleteRecord({
-                                                                            variables: {
-                                                                                id: record.id
-                                                                            }
-                                                                        })
-                                                                            .then(() => console.log("Deleted!"))
-                                                                            .catch((e) => alert(e))
-                                                                        }
-                                                                    />
-                                                                }
-                                                            },
-                                                            {
-                                                                title: "Date",
-                                                                dataIndex: "date",
-                                                                key: "date",
-                                                                render: function pd(text, record: ITableRow) {
-                                                                    const save = async () => {
-                                                                        if (!selectedForRowInput) return;
-                                                                        const promise = saveRecord({
-                                                                            variables: {
-                                                                                input: {
-                                                                                    id: selectedForRowInput.id,
-                                                                                    publicationDate: selectedForRowInput.date
+                                            (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
+                                                .map(personType =>
+                                                    <TabPane tab={personType.personTypeName} key={personType.id}>
+                                                        <Table
+                                                            pagination={false}
+                                                            scroll={{ x: "max-content" }}
+                                                            key={i}
+                                                            columns={[
+                                                                {
+                                                                    render: function d(record) {
+                                                                        return <Button
+                                                                            tabIndex={-1}
+                                                                            type="text"
+                                                                            danger
+                                                                            title={t("deleteRecord")}
+                                                                            aria-label={t("deleteRecord")}
+                                                                            icon={<CloseCircleOutlined />}
+                                                                            onClick={async () => await deleteRecord({
+                                                                                variables: {
+                                                                                    id: record.id
                                                                                 }
+                                                                            })
+                                                                                .then(() => console.log("Deleted!"))
+                                                                                .catch((e) => alert(e))
                                                                             }
-                                                                        })
-                                                                        await promise
-                                                                            .catch((e) => setSelectedForRowInput(() => alert(e) as undefined))
-                                                                            .finally(() => setSelectedForRowInput(undefined));
-
-                                                                    }
-                                                                    if (selectedForRowInput?.id === record.id) {
-                                                                        return <DatePicker
-                                                                            aria-label={t("recordDate")}
-                                                                            tabIndex={0}
-                                                                            value={moment(selectedForRowInput.date)}
-                                                                            onChange={(e) => e && setSelectedForRowInput({
-                                                                                ...record,
-                                                                                date: e.toISOString()
-                                                                            })}
-                                                                            onBlur={() => save()}
                                                                         />
                                                                     }
-                                                                    return <div
-                                                                        title={t("recordDate")}
-                                                                        aria-label={t("recordDate")}
-                                                                        tabIndex={0}
-                                                                        role="button"
-                                                                        onKeyDown={() => setSelectedForRowInput(record)}
-                                                                        onClick={() => setSelectedForRowInput(record)}
-                                                                        onFocus={() => setSelectedForRowInput(record)}
-                                                                    >
-                                                                        {moment(text).format("D MMM YYYY")}
-                                                                    </div>
-                                                                    return;
                                                                 },
-                                                                sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
-                                                                sortDirections: ['ascend', 'descend'],
-                                                            },
-                                                            ...getColumns(reportingPeriod, personType)
-                                                        ]}
-                                                        dataSource={getTableData(reportingPeriod, personType)}
-                                                    >
-                                                    </Table>
-                                                </TabPane>
-                                            )}
+                                                                {
+                                                                    title: "Date",
+                                                                    dataIndex: "date",
+                                                                    key: "date",
+                                                                    render: function pd(text, record: ITableRow) {
+                                                                        const save = async () => {
+                                                                            if (!selectedForRowInput) return;
+                                                                            const promise = saveRecord({
+                                                                                variables: {
+                                                                                    input: {
+                                                                                        id: selectedForRowInput.id,
+                                                                                        publicationDate: selectedForRowInput.date
+                                                                                    }
+                                                                                }
+                                                                            })
+                                                                            await promise
+                                                                                .catch((e) => setSelectedForRowInput(() => alert(e) as undefined))
+                                                                                .finally(() => setSelectedForRowInput(undefined));
+
+                                                                        }
+                                                                        if (selectedForRowInput?.id === record.id) {
+                                                                            return <DatePicker
+                                                                                aria-label={t("recordDate")}
+                                                                                tabIndex={0}
+                                                                                value={moment(selectedForRowInput.date)}
+                                                                                onChange={(e) => e && setSelectedForRowInput({
+                                                                                    ...record,
+                                                                                    date: e.toISOString()
+                                                                                })}
+                                                                                onBlur={() => save()}
+                                                                            />
+                                                                        }
+                                                                        return <div
+                                                                            title={t("recordDate")}
+                                                                            aria-label={t("recordDate")}
+                                                                            tabIndex={0}
+                                                                            role="button"
+                                                                            onKeyDown={() => setSelectedForRowInput(record)}
+                                                                            onClick={() => setSelectedForRowInput(record)}
+                                                                            onFocus={() => setSelectedForRowInput(record)}
+                                                                        >
+                                                                            {moment(text).format("D MMM YYYY")}
+                                                                        </div>
+                                                                        return;
+                                                                    },
+                                                                    sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
+                                                                    sortDirections: ['ascend', 'descend'],
+                                                                },
+                                                                ...getColumns(reportingPeriod, personType)
+                                                            ]}
+                                                            dataSource={getTableData(reportingPeriod, personType)}
+                                                        >
+                                                        </Table>
+                                                    </TabPane>
+                                                )}
                                     </Tabs>
                                 </Col>
                             </Row>

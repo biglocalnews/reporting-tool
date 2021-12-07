@@ -83,7 +83,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
     let newProgram: CreateProgramInput = {
       name: values.name,
       teamId: values.team,
-      reportingPeriodType: values.reportingPeriodType
+      reportingPeriodType: ReportingPeriodType.monthly
     };
 
     try {

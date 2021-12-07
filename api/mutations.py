@@ -426,15 +426,11 @@ def resolve_update_program(obj, info, input):
         # actual sql alchemy entities
 
         for target_input in input.pop("targets"):
-
             category_input = target_input.pop("category")
-            tracks_input = target_input.pop("tracks")
-
-            target = Target.get_or_create(session, program.id, target_input)
-
             c = Category.get_or_create(session, category_input)
+            tracks_input = target_input.pop("tracks")
+            target = Target.get_or_create(session, program.id, target_input, c.id)
             target.category = c
-
             for track_input in tracks_input:
                 cv_input = track_input.pop("category_value")
                 cv = CategoryValue.get_or_create(session, cv_input)

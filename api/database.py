@@ -446,12 +446,12 @@ class Target(Base, PermissionsMixin):
         )
 
     @classmethod
-    def get_or_create(self, session, prog_id, target_dict) -> "Target":
+    def get_or_create(self, session, prog_id, target_dict, category_id) -> "Target":
         if "id" in target_dict:
             target_dict["id"] = uuid.UUID(target_dict["id"])
         else:
             existing_target = self.get_by_programme_category(
-                session, prog_id, target_dict["category"]["id"]
+                session, prog_id, category_id
             )
             if existing_target:
                 target_dict = {"id": existing_target.id}
