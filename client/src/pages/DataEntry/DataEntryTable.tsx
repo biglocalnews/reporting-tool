@@ -116,6 +116,7 @@ export const DataEntryTable = (props: IProps) => {
     const mergedPersonTypes = personTypeArrayFromDataset
         .filter(x => !personTypeArrayFromRecords.some(y => y?.personTypeName === x.personTypeName))
         .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
+        .filter(x => x)
         .map(x => ({ id: x.id, personTypeName: x.personTypeName }));
 
     const currentTrackedAttributesByCategory = (attributeCategory: string) => getDatasetData.dataset.program.targets
