@@ -36,6 +36,11 @@ interface ITableEntry extends EntryInput {
     elementId: string
 }
 
+interface IPersonType {
+    personTypeName: string,
+    id: string | undefined
+}
+
 export const getColumnClassName = (targetCategory: string) => {
     switch (targetCategory) {
         case "Gender":
@@ -128,7 +133,7 @@ export const DataEntryTable = (props: IProps) => {
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         attributeCategory: string,
-        personType: { id: string | undefined, personTypeName: string }) =>
+        personType: IPersonType) =>
         getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
@@ -216,7 +221,7 @@ export const DataEntryTable = (props: IProps) => {
             }));
 
     const getColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
-        personType: { id: string | undefined, personTypeName: string }) =>
+        personType: IPersonType) =>
         getDatasetData.dataset.records
             .flatMap(x => x.entries)
             .map(x => x.categoryValue.category.name)
@@ -228,7 +233,7 @@ export const DataEntryTable = (props: IProps) => {
             }));
 
     const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
-        personType: { id: string | undefined, personTypeName: string }) => {
+        personType: IPersonType) => {
         const tableData = getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
@@ -324,7 +329,7 @@ export const DataEntryTable = (props: IProps) => {
                                     <Tabs centered={true}>
                                         {
                                             (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
-                                                .map(personType =>
+                                                .map((personType: IPersonType) =>
                                                     <TabPane tab={personType.personTypeName} key={personType.id}>
                                                         <Table
                                                             pagination={false}
