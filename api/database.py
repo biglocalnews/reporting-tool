@@ -671,7 +671,7 @@ class Dataset(Base, PermissionsMixin):
     program = relationship("Program", back_populates="datasets")
     program_id = Column(GUID, ForeignKey("program.id"), index=True)
     records = relationship("Record")
-    published_record_sets = relationship("PublishedRecordSet")
+
     tags = relationship("Tag", secondary=dataset_tags, back_populates="datasets")
     person_types = relationship(
         "PersonType",
@@ -735,8 +735,14 @@ class ReportingPeriod(Base, PermissionsMixin):
     __tablename__ = "reporting_period"
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+
     program = relationship("Program", back_populates="reporting_periods")
     program_id = Column(GUID, ForeignKey("program.id"), index=True)
+
+    published_record_set = relationship(
+        "PublishedRecordSet", back_populates="reporting_period", uselist=False
+    )
+
     begin = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
     description = Column(String)
@@ -891,13 +897,15 @@ class PublishedRecordSet(Base, PermissionsMixin):
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
 
-    dataset = relationship("Dataset", back_populates="published_record_sets")
-    dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True, nullable=False)
+    reporting_period = relationship("ReportingPeriod")
+    reporting_period_id = Column(
+        GUID, ForeignKey("reporting_period.id"), index=True, nullable=False
+    )
 
     begin = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
 
-    __table_args__ = (UniqueConstraint("dataset_id", "begin", "end"),)
+    __table_args__ = (UniqueConstraint("reporting_period_id"),)
 
     team = Column(String)
     programme = Column(String)
@@ -957,7 +965,7 @@ def create_tables(session):
     session.add(
         Category(
             id="2f98f223-417f-41ea-8fdb-35f0c5fe5b41",
-            name="race / ethnicity",
+            name="ethnicity",
             description=(
                 "Race & Ethnicity: Social constructs that categorize groups of "
                 "people based on shared social and physical qualities. Definitions "

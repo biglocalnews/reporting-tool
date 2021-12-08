@@ -66,11 +66,18 @@ export interface GetDataset_dataset_program_reportingPeriods {
   readonly description: string | null;
 }
 
+export interface GetDataset_dataset_program_tags {
+  readonly __typename: "Tag";
+  readonly name: string;
+  readonly tagType: string;
+}
+
 export interface GetDataset_dataset_program {
   readonly __typename: "Program";
   readonly name: string;
   readonly targets: ReadonlyArray<GetDataset_dataset_program_targets>;
   readonly reportingPeriods: ReadonlyArray<GetDataset_dataset_program_reportingPeriods> | null;
+  readonly tags: ReadonlyArray<GetDataset_dataset_program_tags>;
 }
 
 export interface GetDataset_dataset_records_entries_categoryValue_category {
@@ -108,6 +115,12 @@ export interface GetDataset_dataset_records {
   readonly entries: ReadonlyArray<GetDataset_dataset_records_entries>;
 }
 
+export interface GetDataset_dataset_tags {
+  readonly __typename: "Tag";
+  readonly name: string;
+  readonly tagType: string;
+}
+
 export interface GetDataset_dataset {
   readonly __typename: "Dataset";
   readonly id: string;
@@ -117,6 +130,7 @@ export interface GetDataset_dataset {
   readonly sumOfCategoryValueCounts: ReadonlyArray<GetDataset_dataset_sumOfCategoryValueCounts>;
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
+  readonly tags: ReadonlyArray<GetDataset_dataset_tags>;
 }
 
 export interface GetDataset {

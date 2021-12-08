@@ -33,17 +33,21 @@ export const GET_DATASET = gql`
               description
           }
           tracks {
-          targetMember
-          categoryValue {
-            id
-            name
+            targetMember
+            categoryValue {
+              id
+              name
+            }
           }
         }
+        reportingPeriods {
+          range
+          description
         }
-      reportingPeriods {
-        range
-        description
-      }
+        tags {
+          name
+          tagType
+        }
       }
       records {
         id
@@ -65,6 +69,10 @@ export const GET_DATASET = gql`
             personTypeName
           }
         }
+      }
+      tags {
+        name
+        tagType
       }
     }
   }

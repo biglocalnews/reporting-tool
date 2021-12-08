@@ -7,12 +7,12 @@ import { GET_DATASET } from '../../graphql/__queries__/GetDataset.gql';
 import { UPDATE_RECORD } from '../../graphql/__mutations__/UpdateRecord.gql';
 
 import {
-    GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_records_entries_categoryValue
+    GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_program_targets_category, GetDataset_dataset_records_entries_categoryValue
 } from "../../graphql/__generated__/GetDataset";
 
 import { CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
-import { Button, Col, DatePicker, InputNumber, Row, Table, Tabs } from 'antd';
+import { Button, Col, DatePicker, InputNumber, Modal, Row, Space, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
 
 import moment from 'moment';
@@ -21,6 +21,31 @@ import { useState } from "react";
 import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import { GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
+import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
+
+interface IPublishedEntry {
+    name: string,
+    category: string,
+    targetMember: boolean,
+    percent: number
+}
+
+interface IPublishedTag {
+    name: string,
+    group: string
+}
+
+interface IPublishedRecordSet {
+    reportingPeriodId: string,
+    reportingPeriodDescription: string,
+    begin: Date,
+    end: Date,
+    records: Record<string, IPublishedEntry[]>,
+    datasetTags: IPublishedTag[],
+    datasetGroupTags: IPublishedTag[],
+    team: string,
+    datasetGroup: string
+}
 
 interface IProps {
     id: string;
@@ -41,11 +66,11 @@ interface IPersonType {
     id: string | undefined
 }
 
-export const getColumnClassName = (targetCategory: string) => {
-    switch (targetCategory) {
+export const getColumnClassName = (targetCategory: GetDataset_dataset_program_targets_category) => {
+    switch (targetCategory.name) {
         case "Gender":
             return "col-gender";
-        case "Race / ethnicity":
+        case "Ethnicity":
             return "col-ethnicity";
         case "Disability":
             return "col-disability";
@@ -101,6 +126,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
+    const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState(false);
 
     const { t } = useTranslation();
 
@@ -114,13 +140,13 @@ export const DataEntryTable = (props: IProps) => {
         .map(r => r.entries).flat().map(x => x.personType))) ?? [];
 
     const mergedPersonTypes = personTypeArrayFromDataset
-        .filter(x => !personTypeArrayFromRecords.some(y => y?.personTypeName === x.personTypeName))
+        .filter(x => !personTypeArrayFromRecords.some(y => y?.id === x.id))
         .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
         .filter(x => x)
         .map(x => ({ id: x.id, personTypeName: x.personTypeName }));
 
-    const currentTrackedAttributesByCategory = (attributeCategory: string) => getDatasetData.dataset.program.targets
-        .filter(x => x.category.name === attributeCategory)
+    const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
+        .filter(x => x.category.id === attributeCategory.id)
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
@@ -129,11 +155,11 @@ export const DataEntryTable = (props: IProps) => {
         .map(x => x.categoryValue);
 
     const currentTrackedAttributeCategories = getDatasetData.dataset.program.targets
-        .map(x => x.category.name);
+        .map(x => x.category);
 
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
-        attributeCategory: string,
+        attributeCategory: GetDataset_dataset_program_targets_category,
         personType: IPersonType) =>
         getDatasetData.dataset.records
             .filter(x =>
@@ -142,9 +168,9 @@ export const DataEntryTable = (props: IProps) => {
                     .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
             )
             .flatMap(x => x.entries)
-            .filter(x => x.categoryValue.category.name === attributeCategory && x.personType?.id === personType.id)
+            .filter(x => x.categoryValue.category.id === attributeCategory.id && x.personType?.id === personType.id)
             .map(x => x.categoryValue)
-            .filter(x => !currentTrackedAttributesByCategory(attributeCategory).some(y => y.name === x.name))
+            .filter(x => !currentTrackedAttributesByCategory(attributeCategory).some(y => y.id === x.id))
             .concat(currentTrackedAttributesByCategory(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
@@ -225,8 +251,8 @@ export const DataEntryTable = (props: IProps) => {
         personType: IPersonType) =>
         getDatasetData.dataset.records
             .flatMap(x => x.entries)
-            .map(x => x.categoryValue.category.name)
-            .filter(x => !currentTrackedAttributeCategories.includes(x))
+            .map(x => x.categoryValue.category)
+            .filter(x => !currentTrackedAttributeCategories.some(y => y.id === x.id))
             .concat(currentTrackedAttributeCategories)
             .map((attributeCategory) => ({
                 title: attributeCategory,
@@ -279,6 +305,44 @@ export const DataEntryTable = (props: IProps) => {
         filter(x => x.range)
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
+    const getRecordSetDocument = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
+        getDatasetData.dataset.records
+            .filter(x =>
+                reportingPeriod.range &&
+                moment(x.publicationDate)
+                    .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
+            )
+            .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
+            .reduce((recordSetDocument, record) => {
+                recordSetDocument.begin = reportingPeriod.range[0];
+                recordSetDocument.end = reportingPeriod.range[1];
+                recordSetDocument.datasetGroup = getDatasetData.dataset.program.name;
+                recordSetDocument.reportingPeriodDescription = reportingPeriod.description ?? "";
+                recordSetDocument.datasetTags = getDatasetData.dataset.tags.map(x => ({ name: x.name, group: x.tagType }));
+                recordSetDocument.datasetGroupTags = getDatasetData.dataset.program.tags.map(x => ({ name: x.name, group: x.tagType }));
+                recordSetDocument.records = record.entries
+                    .flatMap(x => x.personType ?? { personTypeName: "Everyone", id: undefined })
+                    .reduce((publishedRecord, currPersonType) => {
+                        publishedRecord[currPersonType.personTypeName] =
+                            record.entries
+                                .filter(x => x.personType?.id === currPersonType.id)
+                                .map(entry => ({
+                                    name: entry.categoryValue.name,
+                                    category: entry.categoryValue.category.name,
+                                    targetMember: getDatasetData.dataset.program.targets
+                                        .flatMap(x => x.tracks)
+                                        .some(track => track.categoryValue.id === entry.categoryValue.id && track.targetMember),
+                                    percent: (entry.count / record.entries
+                                        .filter(x => x.categoryValue.category.id === entry.categoryValue.category.id)
+                                        .reduce((count, currEntry) => { return count + currEntry.count }, 0)) * 100
+                                }));
+                        return publishedRecord;
+                    }, {} as Record<string, IPublishedEntry[]>);
+
+                return recordSetDocument;
+            }, {} as IPublishedRecordSet);
+
+
     return getReportingPeriods?.length ?
         <Tabs
             tabPosition="left"
@@ -296,35 +360,50 @@ export const DataEntryTable = (props: IProps) => {
                                 <Col span={24} style={{ display: "flex" }}>
                                     <h2>{reportingPeriod.description}</h2>
                                     <div style={{ flexGrow: 1 }} />
-                                    <Button
-                                        type="primary"
-                                        onClick={
-                                            async () => await createRecord({
-                                                variables: {
-                                                    input: {
-                                                        publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
-                                                        datasetId: getDatasetData.dataset.id,
-                                                        entries: currentTrackedAttributes.map(cv => {
-                                                            if (personTypeArrayFromDataset.length) {
-                                                                return personTypeArrayFromDataset.map(pt => ({
-                                                                    personTypeId: pt.id,
+                                    <Space>
+                                        <Button
+                                            type="primary"
+                                            icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
+                                            onClick={() => setPublishedRecordSetModalVisiblity(true)}
+                                        >{t("publishRecordSet")}
+                                        </Button>
+                                        <Modal title="Publish this?"
+                                            visible={publishedRecordSetModalVisiblity}
+                                            onOk={() => setPublishedRecordSetModalVisiblity(false)}
+                                            onCancel={() => setPublishedRecordSetModalVisiblity(false)}>
+
+                                            <pre>{JSON.stringify(getRecordSetDocument(reportingPeriod), null, 2)}</pre>
+
+                                        </Modal>
+                                        <Button
+                                            type="primary"
+                                            onClick={
+                                                async () => await createRecord({
+                                                    variables: {
+                                                        input: {
+                                                            publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
+                                                            datasetId: getDatasetData.dataset.id,
+                                                            entries: currentTrackedAttributes.map(cv => {
+                                                                if (personTypeArrayFromDataset.length) {
+                                                                    return personTypeArrayFromDataset.map(pt => ({
+                                                                        personTypeId: pt.id,
+                                                                        categoryValueId: cv.id,
+                                                                        count: 0,
+                                                                    }))
+                                                                }
+                                                                return ({
                                                                     categoryValueId: cv.id,
                                                                     count: 0,
-                                                                }))
-                                                            }
-                                                            return ({
-                                                                categoryValueId: cv.id,
-                                                                count: 0,
-                                                            })
-                                                        }).flat()
+                                                                })
+                                                            }).flat()
+                                                        }
                                                     }
-                                                }
-                                            })
-                                                .then(() => console.log("Created!"))
-                                                .catch((e) => alert(e))
-                                        }
-                                    >{t("addData")}</Button>
-
+                                                })
+                                                    .then(() => console.log("Created!"))
+                                                    .catch((e) => alert(e))
+                                            }
+                                        >{t("addData")}</Button>
+                                    </Space>
                                 </Col>
                                 <Col span={24}>
                                     <Tabs centered={true}>

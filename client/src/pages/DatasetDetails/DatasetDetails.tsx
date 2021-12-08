@@ -23,6 +23,8 @@ import { PageTitleBar } from "../../components/PageTitleBar";
 import {
   GetDataset,
   GetDatasetVariables,
+  GetDataset_dataset_personTypes,
+  GetDataset_dataset_program_targets_category,
   GetDataset_dataset_records,
   GetDataset_dataset_records_entries,
 } from "../../graphql/__generated__/GetDataset";
@@ -30,6 +32,8 @@ import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DataEntryTable } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 import "./DatasetDetails.css"
+import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
+
 const { TabPane } = Tabs;
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -71,7 +75,7 @@ export const getPalette = (targetCategory: string) => {
   switch (targetCategory) {
     case "Gender":
       return ["rgba(255,51,0,1)", "rgba(46,117,182,1)"];
-    case "Race / ethnicity":
+    case "Ethnicity":
       return ["rgba(112,48,160,1)", "rgba(189,215,238,1)"];
     case "Disability":
       return ["rgba(255,255,0,1)", "rgba(255,192,0,1)"];
@@ -101,15 +105,15 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfEntriesByAttributeCategory = (
     entries: readonly GetDataset_dataset_records_entries[],
-    attributeCategory: string,
-    personType: string | undefined
+    attributeCategory: GetDataset_dataset_program_targets_category,
+    personType: GetDataset_dataset_personTypes | undefined
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
       const personTypeBool =
         personType !== undefined
-          ? currEntry.personType?.personTypeName === personType
+          ? currEntry.personType?.id === personType.id
           : true;
-      return currEntry.categoryValue.category.name === attributeCategory &&
+      return currEntry.categoryValue.category.id === attributeCategory.id &&
         personTypeBool
         ? currEntry.count + prevEntry
         : prevEntry;
@@ -118,8 +122,8 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfRecordsByAttributeCategory = (
     records: readonly GetDataset_dataset_records[],
-    attributeCategory: string,
-    personType: string | undefined
+    attributeCategory: GetDataset_dataset_program_targets_category,
+    personType: GetDataset_dataset_personTypes | undefined
   ) => {
     return records.reduce((prev, curr) => {
       return (
@@ -151,13 +155,13 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfEntriesByInTargetAttribute = (
     entries: readonly GetDataset_dataset_records_entries[],
-    personType: string | undefined,
+    personType: GetDataset_dataset_personTypes | undefined,
     attributesInTarget: string[]
   ) => {
     return entries.reduce((prevEntry, currEntry) => {
       const personTypeBool =
         personType !== undefined
-          ? currEntry.personType?.personTypeName === personType
+          ? currEntry.personType?.id === personType.id
           : true;
       const inTargetBool = attributesInTarget.includes(
         currEntry.categoryValue.name
@@ -170,7 +174,7 @@ const DatasetDetails = (): JSX.Element => {
 
   const sumOfRecordsByInTargetAttribute = (
     records: readonly GetDataset_dataset_records[],
-    personType: string | undefined,
+    personType: GetDataset_dataset_personTypes | undefined,
     attributesInTarget: string[]
   ) => {
     return records.reduce((prev, curr) => {
@@ -187,8 +191,8 @@ const DatasetDetails = (): JSX.Element => {
 
   const percentOfInTargetAttributeCategories = (
     records: readonly GetDataset_dataset_records[],
-    category: string,
-    personType: string | undefined,
+    category: GetDataset_dataset_program_targets_category,
+    personType: GetDataset_dataset_personTypes | undefined,
     attributesInTarget: string[]
   ) => {
     return Math.round(
@@ -203,7 +207,7 @@ const DatasetDetails = (): JSX.Element => {
   };
 
   const generatePieConfig = (target: {
-    name: string;
+    category: GetDataset_dataset_program_targets_category;
     target: number;
     status: number;
   }) => {
@@ -211,7 +215,7 @@ const DatasetDetails = (): JSX.Element => {
       width: 150,
       height: 150,
       data: [
-        { targetName: target.name, value: target.status },
+        { targetName: target.category.name, value: target.status },
         { targetName: "Other", value: 100 - target.status },
       ],
       innerRadius: 0.5,
@@ -219,8 +223,8 @@ const DatasetDetails = (): JSX.Element => {
       colorField: "targetName",
       color: (datum: Datum) => {
         return datum.targetName === "Other"
-          ? getPalette(target.name)[1]
-          : getPalette(target.name)[0];
+          ? getPalette(target.category.name)[1]
+          : getPalette(target.category.name)[0];
       },
       tooltip: {
         formatter: (datum: Datum) => datum.targetName === "Other" ? { name: "Not in target", value: `${datum.value}%` } : {
@@ -374,7 +378,7 @@ const DatasetDetails = (): JSX.Element => {
       const status = filteredRecords
         ? percentOfInTargetAttributeCategories(
           filteredRecords,
-          target.category.name,
+          target.category,
           undefined,
           queryData?.dataset?.program.targets
             .find((x) => x.category.id === target.category.id)
@@ -384,7 +388,7 @@ const DatasetDetails = (): JSX.Element => {
         )
         : 0;
       return {
-        name: target.category.name,
+        category: target.category,
         target: target.target,
         offset: status - target.target * 100,
         status: status,
@@ -591,7 +595,7 @@ const DatasetDetails = (): JSX.Element => {
 
             <TabPane tab="Progress" key="progress">
               <h2>{presetDate}</h2>
-              <Row justify="center">
+              <Row justify="center" gutter={[0, 50]}>
                 {
                   targetStates?.map((target, i) => (
                     <Col key={i} span={4} offset={i ? 4 : 0}>
@@ -600,12 +604,10 @@ const DatasetDetails = (): JSX.Element => {
                       ) : (
                         noDataAvailable()
                       )}
-                      <h2 style={{ textAlign: "center" }}>{target.name}</h2>
+                      <h2 style={{ textAlign: "center" }}>{target.category.name}</h2>
                     </Col>
                   ))
                 }
-              </Row>
-              <Row>
                 <Col span={24}>
                   <Collapse>
                     <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
@@ -627,6 +629,11 @@ const DatasetDetails = (): JSX.Element => {
                     </Panel>
                   </Collapse>
                 </Col>
+                <Col span={24}>
+                  <DataEntryTable
+                    id={datasetId}
+                  />
+                </Col>
               </Row>
             </TabPane>
             <TabPane tab="Details">
@@ -639,6 +646,15 @@ const DatasetDetails = (): JSX.Element => {
                       filteredRecords={filteredRecords}
                     />
                   </Col>
+                  <Col span={24}>
+                    <DatasetDetailsRecordsTable
+                      datasetId={datasetId}
+                      datasetData={queryData}
+                      records={filteredRecords}
+                      isLoading={queryLoading}
+
+                    />
+                  </Col>
                 </Row>
               ) : (
                 noDataAvailable()
@@ -646,11 +662,7 @@ const DatasetDetails = (): JSX.Element => {
             </TabPane>
           </Tabs>
         </Col>
-        <Col span={24}>
-          <DataEntryTable
-            id={datasetId}
-          />
-        </Col>
+
       </Row>
     </div >
   );
