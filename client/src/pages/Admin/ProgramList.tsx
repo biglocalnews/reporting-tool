@@ -19,9 +19,9 @@ const CategoriesCell = (_: string, record: AdminGetAllPrograms_programs) => {
   const uniqCategories = record.targets.reduce((agg, current) => {
     agg.add(current.category.name);
     return agg;
-  }, new Set());
-  const categories = Array.from(uniqCategories).sort();
-  return <div>{categories.join(", ")}</div>;
+  }, new Set<string>());
+  //const categories = Array.from(uniqCategories).sort();
+  return <div>{Array.from(uniqCategories).join(", ")}</div>;
 };
 
 /**

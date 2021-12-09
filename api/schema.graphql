@@ -182,18 +182,6 @@ type SumEntriesByCategoryValue {
   sumOfCounts: Int!
 }
 
-type PublishedRecordSet {
-  id: ID!
-  datasetId: ID!
-  created: DateTime!
-  deleted: DateTime
-  begin: DateTime!
-  end: DateTime!
-  record: [RecordSetEntry]
-  targets: [RecordSetTarget]
-  tags: [String]
-}
-
 type ReportingPeriod {
   id: ID!
   programmeId: ID!
@@ -203,18 +191,53 @@ type ReportingPeriod {
   description: String
 }
 
-type RecordSetTarget {
-  attributeCategory: String!
-  percent: Float!
-  attributes: [String!]!
+
+type PublishedRecordSet {
+  id: ID!
+  datasetId: ID!
+  created: DateTime!
+  deleted: DateTime
+  begin: DateTime!
+  end: DateTime!
+  document: RecordSetDocument
 }
 
-type RecordSetEntry {
-  percentOfCategory: Float!
-  percentOfCategoryPersonType: Float!
+type RecordSetDocument {
+  reportingPeriodId: ID!
+  reportingPeriodDescription: String
+  created: DateTime!
+  deleted: DateTime
+  begin: DateTime!
+  end: DateTime!
+  targets: [PublishedRecordSetTarget!]!
+  records: [PublishedRecordSetRecord!]!,
+  datasetTags: [PublishedRecordSetTag!],
+  datasetGroupTags: [PublishedRecordSetTag!],
+  team: String!,
+  datasetGroup: String!
+}
+
+type PublishedRecordSetTag {
+  name: String!
+  group: String
+}
+
+type PublishedRecordSetTarget {
+  category: String!
+  target: Int!
+}
+
+type PublishedRecordSetRecord {
+  category: String!
+  personType: String
+  entries: [PublishedRecordSetEntry]
+}
+
+type PublishedRecordSetEntry {
   attribute: String!
-  attributeCategory: String!
-  personType: String!
+  category: String!,
+  targetMember: Boolean!
+  percent: Float!
 }
 
 input UpsertUserInput {
@@ -450,6 +473,8 @@ type Query {
 
   # Retrieve full list of categories
   categories: [Category!]! @needsPermission(permission: [ADMIN])
+
+  targets: [Target!]! @needsPermission(permission: [ADMIN])
 
   # Retrieve full list of organizations
   organizations: [Organization!]! @needsPermission(permission: [ADMIN])

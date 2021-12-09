@@ -74,8 +74,8 @@ export type EditProgramRouteParams = Readonly<{
 const getGroupedTargets = (
   targets: readonly AdminGetProgram_program_targets[]
 ) => {
-  const groupedByCategory = Array.from(targets)
-    .sort((a, b) => a.category.name.localeCompare(b.category.name))
+  const groupedByCategory = targets
+    //.sort((a, b) => a.category.name.localeCompare(b.category.name))
     .reduce((grouped, currTarget) => {
       if (!grouped.has(currTarget.category.id)) {
         grouped.set(currTarget.category.id, {
@@ -98,7 +98,7 @@ const getGroupedTargets = (
       return grouped;
     }, new Map<string, Target>());
 
-  return Array.from(groupedByCategory.values());
+  return Array.from(groupedByCategory.values()).sort((a, b) => b.target - a.target);
 
 }
 

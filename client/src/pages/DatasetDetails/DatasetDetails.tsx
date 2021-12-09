@@ -393,7 +393,8 @@ const DatasetDetails = (): JSX.Element => {
         offset: status - target.target * 100,
         status: status,
       };
-    });
+    })
+      .sort((a, b) => b.target - a.target);
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const groupedByMonthYearRecords = useMemo(() => {
@@ -452,71 +453,73 @@ const DatasetDetails = (): JSX.Element => {
       !groupedByMonthYearRecords ||
       Object.keys(groupedByMonthYearRecords).length < 2
     ) { return undefined; }
-    return queryData?.dataset?.program.targets.reduce(
-      (configs, target) => {
-        const chartData = Object.values(groupedByMonthYearRecords).reduce(
-          (chartData, record) => {
-            const totalAttributeCategoryCount = record
-              .filter(x => x.AttributeCategory === target.category.name)
-              .reduce((count, currEntry) => {
-                count += currEntry.AttributeCount;
-                return count;
-              }, 0);
-            if (totalAttributeCategoryCount === 0) {
+    return Array.from(queryData?.dataset?.program.targets ?? [])
+      .sort((a, b) => b.target - a.target)
+      .reduce(
+        (configs, target) => {
+          const chartData = Object.values(groupedByMonthYearRecords).reduce(
+            (chartData, record) => {
+              const totalAttributeCategoryCount = record
+                .filter(x => x.AttributeCategory === target.category.name)
+                .reduce((count, currEntry) => {
+                  count += currEntry.AttributeCount;
+                  return count;
+                }, 0);
+              if (totalAttributeCategoryCount === 0) {
+                return chartData;
+              }
+              const reducedRecord = record
+                .filter(x => x.AttributeCategory === target.category.name)
+                .reduce((reducedRecord, currEntry) => {
+                  let categoryKey = target.category.name;
+                  /*const targetCategoryPersonTypeKey =
+                    targetCategory + currEntry.PersonType;*/
+                  //i.e. not in target
+                  if (!currEntry.TargetMember) {
+                    categoryKey = `Other ${target.category.name}`;
+                  }
+
+                  if (reducedRecord[categoryKey]) {
+                    reducedRecord[categoryKey].AttributeCount += currEntry.AttributeCount;
+                    reducedRecord[categoryKey].Percent = (reducedRecord[categoryKey].AttributeCount / totalAttributeCategoryCount) * 100
+                  } else {
+                    reducedRecord[categoryKey] = {
+                      ...currEntry,
+                      Attribute: categoryKey,
+                      AttributeCategoryCount: totalAttributeCategoryCount,
+                      Percent: (currEntry.AttributeCount / totalAttributeCategoryCount) * 100
+                    };
+                  }
+                  return reducedRecord;
+                }, {} as Record<string, IEntry>);
+              if (Object.values(reducedRecord).length === 1) return chartData;
+              Object.values(reducedRecord).forEach(x => chartData.push(x));
               return chartData;
-            }
-            const reducedRecord = record
-              .filter(x => x.AttributeCategory === target.category.name)
-              .reduce((reducedRecord, currEntry) => {
-                let categoryKey = target.category.name;
-                /*const targetCategoryPersonTypeKey =
-                  targetCategory + currEntry.PersonType;*/
-                //i.e. not in target
-                if (!currEntry.TargetMember) {
-                  categoryKey = `Other ${target.category.name}`;
-                }
+            }, new Array<IEntry>());
+          if (chartData.length > 1) {
+            configs.push(
+              progressConfig(
+                [
+                  ...chartData.slice(-6).map((x) => ({
+                    ...x,
+                    PersonType: x.PersonType
+                      ? x.PersonType
+                      : "Unspecified person type",
+                  })),
+                ],
+                Math.round(target.target * 100),
+                target.category.name
+              )
+            );
+          }
+          else {
+            configs.push({} as customColumnConfig)
+          }
 
-                if (reducedRecord[categoryKey]) {
-                  reducedRecord[categoryKey].AttributeCount += currEntry.AttributeCount;
-                  reducedRecord[categoryKey].Percent = (reducedRecord[categoryKey].AttributeCount / totalAttributeCategoryCount) * 100
-                } else {
-                  reducedRecord[categoryKey] = {
-                    ...currEntry,
-                    Attribute: categoryKey,
-                    AttributeCategoryCount: totalAttributeCategoryCount,
-                    Percent: (currEntry.AttributeCount / totalAttributeCategoryCount) * 100
-                  };
-                }
-                return reducedRecord;
-              }, {} as Record<string, IEntry>);
-            if (Object.values(reducedRecord).length === 1) return chartData;
-            Object.values(reducedRecord).forEach(x => chartData.push(x));
-            return chartData;
-          }, new Array<IEntry>());
-        if (chartData.length > 1) {
-          configs.push(
-            progressConfig(
-              [
-                ...chartData.slice(-6).map((x) => ({
-                  ...x,
-                  PersonType: x.PersonType
-                    ? x.PersonType
-                    : "Unspecified person type",
-                })),
-              ],
-              Math.round(target.target * 100),
-              target.category.name
-            )
-          );
-        }
-        else {
-          configs.push({} as customColumnConfig)
-        }
-
-        return configs;
-      },
-      ([] as customColumnConfig[]) ?? new Array<customColumnConfig>()
-    );
+          return configs;
+        },
+        ([] as customColumnConfig[]) ?? new Array<customColumnConfig>()
+      )
   }, [groupedByMonthYearRecords, queryData?.dataset?.program.targets]);
 
   if (queryLoading) {

@@ -897,22 +897,17 @@ class PublishedRecordSet(Base, PermissionsMixin):
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
 
+    begin = Column(DateTime, nullable=False)
+    end = Column(DateTime, nullable=False)
+
+    records = Column(MutableDict.as_mutable(JSONB))
+
     reporting_period = relationship("ReportingPeriod")
     reporting_period_id = Column(
         GUID, ForeignKey("reporting_period.id"), index=True, nullable=False
     )
 
-    begin = Column(DateTime, nullable=False)
-    end = Column(DateTime, nullable=False)
-
     __table_args__ = (UniqueConstraint("reporting_period_id"),)
-
-    team = Column(String)
-    programme = Column(String)
-
-    record = Column(MutableDict.as_mutable(JSONB))
-    targets = Column(MutableDict.as_mutable(JSONB))
-    tags = Column(MutableDict.as_mutable(JSONB))
 
     created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

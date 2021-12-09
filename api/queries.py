@@ -4,6 +4,7 @@ from database import (
     Dataset,
     PublishedRecordSet,
     ReportingPeriod,
+    Target,
     User,
     Record,
     Category,
@@ -157,6 +158,13 @@ def resolve_category(obj, info, id):
     session = info.context["dbsession"]
     category = Category.get_not_deleted(session, id)
     return category
+
+
+@query.field("targets")
+@convert_kwargs_to_snake_case
+def resolve_targets(obj, info):
+    session = info.context["dbsession"]
+    return session.query(Target).order_by(Target.target.desc()).brokjen()
 
 
 @query.field("categoryValue")

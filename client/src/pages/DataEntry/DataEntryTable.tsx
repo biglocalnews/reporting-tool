@@ -12,7 +12,7 @@ import {
 
 import { CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
-import { Button, Col, DatePicker, InputNumber, Modal, Row, Space, Table, Tabs } from 'antd';
+import { Button, Col, DatePicker, InputNumber, Modal, Row, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
 
 import moment from 'moment';
@@ -24,10 +24,12 @@ import { GetRecord_record_entries_personType } from "../../graphql/__generated__
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 
 interface IPublishedEntry {
-    name: string,
+    attribute: string,
     category: string,
+    personType: string,
     targetMember: boolean,
-    percent: number
+    percent: number,
+    count: number
 }
 
 interface IPublishedTag {
@@ -35,16 +37,20 @@ interface IPublishedTag {
     group: string
 }
 
+interface IPublishedTarget {
+    category: string,
+    target: number
+}
+
 interface IPublishedRecordSet {
-    reportingPeriodId: string,
+    datasetGroup: string
     reportingPeriodDescription: string,
     begin: Date,
     end: Date,
-    records: Record<string, IPublishedEntry[]>,
+    record: IPublishedEntry[],
+    targets: IPublishedTarget[],
     datasetTags: IPublishedTag[],
     datasetGroupTags: IPublishedTag[],
-    team: string,
-    datasetGroup: string
 }
 
 interface IProps {
@@ -147,6 +153,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
         .filter(x => x.category.id === attributeCategory.id)
+        .sort((a, b) => b.target - a.target)
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
@@ -154,7 +161,8 @@ export const DataEntryTable = (props: IProps) => {
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
-    const currentTrackedAttributeCategories = getDatasetData.dataset.program.targets
+    const currentTrackedAttributeCategories = Array.from(getDatasetData.dataset.program.targets)
+        .sort((a, b) => b.target - a.target)
         .map(x => x.category);
 
     const getChildren = (
@@ -306,42 +314,87 @@ export const DataEntryTable = (props: IProps) => {
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
     const getRecordSetDocument = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
-        getDatasetData.dataset.records
-            .filter(x =>
-                reportingPeriod.range &&
-                moment(x.publicationDate)
-                    .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
-            )
-            .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
-            .reduce((recordSetDocument, record) => {
-                recordSetDocument.begin = reportingPeriod.range[0];
-                recordSetDocument.end = reportingPeriod.range[1];
-                recordSetDocument.datasetGroup = getDatasetData.dataset.program.name;
-                recordSetDocument.reportingPeriodDescription = reportingPeriod.description ?? "";
-                recordSetDocument.datasetTags = getDatasetData.dataset.tags.map(x => ({ name: x.name, group: x.tagType }));
-                recordSetDocument.datasetGroupTags = getDatasetData.dataset.program.tags.map(x => ({ name: x.name, group: x.tagType }));
-                recordSetDocument.records = record.entries
-                    .flatMap(x => x.personType ?? { personTypeName: "Everyone", id: undefined })
-                    .reduce((publishedRecord, currPersonType) => {
-                        publishedRecord[currPersonType.personTypeName] =
-                            record.entries
-                                .filter(x => x.personType?.id === currPersonType.id)
-                                .map(entry => ({
-                                    name: entry.categoryValue.name,
-                                    category: entry.categoryValue.category.name,
+        ({
+            datasetGroup: getDatasetData.dataset.program.name,
+            reportingPeriodDescription: reportingPeriod.description ?? "",
+            begin: reportingPeriod.range[0],
+            end: reportingPeriod.range[1],
+            datasetTags: getDatasetData.dataset.tags
+                .map(x => ({ name: x.name, group: x.tagType })),
+            datasetGroupTags: getDatasetData.dataset.program.tags
+                .map(x => ({ name: x.name, group: x.tagType })),
+            targets: getDatasetData.dataset.program.targets
+                .map(x => ({ category: x.category.name, target: x.target * 100 }))
+                .sort((a, b) => b.target - a.target),
+            record: Object.values(getDatasetData.dataset.records
+                .filter(x =>
+                    reportingPeriod.range &&
+                    moment(x.publicationDate)
+                        .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
+                )
+                .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
+                .reduce((groupedByPersonTypeCategoryAttribute, record, recordIndex, allRecords) => {
+                    record.entries
+                        .forEach(currEntry => {
+                            const personType = currEntry.personType?.personTypeName ?? "Everyone";
+                            const category = currEntry.categoryValue.category.name;
+                            const attribute = currEntry.categoryValue.name;
+
+                            if (!groupedByPersonTypeCategoryAttribute[personType]) {
+                                groupedByPersonTypeCategoryAttribute[personType] = {} as Record<string, { total: number, entries: Record<string, IPublishedEntry> }>;
+                            }
+
+                            if (!groupedByPersonTypeCategoryAttribute[personType][category]) {
+                                groupedByPersonTypeCategoryAttribute[personType][category] = {} as { total: number, entries: Record<string, IPublishedEntry> };
+                                groupedByPersonTypeCategoryAttribute[personType][category]
+                                    .total = allRecords
+                                        .flatMap(x => x.entries)
+                                        .filter(x => (x.personType?.personTypeName ?? "Everyone") === personType && x.categoryValue.category.name === category)
+                                        .reduce((total, curr) => { return total + curr.count }, 0);
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries = {} as Record<string, IPublishedEntry>;
+                            }
+
+                            if (!groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute]) {
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {} as IPublishedEntry;
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {
+                                    attribute: attribute,
+                                    category: currEntry.categoryValue.category.name,
+                                    count: currEntry.count,
+                                    personType: currEntry.personType?.personTypeName ?? "Everyone",
                                     targetMember: getDatasetData.dataset.program.targets
                                         .flatMap(x => x.tracks)
-                                        .some(track => track.categoryValue.id === entry.categoryValue.id && track.targetMember),
-                                    percent: (entry.count / record.entries
-                                        .filter(x => x.categoryValue.category.id === entry.categoryValue.category.id)
-                                        .reduce((count, currEntry) => { return count + currEntry.count }, 0)) * 100
-                                }));
-                        return publishedRecord;
-                    }, {} as Record<string, IPublishedEntry[]>);
+                                        .some(track => track.categoryValue.id === currEntry.categoryValue.id && track.targetMember),
+                                    percent: groupedByPersonTypeCategoryAttribute[personType][category].total ? (
+                                        currEntry.count /
+                                        groupedByPersonTypeCategoryAttribute[personType][category].total
+                                    ) * 100 : 0
+                                }
+                            }
+                            else {
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count += currEntry.count;
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].percent = groupedByPersonTypeCategoryAttribute[personType][category].total ?
+                                    (
+                                        groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count /
+                                        groupedByPersonTypeCategoryAttribute[personType][category].total
+                                    ) * 100 : 0;
+                            }
+                        });
 
-                return recordSetDocument;
-            }, {} as IPublishedRecordSet);
-
+                    return groupedByPersonTypeCategoryAttribute;
+                }, {} as Record<string, Record<string, { total: number, entries: Record<string, IPublishedEntry> }>>))
+                //flatten and remove count
+                .map(byPersonType => Object.values(byPersonType)
+                    .map(byCategory => Object.values(byCategory.entries)
+                        .map(byAttribute => {
+                            const { count, ...rest } = byAttribute;
+                            count;
+                            return rest;
+                        })
+                    )
+                    .flat()
+                )
+                .flat()
+        }) as IPublishedRecordSet;
 
     return getReportingPeriods?.length ?
         <Tabs
@@ -356,54 +409,52 @@ export const DataEntryTable = (props: IProps) => {
                             tab={`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
                             key={i}
                         >
+                            <Modal title="Publish this?"
+                                visible={publishedRecordSetModalVisiblity}
+                                onOk={() => setPublishedRecordSetModalVisiblity(false)}
+                                onCancel={() => setPublishedRecordSetModalVisiblity(false)}>
+
+                                <pre>{JSON.stringify(getRecordSetDocument(reportingPeriod), null, 2)}</pre>
+
+                            </Modal>
                             <Row>
                                 <Col span={24} style={{ display: "flex" }}>
-                                    <h2>{reportingPeriod.description}</h2>
+                                    <Button
+                                        type="primary"
+                                        icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
+                                        onClick={() => setPublishedRecordSetModalVisiblity(true)}
+                                    >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
+                                    </Button>
                                     <div style={{ flexGrow: 1 }} />
-                                    <Space>
-                                        <Button
-                                            type="primary"
-                                            icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
-                                            onClick={() => setPublishedRecordSetModalVisiblity(true)}
-                                        >{t("publishRecordSet")}
-                                        </Button>
-                                        <Modal title="Publish this?"
-                                            visible={publishedRecordSetModalVisiblity}
-                                            onOk={() => setPublishedRecordSetModalVisiblity(false)}
-                                            onCancel={() => setPublishedRecordSetModalVisiblity(false)}>
-
-                                            <pre>{JSON.stringify(getRecordSetDocument(reportingPeriod), null, 2)}</pre>
-
-                                        </Modal>
-                                        <Button
-                                            type="primary"
-                                            onClick={
-                                                async () => await createRecord({
-                                                    variables: {
-                                                        input: {
-                                                            publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
-                                                            datasetId: getDatasetData.dataset.id,
-                                                            entries: currentTrackedAttributes.map(cv => {
-                                                                if (personTypeArrayFromDataset.length) {
-                                                                    return personTypeArrayFromDataset.map(pt => ({
-                                                                        personTypeId: pt.id,
-                                                                        categoryValueId: cv.id,
-                                                                        count: 0,
-                                                                    }))
-                                                                }
-                                                                return ({
+                                    <Button
+                                        type="primary"
+                                        onClick={
+                                            async () => await createRecord({
+                                                variables: {
+                                                    input: {
+                                                        publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
+                                                        datasetId: getDatasetData.dataset.id,
+                                                        entries: currentTrackedAttributes.map(cv => {
+                                                            if (personTypeArrayFromDataset.length) {
+                                                                return personTypeArrayFromDataset.map(pt => ({
+                                                                    personTypeId: pt.id,
                                                                     categoryValueId: cv.id,
                                                                     count: 0,
-                                                                })
-                                                            }).flat()
-                                                        }
+                                                                }))
+                                                            }
+                                                            return ({
+                                                                categoryValueId: cv.id,
+                                                                count: 0,
+                                                            })
+                                                        }).flat()
                                                     }
-                                                })
-                                                    .then(() => console.log("Created!"))
-                                                    .catch((e) => alert(e))
-                                            }
-                                        >{t("addData")}</Button>
-                                    </Space>
+                                                }
+                                            })
+                                                .then(() => console.log("Created!"))
+                                                .catch((e) => alert(e))
+                                        }
+                                    >{t("addData")}</Button>
+
                                 </Col>
                                 <Col span={24}>
                                     <Tabs centered={true}>
