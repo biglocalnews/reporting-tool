@@ -10,7 +10,7 @@ import {
     GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_program_targets_category, GetDataset_dataset_records_entries_categoryValue
 } from "../../graphql/__generated__/GetDataset";
 
-import { CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
+import { CreatePublishedRecordSetInput, CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
 import { Button, Col, DatePicker, InputNumber, Modal, Row, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
@@ -22,6 +22,7 @@ import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import { GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
+import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
 
 interface IPublishedEntry {
     attribute: string,
@@ -42,7 +43,7 @@ interface IPublishedTarget {
     target: number
 }
 
-interface IPublishedRecordSet {
+export interface IPublishedRecordSet {
     datasetGroup: string
     reportingPeriodDescription: string,
     begin: Date,
@@ -129,6 +130,17 @@ export const DataEntryTable = (props: IProps) => {
             ],
         }
     );
+
+    const [createPublishedRecordSet] = useMutation<CreatePublishedRecordSetInput>(CREATE_PUBLISHED_RECORD_SET, {
+        refetchQueries: [
+            {
+                query: GET_DATASET,
+                variables: {
+                    id: props.id
+                }
+            }
+        ],
+    });
 
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
@@ -310,7 +322,7 @@ export const DataEntryTable = (props: IProps) => {
     const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().subtract(1, "day").unix(), date.unix()));
 
     const getReportingPeriods = getDatasetData.dataset.program.reportingPeriods?.
-        filter(x => x.range)
+        filter(x => x.range && getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId !== x.id))
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
     const getRecordSetDocument = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
@@ -411,7 +423,23 @@ export const DataEntryTable = (props: IProps) => {
                         >
                             <Modal title="Publish this?"
                                 visible={publishedRecordSetModalVisiblity}
-                                onOk={() => setPublishedRecordSetModalVisiblity(false)}
+                                onOk={async () => {
+                                    await createPublishedRecordSet({
+                                        variables: {
+                                            input: {
+                                                begin: reportingPeriod.range[0],
+                                                end: reportingPeriod.range[1],
+                                                datasetId: getDatasetData.dataset.id,
+                                                reportingPeriodId: reportingPeriod.id,
+                                                document: getRecordSetDocument(reportingPeriod)
+                                            }
+                                        }
+                                    })
+                                        .then(() => console.log("Published!"))
+                                        .catch((e) => alert(e))
+                                    setPublishedRecordSetModalVisiblity(false)
+                                }
+                                }
                                 onCancel={() => setPublishedRecordSetModalVisiblity(false)}>
 
                                 <pre>{JSON.stringify(getRecordSetDocument(reportingPeriod), null, 2)}</pre>

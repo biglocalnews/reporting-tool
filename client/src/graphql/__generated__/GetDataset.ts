@@ -62,6 +62,7 @@ export interface GetDataset_dataset_program_targets {
 
 export interface GetDataset_dataset_program_reportingPeriods {
   readonly __typename: "ReportingPeriod";
+  readonly id: string;
   readonly range: ReadonlyArray<any>;
   readonly description: string | null;
 }
@@ -121,6 +122,14 @@ export interface GetDataset_dataset_tags {
   readonly tagType: string;
 }
 
+export interface GetDataset_dataset_publishedRecordSets {
+  readonly __typename: "PublishedRecordSet";
+  readonly reportingPeriodId: string;
+  readonly begin: any;
+  readonly end: any;
+  readonly document: any | null;
+}
+
 export interface GetDataset_dataset {
   readonly __typename: "Dataset";
   readonly id: string;
@@ -131,6 +140,7 @@ export interface GetDataset_dataset {
   readonly program: GetDataset_dataset_program;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
   readonly tags: ReadonlyArray<GetDataset_dataset_tags>;
+  readonly publishedRecordSets: ReadonlyArray<GetDataset_dataset_publishedRecordSets> | null;
 }
 
 export interface GetDataset {

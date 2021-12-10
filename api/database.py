@@ -671,7 +671,7 @@ class Dataset(Base, PermissionsMixin):
     program = relationship("Program", back_populates="datasets")
     program_id = Column(GUID, ForeignKey("program.id"), index=True)
     records = relationship("Record")
-
+    published_record_sets = relationship("PublishedRecordSet")
     tags = relationship("Tag", secondary=dataset_tags, back_populates="datasets")
     person_types = relationship(
         "PersonType",
@@ -900,7 +900,7 @@ class PublishedRecordSet(Base, PermissionsMixin):
     begin = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
 
-    records = Column(MutableDict.as_mutable(JSONB))
+    document = Column(MutableDict.as_mutable(JSONB))
 
     reporting_period = relationship("ReportingPeriod")
     reporting_period_id = Column(
@@ -908,6 +908,9 @@ class PublishedRecordSet(Base, PermissionsMixin):
     )
 
     __table_args__ = (UniqueConstraint("reporting_period_id"),)
+
+    dataset = relationship("Dataset", back_populates="published_record_sets")
+    dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True, nullable=False)
 
     created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

@@ -29,7 +29,7 @@ import {
   GetDataset_dataset_records_entries,
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
-import { DataEntryTable } from "../DataEntry/DataEntryTable";
+import { DataEntryTable, IPublishedRecordSet } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 import "./DatasetDetails.css"
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
@@ -472,9 +472,6 @@ const DatasetDetails = (): JSX.Element => {
                 .filter(x => x.AttributeCategory === target.category.name)
                 .reduce((reducedRecord, currEntry) => {
                   let categoryKey = target.category.name;
-                  /*const targetCategoryPersonTypeKey =
-                    targetCategory + currEntry.PersonType;*/
-                  //i.e. not in target
                   if (!currEntry.TargetMember) {
                     categoryKey = `Other ${target.category.name}`;
                   }
@@ -504,7 +501,7 @@ const DatasetDetails = (): JSX.Element => {
                     ...x,
                     PersonType: x.PersonType
                       ? x.PersonType
-                      : "Unspecified person type",
+                      : t("unknownPersonType"),
                   })),
                 ],
                 Math.round(target.target * 100),
@@ -662,6 +659,39 @@ const DatasetDetails = (): JSX.Element => {
               ) : (
                 noDataAvailable()
               )}
+            </TabPane>
+            <TabPane tab="Published" key="published">
+              {
+                queryData?.dataset.publishedRecordSets?.map(prs =>
+                  <Row key={prs.reportingPeriodId}>
+                    <Col>
+                      {
+                        moment(prs.begin).toISOString()
+                      }
+                    </Col>
+                    <Col>
+                      {
+                        moment(prs.end).toISOString()
+                      }
+                    </Col>
+                    {
+                      Object.keys(prs.document as IPublishedRecordSet).map((k, i) =>
+                        <Col key={i}>{k}</Col>
+                      )
+                    }
+                    <Col span={24}>
+                      <Row>
+                        <Col>
+                        </Col>
+                        <Col>
+                        </Col>
+
+                      </Row>
+                    </Col>
+
+                  </Row>
+                )
+              }
             </TabPane>
           </Tabs>
         </Col>

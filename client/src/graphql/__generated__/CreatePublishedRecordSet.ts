@@ -14,6 +14,8 @@ export interface CreatePublishedRecordSet_createPublishedRecordSet {
   readonly begin: any;
   readonly end: any;
   readonly datasetId: string;
+  readonly reportingPeriodId: string;
+  readonly document: any | null;
 }
 
 export interface CreatePublishedRecordSet {

@@ -164,7 +164,7 @@ def resolve_category(obj, info, id):
 @convert_kwargs_to_snake_case
 def resolve_targets(obj, info):
     session = info.context["dbsession"]
-    return session.query(Target).order_by(Target.target.desc()).brokjen()
+    return session.query(Target).order_by(Target.target.desc()).all()
 
 
 @query.field("categoryValue")

@@ -551,7 +551,6 @@ async def resolve_configure_app(obj, info, input):
 @convert_kwargs_to_snake_case
 def resolve_create_published_record_set(obj, info, input):
     session = info.context["dbsession"]
-    # current_user = info.context["current_user"]
     record = PublishedRecordSet(**input)
     session.add(record)
     session.commit()
@@ -563,7 +562,6 @@ def resolve_create_published_record_set(obj, info, input):
 @convert_kwargs_to_snake_case
 def resolve_create_reporting_period(obj, info, input):
     session = info.context["dbsession"]
-    # current_user = info.context["current_user"]
     [input["begin"], input["end"]] = input.pop("range")
     rp = ReportingPeriod(**input)
     session.add(rp)

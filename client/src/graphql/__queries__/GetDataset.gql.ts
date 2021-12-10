@@ -41,9 +41,11 @@ export const GET_DATASET = gql`
           }
         }
         reportingPeriods {
+          id
           range
           description
-        }
+          
+        }       
         tags {
           name
           tagType
@@ -73,6 +75,12 @@ export const GET_DATASET = gql`
       tags {
         name
         tagType
+      }
+      publishedRecordSets {
+        reportingPeriodId
+        begin
+        end
+        document
       }
     }
   }

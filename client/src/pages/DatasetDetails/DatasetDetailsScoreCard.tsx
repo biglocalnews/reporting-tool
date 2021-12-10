@@ -1,8 +1,10 @@
 import { Column, ColumnConfig } from "@ant-design/charts";
 import { Tabs } from "antd";
+import { useTranslation } from "react-i18next";
 import {
   GetDataset,
   GetDataset_dataset,
+  GetDataset_dataset_program_targets_category,
   GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
 import "./DatasetDetailsScoreCard.css";
@@ -56,74 +58,72 @@ interface Dictionary<T> {
   [Key: string]: T;
 }
 
-const barStats = (
-  data: GetDataset_dataset,
-  records: readonly GetDataset_dataset_records[],
-  category: string
-) => {
-  const chartData: Dictionary<ColStat> = {};
-  const lang = window.navigator.language;
-  Array.from(records)
-    .sort(
-      (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
-    )
-    .forEach((record) => {
-      record.entries.forEach((entry) => {
-        if (entry.categoryValue.category.name === category && entry.count > 0) {
-          const recordDate = new Date(record.publicationDate);
-          const monthName = new Intl.DateTimeFormat(lang, {
-            month: "long",
-          }).format(recordDate);
-          const yearMonthCategoryPersonType = `${monthName}-${recordDate.getFullYear()}-${entry.categoryValue.name
-            }-${entry.personType ? entry.personType.personTypeName : "Unspecified"
-            }`;
-          const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
-          if (!chartData[yearMonthCategoryPersonType]) {
-            chartData[yearMonthCategoryPersonType] = {
-              date: yearMonth,
-              attribute: entry.categoryValue.name,
-              personType: entry.personType
-                ? entry.personType.personTypeName
-                : "Unspecified",
-              count: entry.count,
-              target: data.program.targets
-                .find(x => x.category.name === category)
-                ?.target,
-            };
-          } else {
-            chartData[yearMonthCategoryPersonType].count += entry.count;
-          }
-        }
-      });
-    });
-  const x = Object.values(chartData);
-  return x;
-};
+
 
 const DatasetDetailsScoreCard = ({
   data,
   filteredRecords,
 }: ScoreCardProps): JSX.Element | null => {
-  const categoryValueNames = (data: GetDataset) =>
-    Array.from(
-      new Set(
-        data.dataset.program.targets.map(
-          (target) => target.category.name
-        )
+
+  const { t } = useTranslation();
+
+  const barStats = (
+    data: GetDataset_dataset,
+    records: readonly GetDataset_dataset_records[],
+    category: GetDataset_dataset_program_targets_category
+  ) => {
+    return Object.values(Array.from(records)
+      .sort(
+        (a, b) => Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
       )
-    );
+      .reduce((chartData, record) => {
+        record.entries
+          .filter(x => x.categoryValue.category.id === category.id && x.count > 0)
+          .forEach((entry) => {
+            const recordDate = new Date(record.publicationDate);
+            const monthName = new Intl.DateTimeFormat(window.navigator.language, {
+              month: "long",
+            }).format(recordDate);
+            const yearMonth = `${monthName} ${recordDate.getFullYear()}`;
+            const personType = entry.personType ? entry.personType.personTypeName : t("unknownPersonType");
+            const yearMonthCategoryPersonType = `${yearMonth}-${entry.categoryValue.name}-${personType}`;
+
+            if (!chartData[yearMonthCategoryPersonType]) {
+              chartData[yearMonthCategoryPersonType] = {
+                date: yearMonth,
+                attribute: entry.categoryValue.name,
+                personType: entry.personType
+                  ? entry.personType.personTypeName
+                  : t("unknownPersonType"),
+                count: entry.count,
+                target: data.program.targets
+                  .find(x => x.category.id === category.id)
+                  ?.target,
+              };
+            } else {
+              chartData[yearMonthCategoryPersonType].count += entry.count;
+            }
+          });
+        return chartData;
+      }, {} as Dictionary<ColStat>))
+  }
 
   return data?.dataset.program.targets.length && filteredRecords ? (
     <Tabs defaultActiveKey="Gender">
-      {categoryValueNames(data).map((category) => (
-        <TabPane tab={<span>{category}</span>} key={category}>
-          <Column
-            {...generateColChartConfig(
-              barStats(data.dataset, filteredRecords, category)
-            )}
-          />
-        </TabPane>
-      ))}
+      {
+        Array.from(data.dataset.program.targets)
+          .sort((a, b) => b.target - a.target)
+          .flatMap((target) => target.category)
+          .map((category) =>
+            <TabPane tab={<span>{category.name}</span>} key={category.id}>
+              <Column
+                {...generateColChartConfig(
+                  barStats(data.dataset, filteredRecords, category)
+                )}
+              />
+            </TabPane>
+          )
+      }
     </Tabs>
   ) : null;
 };

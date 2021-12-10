@@ -137,7 +137,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   lastUpdated: DateTime
   program: Program!
   records: [Record!]!
-  published_record_sets: [PublishedRecordSet!]!
+  publishedRecordSets: [PublishedRecordSet!]
   tags: [Tag!]!
   sumOfCategoryValueCounts: [SumEntriesByCategoryValue!]!
   personTypes: [PersonType!]!
@@ -195,11 +195,12 @@ type ReportingPeriod {
 type PublishedRecordSet {
   id: ID!
   datasetId: ID!
+  reportingPeriodId: ID!
   created: DateTime!
   deleted: DateTime
   begin: DateTime!
   end: DateTime!
-  document: RecordSetDocument
+  document: JSON
 }
 
 type RecordSetDocument {
@@ -412,17 +413,17 @@ input RecordSetTargetInput {
 }
 
 input CreatePublishedRecordSetInput {
+  id: ID
   datasetId: ID!
+  reportingPeriodId: ID!
   begin: DateTime!
   end: DateTime!
-  record: [RecordSetEntryInput!]!
-  targets: [RecordSetTargetInput]!
-  tags: [String]!
+  document: JSON
 }
 
 input CreateReportingPeriodInput {
   programmeId: ID!
-  range: [DateTime!]
+  range: [DateTime!]!
   begin: DateTime
   end: DateTime
 }
