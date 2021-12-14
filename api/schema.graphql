@@ -563,7 +563,10 @@ type Mutation {
     @needsPermission(permission: [BLANK_SLATE])
 
   # Create a Program
-  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet!
+  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet! @needsPermission(permission: [ADMIN])
 
-  createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod!
+  createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod! @needsPermission(permission: [ADMIN])
+
+  deletePublishedRecordSet(input: ID!): ID! @needsPermission(permission: [ADMIN])
+
 }

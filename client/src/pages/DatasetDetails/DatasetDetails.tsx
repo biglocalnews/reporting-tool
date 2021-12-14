@@ -1,8 +1,9 @@
 import { Column, ColumnConfig, Pie } from "@ant-design/charts";
 import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
 import { Datum } from "@antv/g2plot";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
+  Button,
   Col,
   Collapse,
   DatePicker,
@@ -29,10 +30,13 @@ import {
   GetDataset_dataset_records_entries,
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
-import { DataEntryTable, IPublishedRecordSet } from "../DataEntry/DataEntryTable";
+import { DELETE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/DeletePublishedRecordSet.gql";
+import { DataEntryTable } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 import "./DatasetDetails.css"
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
+import { IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedRecordSet";
+import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -102,6 +106,21 @@ const DatasetDetails = (): JSX.Element => {
   } = useQuery<GetDataset, GetDatasetVariables>(GET_DATASET, {
     variables: { id: datasetId },
   });
+
+  const [deletePublishedRecordSet] = useMutation(
+    DELETE_PUBLISHED_RECORD_SET,
+    {
+      refetchQueries: [
+        {
+          query: GET_DATASET,
+          variables: {
+            id: datasetId
+          }
+        }
+      ],
+    }
+  );
+
 
   const sumOfEntriesByAttributeCategory = (
     entries: readonly GetDataset_dataset_records_entries[],
@@ -637,61 +656,64 @@ const DatasetDetails = (): JSX.Element => {
               </Row>
             </TabPane>
             <TabPane tab="Details">
-              {filteredRecords?.length ? (
-                <Row>
-                  <Col span={24}>
-                    <DatasetDetailsScoreCard
-                      data={queryData}
-                      datasetId={datasetId}
-                      filteredRecords={filteredRecords}
-                    />
-                  </Col>
-                  <Col span={24}>
-                    <DatasetDetailsRecordsTable
-                      datasetId={datasetId}
-                      datasetData={queryData}
-                      records={filteredRecords}
-                      isLoading={queryLoading}
-
-                    />
-                  </Col>
-                </Row>
-              ) : (
-                noDataAvailable()
-              )}
-            </TabPane>
-            <TabPane tab="Published" key="published">
               {
-                queryData?.dataset.publishedRecordSets?.map(prs =>
-                  <Row key={prs.reportingPeriodId}>
-                    <Col>
-                      {
-                        moment(prs.begin).toISOString()
-                      }
-                    </Col>
-                    <Col>
-                      {
-                        moment(prs.end).toISOString()
-                      }
-                    </Col>
-                    {
-                      Object.keys(prs.document as IPublishedRecordSet).map((k, i) =>
-                        <Col key={i}>{k}</Col>
-                      )
-                    }
+                filteredRecords?.length ? (
+                  <Row>
                     <Col span={24}>
-                      <Row>
-                        <Col>
-                        </Col>
-                        <Col>
-                        </Col>
-
-                      </Row>
+                      <DatasetDetailsScoreCard
+                        data={queryData}
+                        datasetId={datasetId}
+                        filteredRecords={filteredRecords}
+                      />
                     </Col>
+                    <Col span={24}>
+                      <DatasetDetailsRecordsTable
+                        datasetId={datasetId}
+                        datasetData={queryData}
+                        records={filteredRecords}
+                        isLoading={queryLoading}
 
+                      />
+                    </Col>
                   </Row>
+                ) : (
+                  noDataAvailable()
                 )
               }
+            </TabPane>
+            <TabPane tab="Published" key="published">
+              <Collapse>
+                {
+                  queryData?.dataset.publishedRecordSets?.map(prs =>
+                    <Panel
+                      key={prs.reportingPeriodId}
+                      header={
+                        `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
+                      }
+                      extra={
+                        <Button
+                          tabIndex={-1}
+                          type="text"
+                          danger
+                          title={t("deletePublishedRecordSet")}
+                          aria-label={t("deletePublishedRecordSet")}
+                          icon={<CloseCircleOutlined />}
+                          onClick={async () => await deletePublishedRecordSet({
+                            variables: {
+                              id: prs.id
+                            }
+                          })
+                            .then(() => console.log("Deleted!"))
+                            .catch((e) => alert(e))
+                          }
+                        />
+                      }
+                    >
+                      <PublishedRecordSet document={prs.document as IPublishedRecordSetDocument} />
+                    </Panel>
+                  )
+                }
+              </Collapse>
             </TabPane>
           </Tabs>
         </Col>

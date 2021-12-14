@@ -566,5 +566,15 @@ def resolve_create_reporting_period(obj, info, input):
     rp = ReportingPeriod(**input)
     session.add(rp)
     session.commit()
-
     return rp
+
+
+@mutation.field("deletePublishedRecordSet")
+def resolve_delete_published_record_set(obj, info, id):
+    session = info.context["dbsession"]
+    prs = session.query(PublishedRecordSet).get(id)
+    if prs:
+        session.delete(prs)
+        session.commit()
+        return None
+    return id

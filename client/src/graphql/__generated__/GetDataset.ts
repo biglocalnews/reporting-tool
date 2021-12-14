@@ -122,8 +122,11 @@ export interface GetDataset_dataset_tags {
   readonly tagType: string;
 }
 
+
+
 export interface GetDataset_dataset_publishedRecordSets {
   readonly __typename: "PublishedRecordSet";
+  readonly id: string;
   readonly reportingPeriodId: string;
   readonly begin: any;
   readonly end: any;

@@ -77,6 +77,7 @@ export const GET_DATASET = gql`
         tagType
       }
       publishedRecordSets {
+        id
         reportingPeriodId
         begin
         end

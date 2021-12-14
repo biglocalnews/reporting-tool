@@ -23,36 +23,8 @@ import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined
 import { GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
+import { IPublishedEntry, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 
-interface IPublishedEntry {
-    attribute: string,
-    category: string,
-    personType: string,
-    targetMember: boolean,
-    percent: number,
-    count: number
-}
-
-interface IPublishedTag {
-    name: string,
-    group: string
-}
-
-interface IPublishedTarget {
-    category: string,
-    target: number
-}
-
-export interface IPublishedRecordSet {
-    datasetGroup: string
-    reportingPeriodDescription: string,
-    begin: Date,
-    end: Date,
-    record: IPublishedEntry[],
-    targets: IPublishedTarget[],
-    datasetTags: IPublishedTag[],
-    datasetGroupTags: IPublishedTag[],
-}
 
 interface IProps {
     id: string;
@@ -406,7 +378,7 @@ export const DataEntryTable = (props: IProps) => {
                     .flat()
                 )
                 .flat()
-        }) as IPublishedRecordSet;
+        }) as IPublishedRecordSetDocument;
 
     return getReportingPeriods?.length ?
         <Tabs
