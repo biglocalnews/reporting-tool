@@ -26,7 +26,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
 from fastapi_users.router.verify import VERIFY_USER_TOKEN_AUDIENCE
-
+import json
 
 mutation = ObjectType("Mutation")
 
@@ -551,6 +551,8 @@ async def resolve_configure_app(obj, info, input):
 @convert_kwargs_to_snake_case
 def resolve_create_published_record_set(obj, info, input):
     session = info.context["dbsession"]
+    if "document" in input:
+        input["document"] = json.loads(input["document"])
     record = PublishedRecordSet(**input)
     session.add(record)
     session.commit()
@@ -576,5 +578,5 @@ def resolve_delete_published_record_set(obj, info, id):
     if prs:
         session.delete(prs)
         session.commit()
-        return None
-    return id
+        return id
+    raise Exception("Published record set not found")

@@ -1,6 +1,6 @@
-import { Column, ColumnConfig, Pie } from "@ant-design/charts";
+import { Column, ColumnConfig } from "@ant-design/charts";
 import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
-import { Datum } from "@antv/g2plot";
+
 import { useMutation, useQuery } from "@apollo/client";
 import {
   Button,
@@ -37,6 +37,7 @@ import "./DatasetDetails.css"
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedRecordSet";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
+import Pie5050 from "../Charts/Pie";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -225,37 +226,6 @@ const DatasetDetails = (): JSX.Element => {
     );
   };
 
-  const generatePieConfig = (target: {
-    category: GetDataset_dataset_program_targets_category;
-    target: number;
-    status: number;
-  }) => {
-    return {
-      width: 150,
-      height: 150,
-      data: [
-        { targetName: target.category.name, value: target.status },
-        { targetName: "Other", value: 100 - target.status },
-      ],
-      innerRadius: 0.5,
-      angleField: "value",
-      colorField: "targetName",
-      color: (datum: Datum) => {
-        return datum.targetName === "Other"
-          ? getPalette(target.category.name)[1]
-          : getPalette(target.category.name)[0];
-      },
-      tooltip: {
-        formatter: (datum: Datum) => datum.targetName === "Other" ? { name: "Not in target", value: `${datum.value}%` } : {
-          value: `${datum.value}%`, name: `${datum.targetName} target`
-        }
-      },
-      //percent: target.status / 100,
-      legend: false,
-      statistic: () => undefined,
-      label: false,
-    };
-  };
 
   const progressConfig = (
     chartData: IEntry[],
@@ -406,14 +376,9 @@ const DatasetDetails = (): JSX.Element => {
             .map((x) => x.categoryValue.name) ?? new Array<string>()
         )
         : 0;
-      return {
-        category: target.category,
-        target: target.target,
-        offset: status - target.target * 100,
-        status: status,
-      };
+      return { target: target, status: status };
     })
-      .sort((a, b) => b.target - a.target);
+      .sort((a, b) => b.target.target - a.target.target);
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   const groupedByMonthYearRecords = useMemo(() => {
@@ -616,14 +581,19 @@ const DatasetDetails = (): JSX.Element => {
               <h2>{presetDate}</h2>
               <Row justify="center" gutter={[0, 50]}>
                 {
-                  targetStates?.map((target, i) => (
+                  targetStates?.map((targetState, i) => (
                     <Col key={i} span={4} offset={i ? 4 : 0}>
-                      {!isNaN(target.status) ? (
-                        <Pie {...generatePieConfig(target)} />
+                      {!isNaN(targetState.status) ? (
+                        <Pie5050
+                          legend={false}
+                          categoryName={targetState.target.category.name}
+                          target={targetState.target.target * 100}
+                          status={targetState.status}
+                        />
                       ) : (
                         noDataAvailable()
                       )}
-                      <h2 style={{ textAlign: "center" }}>{target.category.name}</h2>
+                      <h2 style={{ textAlign: "center" }}>{targetState.target.category.name}</h2>
                     </Col>
                   ))
                 }
@@ -682,38 +652,42 @@ const DatasetDetails = (): JSX.Element => {
               }
             </TabPane>
             <TabPane tab="Published" key="published">
-              <Collapse>
-                {
-                  queryData?.dataset.publishedRecordSets?.map(prs =>
-                    <Panel
-                      key={prs.reportingPeriodId}
-                      header={
-                        `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
-                      }
-                      extra={
-                        <Button
-                          tabIndex={-1}
-                          type="text"
-                          danger
-                          title={t("deletePublishedRecordSet")}
-                          aria-label={t("deletePublishedRecordSet")}
-                          icon={<CloseCircleOutlined />}
-                          onClick={async () => await deletePublishedRecordSet({
-                            variables: {
-                              id: prs.id
-                            }
-                          })
-                            .then(() => console.log("Deleted!"))
-                            .catch((e) => alert(e))
+              {
+                queryData?.dataset.publishedRecordSets?.length ?
+                  <Collapse>
+                    {
+                      queryData?.dataset.publishedRecordSets?.map(prs =>
+                        <Panel
+                          key={prs.reportingPeriodId}
+                          header={
+                            `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
                           }
-                        />
-                      }
-                    >
-                      <PublishedRecordSet document={prs.document as IPublishedRecordSetDocument} />
-                    </Panel>
-                  )
-                }
-              </Collapse>
+                          extra={
+                            <Button
+                              tabIndex={-1}
+                              type="text"
+                              danger
+                              title={t("deletePublishedRecordSet")}
+                              aria-label={t("deletePublishedRecordSet")}
+                              icon={<CloseCircleOutlined />}
+                              onClick={async () => await deletePublishedRecordSet({
+                                variables: {
+                                  id: prs.id
+                                }
+                              })
+                                .then(() => console.log("Deleted!"))
+                                .catch((e) => alert(e))
+                              }
+                            />
+                          }
+                        >
+                          <PublishedRecordSet document={prs.document as IPublishedRecordSetDocument} />
+                        </Panel>
+                      )
+                    }
+                  </Collapse>
+                  : <h3>{t("noPublishedRecordSets")}</h3>
+              }
             </TabPane>
           </Tabs>
         </Col>
