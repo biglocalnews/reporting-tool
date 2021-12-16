@@ -1,19 +1,13 @@
-import { useMutation } from "@apollo/client";
-import { Button, Popconfirm, Space, Table } from "antd";
+
+import { Table } from "antd";
 import dayjs from "dayjs";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
-import {
-  messageError,
-  messageInfo,
-  messageSuccess,
-} from "../../components/Message";
+
+
 import {
   GetDataset,
   GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
-import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
-import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
+
 import "./DatasetDetailsRecordsTable.css";
 
 interface DatasetRecordsTableProps {
@@ -31,13 +25,10 @@ interface TableData {
 }
 
 const DatasetDetailsRecordsTable = ({
-  datasetId,
   datasetData,
   records,
-  isLoading,
 }: DatasetRecordsTableProps): JSX.Element => {
-  const { t } = useTranslation();
-  const history = useHistory();
+
 
   /*
    * Takes all the entries from a record and sets the
@@ -56,31 +47,6 @@ const DatasetDetailsRecordsTable = ({
     }, {} as TableData);
   });
 
-  const [deleteRecord, { loading: deleteRecordLoader }] = useMutation(
-    DELETE_RECORD,
-    {
-      onError: (error) => {
-        messageError(`${error.message}. Please try again later.`);
-      },
-      onCompleted: (deleted) => {
-        if (deleted) messageSuccess("Succesfully deleted record!");
-      }, // TODO: update cache instead of refetching
-      refetchQueries: [
-        {
-          query: GET_DATASET,
-          variables: { id: datasetId },
-        },
-      ],
-    }
-  );
-
-  const confirmDelete = (recordId: string) => {
-    deleteRecord({ variables: { id: recordId } });
-  };
-
-  const cancelDelete = () => {
-    messageInfo("Delete cancelled");
-  };
 
   return (
     <Table
@@ -91,7 +57,7 @@ const DatasetDetailsRecordsTable = ({
       scroll={{ x: 1000 }}
       sticky
       pagination={{ hideOnSinglePage: true }}
-      loading={isLoading || deleteRecordLoader}
+
       rowKey={(record) => record.id}
     >
       <Table.Column<TableData>
@@ -118,37 +84,7 @@ const DatasetDetailsRecordsTable = ({
             />
           )
       }
-      <Table.Column<TableData>
-        dataIndex="id"
-        key="id"
-        width={150}
-        render={(recordId: string) => {
-          return (
-            <Space>
-              <Button
-                type="link"
-                onClick={() =>
-                  history.push(`/dataset/${datasetId}/entry/edit/${recordId}`)
-                }
-              >
-                {t("editData")}
-              </Button>
-              <Popconfirm
-                title="Permanently delete this record?"
-                onConfirm={() => confirmDelete(recordId)}
-                onCancel={cancelDelete}
-                okText="Yes, delete"
-                okType="danger"
-                cancelText="No, cancel"
-              >
-                <Button id="delete-record" danger size="small" type="link">
-                  Delete
-                </Button>
-              </Popconfirm>
-            </Space>
-          );
-        }}
-      />
+
     </Table>
   );
 };

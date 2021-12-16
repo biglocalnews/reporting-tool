@@ -23,7 +23,7 @@ import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined
 import { GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
-import { IPublishedEntry, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
+import { IPublishedEntry, IPublishedRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
 
 
 interface IProps {
@@ -116,7 +116,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
-    const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState(false);
+    const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<number, boolean>);
 
     const { t } = useTranslation();
 
@@ -310,7 +310,7 @@ export const DataEntryTable = (props: IProps) => {
             targets: getDatasetData.dataset.program.targets
                 .map(x => ({ category: x.category.name, target: x.target * 100 }))
                 .sort((a, b) => b.target - a.target),
-            record: Object.values(getDatasetData.dataset.records
+            record: getDatasetData.dataset.records
                 .filter(x =>
                     reportingPeriod.range &&
                     moment(x.publicationDate)
@@ -340,6 +340,7 @@ export const DataEntryTable = (props: IProps) => {
 
                             if (!groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute]) {
                                 groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {} as IPublishedEntry;
+                                const total = groupedByPersonTypeCategoryAttribute[personType][category].total ?? 0;
                                 groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {
                                     attribute: attribute,
                                     category: currEntry.categoryValue.category.name,
@@ -348,37 +349,42 @@ export const DataEntryTable = (props: IProps) => {
                                     targetMember: getDatasetData.dataset.program.targets
                                         .flatMap(x => x.tracks)
                                         .some(track => track.categoryValue.id === currEntry.categoryValue.id && track.targetMember),
-                                    percent: groupedByPersonTypeCategoryAttribute[personType][category].total ? (
+                                    percent: (
                                         currEntry.count /
-                                        groupedByPersonTypeCategoryAttribute[personType][category].total
-                                    ) * 100 : 0
+                                        total
+                                    ) * 100
                                 }
                             }
                             else {
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count += currEntry.count;
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].percent = groupedByPersonTypeCategoryAttribute[personType][category].total ?
+                                const newCount = groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count ?? 0 + currEntry.count;
+                                const total = groupedByPersonTypeCategoryAttribute[personType][category].total ?? 0;
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count = newCount;
+                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].percent =
                                     (
-                                        groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count /
-                                        groupedByPersonTypeCategoryAttribute[personType][category].total
-                                    ) * 100 : 0;
+                                        newCount /
+                                        total
+                                    ) * 100;
+
                             }
                         });
 
                     return groupedByPersonTypeCategoryAttribute;
-                }, {} as Record<string, Record<string, { total: number, entries: Record<string, IPublishedEntry> }>>))
-                //flatten and remove count
-                .map(byPersonType => Object.values(byPersonType)
-                    .map(byCategory => Object.values(byCategory.entries)
-                        .map(byAttribute => {
-                            const { count, ...rest } = byAttribute;
-                            count;
-                            return rest;
-                        })
-                    )
-                    .flat()
-                )
-                .flat()
+                }, {} as Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>)
         }) as IPublishedRecordSetDocument;
+
+
+
+    const stripCountsFromEntries = (document: IPublishedRecordSetDocument) => {
+        for (const personType in document.record) {
+            for (const category in document.record[personType]) {
+                delete document.record[personType][category]["total"];
+                for (const entry in document.record[personType][category]["entries"]) {
+                    delete document.record[personType][category]["entries"][entry]["count"];
+                }
+            }
+        }
+        return document;
+    }
 
     if (!getReportingPeriods(false)?.length) {
         if (getReportingPeriods(true)?.length) return <p>{t("allReportingPeriodsPublished")}</p>
@@ -392,13 +398,13 @@ export const DataEntryTable = (props: IProps) => {
     >
         {
             getReportingPeriods(false)?.
-                map((reportingPeriod, i) =>
+                map((reportingPeriod, rpIndex) =>
                     <TabPane
                         tab={`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
-                        key={i}
+                        key={rpIndex}
                     >
                         <Modal title="Publish this?"
-                            visible={publishedRecordSetModalVisiblity}
+                            visible={publishedRecordSetModalVisiblity[rpIndex]}
                             onOk={async () => {
                                 await createPublishedRecordSet({
                                     variables: {
@@ -413,20 +419,19 @@ export const DataEntryTable = (props: IProps) => {
                                 })
                                     .then(() => console.log("Published!"))
                                     .catch((e) => alert(e))
-                                setPublishedRecordSetModalVisiblity(false)
+                                setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }));
                             }
                             }
-                            onCancel={() => setPublishedRecordSetModalVisiblity(false)}>
-
-                            <pre>{JSON.stringify(getRecordSetDocument(reportingPeriod), null, 2)}</pre>
-
+                            onCancel={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }))}
+                        >
+                            <PublishedRecordSet summary={true} document={stripCountsFromEntries(getRecordSetDocument(reportingPeriod))} />
                         </Modal>
                         <Row>
                             <Col span={24} style={{ display: "flex" }}>
                                 <Button
                                     type="primary"
                                     icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
-                                    onClick={() => setPublishedRecordSetModalVisiblity(true)}
+                                    onClick={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: true }))}
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                                 <div style={{ flexGrow: 1 }} />
@@ -464,12 +469,11 @@ export const DataEntryTable = (props: IProps) => {
                                 <Tabs centered={true}>
                                     {
                                         (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
-                                            .map((personType: IPersonType) =>
-                                                <TabPane tab={personType.personTypeName} key={personType.id}>
+                                            .map((personType: IPersonType, pTypeindex) =>
+                                                <TabPane tab={personType.personTypeName} key={pTypeindex}>
                                                     <Table
                                                         pagination={false}
                                                         scroll={{ x: "max-content" }}
-                                                        key={i}
                                                         columns={[
                                                             {
                                                                 render: function d(record) {
