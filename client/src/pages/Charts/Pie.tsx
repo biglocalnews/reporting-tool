@@ -45,7 +45,7 @@ const Pie5050 = (props: IProps) => {
                     textOverflow: 'ellipsis',
                     fontSize: 'x-large'
                 },
-                content: props.status.toString(),
+                customHtml: () => Math.round(props.status).toString()
             },
         },
         label: false,
