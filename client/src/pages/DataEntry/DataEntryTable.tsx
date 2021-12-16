@@ -398,7 +398,7 @@ export const DataEntryTable = (props: IProps) => {
     >
         {
             getReportingPeriods(false)?.
-                map((reportingPeriod, rpIndex) =>
+                map((reportingPeriod, rpIndex: number) =>
                     <TabPane
                         tab={`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
                         key={rpIndex}
@@ -469,7 +469,7 @@ export const DataEntryTable = (props: IProps) => {
                                 <Tabs centered={true}>
                                     {
                                         (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
-                                            .map((personType: IPersonType, pTypeindex) =>
+                                            .map((personType: IPersonType, pTypeindex: number) =>
                                                 <TabPane tab={personType.personTypeName} key={pTypeindex}>
                                                     <Table
                                                         pagination={false}
