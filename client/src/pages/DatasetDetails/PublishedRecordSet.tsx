@@ -76,8 +76,10 @@ export const PublishedRecordSet = ({ document, summary }: IProps) => {
                                                 Object.entries(v.entries)
                                                     .filter(([, v]) => v.percent)
                                                     .map(([attribute, entry], i) => (
-                                                        <Col span={summary ? 8 : 4} key={i} style={{ opacity: entry.targetMember ? "unset" : 0.5 }}>
-                                                            <b style={{ textAlign: "center" }}>{attribute}</b>
+                                                        <Col sm={summary ? 16 : 8} lg={summary ? 8 : 4} key={i} style={{ opacity: entry.targetMember ? "unset" : 0.5 }}>
+                                                            <div style={{ textAlign: "center" }}>
+                                                                <b>{attribute}</b>
+                                                            </div>
                                                             <Pie5050
                                                                 legend={false}
                                                                 categoryName={entry.category}

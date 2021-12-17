@@ -356,7 +356,7 @@ export const DataEntryTable = (props: IProps) => {
                                 }
                             }
                             else {
-                                const newCount = groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count ?? 0 + currEntry.count;
+                                const newCount = (groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count ?? 0) + currEntry.count;
                                 const total = groupedByPersonTypeCategoryAttribute[personType][category].total ?? 0;
                                 groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count = newCount;
                                 groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].percent =
