@@ -440,7 +440,7 @@ export const DataEntryTable = (props: IProps) => {
                                     {
                                         addRecordDatePicker &&
                                         <DatePicker
-                                            value={moment()}
+                                            value={addRecordDatePicker}
                                             onChange={(v) => v ? setAddRecordDatePicker(v) : setAddRecordDatePicker(undefined)}
                                         />
                                     }
