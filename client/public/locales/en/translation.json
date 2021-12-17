@@ -8,7 +8,7 @@
   "attributeDescription": "{{description}}",
   "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
   "datasetRecordsTableTitle": "{{title}}",
-  "saveRecord": "{{buttonTitle}} Record",
+  "saveRecord": "Save record",
   "recordDate": "Date of record",
   "numberOf": "Number of",
   "reportingPeriod": "Reporting Period",

@@ -12,7 +12,7 @@ import {
 
 import { CreatePublishedRecordSetInput, CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
-import { Button, Col, DatePicker, InputNumber, Modal, Row, Table, Tabs } from 'antd';
+import { Button, Col, DatePicker, InputNumber, Modal, Row, Space, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
 
 import moment from 'moment';
@@ -117,6 +117,7 @@ export const DataEntryTable = (props: IProps) => {
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
     const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<number, boolean>);
+    const [addRecordDatePicker, setAddRecordDatePicker] = useState<moment.Moment | undefined>(undefined);
 
     const { t } = useTranslation();
 
@@ -413,7 +414,7 @@ export const DataEntryTable = (props: IProps) => {
                                             end: reportingPeriod.range[1],
                                             datasetId: getDatasetData.dataset.id,
                                             reportingPeriodId: reportingPeriod.id,
-                                            document: JSON.stringify(getRecordSetDocument(reportingPeriod))
+                                            document: JSON.stringify(stripCountsFromEntries(getRecordSetDocument(reportingPeriod)))
                                         }
                                     }
                                 })
@@ -435,35 +436,52 @@ export const DataEntryTable = (props: IProps) => {
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                                 <div style={{ flexGrow: 1 }} />
-                                <Button
-                                    type="primary"
-                                    onClick={
-                                        async () => await createRecord({
-                                            variables: {
-                                                input: {
-                                                    publicationDate: getRandomDateTime(moment(reportingPeriod.range[1])).toISOString(),
-                                                    datasetId: getDatasetData.dataset.id,
-                                                    entries: currentTrackedAttributes.map(cv => {
-                                                        if (personTypeArrayFromDataset.length) {
-                                                            return personTypeArrayFromDataset.map(pt => ({
-                                                                personTypeId: pt.id,
-                                                                categoryValueId: cv.id,
-                                                                count: 0,
-                                                            }))
-                                                        }
-                                                        return ({
-                                                            categoryValueId: cv.id,
-                                                            count: 0,
-                                                        })
-                                                    }).flat()
-                                                }
-                                            }
-                                        })
-                                            .then(() => console.log("Created!"))
-                                            .catch((e) => alert(e))
+                                <Space>
+                                    {
+                                        addRecordDatePicker &&
+                                        <DatePicker
+                                            value={moment()}
+                                            onChange={(v) => v ? setAddRecordDatePicker(v) : setAddRecordDatePicker(undefined)}
+                                        />
                                     }
-                                >{t("addData")}</Button>
-
+                                    <Button
+                                        type="primary"
+                                        danger={addRecordDatePicker ? true : false}
+                                        onClick={
+                                            async () => {
+                                                if (!addRecordDatePicker) return setAddRecordDatePicker(moment())
+                                                await createRecord({
+                                                    variables: {
+                                                        input: {
+                                                            publicationDate: getRandomDateTime(addRecordDatePicker).toISOString(),
+                                                            datasetId: getDatasetData.dataset.id,
+                                                            entries: currentTrackedAttributes.map(cv => {
+                                                                if (personTypeArrayFromDataset.length) {
+                                                                    return personTypeArrayFromDataset.map(pt => ({
+                                                                        personTypeId: pt.id,
+                                                                        categoryValueId: cv.id,
+                                                                        count: 0,
+                                                                    }))
+                                                                }
+                                                                return ({
+                                                                    categoryValueId: cv.id,
+                                                                    count: 0,
+                                                                })
+                                                            }).flat()
+                                                        }
+                                                    }
+                                                })
+                                                    .then(() => {
+                                                        console.log("Created!");
+                                                        setAddRecordDatePicker(undefined);
+                                                    })
+                                                    .catch((e) => alert(e))
+                                            }
+                                        }
+                                    >
+                                        {addRecordDatePicker ? t("saveRecord") : t("addData")}
+                                    </Button>
+                                </Space>
                             </Col>
                             <Col span={24}>
                                 <Tabs centered={true}>
