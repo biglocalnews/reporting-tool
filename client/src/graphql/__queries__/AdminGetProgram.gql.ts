@@ -13,6 +13,8 @@ export const ADMIN_GET_PROGRAM = gql`
       tags {
         id
         name
+        tagType
+        description
       }
       datasets {
         id

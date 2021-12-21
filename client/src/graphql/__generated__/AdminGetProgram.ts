@@ -19,6 +19,8 @@ export interface AdminGetProgram_program_tags {
   readonly __typename: "Tag";
   readonly id: string;
   readonly name: string;
+  readonly tagType: string;
+  readonly description: string | null;
 }
 
 export interface AdminGetProgram_program_datasets_personTypes {

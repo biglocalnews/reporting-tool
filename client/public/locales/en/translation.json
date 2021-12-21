@@ -231,7 +231,11 @@
           "restore": "Restore",
           "confirmDelete": "Do you really wish to delete this $t(program)?",
           "team": "Assigned team",
-          "tags": "Tags",
+          "newTagPrompt": "Create a new tag",
+          "tags": {
+            "name": "Name",
+            "type": "Group"
+          },
           "datasetName": "Dataset name",
           "datasetDescription": "Dataset description",
           "addCategoryPlaceholder": "Select a new category to track",
@@ -257,6 +261,8 @@
           "validation": {
             "nameRequired": "You must enter a name",
             "teamRequired": "You must assign a team",
+            "tagRequired": "You must enter a tag name",
+            "tagGroupRequired": "You must enter a tag group",
             "100%": "Targets within a category must sum to 100%.",
             "uniqueTargets": "Targets must all be unique.",
             "needSegments": "You must add at least one segment to track in a category.",

@@ -366,7 +366,12 @@ const DatasetDetails = (): JSX.Element => {
                 }
                 <Col span={24}>
                   <Collapse>
-                    <Panel className="customPanel" showArrow={true} header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>} extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />} key="1">
+                    <Panel
+                      className="customPanel"
+                      showArrow={true}
+                      header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>}
+                      extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />}
+                      key="1">
                       {
                         <Row justify="center">
                           <ProgressColumns dataset={queryData?.dataset} records={sortedRecords} />

@@ -7,6 +7,7 @@ import {
 import { useQuery } from "@apollo/client/react/hooks";
 import {
   Alert,
+  AutoComplete,
   Button,
   Col,
   DatePicker,
@@ -192,6 +193,7 @@ export const EditProgram = () => {
   const [datasets, setAllDatasets] = useState(
     new Array<AllDatasets_teams_programs_datasets>()
   );
+  const [newTagValue, setNewTagValue] = useState<{ name: string } | undefined>();
 
   const programResponse = useQueryWithErrorHandling<
     AdminGetProgram,
@@ -261,10 +263,7 @@ export const EditProgram = () => {
     name: programResponse.data!.program.name,
     description: programResponse.data!.program.description,
     teamId: programResponse.data!.program.team?.id,
-    tags: programResponse.data!.program.tags.map(({ id, name }) => ({
-      label: name,
-      value: id,
-    })),
+    tags: programResponse.data!.program.tags.map(({ __typename, ...rest }) => { __typename; return { ...rest } }),
     targets: getGroupedTargets(programResponse.data!.program.targets),
     reportingPeriodType: programResponse.data!.program.reportingPeriodType,
     reportingPeriods: programResponse.data!.program.reportingPeriods!
@@ -400,23 +399,133 @@ export const EditProgram = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item label={t("admin.program.edit.form.tags")} name="tags">
-          <Select
-            disabled={inactive}
-            mode="tags"
-            labelInValue
-            placeholder={t("admin.program.edit.newTagPrompt")}
-            filterOption={(input, option) =>
-              option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {tagsResponse.data?.tags.map((tag) => (
-              <Select.Option key={tag.id} value={tag.id}>
-                {tag.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+        <Form.List name="tags">
+          {
+            (tagFields, tagOps) =>
+              <div>
+                <Row>
+                  <Col offset={2} span={20}><Divider orientation="left">Tags</Divider></Col>
+                </Row>
+                {
+                  tagFields.map(({ key, name, fieldKey, ...restField }) =>
+                    <Row key={key}>
+                      <Col offset={4} span={8}>
+                        <Form.Item
+                          {...restField}
+                          label={t("admin.program.edit.form.tags.type")}
+                          name={[name, "tagType"]}
+                          fieldKey={[fieldKey, "tagType"]}
+                          labelCol={{ span: 6 }}
+                          wrapperCol={{ span: 18 }}
+                          rules={[
+                            {
+                              required: true,
+                              message: t("admin.program.edit.form.validation.tagGroupRequired"),
+                            },
+                          ]}
+                        >
+                          <AutoComplete
+                            disabled={inactive}
+                            options={
+                              Array.from(new Set(tagsResponse.data?.tags.map(x => x.tagType)))
+                                .map(group => ({ value: group }))
+                            }
+                            filterOption={(inputValue, option) =>
+                              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          {...restField}
+                          label={t("admin.program.edit.form.tags.name")}
+                          name={[name, "name"]}
+                          fieldKey={[fieldKey, 'name']}
+                          labelCol={{ span: 6 }}
+                          wrapperCol={{ span: 18 }}
+                          rules={[
+                            {
+                              required: true,
+                              message: t("admin.program.edit.form.validation.tagRequired"),
+                            },
+                          ]}
+                        >
+                          <AutoComplete
+                            disabled={inactive}
+                            options={
+                              Array.from(new Set(tagsResponse.data?.tags.map(x => x.name)))
+                                .map(name => ({ value: name }))
+                            }
+                            filterOption={(inputValue, option) =>
+                              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={2} style={{ textAlign: "right" }}>
+                        <Button
+                          aria-label={t("admin.program.edit.form.newTagPrompt")}
+                          title={t("admin.program.edit.form.newTagPrompt")}
+                          type="text"
+                          danger
+                          icon={<CloseCircleOutlined />}
+                          onClick={() => tagOps.remove(name)}
+                        />
+                      </Col>
+                    </Row>
+                  )}
+                <Row>
+                  <Col offset={14} span={6}>
+                    <Form.Item
+                      wrapperCol={{ span: 24 }}
+                    >
+                      <AutoComplete
+                        disabled={inactive}
+                        placeholder={t("admin.program.edit.form.newTagPrompt")}
+                        onChange={(v) => setNewTagValue({ name: v })}
+                        onKeyUp={(e) => e.key === 'Enter' && newTagValue && tagOps.add(newTagValue)}
+                        options={
+                          Object.values(
+                            tagsResponse.data?.tags.reduce((grouped, tag) => {
+                              const group = tag.tagType.toLowerCase();
+                              if (!grouped[group]) {
+                                grouped[group] = {
+                                  label: (<b>{tag.tagType}</b>),
+                                  options: [{
+                                    value: tag.name,
+                                    label: (<div>{tag.name}</div>)
+                                  }]
+                                };
+                              } else {
+                                if (!grouped[group].options.some(x => x.value.toLowerCase() === tag.name.toLowerCase())) {
+                                  grouped[group].options.push({
+                                    value: tag.name,
+                                    label: (<div>{tag.name}</div>)
+                                  });
+                                }
+                              }
+                              return grouped;
+                            }, {} as Record<string, { label: React.ReactNode, options: { value: string, label: React.ReactNode }[] }>) ?? {}
+                          )
+                        }
+
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={2} style={{ textAlign: "right" }}>
+                    <Button
+                      type="text"
+                      icon={<PlusCircleOutlined />}
+                      onClick={() => newTagValue && tagOps.add(newTagValue)}
+                    />
+                  </Col>
+                </Row>
+              </div>
+          }
+        </Form.List>
+
+
 
         <Typography.Title level={4} style={{ paddingTop: 48 }}>
           {t("admin.program.edit.targetTitle")}
