@@ -8,6 +8,7 @@ from settings import settings
 from database import (
     Category,
     CategoryValue,
+    CustomColumnValue,
     Dataset,
     Entry,
     Organization,
@@ -141,6 +142,10 @@ def resolve_update_record(obj, info, input):
     current_user = info.context["current_user"]
 
     record = session.query(Record).get(input["id"])
+
+    if not record:
+        raise NoResultFound(f'No record with id: {input["id"]} was found.')
+
     all_entries = input.pop("entries", [])
     for entry in all_entries:
         existing_entry = session.query(Entry).get(entry.get("id"))
@@ -152,7 +157,27 @@ def resolve_update_record(obj, info, input):
                     f"No Entry with id: {existing_entry.id} associated with Record id: {record.id} was found."
                 )
         else:
-            Entry(record=record, inputter=current_user, **entry)
+            e = Entry(record=record, inputter=current_user, **entry)
+            record.entries.append(e)
+
+    all_custom_values = input.pop("custom_column_values", [])
+    for custom_value in all_custom_values:
+        existing_custom_value = session.query(CustomColumnValue).get(
+            custom_value.get("id")
+        )
+        if existing_custom_value:
+            if str(existing_custom_value.record_id) == input["id"]:
+                session.merge(CustomColumnValue(**custom_value))
+            else:
+                raise NoResultFound(
+                    f"No custom column value with id: {existing_custom_value.id} associated with Record id: {record.id} was found."
+                )
+        else:
+            ccv = CustomColumnValue(
+                record=record, inputter=current_user, **custom_value
+            )
+            record.custom_column_values.append(ccv)
+
     for param in input:
         setattr(record, param, input[param])
     session.add(record)

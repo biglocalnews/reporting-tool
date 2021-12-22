@@ -10,9 +10,9 @@ import {
     GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_program_targets_category, GetDataset_dataset_records_entries_categoryValue
 } from "../../graphql/__generated__/GetDataset";
 
-import { CreatePublishedRecordSetInput, CreateRecordInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
+import { CreatePublishedRecordSetInput, CreateRecordInput, CustomColumnType, CustomColumnValueInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
-import { Button, Col, DatePicker, InputNumber, Modal, Row, Space, Table, Tabs } from 'antd';
+import { Button, Col, DatePicker, Input, InputNumber, Modal, Row, Space, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
 
 import moment from 'moment';
@@ -20,7 +20,7 @@ import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord.gql";
 import { useState } from "react";
 import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
-import { GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
+import { GetRecord_record_customColumnValues_customColumn, GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
 import { IPublishedEntry, IPublishedRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
@@ -38,6 +38,12 @@ interface ITableRow {
 
 interface ITableEntry extends EntryInput {
     elementId: string
+}
+
+interface ITableCustomValue extends CustomColumnValueInput {
+    elementId: string,
+    type: string,
+    description: string | undefined
 }
 
 interface IPersonType {
@@ -115,6 +121,7 @@ export const DataEntryTable = (props: IProps) => {
     });
 
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
+    const [selectedForCustomInput, setSelectedForCustomInput] = useState<ITableCustomValue | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
     const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<number, boolean>);
     const [addRecordDatePicker, setAddRecordDatePicker] = useState<moment.Moment | undefined>(undefined);
@@ -135,6 +142,21 @@ export const DataEntryTable = (props: IProps) => {
         .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
         .filter(x => x)
         .map(x => ({ id: x.id, personTypeName: x.personTypeName }));
+
+    const customColumnArrayFromDataset = getDatasetData?.dataset.customColumns ?? [];
+
+    const customColumnArrayFromRecords = (range: GetDataset_dataset_program_reportingPeriods) => Array.from(new Set(getDatasetData?.dataset.records
+        .filter(x =>
+            range.range &&
+            moment(x.publicationDate)
+                .isBetween(moment(range.range[0]), moment(range.range[1]))
+        )
+        .map(r => r.customColumnValues).flat().map(x => x?.customColumn))) ?? [];
+
+    const mergedCustomColumns = (range: GetDataset_dataset_program_reportingPeriods) => customColumnArrayFromDataset
+        .filter(x => !customColumnArrayFromRecords(range).some(y => y?.id === x.id))
+        .concat(customColumnArrayFromRecords(range) as GetRecord_record_customColumnValues_customColumn[])
+        .filter(x => x);
 
     const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
         .filter(x => x.category.id === attributeCategory.id)
@@ -252,6 +274,88 @@ export const DataEntryTable = (props: IProps) => {
                 children: getChildren(reportingPeriod, attributeCategory, personType)
             }));
 
+    const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
+        mergedCustomColumns(reportingPeriod)
+            .map((customColumn) => ({
+                title: customColumn.name,
+                dataIndex: customColumn.name,
+                key: customColumn.name,
+                render: function pd(customValue: ITableCustomValue, record: ITableRow) {
+                    if (!customValue) {
+                        customValue = {
+                            customColumnId: customColumn.id,
+                            value: undefined,
+                            elementId: `${record.id}-${customColumn.id}`,
+                            type: CustomColumnType.string,
+                            description: undefined
+                        }
+                    }
+                    const save = async () => {
+                        if (!selectedForCustomInput || selectedForCustomInput.value === undefined || selectedForCustomInput.value === null) return;
+                        const { elementId, type, description, ...customValueInput } = selectedForCustomInput;
+                        //remove elementId and keep linter happy by using it!
+                        elementId;
+                        type;
+                        description;
+
+                        let promise;
+                        promise = record.id ? saveRecord({
+                            variables: {
+                                input: {
+                                    id: record.id,
+                                    customColumnValues: [customValueInput]
+                                }
+                            }
+                        }) :
+                            promise = createRecord({
+                                variables: {
+                                    input: {
+                                        datasetId: props.id,
+                                        publicationDate: moment().toISOString(),
+                                        customColumnValues: [customValueInput]
+                                    }
+                                }
+                            })
+                        await promise
+                            .catch((e) => setSelectedForCustomInput(() => alert(e) as undefined))
+                            .finally(() => setSelectedForCustomInput((curr) => curr?.id === customValue.id ? undefined : curr));
+
+                    }
+
+                    if (selectedForCustomInput?.elementId === customValue.elementId) {
+                        switch (customColumn.type) {
+                            default:
+                                return <Input
+                                    type="text"
+                                    tabIndex={0}
+                                    autoFocus={true}
+                                    //style={{ width: "60px" }}
+                                    title={customColumn.name}
+                                    aria-label={customColumn.name}
+                                    onChange={(e) => setSelectedForCustomInput({
+                                        ...customValue,
+                                        value: e.target.value === undefined ? undefined : e.target.value
+                                    })}
+                                    onPressEnter={() => save()}
+                                    onBlur={() => save()}
+                                    value={selectedForCustomInput?.value ?? undefined}
+                                />
+                        }
+                    }
+                    return <div
+                        tabIndex={0}
+                        role="button"
+                        title={customColumn.name}
+                        aria-label={customColumn.name}
+                        onKeyDown={() => setSelectedForCustomInput(customValue)}
+                        onClick={() => setSelectedForCustomInput(customValue)}
+                        onFocus={() => setSelectedForCustomInput(customValue)}
+                    >
+                        {customValue.value === undefined ? <em>{t("null")}</em> : customValue.value}
+                    </div>
+                }
+            }));
+
     const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         personType: IPersonType) => {
         const tableData = getDatasetData.dataset.records
@@ -277,8 +381,22 @@ export const DataEntryTable = (props: IProps) => {
                             }
                         }
                         return obj;
-                    }, {} as EntryInput);
-                tableData.push({ id: record.id, date: currDate, index: i, ...entries });
+                    }, {} as any);
+                const customColumnValues = record.customColumnValues?.
+                    reduce((obj, currValue) => {
+                        obj = {
+                            ...obj,
+                            [currValue.customColumn.name]: {
+                                id: currValue.id,
+                                elementId: currValue.id,
+                                customColumnId: currValue.customColumn.id,
+                                value: currValue.value,
+                                type: currValue.customColumn.type
+                            }
+                        }
+                        return obj;
+                    }, {} as any);
+                tableData.push({ id: record.id, date: currDate, index: i, ...entries, ...customColumnValues });
                 return tableData;
 
             }, [] as ITableRow[])
@@ -561,6 +679,7 @@ export const DataEntryTable = (props: IProps) => {
                                                                 sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
                                                                 sortDirections: ['ascend', 'descend'],
                                                             },
+                                                            ...getCustomColumns(reportingPeriod),
                                                             ...getColumns(reportingPeriod, personType)
                                                         ]}
                                                         dataSource={getTableData(reportingPeriod, personType)}

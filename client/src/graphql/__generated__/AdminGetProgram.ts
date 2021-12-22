@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { ReportingPeriodType } from "./globalTypes";
+import { CustomColumnType, ReportingPeriodType } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: AdminGetProgram
@@ -29,12 +29,21 @@ export interface AdminGetProgram_program_datasets_personTypes {
   readonly personTypeName: string;
 }
 
+export interface AdminGetProgram_program_datasets_customColumns {
+  readonly __typename: "CustomColumn";
+  readonly id: string;
+  readonly name: string;
+  readonly type: CustomColumnType | null;
+  readonly description: string | null;
+}
+
 export interface AdminGetProgram_program_datasets {
   readonly __typename: "Dataset";
   readonly id: string;
   readonly name: string;
   readonly description: string | null;
   readonly personTypes: ReadonlyArray<AdminGetProgram_program_datasets_personTypes>;
+  readonly customColumns: ReadonlyArray<AdminGetProgram_program_datasets_customColumns> | null;
 }
 
 export interface AdminGetProgram_program_reportingPeriods {

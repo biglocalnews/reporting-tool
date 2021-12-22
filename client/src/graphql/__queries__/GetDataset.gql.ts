@@ -54,6 +54,15 @@ export const GET_DATASET = gql`
       records {
         id
         publicationDate
+        customColumnValues {
+          id
+          customColumn {
+            id
+            name
+            type
+          }
+          value
+        }
         entries {
           id
           categoryValue {
@@ -82,6 +91,12 @@ export const GET_DATASET = gql`
         begin
         end
         document
+      }
+      customColumns {
+        id
+        name
+        type
+        description
       }
     }
   }

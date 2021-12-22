@@ -35,6 +35,7 @@ import { Loading } from "../../components/Loading/Loading";
 import { NewStringInput } from "../../components/NewStringInput";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import { AdminGetAllCategories } from "../../graphql/__generated__/AdminGetAllCategories";
+import { AdminGetAllCustomColumns } from "../../graphql/__generated__/AdminGetAllCustomColumns";
 import { AdminGetAllPersonTypes } from "../../graphql/__generated__/AdminGetAllPersonTypes";
 import { AdminGetAllTeams } from "../../graphql/__generated__/AdminGetAllTeams";
 import {
@@ -50,6 +51,7 @@ import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { ReportingPeriodType } from "../../graphql/__generated__/globalTypes";
 
 import { ADMIN_GET_ALL_CATEGORIES } from "../../graphql/__queries__/AdminGetAllCategories.gql";
+import { ADMIN_GET_ALL_CUSTOM_COLUMNS } from "../../graphql/__queries__/AdminGetAllCustomColumns.gql";
 import { ADMIN_GET_ALL_PERSON_TYPES } from "../../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
@@ -229,6 +231,11 @@ export const EditProgram = () => {
     "personTypes"
   );
 
+  const customColumnsResponse = useQueryWithErrorHandling<AdminGetAllCustomColumns>(
+    ADMIN_GET_ALL_CUSTOM_COLUMNS,
+    "customColumns"
+  );
+
   const { data: allTeams, loading: allTeamsLoading } = useQuery<AllDatasets>(
     ALL_DATASETS,
     {
@@ -274,6 +281,7 @@ export const EditProgram = () => {
     datasets: programResponse.data!.program.datasets.map((ds) => ({
       ...ds,
       personTypes: ds.personTypes.map(({ personTypeName }) => personTypeName),
+      customColumns: ds.customColumns?.map(({ name }) => name),
     })),
   };
 
@@ -928,6 +936,40 @@ export const EditProgram = () => {
                                 )}
                                 disabled={inactive}
                               />
+                            </Form.Item>
+                            <Form.Item
+                              label={t(
+                                "admin.program.edit.form.datasetCustomColumns"
+                              )}
+                              wrapperCol={{ span: 24 }}
+                              name={[datasetField.name, "customColumns"]}
+                            >
+                              <Select
+                                disabled={inactive}
+                                aria-label={t(
+                                  "admin.program.edit.form.customColumns"
+                                )}
+                                mode="tags"
+                                placeholder={t(
+                                  "admin.program.edit.form.newCustomColumnPrompt"
+                                )}
+                                filterOption={(input, option) =>
+                                  option?.children
+                                    ?.toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                }
+                              >
+                                {customColumnsResponse.data?.customColumns.map(
+                                  ({ name, id }) => (
+                                    <Select.Option
+                                      key={id}
+                                      value={name}
+                                    >
+                                      {name}
+                                    </Select.Option>
+                                  )
+                                )}
+                              </Select>
                             </Form.Item>
                           </>
                         }

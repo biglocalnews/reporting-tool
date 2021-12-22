@@ -8,6 +8,16 @@ export const GET_RECORD = gql`
       dataset {
         name
       }
+      customColumnValues {
+        id
+        customColumn {
+          id
+          name
+          type
+          description
+        }
+        value
+      }
       entries {
         id
         categoryValue {

@@ -30,7 +30,15 @@ export type DatasetFormValues = Readonly<{
   name: string;
   description: string | null;
   personTypes: string[];
+  customColumns: string[] | undefined;
 }>;
+
+/*type customColumn = Readonly<{
+  id?: string;
+  name: string;
+  type: CustomColumnType | null;
+  description: string | null;
+}>;*/
 
 /**
  * Form values to represent a tag for a program.
@@ -213,6 +221,7 @@ export const useSave = getOpHook(
               name: dataset.name,
               description: dataset.description,
               personTypes: dataset.personTypes,
+              customColumns: dataset.customColumns
             })),
             reportingPeriodType: input.reportingPeriodType,
             reportingPeriods: input.reportingPeriods?.map(rp => ({

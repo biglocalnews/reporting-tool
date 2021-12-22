@@ -3,6 +3,8 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
+import { CustomColumnType } from "./globalTypes";
+
 // ====================================================
 // GraphQL query operation: GetRecord
 // ====================================================
@@ -10,6 +12,21 @@
 export interface GetRecord_record_dataset {
   readonly __typename: "Dataset";
   readonly name: string;
+}
+
+export interface GetRecord_record_customColumnValues_customColumn {
+  readonly __typename: "CustomColumn";
+  readonly id: string;
+  readonly name: string;
+  readonly type: CustomColumnType | null;
+  readonly description: string | null;
+}
+
+export interface GetRecord_record_customColumnValues {
+  readonly __typename: "CustomColumnValue";
+  readonly id: string;
+  readonly customColumn: GetRecord_record_customColumnValues_customColumn;
+  readonly value: string | null;
 }
 
 export interface GetRecord_record_entries_categoryValue_category {
@@ -45,6 +62,7 @@ export interface GetRecord_record {
   readonly id: string;
   readonly publicationDate: any;
   readonly dataset: GetRecord_record_dataset;
+  readonly customColumnValues: ReadonlyArray<GetRecord_record_customColumnValues> | null;
   readonly entries: ReadonlyArray<GetRecord_record_entries>;
 }
 

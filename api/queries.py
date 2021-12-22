@@ -1,6 +1,7 @@
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.sql.expression import func
 from database import (
+    CustomColumn,
     Dataset,
     PublishedRecordSet,
     ReportingPeriod,
@@ -289,6 +290,12 @@ def resolve_person_types(obj, info):
     """
     session = info.context["dbsession"]
     return session.query(PersonType).order_by(PersonType.person_type_name.asc()).all()
+
+
+@query.field("customColumns")
+def resolve_person_types(obj, info):
+    session = info.context["dbsession"]
+    return session.query(CustomColumn).order_by(CustomColumn.name.asc()).all()
 
 
 @query.field("publishedRecordSet")

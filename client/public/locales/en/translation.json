@@ -232,6 +232,8 @@
           "confirmDelete": "Do you really wish to delete this $t(program)?",
           "team": "Assigned team",
           "newTagPrompt": "Create a new tag",
+          "datasetCustomColumns": "Custom columns",
+          "newCustomColumnPrompt": "Create a new custom column",
           "tags": {
             "name": "Name",
             "type": "Group"

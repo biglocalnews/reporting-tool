@@ -3,6 +3,8 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
+import { CustomColumnType } from "./globalTypes";
+
 // ====================================================
 // GraphQL query operation: GetDataset
 // ====================================================
@@ -81,6 +83,20 @@ export interface GetDataset_dataset_program {
   readonly tags: ReadonlyArray<GetDataset_dataset_program_tags>;
 }
 
+export interface GetDataset_dataset_records_customColumnValues_customColumn {
+  readonly __typename: "CustomColumn";
+  readonly id: string;
+  readonly name: string;
+  readonly type: CustomColumnType | null;
+}
+
+export interface GetDataset_dataset_records_customColumnValues {
+  readonly __typename: "CustomColumnValue";
+  readonly id: string;
+  readonly customColumn: GetDataset_dataset_records_customColumnValues_customColumn;
+  readonly value: string | null;
+}
+
 export interface GetDataset_dataset_records_entries_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
@@ -113,6 +129,7 @@ export interface GetDataset_dataset_records {
   readonly __typename: "Record";
   readonly id: string;
   readonly publicationDate: any;
+  readonly customColumnValues: ReadonlyArray<GetDataset_dataset_records_customColumnValues> | null;
   readonly entries: ReadonlyArray<GetDataset_dataset_records_entries>;
 }
 
@@ -131,6 +148,14 @@ export interface GetDataset_dataset_publishedRecordSets {
   readonly document: any | null;
 }
 
+export interface GetDataset_dataset_customColumns {
+  readonly __typename: "CustomColumn";
+  readonly id: string;
+  readonly name: string;
+  readonly type: CustomColumnType | null;
+  readonly description: string | null;
+}
+
 export interface GetDataset_dataset {
   readonly __typename: "Dataset";
   readonly id: string;
@@ -142,6 +167,7 @@ export interface GetDataset_dataset {
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
   readonly tags: ReadonlyArray<GetDataset_dataset_tags>;
   readonly publishedRecordSets: ReadonlyArray<GetDataset_dataset_publishedRecordSets> | null;
+  readonly customColumns: ReadonlyArray<GetDataset_dataset_customColumns> | null;
 }
 
 export interface GetDataset {

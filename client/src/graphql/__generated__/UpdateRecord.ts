@@ -14,6 +14,18 @@ export interface UpdateRecord_updateRecord_dataset {
   readonly name: string;
 }
 
+export interface UpdateRecord_updateRecord_customColumnValues_customColumn {
+  readonly __typename: "CustomColumn";
+  readonly id: string;
+}
+
+export interface UpdateRecord_updateRecord_customColumnValues {
+  readonly __typename: "CustomColumnValue";
+  readonly id: string;
+  readonly customColumn: UpdateRecord_updateRecord_customColumnValues_customColumn;
+  readonly value: string | null;
+}
+
 export interface UpdateRecord_updateRecord_entries_categoryValue_category {
   readonly __typename: "Category";
   readonly id: string;
@@ -40,6 +52,7 @@ export interface UpdateRecord_updateRecord {
   readonly id: string;
   readonly publicationDate: any;
   readonly dataset: UpdateRecord_updateRecord_dataset;
+  readonly customColumnValues: ReadonlyArray<UpdateRecord_updateRecord_customColumnValues> | null;
   readonly entries: ReadonlyArray<UpdateRecord_updateRecord_entries>;
 }
 

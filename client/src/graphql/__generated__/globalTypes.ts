@@ -7,6 +7,14 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum CustomColumnType {
+  boolean = "boolean",
+  datetime = "datetime",
+  float = "float",
+  integer = "integer",
+  string = "string",
+}
+
 export enum ReportingPeriodType {
   annual = "annual",
   custom = "custom",
@@ -61,6 +69,12 @@ export interface CreateTeamInput {
   readonly organizationId: string;
   readonly userIds?: ReadonlyArray<string> | null;
   readonly programIds?: ReadonlyArray<string> | null;
+}
+
+export interface CustomColumnValueInput {
+  readonly id?: string | null;
+  readonly customColumnId: string;
+  readonly value?: string | null;
 }
 
 export interface EntryInput {
@@ -124,6 +138,7 @@ export interface UpdateRecordInput {
   readonly datasetId?: string | null;
   readonly publicationDate?: any | null;
   readonly entries?: ReadonlyArray<EntryInput> | null;
+  readonly customColumnValues?: ReadonlyArray<CustomColumnValueInput> | null;
 }
 
 export interface UpdateTeamInput {
@@ -138,6 +153,7 @@ export interface UpsertDatasetInput {
   readonly name?: string | null;
   readonly description?: string | null;
   readonly personTypes?: ReadonlyArray<string> | null;
+  readonly customColumns?: ReadonlyArray<string> | null;
 }
 
 //==============================================================

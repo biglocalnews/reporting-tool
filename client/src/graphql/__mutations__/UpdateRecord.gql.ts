@@ -8,6 +8,13 @@ export const UPDATE_RECORD = gql`
       dataset {
         name
       }
+      customColumnValues {
+        id
+        customColumn {
+          id
+        }
+        value
+      }
       entries {
         id
         categoryValue {

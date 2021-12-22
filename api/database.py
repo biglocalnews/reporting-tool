@@ -662,6 +662,14 @@ class CategoryValue(Base):
         )
 
 
+class DatasetCustomColumn(Base):
+    __tablename__ = "dataset_custom_column"
+
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+    dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True)
+    custom_column_id = Column(GUID, ForeignKey("custom_column.id"), index=True)
+
+
 class Dataset(Base, PermissionsMixin):
     __tablename__ = "dataset"
 
@@ -673,6 +681,11 @@ class Dataset(Base, PermissionsMixin):
     records = relationship("Record")
     published_record_sets = relationship("PublishedRecordSet")
     tags = relationship("Tag", secondary=dataset_tags, back_populates="datasets")
+    custom_columns = relationship(
+        "CustomColumn",
+        back_populates="datasets",
+        secondary="dataset_custom_column",
+    )
     person_types = relationship(
         "PersonType",
         secondary=dataset_person_types,
@@ -722,13 +735,63 @@ class Dataset(Base, PermissionsMixin):
             if "id" in ds_dict:
                 ds_dict["id"] = uuid.UUID(ds_dict["id"])
             person_types = ds_dict.pop("person_types", None)
+            custom_columns = ds_dict.pop("custom_columns", None)
             ds = session.merge(Dataset(**ds_dict))
             if person_types is not None:
                 ds.person_types = [
                     PersonType.get_or_create(session, pt) for pt in person_types
                 ]
+            if custom_columns is not None:
+                ds.custom_columns = [
+                    CustomColumn.get_or_create(session, cc) for cc in custom_columns
+                ]
             datasets.append(ds)
         return datasets
+
+
+class CustomColumn(Base, PermissionsMixin):
+    __tablename__ = "custom_column"
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+    datasets = relationship(
+        "Dataset",
+        back_populates="custom_columns",
+        secondary="dataset_custom_column",
+    )
+    name = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    description = Column(String)
+
+    @classmethod
+    def clean_name(cls, name):
+        return name.strip()
+
+    @classmethod
+    def get_or_create(cls, session, custom_column: str) -> "CustomColumn":
+        cc = (
+            session.query(cls)
+            .filter(func.lower(cls.clean_name(custom_column)) == func.lower(cls.name))
+            .first()
+        )
+        if cc:
+            return cc
+
+        return cls(name=custom_column, type="string")
+
+
+class CustomColumnValue(Base, PermissionsMixin):
+    __tablename__ = "custom_column_value"
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+
+    record = relationship("Record", back_populates="custom_column_values")
+    record_id = Column(GUID, ForeignKey("record.id"), index=True)
+
+    custom_column = relationship("CustomColumn")
+    custom_column_id = Column(GUID, ForeignKey("custom_column.id"), index=True)
+
+    inputter = relationship("User")
+    inputter_id = Column(GUID, ForeignKey("user.id"), index=True)
+
+    value = Column(String, nullable=True)
 
 
 class ReportingPeriod(Base, PermissionsMixin):
@@ -779,6 +842,7 @@ class Record(Base, PermissionsMixin):
     dataset = relationship("Dataset", back_populates="records")
     dataset_id = Column(GUID, ForeignKey("dataset.id"), nullable=False, index=True)
     publication_date = Column(DateTime, index=True)
+    custom_column_values = relationship("CustomColumnValue")
 
     entries = relationship("Entry", back_populates="record")
     __table_args__ = (
@@ -814,15 +878,20 @@ class Entry(Base, PermissionsMixin):
     __tablename__ = "entry"
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
+
     category_value_id = Column(GUID, ForeignKey("category_value.id"), index=True)
     category_value = relationship("CategoryValue", back_populates="entries")
-    count = Column(Integer, nullable=False)
+
     record = relationship("Record", back_populates="entries")
     record_id = Column(GUID, ForeignKey("record.id", ondelete="cascade"), index=True)
+
     inputter = relationship("User")
     inputter_id = Column(GUID, ForeignKey("user.id"), index=True)
+
     person_type = relationship("PersonType", back_populates="entries")
     person_type_id = Column(GUID, ForeignKey("person_type.id"), index=True)
+
+    count = Column(Integer, nullable=False)
 
     created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

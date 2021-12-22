@@ -24,6 +24,12 @@ export const ADMIN_GET_PROGRAM = gql`
           id
           personTypeName
         }
+        customColumns {
+          id
+          name
+          type
+          description
+        }
       }
       reportingPeriodType
       reportingPeriods {
