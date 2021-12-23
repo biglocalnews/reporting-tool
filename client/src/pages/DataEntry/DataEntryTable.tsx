@@ -332,7 +332,6 @@ export const DataEntryTable = (props: IProps) => {
                                     type="text"
                                     tabIndex={0}
                                     autoFocus={true}
-                                    //style={{ width: "60px" }}
                                     title={customColumn.name}
                                     aria-label={customColumn.name}
                                     onChange={(e) => setSelectedForCustomInput({
@@ -348,6 +347,7 @@ export const DataEntryTable = (props: IProps) => {
                     return <div
                         tabIndex={0}
                         role="button"
+                        style={{ maxWidth: "150px" }}
                         title={customColumn.name}
                         aria-label={customColumn.name}
                         onKeyDown={() => setSelectedForCustomInput(customValue)}
