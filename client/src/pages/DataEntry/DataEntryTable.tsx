@@ -187,6 +187,7 @@ export const DataEntryTable = (props: IProps) => {
             .map(x => x.categoryValue)
             .filter(x => !currentTrackedAttributesByCategory(attributeCategory).some(y => y.id === x.id))
             .concat(currentTrackedAttributesByCategory(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
                 title: t(x.name),
@@ -276,6 +277,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         mergedCustomColumns(reportingPeriod)
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((customColumn) => ({
                 title: customColumn.name,
                 dataIndex: customColumn.name,
@@ -438,6 +440,8 @@ export const DataEntryTable = (props: IProps) => {
                 .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
                 .reduce((groupedByPersonTypeCategoryAttribute, record, recordIndex, allRecords) => {
                     record.entries
+                        .flat() //just makes it sortable
+                        .sort((a, b) => a.categoryValue.name.localeCompare(b.categoryValue.name))
                         .forEach(currEntry => {
                             const personType = currEntry.personType?.personTypeName ?? "Everyone";
                             const category = currEntry.categoryValue.category.name;

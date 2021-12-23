@@ -88,15 +88,18 @@ const getGroupedTargets = (
           tracks: [],
         });
       }
-      currTarget.tracks.forEach(track => {
-        grouped.get(currTarget.category.id)?.tracks.push(
-          {
-            id: track.id,
-            categoryValue: track.categoryValue,
-            targetMember: track.targetMember,
-          }
-        );
-      });
+      currTarget.tracks
+        .flat()
+        .sort((a, b) => a.categoryValue.name.localeCompare(b.categoryValue.name))
+        .forEach(track => {
+          grouped.get(currTarget.category.id)?.tracks.push(
+            {
+              id: track.id,
+              categoryValue: track.categoryValue,
+              targetMember: track.targetMember,
+            }
+          );
+        });
 
       return grouped;
     }, new Map<string, Target>());

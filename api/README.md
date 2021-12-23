@@ -127,3 +127,10 @@ in the playground's query variables section:
   }
 }
 ```
+
+### Db Migrations
+
+```shell
+alembic revision --autogenerate -m "Added account table"
+alembic upgrade head
+```
