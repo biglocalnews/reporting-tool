@@ -141,7 +141,8 @@ export const DataEntryTable = (props: IProps) => {
         .filter(x => !personTypeArrayFromRecords.some(y => y?.id === x.id))
         .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
         .filter(x => x)
-        .map(x => ({ id: x.id, personTypeName: x.personTypeName }));
+        .map(x => ({ id: x.id, personTypeName: x.personTypeName }))
+        .sort((a, b) => a.personTypeName.localeCompare(b.personTypeName));
 
     const customColumnArrayFromDataset = getDatasetData?.dataset.customColumns ?? [];
 
@@ -156,7 +157,8 @@ export const DataEntryTable = (props: IProps) => {
     const mergedCustomColumns = (range: GetDataset_dataset_program_reportingPeriods) => customColumnArrayFromDataset
         .filter(x => !customColumnArrayFromRecords(range).some(y => y?.id === x.id))
         .concat(customColumnArrayFromRecords(range) as GetRecord_record_customColumnValues_customColumn[])
-        .filter(x => x);
+        .filter(x => x)
+        .sort((a, b) => a.name.localeCompare(b.name));
 
     const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
         .filter(x => x.category.id === attributeCategory.id)
@@ -277,7 +279,6 @@ export const DataEntryTable = (props: IProps) => {
 
     const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         mergedCustomColumns(reportingPeriod)
-            .sort((a, b) => a.name.localeCompare(b.name))
             .map((customColumn) => ({
                 title: customColumn.name,
                 dataIndex: customColumn.name,
