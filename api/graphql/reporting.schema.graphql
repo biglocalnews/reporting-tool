@@ -1,17 +1,27 @@
 # overview
 type ReportingOverview @needsPermission(permission: [ADMIN]) {
-  categoriesOverview: [CategoryOverview!]!
   countData: CountData!
+  categoriesOverview: [CategoryOverview!]!
 }
 
 type CategoryOverview @needsPermission(permission: [ADMIN]) {
   id: ID!
   name: String!
   description: String!
-  sumCategoryValues: [SumCategoryValues]!
+  categoryValueDetails: [CategoryValueDetails]!
+  categoryDatasets: [CategoryDatasets]!
 }
 
-type SumCategoryValues @needsPermission(permission: [ADMIN]) {
+type CategoryDatasets @needsPermission(permission: [ADMIN]) {
+  datasetId: ID!
+  datasetName: String!
+  categoryValueId: ID!
+  categoryValueName: String!
+  categoryValueTarget: Float!
+  sumCountsForCategoryValue: Int!
+}
+
+type CategoryValueDetails @needsPermission(permission: [ADMIN]) {
   categoryValueId: ID!
   categoryValue: String!
   sum: Int!
@@ -28,16 +38,27 @@ input DateRange {
   endDate: DateTime
 }
 
+# To be used for filtering on a global target set by admin in the reporting overview
+input SpecifyTargetForCategoryValue { # NOTE: can only specify one value per category for now
+  categoryValueId: ID!
+  target: String!
+}
+
+input Filters {
+  dateRange: DateRange
+  specifiedCategoryTarget: SpecifyTargetForCategoryValue
+}
+
 extend type Query {
   # Retrieve all fields for the reporting overview page
-  reportingOverview(dateRange: DateRange): ReportingOverview!
+  reportingOverview(filters: Filters): ReportingOverview!
     @needsPermission(permission: [ADMIN])
 
   # Retrieve a single category overview filtered by records published within start and end date
-  categoryOverview(id: ID!, dateRange: DateRange): CategoryOverview!
+  categoryOverview(id: ID!, filters: Filters): CategoryOverview!
     @needsPermission(permission: [ADMIN])
 
   # Retrieve full list of category overviews filtered by records published within start and end date
-  categoriesOverview(dateRange: DateRange): [CategoryOverview!]!
+  categoriesOverview(filters: Filters): [CategoryOverview!]!
     @needsPermission(permission: [ADMIN])
 }

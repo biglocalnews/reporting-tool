@@ -1,8 +1,9 @@
 from typing import Any
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from ariadne.types import GraphQLResolveInfo
+from sqlalchemy.sql.expression import label
 from sqlalchemy.sql.functions import func
-from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team
+from database import CategoryValue, Entry, Record, Category, Dataset, Tag, Team, Target
 
 query = ObjectType("Query")
 category_overview = ObjectType("CategoryOverview")
@@ -48,35 +49,41 @@ def resolve_category_overview(obj: Any, info: GraphQLResolveInfo, id, **kwargs):
         filter(Category.id == id, Category.deleted == None).first()
 
 
-@category_overview.field("sumCategoryValues")
+@category_overview.field("categoryValueDetails")
 @convert_kwargs_to_snake_case
-def resolve_sum_category_values(category: Any, info: GraphQLResolveInfo):
+def resolve_category_value_details(category: Any, info: GraphQLResolveInfo):
     '''GraphQL query to sum the counts by category value
         :param category: Category object to filter counts for
         :returns: Dictionary
     '''
     session = info.context['dbsession']
 
+    filters = list()
+
+    if 'filters' in info.variable_values:
+        # optional start and end date params passed to resolver
+        if 'dateRange' in info.variable_values['filters']:
+            params = info.variable_values['filters']
+            start, end =  params['dateRange']['startDate'], params['dateRange']['endDate']
+            # conditionally apply filters if date range exists for the query
+            filters.append(Record.publication_date >= start)
+            filters.append(Record.publication_date <= end)
+
     stmt = session.query(
+            CategoryValue.category_id.label('category_id'),
             CategoryValue.name.label('category_value_name'),
             CategoryValue.id.label('category_value_id'),
             func.sum(Entry.count).label('sum_of_counts')).\
                 join(CategoryValue.entries).\
                 join(Entry.record).\
                     group_by(CategoryValue.id).\
-                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None)
-
-    # optional start and end date params passed to categoryOverview
-    if 'dateRange' in info.variable_values:
-        start = info.variable_values['dateRange']['startDate']
-        end = info.variable_values['dateRange']['endDate']
-        # filter results by date range if provided in thr query
-        stmt = stmt.filter(Record.publication_date >= start, Record.publication_date <= end)
+                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None,
+                    *filters)        
                                 
     return [
         {'category_value_id': row.category_value_id,
          'category_value': row.category_value_name,
-         'sum': row.sum_of_counts}
+         'sum': row.sum_of_counts }
         for row in stmt]
 
 
@@ -89,3 +96,52 @@ def resolve_categories_overview(obj: Any, info: GraphQLResolveInfo, **kwargs):
     session = info.context['dbsession']
     return session.query().with_entities(Category.id, Category.name, Category.description).\
         filter(Category.deleted == None).all()
+
+
+@category_overview.field("categoryDatasets")
+@convert_kwargs_to_snake_case
+def resolve_category_overview_datasets(category: Any, info: GraphQLResolveInfo):
+    '''GraphQL query to fetch overview for all categories
+    :returns: category object
+    '''
+    session = info.context['dbsession']
+
+    filters = list()
+
+    if 'filters' in info.variable_values:
+        # optional start and end date params passed to resolver
+        if 'dateRange' in info.variable_values['filters']:
+            params = info.variable_values['filters']
+            start, end =  params['dateRange']['startDate'], params['dateRange']['endDate']
+            # conditionally apply filters if date range exists for the query
+            filters.append(Record.publication_date >= start)
+            filters.append(Record.publication_date <= end)
+
+    sub_stmt = session.query(
+            Dataset.id.label('dataset_id'),
+            Dataset.name.label('dataset_name'),
+            CategoryValue.category_id.label('category_id'),
+            CategoryValue.name.label('category_value_name'),
+            CategoryValue.id.label('category_value_id'),
+            func.sum(Entry.count).label('sum_of_counts_for_category_value')).\
+                join(Dataset.records).\
+                    join(Record.entries).\
+                    join(Entry.category_value).\
+                    group_by(CategoryValue.id, Dataset.id).\
+                    filter(CategoryValue.category_id == category.id, Entry.deleted == None, CategoryValue.deleted == None,
+                    Dataset.deleted == None, *filters).\
+                        subquery()
+
+    stmt = session.query(sub_stmt, Target.target.label('category_value_target')).\
+        outerjoin(sub_stmt, Target.category_value_id == sub_stmt.c.category_value_id).\
+            filter(sub_stmt.c.category_id == category.id, Target.deleted == None)
+
+    return [
+        {
+            'dataset_id': row.dataset_id,
+            'dataset_name': row.dataset_name,
+            'category_value_id': row.category_value_id,
+            'category_value_name': row.category_value_name,
+            'category_value_target': row.category_value_target,
+            'sum_counts_for_category_value': row.sum_of_counts_for_category_value} 
+        for row in stmt]
