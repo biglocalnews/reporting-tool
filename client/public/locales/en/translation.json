@@ -302,7 +302,8 @@
         "lastName": "Last name",
         "email": "E-mail",
         "teams": "Teams",
-        "roles": "Roles"
+        "roles": "Roles",
+        "username": "Username"
       },
       "validation": {
         "saveError": "An error occurred saving this user's data",
@@ -310,6 +311,7 @@
         "deleteError": "An error occurred deleting this user",
         "email": "Not a valid email",
         "emailRequired": "You need to enter an email.",
+        "usernameRequired": "You need to enter an username.",
         "firstNameRequired": "You need to enter a first name.",
         "lastNameRequired": "You need to enter a last name."
       }

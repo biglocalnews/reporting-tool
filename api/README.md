@@ -134,3 +134,14 @@ in the playground's query variables section:
 alembic revision --autogenerate -m "Added account table"
 alembic upgrade head
 ```
+
+### Db Hacking
+
+```shell
+docker exec -it `docker ps --format '{{.ID}}' --filter label=com.docker.swarm.service.name=5050-api` /bin/bash
+psql -h 5050-db -U postgres
+\c rt
+select * from "user";
+delete from "user" where id = 'bb213e2f-1660-419e-baa9-30a8fa139b0c';
+update "user" set username='HogenMW1' where id='e443d3ca-02d7-4e3d-8b67-191989f63e7f';
+```

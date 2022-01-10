@@ -351,6 +351,22 @@ export const EditUser = () => {
           />
         </Form.Item>
         <Form.Item
+          name="username"
+          label={t("admin.user.fields.username")}
+          rules={[
+            {
+              required: true,
+              message: t("admin.user.validation.usernameRequired"),
+            },
+          ]}
+        >
+          <Input
+            aria-label={t("admin.user.fields.username")}
+            aria-required="true"
+            disabled={inactive}
+          />
+        </Form.Item>
+        <Form.Item
           name="email"
 
           label={t("admin.user.fields.email")}
