@@ -17,6 +17,7 @@ export type EditUserFormData = Readonly<{
   email?: string;
   roles: string[];
   teams: string[];
+  username: string | null;
 }>;
 
 /**

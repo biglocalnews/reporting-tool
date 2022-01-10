@@ -72,7 +72,7 @@ type User @needsPermission(permission: [ADMIN, CURRENT_USER]) {
   id: ID!
   firstName: String!
   lastName: String!
-  userName: String!
+  username: String
   email: String!
   roles: [Role!]!
   teams: [Team!]!

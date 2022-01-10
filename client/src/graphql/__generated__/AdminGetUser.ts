@@ -22,6 +22,7 @@ export interface AdminGetUser_user_roles {
 export interface AdminGetUser_user {
   readonly __typename: "User";
   readonly email: string;
+  readonly username: string | null;
   readonly firstName: string;
   readonly lastName: string;
   readonly active: boolean;

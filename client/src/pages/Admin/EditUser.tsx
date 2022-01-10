@@ -252,6 +252,7 @@ export const EditUser = () => {
   const initialFormState: EditUserFormData = {
     first_name: userResponse.data!.user.firstName,
     last_name: userResponse.data!.user.lastName,
+    username: userResponse.data!.user.username,
     email: userResponse.data!.user.email,
     roles: userResponse.data!.user.roles.map((r) => r.id),
     teams: userResponse.data!.user.teams.map((t) => t.id),
