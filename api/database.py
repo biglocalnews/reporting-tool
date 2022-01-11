@@ -1015,6 +1015,14 @@ def create_tables(session):
         )
     )
 
+    session.add(
+        Role(
+            id="ee2de3ff-e147-453c-b49c-88122e112095",
+            name="publisher",
+            description="User can publish records",
+        )
+    )
+
     # Default demographic categories
     session.add(
         Category(

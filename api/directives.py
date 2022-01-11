@@ -1,28 +1,23 @@
 from ariadne import SchemaDirectiveVisitor
 from graphql import default_field_resolver
 from graphql.type import (
-        GraphQLField,
-        GraphQLObjectType,
-        )
-from database import (
-        is_blank_slate,
-        PermissionsMixin,
-        User,
-        Dataset,
-        Record,
-        Program
-        )
+    GraphQLField,
+    GraphQLObjectType,
+)
+from database import is_blank_slate, PermissionsMixin, User, Dataset, Record, Program
 
 from typing import List, Iterable
 
 
 class NotAuthorizedError(Exception):
     """Indicates user is not authorized to query the given field."""
+
     pass
 
 
 class InvalidPermissionError(Exception):
     """Indicates a directive specified a permission that doesn't make sense."""
+
     pass
 
 
@@ -41,14 +36,14 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
     # Implement specific permission checks here. Evaluate them in order from
     # cheapest to most expensive, and return True on the first check that
     # passes to avoid unnecessary checks.
-    current_user = info.context.get('current_user')
-    if 'LOGGED_IN' in permissions:
+    current_user = info.context.get("current_user")
+    if "LOGGED_IN" in permissions:
         if current_user:
             return True
 
-    if 'BLANK_SLATE' in permissions:
+    if "BLANK_SLATE" in permissions:
         # Any user has this permission if the app has not been configured yet.
-        if is_blank_slate(info.context['dbsession']):
+        if is_blank_slate(info.context["dbsession"]):
             return True
 
     # The rest of the permissions assume LOGGED_IN is true, since they
@@ -57,18 +52,24 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
     if not current_user:
         return False
 
-    if 'ADMIN' in permissions:
-        if any(role.name == 'admin' for role in current_user.roles):
+    if "ADMIN" in permissions:
+        if any(role.name == "admin" for role in current_user.roles):
             return True
 
-    if 'CURRENT_USER' in permissions:
+    if "PUBLISHER" in permissions:
+        if any(role.name == "publisher" for role in current_user.roles):
+            return True
+
+    if "CURRENT_USER" in permissions:
         # This is only implemented for the User type.
         if not isinstance(obj, User):
-            raise InvalidPermissionError(f"Can't enforce CURRENT_USER permission on type {type(obj)}")
+            raise InvalidPermissionError(
+                f"Can't enforce CURRENT_USER permission on type {type(obj)}"
+            )
         if obj == current_user:
             return True
 
-    if 'TEAM_MEMBER' in permissions:
+    if "TEAM_MEMBER" in permissions:
         # Track whether we were able to check permission at all (as opposed to
         # the directive being configured incorrectly / the right check not
         # being implemented yet).
@@ -85,30 +86,32 @@ def user_has_permission(permissions: Iterable[str], obj, info) -> bool:
         # fields explicitly by name. If we want to use this permission on
         # more mutations we should abstract to make it more generic.
         if not obj:
-            session = info.context['dbsession']
-            if info.field_name == 'createRecord':
+            session = info.context["dbsession"]
+            if info.field_name == "createRecord":
                 checked = True
-                id_ = info.variable_values['input']['datasetId']
+                id_ = info.variable_values["input"]["datasetId"]
                 dataset = Dataset.get_not_deleted(session, id_)
                 if dataset and dataset.user_is_team_member(current_user):
                     return True
-            
-            if info.field_name == 'updateRecord':
+
+            if info.field_name == "updateRecord":
                 checked = True
-                id_ = info.variable_values['input']['id']
+                id_ = info.variable_values["input"]["id"]
                 record = Record.get_not_deleted(session, id_)
                 if record and record.user_is_team_member(current_user):
                     return True
 
-            if info.field_name == 'deleteRecord':
+            if info.field_name == "deleteRecord":
                 checked = True
-                id_ = info.variable_values['id']
+                id_ = info.variable_values["id"]
                 record = Record.get_not_deleted(session, id_)
                 if record and record.user_is_team_member(current_user):
                     return True
-                
+
         if not checked:
-            raise InvalidPermissionError(f"Can't enforce TEAM_MEMBER permission on type {type(obj)}, {info.field_name}")
+            raise InvalidPermissionError(
+                f"Can't enforce TEAM_MEMBER permission on type {type(obj)}, {info.field_name}"
+            )
 
     return False
 
@@ -140,14 +143,14 @@ class NeedsPermissionDirective(SchemaDirectiveVisitor):
     """
 
     # Permissions argument name in schema directive
-    PERM_ARG = 'permission'
+    PERM_ARG = "permission"
 
     # Custom attribute on Field definition where permissions are kept.
-    PERM_KEY = '_permissions'
+    PERM_KEY = "_permissions"
 
     # Custom attribute on field definition to mark that the field has already
     # been modified to check permissions.
-    RESOLVED_KEY = '_resolved'
+    RESOLVED_KEY = "_resolved"
 
     def visit_object(self, object_type: GraphQLObjectType) -> GraphQLObjectType:
         """Update the object type definition with permissions.
@@ -167,13 +170,15 @@ class NeedsPermissionDirective(SchemaDirectiveVisitor):
 
         return object_type
 
-    def visit_field_definition(self, field: GraphQLField, object_type: GraphQLObjectType) -> GraphQLField:
+    def visit_field_definition(
+        self, field: GraphQLField, object_type: GraphQLObjectType
+    ) -> GraphQLField:
         """Update the field definition with permissions specified in directive.
 
         This is a GraphQL built-in hook.
 
         :param field: Field definition to update
-        :param object_type: Parent object-type 
+        :param object_type: Parent object-type
         :returns: Modified field
         """
         # Set permissions, overriding anything previously set.
@@ -199,7 +204,9 @@ class NeedsPermissionDirective(SchemaDirectiveVisitor):
         def resolve_field_with_permissions(obj, info, **kwargs):
             permissions = set(getattr(field, self.PERM_KEY))
             if not user_has_permission(permissions, obj, info):
-                raise NotAuthorizedError("Lacking permission: " + ", ".join(permissions))
+                raise NotAuthorizedError(
+                    "Lacking permission: " + ", ".join(permissions)
+                )
             return original_resolver(obj, info, **kwargs)
 
         field.resolve = resolve_field_with_permissions

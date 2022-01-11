@@ -29,6 +29,8 @@ enum Permission {
   # When the app has not been configured yet, it is in the blank slate mode
   # that allows any visitor to configure it.
   BLANK_SLATE
+  # A user who can also Publish record sets
+  PUBLISHER
 }
 
 enum ReportingPeriodType {
@@ -217,7 +219,7 @@ type ReportingPeriod {
 }
 
 
-type PublishedRecordSet {
+type PublishedRecordSet @needsPermission(permission: [ADMIN, PUBLISHER]) {
   id: ID!
   datasetId: ID!
   reportingPeriodId: ID!
@@ -607,10 +609,10 @@ type Mutation {
     @needsPermission(permission: [BLANK_SLATE])
 
   # Create a Program
-  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet! @needsPermission(permission: [ADMIN])
+  createPublishedRecordSet(input: CreatePublishedRecordSetInput!): PublishedRecordSet! @needsPermission(permission: [ADMIN, PUBLISHER])
 
   createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod! @needsPermission(permission: [ADMIN])
 
-  deletePublishedRecordSet(id: ID!): ID! @needsPermission(permission: [ADMIN])
+  deletePublishedRecordSet(id: ID!): ID! @needsPermission(permission: [ADMIN, PUBLISHER])
 
 }
