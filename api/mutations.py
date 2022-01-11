@@ -455,14 +455,14 @@ def resolve_update_program(obj, info, input):
             c = Category.get_or_create(session, category_input)
             tracks_input = target_input.pop("tracks")
             target = Target.get_or_create(session, program.id, target_input, c.id)
-            target.category = c
+            # Because we want to replace any existing tracks with the new ones
+            target.tracks = []
             for track_input in tracks_input:
                 cv_input = track_input.pop("category_value")
                 cv = CategoryValue.get_or_create(session, cv_input)
                 track = Track.get_or_create(session, target.id, cv.id, track_input)
                 track.category_value = cv
                 target.tracks.append(track)
-
             program.targets.append(target)
 
     if "datasets" in input:
@@ -492,7 +492,7 @@ def resolve_update_program(obj, info, input):
     for key, value in input.items():
         setattr(program, key, value)
 
-    session.merge(program)
+    session.add(program)
     session.commit()
     return program
 
