@@ -219,7 +219,7 @@ type ReportingPeriod {
 }
 
 
-type PublishedRecordSet @needsPermission(permission: [ADMIN, PUBLISHER]) {
+type PublishedRecordSet {
   id: ID!
   datasetId: ID!
   reportingPeriodId: ID!
