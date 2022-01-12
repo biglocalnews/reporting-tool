@@ -260,7 +260,7 @@ export const EditTeam = () => {
                 dataSource={allPrograms?.map(x => ({ ...x, disabled: x.deleted ? true : false }))}
                 onChange={(keys) => form.setFieldsValue({ programIds: keys })}
                 render={(program) =>
-                  program.name + (program.team ? ` [${program.team.name}]` : "") + (program.deleted ? " [Deleted]" : "")
+                  program.name + (program.team ? ` [${program.team.name}]` : "") + (program.deleted ? ` [${tp("deleted")}]` : "")
                 }
               />
             </Form.Item>

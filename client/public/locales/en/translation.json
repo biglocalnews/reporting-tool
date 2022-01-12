@@ -8,8 +8,11 @@
   "attributeDescription": "{{description}}",
   "cancelAndReturnToDashBoard": "Cancel and Return To Dashboard",
   "datasetRecordsTableTitle": "{{title}}",
-  "saveRecord": "Save record",
+  "saveRecord": "Confirm",
+  "newRow": "Add Row(s)",
   "recordDate": "Date of record",
+  "currentrp": "This reporting period",
+  "today": "Today",
   "numberOf": "Number of",
   "reportingPeriod": "Reporting Period",
   "unknownPersonType": "Everyone",
@@ -180,7 +183,8 @@
         "nonTeamMembers": "Other users",
         "teamMembers": "Team members",
         "otherPrograms": "Other $t(program_plural)",
-        "teamPrograms": "Assigned $t(program_plural)"
+        "teamPrograms": "Assigned $t(program_plural)",
+        "deleted": "Deleted"
       }
     },
     "program": {
