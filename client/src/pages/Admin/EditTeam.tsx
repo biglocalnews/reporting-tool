@@ -257,10 +257,10 @@ export const EditTeam = () => {
                   option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }
                 titles={[tp("otherPrograms"), tp("teamPrograms")]}
-                dataSource={allPrograms}
+                dataSource={allPrograms?.map(x => ({ ...x, disabled: x.deleted ? true : false }))}
                 onChange={(keys) => form.setFieldsValue({ programIds: keys })}
                 render={(program) =>
-                  program.name + (program.team ? ` [${program.team.name}]` : "")
+                  program.name + (program.team ? ` [${program.team.name}]` : "") + (program.deleted ? " [Deleted]" : "")
                 }
               />
             </Form.Item>
