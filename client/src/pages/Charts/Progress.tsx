@@ -4,6 +4,7 @@ import { GetDataset_dataset, GetDataset_dataset_records, GetDataset_dataset_reco
 import { getPalette } from "../DatasetDetails/DatasetDetails";
 import { useTranslation } from "react-i18next";
 import { Typography, Col } from "antd";
+import { catSort } from "../CatSort";
 const { Text } = Typography;
 
 interface IProps {
@@ -169,7 +170,7 @@ export const ProgressColumns = ({ dataset, records }: IProps) => {
             Object.keys(groupedByMonthYearRecords).length < 2
         ) { return undefined; }
         return Array.from(dataset?.program.targets ?? [])
-            .sort((a, b) => b.target - a.target)
+            .sort((a, b) => catSort(a.category.name, b.category.name))
             .reduce(
                 (configs, target) => {
                     const chartData = Object.values(groupedByMonthYearRecords).reduce(

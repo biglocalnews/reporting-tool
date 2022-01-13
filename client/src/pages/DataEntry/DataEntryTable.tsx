@@ -30,6 +30,7 @@ import { GetRecord_record_customColumnValues_customColumn, GetRecord_record_entr
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
 import { IPublishedEntry, IPublishedRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
+import { catSort } from "../CatSort";
 
 
 interface IProps {
@@ -169,7 +170,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
         .filter(x => x.category.id === attributeCategory.id)
-        .sort((a, b) => b.target - a.target)
+        .sort((a, b) => catSort(a.category.name, b.category.name))
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
@@ -178,7 +179,7 @@ export const DataEntryTable = (props: IProps) => {
         .map(x => x.categoryValue);
 
     const currentTrackedAttributeCategories = Array.from(getDatasetData.dataset.program.targets)
-        .sort((a, b) => b.target - a.target)
+        .sort((a, b) => catSort(a.category.name, b.category.name))
         .map(x => x.category);
 
     const getChildren = (
@@ -438,7 +439,7 @@ export const DataEntryTable = (props: IProps) => {
                 .map(x => ({ name: x.name, group: x.tagType })),
             targets: getDatasetData.dataset.program.targets
                 .map(x => ({ category: x.category.name, target: x.target * 100 }))
-                .sort((a, b) => b.target - a.target),
+                .sort((a, b) => catSort(a.category, b.category)),
             record: getDatasetData.dataset.records
                 .filter(x =>
                     reportingPeriod.range &&

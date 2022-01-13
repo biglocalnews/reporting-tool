@@ -38,6 +38,7 @@ import { IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedReco
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import Pie5050 from "../Charts/Pie";
 import { ProgressColumns } from "../Charts/Progress";
+import { catSort } from "../CatSort";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -266,7 +267,7 @@ const DatasetDetails = (): JSX.Element => {
         : 0;
       return { target: target, status: status };
     })
-      .sort((a, b) => b.target.target - a.target.target);
+      .sort((a, b) => catSort(a.target.category.name, b.target.category.name));
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
 

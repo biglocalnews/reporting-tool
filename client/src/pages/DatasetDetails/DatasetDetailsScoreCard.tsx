@@ -7,6 +7,7 @@ import {
   GetDataset_dataset_program_targets_category,
   GetDataset_dataset_records,
 } from "../../graphql/__generated__/GetDataset";
+import { catSort } from "../CatSort";
 import "./DatasetDetailsScoreCard.css";
 const { TabPane } = Tabs;
 
@@ -112,7 +113,7 @@ const DatasetDetailsScoreCard = ({
     <Tabs defaultActiveKey="Gender">
       {
         Array.from(data.dataset.program.targets)
-          .sort((a, b) => b.target - a.target)
+          .sort((a, b) => catSort(a.category.name, b.category.name))
           .flatMap((target) => target.category)
           .map((category) =>
             <TabPane tab={<span>{category.name}</span>} key={category.id}>
