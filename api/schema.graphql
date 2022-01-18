@@ -472,6 +472,19 @@ input CreateReportingPeriodInput {
   end: DateTime
 }
 
+input UpdateTagInput {
+  id: ID!
+  name: String
+  tagType: String
+  description: String
+}
+
+input CreateTagInput {
+  name: String!
+  tagType: String
+  description: String
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -614,5 +627,11 @@ type Mutation {
   createReportingPeriod(input: CreateReportingPeriodInput!): ReportingPeriod! @needsPermission(permission: [ADMIN])
 
   deletePublishedRecordSet(id: ID!): ID! @needsPermission(permission: [ADMIN, PUBLISHER])
+
+  createTag(input: CreateTagInput!): Tag! @needsPermission(permission: [ADMIN])
+
+  updateTag(input: UpdateTagInput!): Tag! @needsPermission(permission: [ADMIN])
+
+  deleteTag(id: ID!): ID! @needsPermission(permission: [ADMIN])
 
 }

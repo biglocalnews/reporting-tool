@@ -605,3 +605,36 @@ def resolve_delete_published_record_set(obj, info, id):
         session.commit()
         return id
     raise Exception("Published record set not found")
+
+
+@mutation.field("createTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(obj, info, input):
+    session = info.context["dbsession"]
+    tag = Tag(**input)
+    session.add(tag)
+    session.commit()
+    return tag
+
+
+@mutation.field("updateTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(obj, info, input):
+    session = info.context["dbsession"]
+    tag = session.query(Tag).get(input["id"])
+    if tag:
+        [setattr(tag, k, v) for k, v in input.items()]
+        session.commit()
+        return tag
+    raise Exception("Tag not found")
+
+
+@mutation.field("deleteTag")
+@convert_kwargs_to_snake_case
+def resolve_update_tag(obj, info, id):
+    session = info.context["dbsession"]
+    tag = session.query(Tag).get(id)
+    if tag:
+        session.delete(tag)
+        session.commit()
+    return id

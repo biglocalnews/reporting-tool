@@ -133,7 +133,8 @@
       "manageTeams": "Teams",
       "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets",
-      "reports": "Reports (Coming Soon)"
+      "reports": "Reports (Coming Soon)",
+      "manageTags": "Tag Management"
     },
     "team": {
       "index": {

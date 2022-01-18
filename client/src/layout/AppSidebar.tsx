@@ -38,6 +38,9 @@ export const AppAdminSidebarMenu = () => {
         <Menu.Item key="programs" icon={<TableOutlined />} role="menuitem">
           <Link to="/admin/programs">{t("admin.sidebar.managePrograms")}</Link>
         </Menu.Item>
+        <Menu.Item key="tags" icon={<TableOutlined />} role="menuitem">
+          <Link to="/admin/tags">{t("admin.sidebar.manageTags")}</Link>
+        </Menu.Item>
       </Menu.ItemGroup>
     </Menu>
   );
@@ -161,6 +164,11 @@ export const AppSidebarMenu = () => {
           <Menu.Item key="programs" role="menuitem">
             <Link to="/admin/programs">
               {t("admin.sidebar.managePrograms")}
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="tags" role="menuitem">
+            <Link to="/admin/tags">
+              {t("admin.sidebar.manageTags")}
             </Link>
           </Menu.Item>
         </SubMenu>

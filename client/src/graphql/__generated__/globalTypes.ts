@@ -64,6 +64,12 @@ export interface CreateRecordInput {
   readonly entries?: ReadonlyArray<EntryInput> | null;
 }
 
+export interface CreateTagInput {
+  readonly name: string;
+  readonly tagType?: string | null;
+  readonly description?: string | null;
+}
+
 export interface CreateTeamInput {
   readonly name: string;
   readonly organizationId: string;
@@ -139,6 +145,13 @@ export interface UpdateRecordInput {
   readonly publicationDate?: any | null;
   readonly entries?: ReadonlyArray<EntryInput> | null;
   readonly customColumnValues?: ReadonlyArray<CustomColumnValueInput> | null;
+}
+
+export interface UpdateTagInput {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly tagType?: string | null;
+  readonly description?: string | null;
 }
 
 export interface UpdateTeamInput {

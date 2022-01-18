@@ -91,7 +91,7 @@ export const DataEntryTable = (props: IProps) => {
         ],
     });
 
-    const [createRecord] = useMutation<CreateRecordInput>(CREATE_RECORD, {
+    const [createRecord, { loading: createRecordLoading }] = useMutation<CreateRecordInput>(CREATE_RECORD, {
         refetchQueries: [
             {
                 query: GET_DATASET,
@@ -100,9 +100,10 @@ export const DataEntryTable = (props: IProps) => {
                 }
             }
         ],
+        onError: () => { ; },
     });
 
-    const [deleteRecord] = useMutation(
+    const [deleteRecord, { loading: deleteRecordLoading }] = useMutation(
         DELETE_RECORD,
         {
             refetchQueries: [
@@ -200,7 +201,7 @@ export const DataEntryTable = (props: IProps) => {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
-                title: t(x.name),
+                title: x.name,
                 dataIndex: x.name,
                 key: x.name,
                 render: function pd(entry: ITableEntry, record: ITableRow) {
@@ -249,8 +250,8 @@ export const DataEntryTable = (props: IProps) => {
                             min={0}
                             style={{ width: "60px" }}
                             value={selectedForInput?.count === null ? undefined : selectedForInput?.count}
-                            title={`${t("numberOf")} ${t(x.name)}`}
-                            aria-label={`${t("numberOf")} ${t(x.name)}`}
+                            title={`${t("numberOf")} ${x.name}`}
+                            aria-label={`${t("numberOf")} ${x.name}`}
                             onChange={(e) => setSelectedForInput({
                                 ...entry,
                                 count: e === undefined ? undefined : e
@@ -261,8 +262,8 @@ export const DataEntryTable = (props: IProps) => {
                         <div
                             tabIndex={0}
                             role="button"
-                            title={`${t("numberOf")} ${t(x.name)}`}
-                            aria-label={`${t("numberOf")} ${t(x.name)}`}
+                            title={`${t("numberOf")} ${x.name}`}
+                            aria-label={`${t("numberOf")} ${x.name}`}
                             onKeyDown={() => setSelectedForInput(entry)}
                             onClick={() => setSelectedForInput(entry)}
                             onFocus={() => setSelectedForInput(entry)}
@@ -564,7 +565,7 @@ export const DataEntryTable = (props: IProps) => {
                         >
                             <PublishedRecordSet summary={true} document={stripCountsFromEntries(getRecordSetDocument(reportingPeriod))} />
                         </Modal>
-                        <Row>
+                        <Row gutter={[10, 10]}>
                             <Col span={24} style={{ display: "flex" }}>
                                 <Button
                                     type="primary"
@@ -573,7 +574,9 @@ export const DataEntryTable = (props: IProps) => {
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                                 <div style={{ flexGrow: 1 }} />
-                                <Space>
+                                <Space
+                                    align="center"
+                                >
                                     {
                                         addRecordDatePicker &&
                                         <Space>
@@ -626,7 +629,7 @@ export const DataEntryTable = (props: IProps) => {
                                             async () => {
                                                 if (!addRecordDatePicker) return setAddRecordDatePicker(moment())
                                                 const createRecordPromise = () => {
-                                                    createRecord({
+                                                    return createRecord({
                                                         variables: {
                                                             input: {
                                                                 publicationDate: getRandomDateTime(addRecordDatePicker).toISOString(),
@@ -647,18 +650,13 @@ export const DataEntryTable = (props: IProps) => {
                                                             }
                                                         }
                                                     })
-                                                        .then(() => {
-                                                            console.log("Created!");
-                                                            setAddRecordDatePicker(undefined);
-                                                        })
-                                                        .catch((e) => alert(e))
                                                 }
                                                 const promises = [];
                                                 for (let i = 0; i < noOfNewRecords; i++) {
                                                     promises.push(createRecordPromise());
                                                 }
                                                 await Promise.all(promises)
-                                                    .then((results) => console.log(results))
+                                                    .then(() => setAddRecordDatePicker(undefined));
                                             }
                                         }
                                     >
@@ -675,6 +673,8 @@ export const DataEntryTable = (props: IProps) => {
                                                     <Table
                                                         pagination={false}
                                                         scroll={{ x: "max-content" }}
+                                                        loading={getDatasetLoading || createRecordLoading || deleteRecordLoading}
+                                                        dataSource={getTableData(reportingPeriod, personType)}
                                                         columns={[
                                                             {
                                                                 render: function d(record) {
@@ -747,7 +747,7 @@ export const DataEntryTable = (props: IProps) => {
                                                             ...getCustomColumns(reportingPeriod),
                                                             ...getColumns(reportingPeriod, personType)
                                                         ]}
-                                                        dataSource={getTableData(reportingPeriod, personType)}
+
                                                     >
                                                     </Table>
                                                 </TabPane>

@@ -1,6 +1,7 @@
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { BreadcrumbsRoute } from "use-react-router-breadcrumbs";
 import { EditProgram } from "../pages/Admin/EditProgram";
+import { EditTags } from "../pages/Admin/EditTags";
 import { EditTeam } from "../pages/Admin/EditTeam";
 import { EditUser } from "../pages/Admin/EditUser";
 import { ProgramList } from "../pages/Admin/ProgramList";
@@ -111,6 +112,12 @@ export const adminRoutes: IRoute[] = [
         key: "program",
         exact: true,
         component: EditProgram,
+      },
+      {
+        path: "/admin/tags",
+        key: "tags",
+        exact: true,
+        component: EditTags,
       },
     ],
   },
