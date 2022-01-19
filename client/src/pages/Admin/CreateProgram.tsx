@@ -192,9 +192,12 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
         <Select
           showSearch
           optionFilterProp="children"
-          filterOption={(input, option) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
+          filterOption={(input, option) => {
+            if (option && option.children && input) {
+              return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            return false;
+          }}
           filterSort={(a, b) =>
             a.children.toLowerCase().localeCompare(b.children.toLowerCase())
           }
