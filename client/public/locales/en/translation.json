@@ -328,6 +328,16 @@
         "lastName": "Last Name",
         "active": "Active"
       }
+    },
+    "tag": {
+      "index": {
+        "title": "Tag Management",
+        "subtitle": "Use this page to view and manage tags",
+        "name": "Name",
+        "description": "Description",
+        "group": "Group",
+        "submit": "Create"
+      }
     }
   }
 }
