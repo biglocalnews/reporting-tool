@@ -1,13 +1,13 @@
-FROM node:15.14.0 AS builder
+FROM node:16.13.2 AS builder
 
 RUN mkdir /client
 WORKDIR /client
 
-COPY package.json yarn.lock ./
-RUN yarn install --network-timeout 100000
+COPY package.json package-lock.json ./
+RUN npm install
 
 COPY . .
-RUN yarn build
+RUN npm run build
 
 
 FROM nginx:1.20

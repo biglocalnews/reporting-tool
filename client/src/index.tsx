@@ -99,7 +99,7 @@ const MainApp = () => {
 };
 
 if (process.env.NODE_ENV !== "production") {
-  import("react-axe").then((axe) => {
+  import("@axe-core/react").then((axe) => {
     axe.default(React, ReactDOM, 1000);
     ReactDOM.render(<MainApp />, document.getElementById("root"));
   });

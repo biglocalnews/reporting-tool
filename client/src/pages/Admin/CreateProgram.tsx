@@ -196,7 +196,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
             if (option && option.children && input) {
               return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
-            return false;
+            return true;
           }}
           filterSort={(a, b) =>
             a.children.toLowerCase().localeCompare(b.children.toLowerCase())
