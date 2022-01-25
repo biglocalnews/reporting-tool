@@ -1,6 +1,6 @@
 import { Form, FormInstance, Input, message } from "antd";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import { CreateUserFormValues } from "../../services/account";
 
@@ -23,7 +23,7 @@ export type CreateUserProps = {
  */
 export const CreateUser = ({ form }: CreateUserProps) => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const account = useUserAccountManager();
 
   /**
@@ -34,12 +34,12 @@ export const CreateUser = ({ form }: CreateUserProps) => {
       const id = await account.createUser(values);
       try {
         await account.requestVerifyUser(values.email);
-      } catch (e) {
-        message.warn(e.message);
+      } catch (e: unknown) {
+        if (e instanceof Error) return message.warn(e.message);
       }
-      history.push(`/admin/users/${id}`);
-    } catch (e) {
-      message.error(e.message);
+      navigate(`/admin/users/${id}`);
+    } catch (e: unknown) {
+      if (e instanceof Error) return message.error(e.message);
     }
   };
 

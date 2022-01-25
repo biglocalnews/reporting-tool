@@ -13,7 +13,7 @@ it("redirects user to the main page when they login (not on their first time)", 
   const { auth } = mockUserLogIn(user, password);
   await auth.init();
 
-  const history = createMemoryHistory();
+  let navigate = createMemoryHistory();
 
   const location = {
     state: {},
@@ -60,7 +60,7 @@ it("prompts user to reset their password on their first login", async () => {
   const { auth } = mockUserLogIn(user, password, true);
   await auth.init();
 
-  const history = createMemoryHistory();
+  let navigate = createMemoryHistory();
 
   const location = {
     state: {},
@@ -107,7 +107,7 @@ it("allows user to reset their password with their email", async () => {
   const { auth } = mockUserNotLoggedIn();
   await auth.init();
 
-  const history = createMemoryHistory();
+  let navigate = createMemoryHistory();
   const location = {
     state: {},
     pathname: "",

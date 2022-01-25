@@ -4,7 +4,7 @@ import { Alert, Button, Form, Modal, PageHeader, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { TFunction } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { messageError, messageSuccess } from "../../components/Message";
 import { useTranslationWithPrefix } from "../../components/useTranslationWithPrefix";
 import { AdminCreateTeam } from "../../graphql/__generated__/AdminCreateTeam";
@@ -115,7 +115,7 @@ const useTeamsListData = (tp: TFunction) => {
  * Index of all teams in the application.
  */
 export const TeamList = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [showCreate, setShowCreate] = useState(false);
   const { tp } = useTranslationWithPrefix("admin.team.index");
   const { loading, data } = useTeamsListData(tp);
@@ -124,7 +124,7 @@ export const TeamList = () => {
     useMutation<AdminCreateTeam>(ADMIN_CREATE_TEAM, {
       onCompleted: (data) => {
         messageSuccess(tp("createSuccess"));
-        history.push(`/admin/teams/${data.createTeam.id}`);
+        navigate(`/admin/teams/${data.createTeam.id}`);
       },
       onError: (error) => {
         messageError(error.message);

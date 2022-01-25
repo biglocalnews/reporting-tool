@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
 import {
@@ -53,7 +53,7 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
   const [saveError, setSaveError] = useState<Error | null>(null);
   const { t } = useTranslation();
   const apolloClient = useApolloClient();
-  const history = useHistory();
+  const navigate = useNavigate();
   const teamsResponse = useQueryWithErrorHandling<AdminGetAllTeams>(
     ADMIN_GET_ALL_TEAMS,
     "teams",
@@ -138,112 +138,99 @@ export const CreateProgram = ({ form }: CreateProgramProps) => {
       }
 
       message.success(t(`admin.program.create.success`));
-      history.push(`/admin/programs/${createResponse.data!.createProgram.id}`);
-    } catch (e) {
-      setSaveError(e.message);
+      navigate(`/admin/programs/${createResponse.data!.createProgram.id}`);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setSaveError(e);
     } finally {
       setSaving(false);
     }
   };
 
-  return (
-    <Form
-      form={form}
-      preserve={false}
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 14 }}
-      onFinish={saveNewProgram}
+  return <Form
+    form={form}
+    preserve={false}
+    labelCol={{ span: 6 }}
+    wrapperCol={{ span: 14 }}
+    onFinish={saveNewProgram}
+  >
+    {saveError && (
+      <Alert
+        type="error"
+        message={t(`admin.program.edit.form.validation.saveError`)}
+        description={t(`admin.program.create.error.${saveError.message}`)}
+        showIcon
+      />
+    )}
+
+    <Form.Item
+      label={t("admin.program.create.name")}
+      name="name"
+      rules={[
+        {
+          required: true,
+          message: t("admin.program.create.nameRequired"),
+        },
+      ]}
     >
-      {saveError && (
-        <Alert
-          type="error"
-          message={t(`admin.program.edit.form.validation.saveError`)}
-          description={t(`admin.program.create.error.${saveError.message}`)}
-          showIcon
-        />
-      )}
+      <Input
+        aria-label={t("admin.program.create.name")}
+        aria-required="true"
+      />
+    </Form.Item>
 
-      <Form.Item
-        label={t("admin.program.create.name")}
-        name="name"
-        rules={[
-          {
-            required: true,
-            message: t("admin.program.create.nameRequired"),
-          },
-        ]}
+    <Form.Item
+      label={t("admin.program.create.team")}
+      name="team"
+      rules={[
+        {
+          required: true,
+          message: t("admin.program.create.teamRequired"),
+        },
+      ]}
+    >
+      <Select<string, { value: string; children: string }>
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) => option!.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+        filterSort={(a, b) => a!.children.toLowerCase().localeCompare(b!.children.toLowerCase())}
+        placeholder={t("admin.program.create.teamPlaceholder")}
       >
-        <Input
-          aria-label={t("admin.program.create.name")}
-          aria-required="true"
-        />
-      </Form.Item>
+        {teamsResponse.data!.teams.map((team) => (
+          <Select.Option key={team.id} value={team.id}>
+            {team.name}
+          </Select.Option>
+        ))}
+      </Select>
+    </Form.Item>
 
-      <Form.Item
-        label={t("admin.program.create.team")}
-        name="team"
-        rules={[
-          {
-            required: true,
-            message: t("admin.program.create.teamRequired"),
-          },
-        ]}
+    <Form.Item label={t("admin.program.create.basedOn")} name="basedOn">
+      <Select
+        placeholder={t("admin.program.create.basedOnPlaceholder")}
+        showSearch
+        allowClear
+        optionFilterProp="children"
+        loading={programsResponse.loading}
+        filterOption={(input, option) => option!.title.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+        filterSort={(a, b) => a!.title.toLowerCase().localeCompare(b!.title.toLowerCase())}
       >
-        <Select
-          showSearch
-          optionFilterProp="children"
-          filterOption={(input, option) => {
-            if (option && option.children && input) {
-              return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            return true;
-          }}
-          filterSort={(a, b) =>
-            a.children.toLowerCase().localeCompare(b.children.toLowerCase())
-          }
-          placeholder={t("admin.program.create.teamPlaceholder")}
-        >
-          {teamsResponse.data!.teams.map((team) => (
-            <Select.Option key={team.id} value={team.id}>
-              {team.name}
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
-
-      <Form.Item label={t("admin.program.create.basedOn")} name="basedOn">
-        <Select
-          placeholder={t("admin.program.create.basedOnPlaceholder")}
-          showSearch
-          allowClear
-          optionFilterProp="children"
-          loading={programsResponse.loading}
-          filterOption={(input, option) =>
-            option?.title.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          filterSort={(a, b) =>
-            a.title.toLowerCase().localeCompare(b.title.toLowerCase())
-          }
-        >
-          {programsResponse.data?.programs.map((p) => (
-            <Select.Option
-              key={p.id}
-              value={p.id}
-              aria-label={`${p.team?.name}: ${p.name}`}
-              title={`${p.team?.name}: ${p.name}`}
-            >
-              <Row justify="space-between">
-                <Col>{p.name}</Col>
-                <Col>
-                  <Typography.Text type="secondary">
-                    {p.team?.name}
-                  </Typography.Text>
-                </Col>
-              </Row>
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
-    </Form>
-  );
+        {programsResponse.data?.programs.map((p) => (
+          <Select.Option
+            key={p.id}
+            value={p.id}
+            aria-label={`${p.team?.name}: ${p.name}`}
+            title={`${p.team?.name}: ${p.name}`}
+          >
+            <Row justify="space-between">
+              <Col>{p.name}</Col>
+              <Col>
+                <Typography.Text type="secondary">
+                  {p.team?.name}
+                </Typography.Text>
+              </Col>
+            </Row>
+          </Select.Option>
+        ))}
+      </Select>
+    </Form.Item>
+  </Form >
 };

@@ -455,6 +455,7 @@ def resolve_update_program(obj, info, input):
             c = Category.get_or_create(session, category_input)
             tracks_input = target_input.pop("tracks")
             target = Target.get_or_create(session, program.id, target_input, c.id)
+            target.category_id = c.id
             # Because we want to replace any existing tracks with the new ones
             target.tracks = []
             for track_input in tracks_input:

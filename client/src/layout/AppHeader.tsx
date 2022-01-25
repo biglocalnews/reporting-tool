@@ -1,6 +1,6 @@
 import { LogoutOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
 import { Menu, Dropdown, Button, Col, Layout, Row } from "antd";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/5050logo-only.jpg";
 import bbclogo from "../assets/logo_bbc_dark.png";
 import { useAuth } from "../components/AuthProvider";
@@ -12,11 +12,11 @@ const { Header } = Layout;
 const AppHeader = () => {
   const auth = useAuth();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const logout = async () => {
     await auth.logout();
-    history.push("/login");
+    navigate("/login");
   };
 
   const menu = (
@@ -32,11 +32,11 @@ const AppHeader = () => {
       <Header className="header">
         <Row wrap={false}>
           <Col flex="none">
-            
+
             <div className="header__logo">
               <Link to="/">
-                <img src={bbclogo} alt="BBC Logo" style={{width: "120px", marginRight: "20px"}}/>
-                <img src={logo} alt="50:50 - The Equality Project Logo" style={{width: "110px"}} />
+                <img src={bbclogo} alt="BBC Logo" style={{ width: "120px", marginRight: "20px" }} />
+                <img src={logo} alt="50:50 - The Equality Project Logo" style={{ width: "110px" }} />
               </Link>
             </div>
           </Col>
@@ -48,7 +48,7 @@ const AppHeader = () => {
             >
               <Dropdown overlay={menu}>
                 <Button icon={<UserOutlined />}>
-                {auth.getFullName()} <DownOutlined />
+                  {auth.getFullName()} <DownOutlined />
                 </Button>
               </Dropdown>
             </div>

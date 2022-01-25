@@ -1,7 +1,7 @@
 import { Alert, Button, Card, Form, Input, message, PageHeader } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import { usePasswordStrength } from "./PasswordStrength";
 import "./ResetAccountPassword.css";
@@ -12,7 +12,7 @@ import "./ResetAccountPassword.css";
 export const ResetAccountPassword = () => {
   const { t } = useTranslation();
   const account = useUserAccountManager();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const strength = usePasswordStrength();
   const [resetError, setResetError] = useState<Error | null>(null);
@@ -38,10 +38,12 @@ export const ResetAccountPassword = () => {
       }
       await account.requestPasswordReset(email);
       message.success(t("account.resetPassword.reresetSuccess", { email }));
-    } catch (e) {
-      message.error(
-        t("account.resetPassword.reresetError", { message: e.message })
-      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        message.error(
+          t("account.resetPassword.reresetError", { message: e.message })
+        );
+      }
     }
   };
 
@@ -60,9 +62,9 @@ export const ResetAccountPassword = () => {
       }
       await account.resetPassword({ token, password });
       message.success(t("account.resetPassword.success"));
-      history.push("/");
-    } catch (e) {
-      setResetError(e);
+      navigate("/");
+    } catch (e: unknown) {
+      if (e instanceof Error) return setResetError(e);
     } finally {
       setResetting(false);
     }
@@ -120,8 +122,8 @@ export const ResetAccountPassword = () => {
                       return Promise.reject(
                         new Error(
                           analysis.feedback.warning ||
-                            analysis.feedback.suggestions[0] ||
-                            t("account.resetPassword.weakPassword")
+                          analysis.feedback.suggestions[0] ||
+                          t("account.resetPassword.weakPassword")
                         )
                       );
                     }

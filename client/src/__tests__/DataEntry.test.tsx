@@ -16,7 +16,7 @@ import { Router, useParams } from "react-router-dom";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { DataEntry } from "../pages/DataEntry/DataEntry";
 
-const history = createMemoryHistory();
+let navigate = createMemoryHistory();
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),

@@ -25,12 +25,13 @@ import {
   Switch,
   Typography,
 } from "antd";
+const { Option } = Select;
 import { FormListOperation } from "antd/lib/form/FormList";
 import moment from "moment";
 const { RangePicker } = DatePicker;
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Prompt, useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { NewStringInput } from "../../components/NewStringInput";
 import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
@@ -66,6 +67,8 @@ import {
   useSave,
   ReportingPeriod,
 } from "./programHooks";
+
+import { usePrompt } from "../../components/usePrompt";
 
 /**
  * URL parameters expected for this page.
@@ -185,11 +188,11 @@ const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], repor
 /**
  * Form to edit or delete a program.
  */
-export const EditProgram = () => {
+export const EditProgram = (): JSX.Element => {
   const [dirty, setDirty] = useState(false);
   const { t } = useTranslation();
-  const history = useHistory();
-  const { programId } = useParams<EditProgramRouteParams>();
+  const navigate = useNavigate();
+  const { programId } = useParams() as EditProgramRouteParams;
   const [editForm] = Form.useForm<ProgramUpdateFormValues>();
   const save = useSave();
   const restore = useRestore();
@@ -204,7 +207,7 @@ export const EditProgram = () => {
     AdminGetProgram,
     AdminGetProgramVariables
   >(ADMIN_GET_PROGRAM, "program", {
-    variables: { id: programId },
+    variables: { id: programId ?? "" },
     fetchPolicy: "network-only",
   });
 
@@ -257,6 +260,10 @@ export const EditProgram = () => {
     }
   }, [allTeams]);
 
+  usePrompt(t("conflirmLeavePage"), dirty);
+
+  if (!programId) return <p>bad route</p>;
+
   if (
     teamsResponse.loading ||
     programResponse.loading ||
@@ -288,12 +295,11 @@ export const EditProgram = () => {
     })),
   };
 
+
   return (
     <div className="admin program-editprogram_container">
-      <Prompt when={dirty} message={t("confirmLeavePage")} />
-
       <PageHeader
-        onBack={() => history.push("/admin/programs")}
+        onBack={() => navigate("/admin/programs")}
         title={t("admin.program.edit.title")}
       />
 
@@ -392,20 +398,20 @@ export const EditProgram = () => {
           ]}
           name="teamId"
         >
-          <Select
+          <Select<string, { value: string; children: string }>
             showSearch
             disabled={inactive}
             filterOption={(input, option) =>
-              option?.children.toLowerCase().indexOf(input?.toLowerCase()) >= 0
+              option!.children.toLowerCase().indexOf(input?.toLowerCase()) >= 0
             }
             filterSort={(a, b) =>
-              a.children.toLowerCase().localeCompare(b.children.toLowerCase())
+              a!.children.toLowerCase().localeCompare(b!.children.toLowerCase())
             }
           >
             {teamsResponse.data!.teams.map((t) => (
-              <Select.Option key={t.id} value={t.id}>
+              <Option key={t.id} value={t.id}>
                 {t.name}
-              </Select.Option>
+              </Option>
             ))}
           </Select>
         </Form.Item>
@@ -418,14 +424,13 @@ export const EditProgram = () => {
                   <Col offset={2} span={20}><Divider orientation="left">Tags</Divider></Col>
                 </Row>
                 {
-                  tagFields.map(({ key, name, fieldKey, ...restField }) =>
+                  tagFields.map(({ key, name, ...restField }) =>
                     <Row key={key}>
                       <Col offset={4} span={8}>
                         <Form.Item
                           {...restField}
                           label={t("admin.program.edit.form.tags.type")}
                           name={[name, "tagType"]}
-                          fieldKey={[fieldKey, "tagType"]}
                           labelCol={{ span: 6 }}
                           wrapperCol={{ span: 18 }}
                           rules={[
@@ -452,7 +457,6 @@ export const EditProgram = () => {
                           {...restField}
                           label={t("admin.program.edit.form.tags.name")}
                           name={[name, "name"]}
-                          fieldKey={[fieldKey, 'name']}
                           labelCol={{ span: 6 }}
                           wrapperCol={{ span: 18 }}
                           rules={[
@@ -784,11 +788,11 @@ export const EditProgram = () => {
                   >
                     {t("admin.program.edit.form.addNewCategory")}
                   </Divider>
-                  <Select
+                  <Select<string, { value: string; children: string }>
                     disabled={inactive}
                     aria-label={t("admin.program.edit.form.addNewCategory")}
                     value={t("admin.program.edit.form.addCategoryPlaceholder")}
-                    onSelect={(newId) => {
+                    onSelect={(newId: string) => {
                       const newCategory = catsResponse.data!.categories.find(
                         (category) => category.id === newId
                       );
@@ -814,9 +818,9 @@ export const EditProgram = () => {
                           ).find((target) => target.category.id === category.id)
                       )
                       .map((category) => (
-                        <Select.Option key={category.id} value={category.id}>
+                        <Option key={category.id} value={category.id}>
                           {category.name}
-                        </Select.Option>
+                        </Option>
                       ))}
                   </Select>
                 </Col>
@@ -889,7 +893,7 @@ export const EditProgram = () => {
                               label={t("admin.program.edit.form.personTypes")}
                               name={[datasetField.name, "personTypes"]}
                             >
-                              <Select
+                              <Select<string, { value: string; children: string }>
                                 disabled={inactive}
                                 aria-label={t(
                                   "admin.program.edit.form.personTypes"
@@ -899,19 +903,18 @@ export const EditProgram = () => {
                                   "admin.program.edit.form.newPersonTypePrompt"
                                 )}
                                 filterOption={(input, option) =>
-                                  option?.children
-                                    ?.toLowerCase()
+                                  option!.children.toLowerCase()
                                     .indexOf(input.toLowerCase()) >= 0
                                 }
                               >
                                 {personTypesResponse.data?.personTypes.map(
                                   ({ personTypeName }) => (
-                                    <Select.Option
+                                    <Option
                                       key={personTypeName}
                                       value={personTypeName}
                                     >
                                       {personTypeName}
-                                    </Select.Option>
+                                    </Option>
                                   )
                                 )}
                               </Select>
@@ -947,7 +950,7 @@ export const EditProgram = () => {
                               wrapperCol={{ span: 24 }}
                               name={[datasetField.name, "customColumns"]}
                             >
-                              <Select
+                              <Select<string, { value: string; children: string }>
                                 disabled={inactive}
                                 aria-label={t(
                                   "admin.program.edit.form.customColumns"
@@ -957,19 +960,18 @@ export const EditProgram = () => {
                                   "admin.program.edit.form.newCustomColumnPrompt"
                                 )}
                                 filterOption={(input, option) =>
-                                  option?.children
-                                    ?.toLowerCase()
+                                  option!.children.toLowerCase()
                                     .indexOf(input.toLowerCase()) >= 0
                                 }
                               >
                                 {customColumnsResponse.data?.customColumns.map(
                                   ({ name, id }) => (
-                                    <Select.Option
+                                    <Option
                                       key={id}
                                       value={name}
                                     >
                                       {name}
-                                    </Select.Option>
+                                    </Option>
                                   )
                                 )}
                               </Select>
@@ -981,11 +983,10 @@ export const EditProgram = () => {
                   ))}
                   <List.Item style={{ width: "100%" }} hidden={!showDatasets}>
                     {!allTeamsLoading ? (
-                      <Select
+                      <Select<string, { value: string; children: string }>
                         showSearch
                         filterOption={(input, option) =>
-                          option?.children
-                            ?.toLocaleLowerCase()
+                          option!.children.toLocaleLowerCase()
                             .indexOf(input.toLocaleLowerCase()) >= 0
                         }
                         onChange={(value) =>
@@ -1134,7 +1135,7 @@ export const EditProgram = () => {
                   <Col offset={2} span={20}>
                     <List>
                       {
-                        rpFields.map(({ key, name, fieldKey, ...restField }) => (
+                        rpFields.map(({ key, name, ...restField }) => (
                           <List.Item key={key}>
                             <Row gutter={16} justify="center" style={{ width: "100%" }}>
                               <Col span={6}>
@@ -1150,7 +1151,6 @@ export const EditProgram = () => {
                                         default: {
                                           return (
                                             <Form.Item
-                                              fieldKey={[fieldKey, "range"]}
                                               name={[name, "range"]}
                                               rules={[
                                                 { required: true, message: 'Please enter a date range' },
@@ -1188,7 +1188,6 @@ export const EditProgram = () => {
                               <Col span={16}>
                                 <Form.Item
                                   {...restField}
-                                  fieldKey={[fieldKey, "description"]}
                                   name={[name, "description"]}
                                   wrapperCol={{ span: 24 }}
                                   style={{ width: "100%" }}

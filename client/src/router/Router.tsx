@@ -1,23 +1,20 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Redirect, Route, RouteComponentProps, Switch } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
-import BreadCrumb from "../components/Breadcrumb/Breadcrumbs";
 import { ErrorBoundary } from "../components/Error/ErrorBoundary";
-import { LoginProps } from "../pages/Login/Login";
 import { VerifyAccount } from "../pages/VerifyAccount";
 import { IRoute } from "./routes";
 
 /**
  * Flatten routes to render components for a subroute
  */
-function flattenRoutes(route: IRoute, agg: any = []) {
+function flattenRoutes(route: IRoute, agg: JSX.Element[] = []) {
   agg.push(
     <Route
-      exact
       key={route.key}
       path={route.path}
-      component={route.component}
+      element={route.element}
     />
   );
 
@@ -28,10 +25,6 @@ function flattenRoutes(route: IRoute, agg: any = []) {
   return agg;
 }
 
-/**
- * Type representing the base router props.
- */
-type AnyRouteProps = RouteComponentProps<Record<string, string | undefined>>;
 
 /**
  * List of routes defined as objects.
@@ -49,23 +42,22 @@ export type ProtectedRoutesProps = {
  * Use this component for any new section of routes
  * (any config object that has a "routes" property
  */
-export function ProtectedRoutes({ routes }: ProtectedRoutesProps) {
-  return (
-    <Switch>
-      {routes &&
-        routes.map((route: IRoute) => {
-          return flattenRoutes(route);
-        })}
-      <Route component={() => <h1>Not Found!</h1>} />
-    </Switch>
-  );
-}
+export const ProtectedRoutes = ({ routes }: ProtectedRoutesProps) =>
+  <Routes>
+    {
+      routes &&
+      routes.map((route: IRoute) => {
+        return flattenRoutes(route);
+      })
+    }
+    <Route element={<h1>Not Found!</h1>} />
+  </Routes>
 
 /**
  * Properties expected by the RenderRoutes component.
  */
 export type RenderRoutesProps = {
-  loginComponent: React.ComponentType<LoginProps>;
+  LoginComponent: React.ComponentType;
   adminRoutes: RoutesList;
   protectedRoutes: RoutesList;
   protectedContainer: React.ComponentType;
@@ -88,7 +80,7 @@ function Redirecter(props: { from: string }) {
  * of protected routes passed in here.
  */
 export function RenderRoutes({
-  loginComponent,
+  LoginComponent,
   adminRoutes,
   protectedRoutes,
   protectedContainer,
@@ -100,67 +92,69 @@ export function RenderRoutes({
   // First time login requires the user to configure the app.
   if (auth.isBlankSlate()) {
     return (
-      <Switch>
+      <Routes>
         <Route
           path="/"
-          component={React.lazy(() => import("../pages/Configure"))}
+          element={React.lazy(() => import("../pages/Configure"))}
         />
-      </Switch>
+      </Routes>
     );
   }
 
   // Routes that a normal authed user can visit.
   // If the user is not logged in, they will be redirected to the login screen.
-  const WrappedPrivate = (props: AnyRouteProps) =>
-    auth.isLoggedIn() ? (
-      <Container>
-        <BreadCrumb />
-        <ErrorBoundary>
-          <ProtectedRoutes routes={protectedRoutes} />
-        </ErrorBoundary>
-      </Container>
-    ) : process.env.NODE_ENV !== "production" ? (
-      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
-    ) : (
-      <Redirecter from={props.location.pathname} />
-    );
+  const WrappedPrivate = () => {
+    const location = useLocation();
+    if (!auth.isLoggedIn()) {
+      if (process.env.NODE_ENV !== "production") {
+        return <Navigate to="/login" state={{ from: location }} />
+      }
+      return <Redirecter from={location.pathname} />
+    }
+    return <Container>
 
+      <ErrorBoundary>
+        <ProtectedRoutes routes={protectedRoutes} />
+      </ErrorBoundary>
+    </Container>
+
+  }
   // Additional routes that only authed admins can visit.
   // When a user is logged in but lacks permission, they will see an error
   // telling them that they can't view the requested site.
   //
   // If a user is *not* logged in, they will be redirected to login screen.
-  const WrappedPrivateAdmin = (props: AnyRouteProps) =>
-    auth.isLoggedIn() ? (
-      <Container>
-        <ErrorBoundary>
-          {auth.isAdmin() ? (
-            <ProtectedRoutes routes={adminRoutes} />
-          ) : (
-            <div>{t("notAuthorized")}</div>
-          )}
-        </ErrorBoundary>
-      </Container>
-    ) : process.env.NODE_ENV !== "production" ? (
-      <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
-    ) : (
-      <Redirecter from={props.location.pathname} />
-    );
+  const WrappedPrivateAdmin = () => {
+    const location = useLocation();
+    if (!auth.isLoggedIn()) {
+      if (process.env.NODE_ENV !== "production") {
+        return <Navigate to="/login" state={{ from: location }} />
+      }
+      return <Redirecter from={location.pathname} />
+    }
+    return <Container>
+      <ErrorBoundary>
+        {auth.isAdmin() ? (
+          <ProtectedRoutes routes={adminRoutes} />
+        ) : (
+          <div>{t("notAuthorized")}</div>
+        )}
+      </ErrorBoundary>
+    </Container>
+  }
 
   return (
-    <Switch>
-      <Route exact path="/login" component={loginComponent} />
-      <Route exact path="/account/verify" component={VerifyAccount} />
+    <Routes>
+      <Route path="/login" element={<LoginComponent />} />
+      <Route path="/account/verify" element={<VerifyAccount />} />
       <Route
-        exact
         path="/account/reset-password"
-        component={React.lazy(
+        element={React.lazy(
           () => import("../pages/ResetAccountPassword/ResetAccountPassword")
         )}
       />
-
-      <Route path="/admin/" component={WrappedPrivateAdmin} />
-      <Route path="/" component={WrappedPrivate} />
-    </Switch>
+      <Route path="/admin/*" element={<WrappedPrivateAdmin />} />
+      <Route path="/*" element={<WrappedPrivate />} />
+    </Routes>
   );
 }

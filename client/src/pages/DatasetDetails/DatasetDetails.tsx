@@ -44,11 +44,6 @@ const { TabPane } = Tabs;
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
-interface RouteParams {
-  datasetId: string;
-}
-
-
 
 const PresetDateRanges: Record<
   string,
@@ -77,7 +72,8 @@ export const getPalette = (targetCategory: string) => {
 };
 
 const DatasetDetails = (): JSX.Element => {
-  const { datasetId } = useParams<RouteParams>();
+  const { datasetId } = useParams() as { datasetId: string };
+
   const { t } = useTranslation();
   const defaultPresetDate = "This Month";
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
@@ -270,6 +266,7 @@ const DatasetDetails = (): JSX.Element => {
       .sort((a, b) => catSort(a.target.category.name, b.target.category.name));
   }, [queryData?.dataset?.program.targets, filteredRecords]);
 
+  if (!datasetId) return <>bad route</>
 
   if (queryLoading) {
     return <Loading />;

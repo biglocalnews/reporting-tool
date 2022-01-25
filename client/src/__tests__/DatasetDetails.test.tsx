@@ -15,7 +15,7 @@ import { ErrorBoundary } from "../components/Error/ErrorBoundary";
 import { autoMockedClient } from "../graphql/__mocks__/AutoMockProvider";
 import { DatasetDetails } from "../pages/DatasetDetails/DatasetDetails";
 
-const history = createMemoryHistory();
+let navigate = createMemoryHistory();
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),

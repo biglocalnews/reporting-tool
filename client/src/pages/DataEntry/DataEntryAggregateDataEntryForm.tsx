@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   GetDataset,
   GetDataset_dataset_personTypes,
@@ -102,7 +102,7 @@ export const renderFormEntries = (
 
 const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const isEditMode = props.recordId ? true : false;
 
@@ -200,8 +200,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
     try {
       const data = isEditMode ? await update() : await create();
       if (data) return props.onFormSubmitted(true);
-    } catch (err) {
-      return setError(err);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setError(e);
     }
   };
 
@@ -222,8 +222,8 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
         clearState();
         setIsSaveAndAddAnotherRecord(false);
       }
-    } catch (err) {
-      setError(err);
+    } catch (e: unknown) {
+      if (e instanceof Error) return setError(e);
     }
   };
 
@@ -348,7 +348,7 @@ const DataEntryAggregateDataEntryForm = (props: FormProps): JSX.Element => {
             )}
             <Button
               htmlType="button"
-              onClick={() => history.push("/")}
+              onClick={() => navigate("/")}
               icon={<CloseSquareFilled />}
               style={{ whiteSpace: "normal", height: "auto" }}
             >

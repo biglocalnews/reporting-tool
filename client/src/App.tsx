@@ -43,7 +43,7 @@ function App() {
       <Suspense fallback={<Loading />}>
         <Layout style={{ height: "100vh" }}>
           <RenderRoutes
-            loginComponent={Login}
+            LoginComponent={Login}
             adminRoutes={adminRoutes}
             protectedRoutes={normalRoutes}
             protectedContainer={ProtectedAppContainer}

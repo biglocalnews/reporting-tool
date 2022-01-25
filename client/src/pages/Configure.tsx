@@ -11,7 +11,7 @@ import {
   Row,
   Typography,
 } from "antd";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslationWithPrefix } from "../components/useTranslationWithPrefix";
 import {
   FirstTimeConfigure,
@@ -23,7 +23,7 @@ import { FIRST_TIME_CONFIGURE } from "../graphql/__mutations__/FirstTimeConfigur
  * Form for first-time app configuration.
  */
 export const Configure = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t, tp } = useTranslationWithPrefix("app.configure");
   const [configure, { loading, error }] = useMutation<
     FirstTimeConfigure,
@@ -33,10 +33,10 @@ export const Configure = () => {
       message.success(tp("success"));
       // Redirect to the edit page for the new user. They will be prompted to
       // login before they can see this.
-      history.replace(`/admin/users/${data.configureApp}`);
+      navigate(`/admin/users/${data.configureApp}`, { replace: true });
       // Using history.go forces the browser to reload auth state, which ensures
       // the "blank slate" mode is fully cleaned up on the frontend.
-      history.go(0);
+      navigate(0);
     },
     onError() {
       message.error(tp("error"));

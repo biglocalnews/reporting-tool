@@ -35,7 +35,7 @@ const Pie5050 = (props: IProps) => {
             }
         },
         //percent: target.status / 100,
-        legend: props.legend,
+        legend: props.legend ? {} : undefined,
         statistic: {
             title: false,
             content: {
