@@ -134,21 +134,22 @@ export const EditTags = () => {
 
     interface ITagProps {
         tag: GetAllTags_tags,
+        key: number,
         showDelete?: boolean,
         showEdit?: boolean
     }
 
-    const MyTag: React.FC<ITagProps> = ({ tag, showDelete, showEdit }: ITagProps) =>
+    const MyTag = ({ tag, showDelete, showEdit, key }: ITagProps) =>
         <Tag
+            key={key}
             closable={showDelete}
             draggable
             aria-label={tag.description ?? t("noDescription")}
             color={isDragging === tag.id ? "processing" : isOver === tag.id ? "magenta" : tag.tagType === "unassigned" ? "default" : "success"}
             onDragStart={(e) => {
-                setIsDragging(tag.id);
-                e.currentTarget.style.border = "dashed";
                 e.dataTransfer.setData("text/plain", tag.id);
                 e.dataTransfer.dropEffect = "move";
+                setIsDragging(tag.id);
             }
             }
             onDragEnd={(e) => {
@@ -213,7 +214,7 @@ export const EditTags = () => {
             {
                 Array.from(data?.tags ?? [] as GetAllTags_tags[])
                     .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((tag, i) => <MyTag tag={tag} key={i} showEdit showDelete />)
+                    .map((tag, i) => MyTag({ tag: tag, showDelete: true, showEdit: true, key: i }))
             }
         </Col>
         <Col span={24}>
@@ -257,8 +258,8 @@ export const EditTags = () => {
                             }
                             }
                             onDragOver={(e) => {
-                                setIsOver(group);
                                 e.preventDefault();
+                                setIsOver(group);
                             }
                             }
                             onDragLeave={() => {
@@ -269,7 +270,7 @@ export const EditTags = () => {
                             {
                                 tags
                                     .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((tag, i) => <MyTag tag={tag} key={i} />)
+                                    .map((tag, i) => MyTag({ tag: tag, showDelete: false, showEdit: false, key: i }))
                             }
                         </Card>
                     </Col>
