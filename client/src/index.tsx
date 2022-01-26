@@ -27,7 +27,7 @@ const retryLink = new RetryLink({
     jitter: true
   },
   attempts: {
-    max: 10,
+    max: 5,
     retryIf: (error, _operation) => !!error || !!_operation
   }
 });
@@ -43,13 +43,13 @@ const errorLink = onError((err) => {
     message.error(`[Network error]: ${err.networkError}`);
   }
 
-  if (err.response?.errors) {
+  /*if (err.response?.errors) {
     err.response.errors.map(x =>
       message.error(
         `[Response error]: Message: ${x.message}, Location: ${x.locations}, Path: ${x.path}`
       )
     );
-  }
+  }*/
 
 });
 

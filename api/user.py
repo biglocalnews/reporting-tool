@@ -167,6 +167,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
             "is_active",
             "is_verified",
             "hashed_password",
+            "username",
         ]:
             if k in d:
                 if k == "hashed_password" and dbuser.hashed_password != d[k]:
