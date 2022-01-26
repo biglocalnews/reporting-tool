@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { AutoComplete, Button, Card, Col, Input, Row, Form, PageHeader, Typography, Tag } from "antd";
+import { AutoComplete, Button, Card, Col, Input, Row, Form, PageHeader, Typography, Tag, Divider } from "antd";
 const { Text } = Typography;
 import { TagsOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from "react";
@@ -19,10 +19,6 @@ interface ITag {
     name: string,
     description: string | null,
     tagType?: string | null
-}
-
-interface IProps {
-    group: string
 }
 
 export const EditTags = () => {
@@ -70,7 +66,11 @@ export const EditTags = () => {
     if (error) return <p>{error.message}</p>
     if (!groupedByTagType) return <p>No tags</p>
 
-    const NewTagForm: React.FC<IProps> = ({ group }: IProps) => {
+    interface INewTagFrmProps {
+        group: string
+    }
+
+    const NewTagForm: React.FC<INewTagFrmProps> = ({ group }: INewTagFrmProps) => {
 
         useEffect(() => { form.setFieldsValue({ tagType: group }) }, [group]);
 
@@ -112,7 +112,7 @@ export const EditTags = () => {
                             .map(group => ({ value: group }))
                     }
                     filterOption={(inputValue, option) =>
-                        option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                        option?.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                     }
                 />
             </Form.Item>
@@ -131,6 +131,53 @@ export const EditTags = () => {
 
         </Form>
     }
+
+    interface ITagProps {
+        tag: GetAllTags_tags,
+        showDelete?: boolean,
+        showEdit?: boolean
+    }
+
+    const MyTag: React.FC<ITagProps> = ({ tag, showDelete, showEdit }: ITagProps) =>
+        <Tag
+            closable={showDelete}
+            draggable
+            aria-label={tag.description ?? t("noDescription")}
+            color={isDragging === tag.id ? "processing" : isOver === tag.id ? "magenta" : tag.tagType === "unassigned" ? "default" : "success"}
+            onDragStart={(e) => {
+                setIsDragging(tag.id);
+                e.currentTarget.style.border = "dashed";
+                e.dataTransfer.setData("text/plain", tag.id);
+                e.dataTransfer.dropEffect = "move";
+            }
+            }
+            onDragEnd={(e) => {
+                setIsDragging(undefined);
+                e.dataTransfer.clearData()
+            }}
+            onClose={() => {
+                deleteTag({ variables: { id: tag.id } });
+            }}
+            onMouseEnter={() => setIsOver(tag.id)}
+            onMouseLeave={() => setIsOver(undefined)}
+        >
+            <Text
+                editable={showEdit && isOver === tag.id ? {
+                    onChange: (e) => {
+                        e !== tag.name && saveTag({
+                            variables: {
+                                input: {
+                                    id: tag.id, name: e
+                                }
+                            }
+                        }).finally(() => resetSave());
+                    }
+                } : false}
+            >
+                {tag.name}
+            </Text>
+        </Tag>
+
 
     return <Row gutter={[10, 10]}>
         <Col span={24}>
@@ -159,8 +206,22 @@ export const EditTags = () => {
         <Col span={24}>
             {newTag && <NewTagForm group={newTag} key={1} />}
         </Col>
+        <Col span={24}>
+            <Divider orientation="left">{t("allTags")}</Divider>
+        </Col>
+        <Col span={24}>
+            {
+                Array.from(data?.tags ?? [] as GetAllTags_tags[])
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((tag, i) => <MyTag tag={tag} key={i} showEdit showDelete />)
+            }
+        </Col>
+        <Col span={24}>
+            <Divider orientation="left">{t("tagGroups")}</Divider>
+        </Col>
         {
             Array.from(groupedByTagType)
+                .filter(([k,]) => k !== "unassigned")
                 .sort(([a,], [b,]) => a.localeCompare(b))
                 .map(([group, tags]) =>
                     <Col span={6} key={group}>
@@ -208,47 +269,7 @@ export const EditTags = () => {
                             {
                                 tags
                                     .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((tag, i) =>
-                                        <Tag
-                                            closable
-                                            draggable
-                                            aria-label={tag.description ?? t("noDescription")}
-                                            key={i}
-                                            color={isDragging === tag.id ? "processing" : isOver === tag.id ? "magenta" : "success"}
-                                            onDragStart={(e) => {
-                                                setIsDragging(tag.id);
-                                                e.currentTarget.style.border = "dashed";
-                                                e.dataTransfer.setData("text/plain", tag.id);
-                                                e.dataTransfer.dropEffect = "move";
-                                            }
-                                            }
-                                            onDragEnd={(e) => {
-                                                setIsDragging(undefined);
-                                                e.dataTransfer.clearData()
-                                            }}
-                                            onClose={() => {
-                                                deleteTag({ variables: { id: tag.id } });
-                                            }}
-                                            onMouseEnter={() => setIsOver(tag.id)}
-                                            onMouseLeave={() => setIsOver(undefined)}
-                                        >
-                                            <Text
-                                                editable={isOver === tag.id ? {
-                                                    onChange: (e) => {
-                                                        e !== tag.name && saveTag({
-                                                            variables: {
-                                                                input: {
-                                                                    id: tag.id, name: e
-                                                                }
-                                                            }
-                                                        }).finally(() => resetSave());
-                                                    }
-                                                } : false}
-                                            >
-                                                {tag.name}
-                                            </Text>
-                                        </Tag>
-                                    )
+                                    .map((tag, i) => <MyTag tag={tag} key={i} />)
                             }
                         </Card>
                     </Col>

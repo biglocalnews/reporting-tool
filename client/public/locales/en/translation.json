@@ -45,6 +45,8 @@
   "annual": "Annual",
   "custom": "Custom",
   "pageNotFound": "Page not found",
+  "allTags": "All Tags",
+  "tagGroups": "Grouped Tags",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",
