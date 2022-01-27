@@ -31,7 +31,10 @@ export const EditTags = () => {
     const { tp } = useTranslationWithPrefix("admin.tag.index");
 
     const { loading, error, data } = useQuery<GetAllTags>(
-        GET_ALL_TAGS
+        GET_ALL_TAGS,
+        {
+            fetchPolicy: "network-only",
+        }
     );
 
     const [saveTag, { loading: saving, reset: resetSave }] = useMutation<AdminUpdateTag>(
@@ -44,7 +47,7 @@ export const EditTags = () => {
         { refetchQueries: [GET_ALL_TAGS] }
     );
 
-    const [deleteTag] = useMutation<AdminDeleteTag>(
+    const [deleteTag, { reset: resetDelete }] = useMutation<AdminDeleteTag>(
         ADMIN_DELETE_TAG,
         { refetchQueries: [GET_ALL_TAGS] }
     );
@@ -60,7 +63,7 @@ export const EditTags = () => {
             }
             return grouped;
         }, new Map<string, GetAllTags_tags[]>());
-    }, [data]);
+    }, [data?.tags]);
 
     if (loading) return <p>loading</p>
     if (error) return <p>{error.message}</p>
@@ -134,7 +137,7 @@ export const EditTags = () => {
 
     interface ITagProps {
         tag: GetAllTags_tags,
-        key: number,
+        key: string,
         showDelete?: boolean,
         showEdit?: boolean
     }
@@ -156,8 +159,11 @@ export const EditTags = () => {
                 setIsDragging(undefined);
                 e.dataTransfer.clearData()
             }}
-            onClose={() => {
-                deleteTag({ variables: { id: tag.id } });
+            onClose={(e) => {
+                //if you don't do this a weird render clash happens and the next tag in the list also disappears, altho not deleted.
+                e.preventDefault();
+                deleteTag({ variables: { id: tag.id } })
+                    .finally(() => resetDelete());
             }}
             onMouseEnter={() => setIsOver(tag.id)}
             onMouseLeave={() => setIsOver(undefined)}
@@ -213,7 +219,7 @@ export const EditTags = () => {
             {
                 Array.from(data?.tags ?? [] as GetAllTags_tags[])
                     .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((tag, i) => MyTag({ tag: tag, showDelete: true, showEdit: true, key: i }))
+                    .map((tag, i) => MyTag({ tag: tag, showDelete: true, showEdit: true, key: `all-${i}` }))
             }
         </Col>
         <Col span={24}>
@@ -268,7 +274,7 @@ export const EditTags = () => {
                             {
                                 tags
                                     .sort((a, b) => a.name.localeCompare(b.name))
-                                    .map((tag, i) => MyTag({ tag: tag, showDelete: false, showEdit: false, key: i }))
+                                    .map((tag, i) => MyTag({ tag: tag, showDelete: false, showEdit: false, key: `grouped-${i}` }))
                             }
                         </Card>
                     </Col>
