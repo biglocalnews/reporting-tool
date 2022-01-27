@@ -188,7 +188,6 @@ export const EditTags = () => {
                 extra={[
                     <Button
                         key={1}
-                        style={{ color: "blue" }}
                         size="large"
                         shape="circle"
                         icon={<TagsOutlined />}
@@ -228,12 +227,11 @@ export const EditTags = () => {
                     <Col span={6} key={group}>
                         <Card
                             title={group}
-                            style={{ borderRadius: "10px", border: isOver === group ? "5px solid coral" : saving ? "2px solid mediumaquamarine" : "1px solid black" }}
+                            style={{ borderRadius: "5px", border: isOver === group ? "5px solid coral" : saving ? "2px solid mediumaquamarine" : "1px solid #dddddd" }}
                             extra={<Button
                                 type={newTag ? "default" : "primary"}
                                 size="small"
                                 shape="circle"
-                                danger={newTag ? true : false}
                                 icon={<TagsOutlined />}
                                 onClick={() => {
                                     setNewTag((curr) => curr ? undefined : group);
