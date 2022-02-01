@@ -403,7 +403,11 @@ def resolve_stats(obj, info):
             if year not in grouped_by_dataset_year[dataset_id]:
                 grouped_by_dataset_year[dataset_id][year] = []
 
-            if this_total >= target:
+            if this_total == None or target == None:
+                grouped_by_dataset_year[dataset_id][year].append(
+                    consistency_state.failed
+                )
+            elif this_total >= target:
                 grouped_by_dataset_year[dataset_id][year].append(consistency_state.met)
             elif (this_total + consistency_threshold) >= target:
                 grouped_by_dataset_year[dataset_id][year].append(
