@@ -153,8 +153,7 @@ export const EditTags = () => {
                 e.dataTransfer.setData("text/plain", tag.id);
                 e.dataTransfer.dropEffect = "move";
                 setIsDragging(tag.id);
-            }
-            }
+            }}
             onDragEnd={(e) => {
                 setIsDragging(undefined);
                 e.dataTransfer.clearData()

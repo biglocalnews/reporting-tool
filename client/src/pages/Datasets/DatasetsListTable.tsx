@@ -5,8 +5,8 @@ interface TableProps {
   columns: [];
 }
 
-const HomeDatasetsListTable = ({ data, columns }: TableProps) => {
+const DatasetsListTable = ({ data, columns }: TableProps) => {
   return <Table dataSource={data} columns={columns} />;
 };
 
-export { HomeDatasetsListTable };
+export { DatasetsListTable };

@@ -16,6 +16,11 @@
   "numberOf": "Number of",
   "reportingPeriod": "Reporting Period",
   "unknownPersonType": "Everyone",
+  "everyone": "Everyone",
+  "personType": "Person Type",
+  "consistencyChallenge": "Consistency Challenge",
+  "consistent": "Consistent",
+  "failed": "Not met",
   "publishRecordSet": "Publish",
   "noPublishedRecordSets": "No published record sets",
   "allReportingPeriodsPublished": "All reporting periods have been published",
@@ -47,6 +52,9 @@
   "pageNotFound": "Page not found",
   "allTags": "All Tags",
   "tagGroups": "Grouped Tags",
+  "teams": "Teams",
+  "tags": "Tags",
+  "datasets": "Datasets",
   "placeholder": {
     "email": "tina@turner.org",
     "organization": "Tina Turner Foundation",
@@ -137,7 +145,8 @@
       "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets",
       "reports": "Reports (Coming Soon)",
-      "manageTags": "Tag Management"
+      "manageTags": "Tag Management",
+      "home": "Home"
     },
     "team": {
       "index": {

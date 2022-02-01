@@ -5,6 +5,7 @@ import {
   TableOutlined,
   TeamOutlined,
   UserSwitchOutlined,
+  HomeOutlined
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Layout, Menu } from "antd";
@@ -84,9 +85,12 @@ export const AppSidebarMenu = () => {
       /*defaultOpenKeys={["admin"]}*/
       style={{ height: "100%", borderRight: 0, paddingTop: "10px" }}
     >
+      <Menu.Item key="home" icon={<HomeOutlined />} role="menuitem">
+        <Link to="/">{t("admin.sidebar.home")}</Link>
+      </Menu.Item>
       {auth.isAdmin() ? (
         <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
-          <Link to="/">{t("admin.sidebar.viewAll")}</Link>
+          <Link to="/admin/datasets">{t("admin.sidebar.viewAll")}</Link>
         </Menu.Item>
       ) : (
         ""

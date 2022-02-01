@@ -441,7 +441,7 @@ const DatasetDetails = (): JSX.Element => {
                             />
                           }
                         >
-                          <PublishedRecordSet document={prs.document as IPublishedRecordSetDocument} />
+                          <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />
                         </Panel>
                       )
                     }

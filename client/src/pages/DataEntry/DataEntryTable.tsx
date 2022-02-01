@@ -29,7 +29,7 @@ import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined
 import { GetRecord_record_customColumnValues_customColumn, GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
 import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
-import { IPublishedEntry, IPublishedRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
+import { getRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
 import { catSort } from "../CatSort";
 
 
@@ -428,96 +428,9 @@ export const DataEntryTable = (props: IProps) => {
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
-    const getRecordSetDocument = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
-        ({
-            datasetGroup: getDatasetData.dataset.program.name,
-            reportingPeriodDescription: reportingPeriod.description ?? "",
-            begin: reportingPeriod.range[0],
-            end: reportingPeriod.range[1],
-            datasetTags: getDatasetData.dataset.tags
-                .map(x => ({ name: x.name, group: x.tagType })),
-            datasetGroupTags: getDatasetData.dataset.program.tags
-                .map(x => ({ name: x.name, group: x.tagType })),
-            targets: getDatasetData.dataset.program.targets
-                .map(x => ({ category: x.category.name, target: x.target * 100 }))
-                .sort((a, b) => catSort(a.category, b.category)),
-            record: getDatasetData.dataset.records
-                .filter(x =>
-                    reportingPeriod.range &&
-                    moment(x.publicationDate)
-                        .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
-                )
-                .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
-                .reduce((groupedByPersonTypeCategoryAttribute, record, recordIndex, allRecords) => {
-                    record.entries
-                        .flat() //just makes it sortable
-                        .sort((a, b) => a.categoryValue.name.localeCompare(b.categoryValue.name))
-                        .forEach(currEntry => {
-                            const personType = currEntry.personType?.personTypeName ?? "Everyone";
-                            const category = currEntry.categoryValue.category.name;
-                            const attribute = currEntry.categoryValue.name;
-
-                            if (!groupedByPersonTypeCategoryAttribute[personType]) {
-                                groupedByPersonTypeCategoryAttribute[personType] = {} as Record<string, { total: number, entries: Record<string, IPublishedEntry> }>;
-                            }
-
-                            if (!groupedByPersonTypeCategoryAttribute[personType][category]) {
-                                groupedByPersonTypeCategoryAttribute[personType][category] = {} as { total: number, entries: Record<string, IPublishedEntry> };
-                                groupedByPersonTypeCategoryAttribute[personType][category]
-                                    .total = allRecords
-                                        .flatMap(x => x.entries)
-                                        .filter(x => (x.personType?.personTypeName ?? "Everyone") === personType && x.categoryValue.category.name === category)
-                                        .reduce((total, curr) => { return total + curr.count }, 0);
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries = {} as Record<string, IPublishedEntry>;
-                            }
-
-                            if (!groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute]) {
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {} as IPublishedEntry;
-                                const total = groupedByPersonTypeCategoryAttribute[personType][category].total ?? 0;
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute] = {
-                                    attribute: attribute,
-                                    category: currEntry.categoryValue.category.name,
-                                    count: currEntry.count,
-                                    personType: currEntry.personType?.personTypeName ?? "Everyone",
-                                    targetMember: getDatasetData.dataset.program.targets
-                                        .flatMap(x => x.tracks)
-                                        .some(track => track.categoryValue.id === currEntry.categoryValue.id && track.targetMember),
-                                    percent: (
-                                        currEntry.count /
-                                        total
-                                    ) * 100
-                                }
-                            }
-                            else {
-                                const newCount = (groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count ?? 0) + currEntry.count;
-                                const total = groupedByPersonTypeCategoryAttribute[personType][category].total ?? 0;
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].count = newCount;
-                                groupedByPersonTypeCategoryAttribute[personType][category].entries[attribute].percent =
-                                    (
-                                        newCount /
-                                        total
-                                    ) * 100;
-
-                            }
-                        });
-
-                    return groupedByPersonTypeCategoryAttribute;
-                }, {} as Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>)
-        }) as IPublishedRecordSetDocument;
 
 
 
-    const stripCountsFromEntries = (document: IPublishedRecordSetDocument) => {
-        for (const personType in document.record) {
-            for (const category in document.record[personType]) {
-                delete document.record[personType][category]["total"];
-                for (const entry in document.record[personType][category]["entries"]) {
-                    delete document.record[personType][category]["entries"][entry]["count"];
-                }
-            }
-        }
-        return document;
-    }
 
     if (!getReportingPeriods(false)?.length) {
         if (getReportingPeriods(true)?.length) return <p>{t("allReportingPeriodsPublished")}</p>
@@ -552,7 +465,7 @@ export const DataEntryTable = (props: IProps) => {
                                             end: reportingPeriod.range[1],
                                             datasetId: getDatasetData.dataset.id,
                                             reportingPeriodId: reportingPeriod.id,
-                                            document: JSON.stringify(stripCountsFromEntries(getRecordSetDocument(reportingPeriod)))
+                                            document: JSON.stringify(getRecordSetDocument(getDatasetData.dataset, reportingPeriod))
                                         }
                                     }
                                 })
@@ -563,7 +476,9 @@ export const DataEntryTable = (props: IProps) => {
                             }
                             onCancel={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }))}
                         >
-                            <PublishedRecordSet summary={true} document={stripCountsFromEntries(getRecordSetDocument(reportingPeriod))} />
+
+                            <PublishedRecordSet summary={true} dataset={getDatasetData.dataset} reportingPeriod={reportingPeriod} />
+
                         </Modal>
                         <Row gutter={[10, 10]}>
                             <Col span={24} style={{ display: "flex" }}>

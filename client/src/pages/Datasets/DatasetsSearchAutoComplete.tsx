@@ -1,6 +1,6 @@
 import { AutoComplete, Input } from "antd";
 import { useTranslation } from "react-i18next";
-import "./HomeSearchAutoComplete.css";
+import "./DatasetsSearchAutoComplete.css";
 
 const { Search } = Input;
 

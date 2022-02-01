@@ -268,6 +268,24 @@ type PublishedRecordSetEntry {
   percent: Float!
 }
 
+type Consistency {
+  year: Int!
+  category: String!
+  consistencyState: String!
+  value: Int!
+}
+
+type Stats {
+  teams: Int!
+  datasets: Int!
+  tags: Int!
+  gender: Float!
+  ethnicity: Float!
+  disability: Float!
+  lgbtqa: Float!
+  consistencies: [Consistency!]!
+}
+
 input UpsertUserInput {
   id: ID
   firstName: String!
@@ -545,6 +563,10 @@ type Query {
   publishedRecordSets: [PublishedRecordSet!]!
 
   reportingPeriods: [ReportingPeriod!]!
+
+  stats: Stats!
+
+  consistencies(categories: [String!]!, threshold: Int!): [Consistency!]!
 }
 
 type Mutation {

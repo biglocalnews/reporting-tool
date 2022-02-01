@@ -1,182 +1,106 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Table, Tag } from "antd";
-import { ColumnsType } from "antd/lib/table";
-import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useState } from "react";
-import { TFunction, useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../components/AuthProvider";
-import { ErrorFallback } from "../../components/Error/ErrorFallback";
-import { Loading } from "../../components/Loading/Loading";
-import {
-  AllDatasets,
-  AllDatasets_teams,
-} from "../../graphql/__generated__/AllDatasets";
-import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
-import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
-import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
-import { HomeSearchAutoComplete } from "./HomeSearchAutoComplete";
+import { Card, Col, Divider, Row, Skeleton, Statistic } from "antd";
+import { useTranslation } from "react-i18next";
+import { GetStats } from "../../graphql/__generated__/GetStats";
+import { GET_STATS } from "../../graphql/__queries__/GetStats";
+import { Typography } from 'antd';
+import { getPalette } from "../DatasetDetails/DatasetDetails";
+import "./Home.css";
+import { Bar } from "@ant-design/charts";
+import { catSort } from "../CatSort";
 
-dayjs.extend(localizedFormat);
+const { Title } = Typography;
 
-export interface TableData {
-  id: string;
-  team: string;
-  dataset: string;
-  lastUpdated: string;
-  tags: Array<string>;
+const gradientStyle = ({
+    backgroundColor: "#f3ec78",
+    backgroundImage: `linear-gradient(to right, ${getPalette("Gender")}, ${getPalette("Ethnicity")}, ${getPalette("Disability")})`,
+    backgroundSize: "100%",
+    backgroundClip: "text",
+    "-webkit-background-clip": "text",
+    "-moz-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    "-moz-text-fill-color": "transparent"
+})
+
+export const Home = () => {
+
+    const { data: statsData, loading: loadingStats } = useQuery<GetStats>(GET_STATS);
+    const { t } = useTranslation();
+
+    return <Row gutter={[16, 16]}>
+        <Col span={24} style={{ textAlign: "center" }}>
+            <Title level={1} style={{ fontSize: "5rem" }}>
+                <Skeleton loading={loadingStats} paragraph={{ rows: 1 }}>
+                    {statsData &&
+                        <span style={gradientStyle}>
+                            {Math.round(statsData.stats.gender)} : {Math.round(statsData.stats.ethnicity)} : {Math.round(statsData.stats.disability)}
+                        </span>
+                    }
+                </Skeleton>
+            </Title>
+        </Col>
+        <Col span={8}>
+            <Card>
+                <Statistic
+                    loading={loadingStats}
+                    title={t("teams")}
+                    value={statsData?.stats.teams}
+                />
+            </Card>
+        </Col>
+        <Col span={8}>
+            <Card>
+                <Statistic
+                    loading={loadingStats}
+                    title={t("datasets")}
+                    value={statsData?.stats.datasets}
+                />
+            </Card>
+        </Col>
+        <Col span={8}>
+            <Card>
+                <Statistic
+                    loading={loadingStats}
+                    title={t("tags")}
+                    value={statsData?.stats.tags}
+                />
+            </Card>
+        </Col>
+        <Col span={24}>
+            <Divider orientation="left"><Title level={3}>{t("consistencyChallenge")}</Title></Divider>
+        </Col>
+        <Col span={24}>
+            <Typography>
+                The BBC also challenged 50:50 teams to maintain equal representation over a longer period of time.
+                Teams were asked to feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
+            </Typography>
+        </Col>
+        {
+            statsData && Array.from(new Set(statsData.stats.consistencies.map(x => x.category)))
+                .sort((a, b) => catSort(a, b))
+                .map(category => statsData.stats.consistencies
+                    .filter(x => x.category === category)
+                    .map(x => ({ ...x, "consistencyState": t(x["consistencyState"]) }))
+                    .sort((a, b) => a.year - b.year)
+                )
+                .map((data, i) =>
+                    <Col key={i} span={8}>
+                        <Title level={4} style={{ textAlign: "center" }}>{data[0].category}</Title>
+                        <Bar
+                            data={data}
+                            xField="value"
+                            yField="year"
+                            seriesField="consistencyState"
+                            isPercent
+                            isStack
+                            height={150}
+                            width={300}
+                            barWidthRatio={1 / 3}
+                            color={getPalette(data[0].category)}
+                        />
+                    </Col>
+                )
+
+        }
+    </Row>
 }
-
-const columns: ColumnsType<TableData> = [
-  {
-    title: "Team",
-    dataIndex: "team",
-    key: "team",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.team.localeCompare(b.team),
-  },
-  {
-    title: "Dataset",
-    dataIndex: "dataset",
-    key: "dataset",
-    sortDirections: ["ascend", "descend"],
-    sorter: (a, b) => a.dataset.localeCompare(b.dataset),
-  },
-  {
-    title: "Last Updated",
-    dataIndex: "lastUpdated",
-  },
-  {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    width: 250,
-    render: (tags: string[]) => {
-      return tags.map((tag: string) => {
-        const color = "blue";
-        return (
-          // TODO: Create component to link tags to datasets with the same tags
-          <Tag color={color} key={tag}>
-            {tag.toUpperCase()}
-          </Tag>
-        );
-      });
-    },
-  },
-  {
-    dataIndex: "id",
-    width: 250,
-    align: "center",
-    render: function btn(datasetId: string) {
-      return (
-
-
-        <Link
-          to={{
-            pathname: `/dataset/${datasetId}/details`,
-          }}
-        >
-          <Button icon={<InfoCircleOutlined />}>View Details</Button>
-        </Link>
-
-      );
-    },
-  },
-];
-
-const getTableData = (
-  queryData: AllDatasets_teams[],
-  t: TFunction<"translation">
-) => {
-  const rowData: Array<TableData> = [];
-
-  queryData.map((team) => {
-    return team.programs.map((program) => {
-      program.datasets.map((dataset) => {
-        rowData.push({
-          id: dataset.id,
-          team: program.name,
-          dataset: dataset.name,
-          lastUpdated: dataset.lastUpdated
-            ? dayjs(dataset.lastUpdated).format("ll")
-            : t("noDataAvailable"),
-          tags: dataset.tags.map((tag) => {
-            return tag.name;
-          }),
-        });
-      });
-    });
-  });
-
-  return rowData;
-};
-
-const Home = (): JSX.Element => {
-  const { t } = useTranslation();
-  const auth = useAuth();
-  const userId = auth.getUserId();
-
-  const { data, loading, error } = useQuery<GetUser, GetUserVariables>(
-    GET_USER,
-    {
-      variables: { id: userId },
-    }
-  );
-  const allTeams = useQuery<AllDatasets>(ALL_DATASETS, {
-    skip: !auth.isAdmin(),
-  });
-
-  const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
-
-  const originalTeamData = allTeams?.data?.teams || data?.user?.teams || [];
-  const rowData = getTableData(originalTeamData.slice(), t);
-
-  // Filters datasets table by search term
-  const handleTableSearchFilter = (searchText: string) => {
-    const data = [...rowData];
-    const filteredData = data.filter(({ team, dataset }) => {
-      team = team.toLowerCase();
-      dataset = dataset.toLowerCase();
-      return team.includes(searchText) || dataset.includes(searchText);
-    });
-
-    setFilteredData(filteredData);
-  };
-
-  if (error) return <ErrorFallback error={error} />;
-
-  return (
-    <>
-      {loading || allTeams.loading ? (
-        <Loading tip={allTeams.loading ? "Loading all datasets..." : ""} />
-      ) : (
-        <div>
-          <div
-            id="home_table-search"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: "1rem",
-            }}
-          >
-            <HomeSearchAutoComplete onSearch={handleTableSearchFilter} />
-          </div>
-          <Table
-            dataSource={filteredData.length > 0 ? filteredData : rowData}
-            columns={columns}
-            rowKey={(dataset) => dataset.id}
-            footer={() =>
-              filteredData.length > 0
-                ? `Showing ${filteredData.length} of ${rowData.length} results`
-                : `Showing ${rowData.length} of ${rowData.length} results`
-            }
-          />
-        </div>
-      )}
-    </>
-  );
-};
-
-export { Home };

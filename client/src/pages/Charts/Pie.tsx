@@ -1,4 +1,4 @@
-import { Pie, Datum } from "@ant-design/charts";
+import { Pie, Datum, PieConfig } from "@ant-design/charts";
 import { AnnotationPosition } from "@antv/g2plot";
 import { useTranslation } from "react-i18next";
 import { getPalette } from "../DatasetDetails/DatasetDetails";
@@ -14,7 +14,7 @@ interface IProps {
 
 const Pie5050 = (props: IProps) => {
     const { t } = useTranslation();
-    const config = {
+    const config: PieConfig = {
         width: 200,
         height: 200,
         data: [
@@ -34,8 +34,7 @@ const Pie5050 = (props: IProps) => {
                 value: `${Number(datum.value).toFixed(2)}%`, name: `${datum.targetName}`
             }
         },
-        //percent: target.status / 100,
-        legend: props.legend ? {} : undefined,
+        legend: false,
         statistic: {
             title: false,
             content: {
@@ -59,7 +58,7 @@ const Pie5050 = (props: IProps) => {
                 text: {
                     content: `${props.target}%`,
                     autoRotate: false,
-                    style: { fontSize: "x-small" },
+                    style: { fontSize: 10 },
                     offsetX: 1,
                     offsetY: 5
                 }
@@ -68,7 +67,7 @@ const Pie5050 = (props: IProps) => {
 
         //padding: 40
         padding: "auto" as const,
-        appendPadding: 20
+        appendPadding: 10
     };
     return <Pie {...config} />
 }

@@ -20,6 +20,7 @@ import { useAuth } from "./components/AuthProvider";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Home } from "./pages/Home/Home";
+import { Datasets } from "./pages/Datasets/Datasets";
 const { Footer, Content } = Layout;
 
 /**
@@ -35,14 +36,6 @@ const ProtectedAppContainer: React.FC = ({ children }) => <Layout>
     <Footer></Footer>
   </Layout>
 </Layout>
-
-function Redirecter(props: { from: string }) {
-  useEffect(() => {
-    console.log(props.from);
-    window.location.href = `/api/bbc-login`;
-  });
-  return <React.Fragment />;
-}
 
 // Routes that a normal authed user can visit.
 // If the user is not logged in, they will be redirected to the login screen.
@@ -88,6 +81,14 @@ const WrappedPrivateAdmin = () => {
   </ProtectedAppContainer>
 }
 
+function Redirecter(props: { from: string }) {
+  useEffect(() => {
+    console.log(props.from);
+    window.location.href = `/api/bbc-login`;
+  });
+  return <React.Fragment />;
+}
+
 const NotFound = () => {
   const { t } = useTranslation();
   return <div style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', height: "100%" }}>
@@ -124,6 +125,7 @@ function App() {
               <Route path="programs" element={<ProgramList />} />
               <Route path="programs/:programId" element={<EditProgram />} />
               <Route path="tags" element={<EditTags />} />
+              <Route path="datasets" element={<Datasets />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
