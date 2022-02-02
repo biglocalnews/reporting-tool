@@ -77,7 +77,7 @@ export const Home = () => {
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <Typography>
-                        Teams that feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
+                        Teams that meet the Gender target for contributors for at least three months and to not drop below 45% in any other month.
                     </Typography>
                 </Col>
                 {

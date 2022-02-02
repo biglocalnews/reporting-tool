@@ -368,11 +368,6 @@ def resolve_stats(obj, info):
 
     cats = session.execute(stmt)
 
-    consistency_state = Enum("consistency_state", "met almost failed")
-    consistency_threshold = 5
-
-    stats["consistencies"] = []
-
     for [category] in cats:
         grouped_by_dataset_year = {}
         stmt = select(
@@ -395,79 +390,96 @@ def resolve_stats(obj, info):
 
         for [percent, target, dataset_id, end] in percents.yield_per(100):
             this_total = sum(percent)
-
-            year = end.year
-            if dataset_id not in grouped_by_dataset_year:
-                grouped_by_dataset_year[dataset_id] = {}
-
-            if year not in grouped_by_dataset_year[dataset_id]:
-                grouped_by_dataset_year[dataset_id][year] = []
-
-            if this_total == None or target == None:
-                grouped_by_dataset_year[dataset_id][year].append(
-                    consistency_state.failed
-                )
-            elif this_total >= target:
-                grouped_by_dataset_year[dataset_id][year].append(consistency_state.met)
-            elif (this_total + consistency_threshold) >= target:
-                grouped_by_dataset_year[dataset_id][year].append(
-                    consistency_state.almost
-                )
-            else:
-                grouped_by_dataset_year[dataset_id][year].append(
-                    consistency_state.failed
-                )
-
             total += this_total
             count += 1
 
         stats[category.lower()] = total / count
 
-        consistency_counts = {}
+    consistency_state = Enum("consistency_state", "met almost failed")
+    consistency_threshold = 5
 
-        for [dataset, years] in grouped_by_dataset_year.items():
-            for [year, consistencies] in years.items():
-                if year not in consistency_counts:
-                    consistency_counts[year] = {}
-                    consistency_counts[year]["consistent"] = 0
-                    consistency_counts[year]["failed"] = 0
-                met = len(
-                    [True for x in consistencies if x == consistency_state.met]
-                ) >= 3 and all(
-                    [
-                        x == consistency_state.met or x == consistency_state.almost
-                        for x in consistencies
-                    ]
-                )
+    stats["consistencies"] = []
 
-                if met:
-                    consistency_counts[year]["consistent"] += 1
-                else:
-                    consistency_counts[year]["failed"] += 1
+    consistency_counts = {}
 
-        # this suits antd charts
-        stats["consistencies"].extend(
-            [
-                {
-                    "category": category,
-                    "year": year,
-                    "consistency_state": "consistent",
-                    "value": counts["consistent"],
-                }
-                for [year, counts] in consistency_counts.items()
-            ]
-        )
-        stats["consistencies"].extend(
-            [
-                {
-                    "category": category,
-                    "year": year,
-                    "consistency_state": "failed",
-                    "value": counts["failed"],
-                }
-                for [year, counts] in consistency_counts.items()
-            ]
-        )
+    grouped_by_dataset_year = {}
+    stmt = select(
+        func.jsonb_path_query_array(
+            PublishedRecordSet.document,
+            f'$.segmentedRecord.*.Gender.entries.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true && @.personType like_regex "(?i).*contributor.*")."percent"',
+        ),
+        func.jsonb_path_query_first(
+            PublishedRecordSet.document,
+            f'$.targets[*] ? (@.category == "{category}")."target"',
+        ),
+        column("dataset_id"),
+        column("end"),
+    ).select_from(PublishedRecordSet)
+
+    percents = session.execute(stmt, execution_options={"stream_results": True})
+
+    for [percent, target, dataset_id, end] in percents.yield_per(100):
+        this_total = sum(percent)
+
+        year = end.year
+        if dataset_id not in grouped_by_dataset_year:
+            grouped_by_dataset_year[dataset_id] = {}
+
+        if year not in grouped_by_dataset_year[dataset_id]:
+            grouped_by_dataset_year[dataset_id][year] = []
+
+        if this_total == None or target == None:
+            grouped_by_dataset_year[dataset_id][year].append(consistency_state.failed)
+        elif this_total >= target:
+            grouped_by_dataset_year[dataset_id][year].append(consistency_state.met)
+        elif (this_total + consistency_threshold) >= target:
+            grouped_by_dataset_year[dataset_id][year].append(consistency_state.almost)
+        else:
+            grouped_by_dataset_year[dataset_id][year].append(consistency_state.failed)
+
+    for [dataset, years] in grouped_by_dataset_year.items():
+        for [year, consistencies] in years.items():
+            if year not in consistency_counts:
+                consistency_counts[year] = {}
+                consistency_counts[year]["consistent"] = 0
+                consistency_counts[year]["failed"] = 0
+            met = len(
+                [True for x in consistencies if x == consistency_state.met]
+            ) >= 3 and all(
+                [
+                    x == consistency_state.met or x == consistency_state.almost
+                    for x in consistencies
+                ]
+            )
+
+            if met:
+                consistency_counts[year]["consistent"] += 1
+            else:
+                consistency_counts[year]["failed"] += 1
+
+    # this suits antd charts
+    stats["consistencies"].extend(
+        [
+            {
+                "category": category,
+                "year": year,
+                "consistency_state": "consistent",
+                "value": counts["consistent"],
+            }
+            for [year, counts] in consistency_counts.items()
+        ]
+    )
+    stats["consistencies"].extend(
+        [
+            {
+                "category": category,
+                "year": year,
+                "consistency_state": "failed",
+                "value": counts["failed"],
+            }
+            for [year, counts] in consistency_counts.items()
+        ]
+    )
 
     stats["lgbtqa"] = 0.0
 
