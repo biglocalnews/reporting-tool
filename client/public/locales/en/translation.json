@@ -20,6 +20,8 @@
   "personType": "Person Type",
   "consistencyChallenge": "Consistency Challenge",
   "consistent": "Consistent",
+  "gender": "Gender",
+  "overview": "Overview",
   "failed": "Not met",
   "publishRecordSet": "Publish",
   "noPublishedRecordSets": "No published record sets",
