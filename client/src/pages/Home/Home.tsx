@@ -74,37 +74,38 @@ export const Home = () => {
             <Divider orientation="left"><Title level={3}>{t("overview")}</Title></Divider>
         </Col>
         <Col span={12}>
-            <Typography>
-                Teams that feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
-            </Typography>
-            {
-                statsData &&
-                <div>
-                    <Title level={4} style={{ textAlign: "center" }}>{t("gender")}</Title>
-                    <Bar
-                        data={statsData.stats.consistencies
-                            .filter(x => x.category === "Gender")
-                            .sort((a, b) => a.year - b.year)}
-                        xField="value"
-                        yField="year"
-                        seriesField="consistencyState"
-                        isPercent
-                        isStack
-                        height={150}
-                        width={300}
-                        barWidthRatio={1 / 3}
-                        color={[getPalette("Gender")[1], "rgba(0,0,0,0)"]}
-                        label={{
-                            formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${Math.round(Number(v.value)) * 100}%` : "",
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <Typography>
+                        Teams that feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
+                    </Typography>
+                </Col>
+                {
+                    statsData &&
+                    <Col span={24}>
+                        <Bar
+                            data={statsData.stats.consistencies
+                                .filter(x => x.category === "Gender")
+                                .sort((a, b) => a.year - b.year)}
+                            xField="value"
+                            yField="year"
+                            seriesField="consistencyState"
+                            isPercent
+                            isStack
+                            height={150}
+                            width={300}
+                            barWidthRatio={1 / 3}
+                            color={[getPalette("Gender")[1], "rgba(0,0,0,0)"]}
+                            label={{
+                                formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${Math.round(Number(v.value)) * 100}%` : "",
 
-                        }}
-                        xAxis={false}
-                        legend={false}
-                    />
-                </div>
-
-
-            }
+                            }}
+                            xAxis={false}
+                            legend={false}
+                        />
+                    </Col>
+                }
+            </Row>
         </Col>
         <Col span={12}>
             <Typography>
