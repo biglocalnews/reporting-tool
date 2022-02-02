@@ -61,9 +61,9 @@ const PresetDateRanges: Record<
 export const getPalette = (targetCategory: string) => {
   switch (targetCategory) {
     case "Gender":
-      return ["rgba(255,51,0,1)", "rgba(46,117,182,1)"];
+      return ["rgba(46,117,182,1)", "rgba(255,51,0,1)"];
     case "Ethnicity":
-      return ["rgba(112,48,160,1)", "rgba(189,215,238,1)"];
+      return ["rgba(189,215,238,1)", "rgba(112,48,160,1)"];
     case "Disability":
       return ["rgba(255,255,0,1)", "rgba(255,192,0,1)"];
     default:

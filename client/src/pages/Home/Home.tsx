@@ -71,8 +71,7 @@ export const Home = () => {
         </Col>
         <Col span={24}>
             <Typography>
-                The BBC also challenged 50:50 teams to maintain equal representation over a longer period of time.
-                Teams were asked to feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
+                Teams that feature 50% women contributors for at least three months and to not drop below 45% women contributors in any other month.
             </Typography>
         </Col>
         {
@@ -80,7 +79,6 @@ export const Home = () => {
                 .sort((a, b) => catSort(a, b))
                 .map(category => statsData.stats.consistencies
                     .filter(x => x.category === category)
-                    .map(x => ({ ...x, "consistencyState": t(x["consistencyState"]) }))
                     .sort((a, b) => a.year - b.year)
                 )
                 .map((data, i) =>
@@ -96,7 +94,13 @@ export const Home = () => {
                             height={150}
                             width={300}
                             barWidthRatio={1 / 3}
-                            color={getPalette(data[0].category)}
+                            color={[getPalette(data[0].category)[1], "rgba(0,0,0,0)"]}
+                            label={{
+                                formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${Math.round(Number(v.value)) * 100}%` : "",
+
+                            }}
+                            xAxis={false}
+                            legend={false}
                         />
                     </Col>
                 )
