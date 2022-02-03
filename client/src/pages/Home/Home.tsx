@@ -129,7 +129,9 @@ export const Home = () => {
                             height={150}
                             width={300}
                             barWidthRatio={1 / 3}
-
+                            label={{
+                                formatter: (v) => Number(v.value) > 0 ? `${Math.round(Number(v.value) * 100)}%` : ""
+                            }}
                             xAxis={false}
                             yAxis={{
                                 label: {
