@@ -77,11 +77,11 @@ export const Home = () => {
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <Typography>
-                        Teams that meet the Gender target for contributors for at least three months and to not drop below 45% in any other month.
+                        Datasets that meet the Gender target for contributors for at least three months and do not drop below 45% in any other month.
                     </Typography>
                 </Col>
                 {
-                    statsData &&
+                    statsData && statsData.stats.consistencies.length &&
                     <Col span={24}>
                         <Bar
                             data={statsData.stats.consistencies
@@ -108,9 +108,66 @@ export const Home = () => {
             </Row>
         </Col>
         <Col span={12}>
-            <Typography>
-                TBD
-            </Typography>
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <Typography>
+                        Shows the improvement in the proportion of datasets that exceed 50% gender target
+                    </Typography>
+                </Col>
+                {
+                    statsData && statsData.stats.overviews.length &&
+                    <Col span={24}>
+                        <Bar
+                            data={statsData.stats.overviews
+                                .filter(x => x.category === "Gender")
+                                .sort((a, b) => b.date.localeCompare(a.date))}
+                            xField="value"
+                            yField="date"
+                            seriesField="targetState"
+                            isPercent
+                            isStack
+                            height={150}
+                            width={300}
+                            barWidthRatio={1 / 3}
+
+                            xAxis={false}
+                            yAxis={{
+                                label: {
+                                    formatter: (v) => {
+                                        switch (v) {
+                                            case "min":
+                                                return "First Entry";
+                                            case "max":
+                                                return "Last Entry";
+                                            default:
+                                                return v;
+                                        }
+                                    }
+                                }
+                            }}
+                            legend={{
+                                position: "top-right",
+                                itemName: {
+                                    formatter: (v) => {
+                                        switch (v) {
+                                            case "exceeds":
+                                                return "50% and above";
+                                            case "lt5":
+                                                return "45-49%";
+                                            case "lt10":
+                                                return "40-44%";
+                                            case "gt10":
+                                                return "Under 40%";
+                                            default:
+                                                return v;
+                                        }
+                                    }
+                                }
+                            }}
+                        />
+                    </Col>
+                }
+            </Row>
         </Col>
 
     </Row>

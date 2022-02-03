@@ -15,6 +15,14 @@ export interface GetStats_stats_consistencies {
   readonly consistencyState: string;
 }
 
+export interface GetStats_stats_overviews {
+  readonly __typename: "Overview";
+  readonly category: string;
+  readonly date: string;
+  readonly value: number;
+  readonly targetState: string;
+}
+
 export interface GetStats_stats {
   readonly __typename: "Stats";
   readonly teams: number;
@@ -25,6 +33,7 @@ export interface GetStats_stats {
   readonly disability: number;
   readonly lgbtqa: number;
   readonly consistencies: ReadonlyArray<GetStats_stats_consistencies>;
+  readonly overviews: ReadonlyArray<GetStats_stats_overviews>;
 }
 
 export interface GetStats {

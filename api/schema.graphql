@@ -275,6 +275,13 @@ type Consistency {
   value: Int!
 }
 
+type Overview {
+  date: String!
+  category: String!
+  targetState: String!
+  value: Int!
+}
+
 type Stats {
   teams: Int!
   datasets: Int!
@@ -284,6 +291,7 @@ type Stats {
   disability: Float!
   lgbtqa: Float!
   consistencies: [Consistency!]!
+  overviews: [Overview!]!
 }
 
 input UpsertUserInput {

@@ -16,6 +16,12 @@ export const GET_STATS = gql`
         value
         consistencyState
       }
+      overviews {
+        category
+        date
+        value
+        targetState
+      }
     }
   }
 `;
