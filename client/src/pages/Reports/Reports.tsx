@@ -14,7 +14,7 @@ export const Reports = () => {
         .sort((a, b) => moment(a.begin).unix() - moment(b.begin).unix())
         .flatMap(prs =>
             flattenPublishedDocumentEntries((prs.document as IPublishedRecordSetDocument).segmentedRecord)
-                .map((r) => ({ ...r, date: `${moment(prs.end).toISOString()}` }))
+                .map((r) => ({ ...r, date: `${moment(prs.end).format("dd MMM yy")}` }))
         )
 
     return <Row>
@@ -24,7 +24,7 @@ export const Reports = () => {
                 data={chartData ?? []}
                 xField='date'
                 yField='percent'
-                seriesField='personType'
+                seriesField='attribute'
                 xAxis={{
                     type: 'time',
                 }}
