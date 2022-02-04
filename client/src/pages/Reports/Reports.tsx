@@ -7,13 +7,14 @@ import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllP
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 
 export const Reports = () => {
-    const { data } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS);
+    const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS);
 
     const chartData = data?.publishedRecordSets
         .flat()
         .sort((a, b) => moment(a.begin).unix() - moment(b.begin).unix())
         .flatMap(prs =>
             flattenPublishedDocumentEntries((prs.document as IPublishedRecordSetDocument).segmentedRecord)
+                .filter(x => x.category == "Gender")
                 .map((r) => ({ ...r, date: `${moment(prs.end).format("dd MMM yy")}` }))
         )
 
@@ -21,6 +22,7 @@ export const Reports = () => {
         <Col span={24}>
             <PageHeader title={"Reports"} />
             <Line
+                loading={loading}
                 data={chartData ?? []}
                 xField='date'
                 yField='percent'
