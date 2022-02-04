@@ -75,12 +75,18 @@ export interface GetDataset_dataset_program_tags {
   readonly tagType: string;
 }
 
+export interface GetDataset_dataset_program_team {
+  readonly __typename: "Team";
+  readonly name: string;
+}
+
 export interface GetDataset_dataset_program {
   readonly __typename: "Program";
   readonly name: string;
   readonly targets: ReadonlyArray<GetDataset_dataset_program_targets>;
   readonly reportingPeriods: ReadonlyArray<GetDataset_dataset_program_reportingPeriods> | null;
   readonly tags: ReadonlyArray<GetDataset_dataset_program_tags>;
+  readonly team: GetDataset_dataset_program_team | null;
 }
 
 export interface GetDataset_dataset_records_customColumnValues_customColumn {

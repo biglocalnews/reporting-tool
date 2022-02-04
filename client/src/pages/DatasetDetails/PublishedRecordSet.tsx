@@ -58,8 +58,8 @@ export const stripCountsFromEntries = (record: Record<string, Record<string, { t
     return record;
 }
 
-const flattenPublishedDocumentEntries = (document: IPublishedRecordSetDocument) =>
-    Object.values(document.record)
+export const flattenPublishedDocumentEntries = (record: Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>) =>
+    Object.values(record)
         .map(byPersonType => Object.values(byPersonType)
             .map(byCategory => Object.values(byCategory.entries)
                 .map(byAttribute => {
@@ -145,6 +145,8 @@ const reduceRecordsToOverallPercentages = (
 export const getRecordSetDocument = (dataset: GetDataset_dataset, reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
     ({
         datasetGroup: dataset.program.name,
+        datasetName: dataset.name,
+        teamName: dataset.program.team?.name,
         reportingPeriodDescription: reportingPeriod.description ?? "",
         begin: reportingPeriod.range[0],
         end: reportingPeriod.range[1],
@@ -229,7 +231,7 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
                 <Col span={2}>
                     <Button
                         type="primary"
-                        onClick={() => alert(JSON.stringify(flattenPublishedDocumentEntries(document), null, 2))}
+                        onClick={() => alert(JSON.stringify(flattenPublishedDocumentEntries(document.record), null, 2))}
                     >{t("exportCSV")}</Button>
                 </Col>
             </Row>

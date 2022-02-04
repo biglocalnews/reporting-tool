@@ -56,6 +56,7 @@ def get_overview(stats: Dict, session: Session):
                     ),
                 )
                 .join(Dataset, PublishedRecordSet.dataset_id == Dataset.id)
+                .filter(Dataset.deleted == None)
             )
 
             res = session.execute(stmt, execution_options={"stream_results": True})

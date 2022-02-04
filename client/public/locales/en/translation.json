@@ -146,7 +146,7 @@
       "manageTeams": "Teams",
       "managePrograms": "$t(Program_plural)",
       "viewAll": "View all datasets",
-      "reports": "Reports (Coming Soon)",
+      "reports": "Reports",
       "manageTags": "Tag Management",
       "home": "Home"
     },

@@ -357,8 +357,6 @@ def resolve_stats(obj, info):
 
     get_overview(stats, session)
 
-    print(stats["overviews"])
-
     get_headline_totals(stats, session)
 
     get_consistencies(stats, session)

@@ -12,6 +12,8 @@ export interface GetAllPublishedRecordSets_publishedRecordSets {
   readonly id: string;
   readonly begin: any;
   readonly end: any;
+  readonly document: any | null;
+  readonly datasetId: string;
 }
 
 export interface GetAllPublishedRecordSets {

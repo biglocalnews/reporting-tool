@@ -50,6 +50,9 @@ export const GET_DATASET = gql`
           name
           tagType
         }
+        team {
+          name
+        }
       }
       records {
         id

@@ -6,6 +6,8 @@ export const GET_ALL_PUBLISHED_RECORD_SETS = gql`
       id
       begin
       end
+      document
+      datasetId
     }
   }
 `;

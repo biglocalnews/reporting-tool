@@ -21,6 +21,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Home } from "./pages/Home/Home";
 import { Datasets } from "./pages/Datasets/Datasets";
+import { Reports } from "./pages/Reports/Reports";
 const { Footer, Content } = Layout;
 
 /**
@@ -126,6 +127,7 @@ function App() {
               <Route path="programs/:programId" element={<EditProgram />} />
               <Route path="tags" element={<EditTags />} />
               <Route path="datasets" element={<Datasets />} />
+              <Route path="reports" element={<Reports />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
