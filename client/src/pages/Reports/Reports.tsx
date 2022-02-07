@@ -13,7 +13,7 @@ export const Reports = () => {
         .flat()
         .sort((a, b) => moment(a.begin).unix() - moment(b.begin).unix())
         .flatMap(prs =>
-            flattenPublishedDocumentEntries((prs.document as IPublishedRecordSetDocument).segmentedRecord)
+            flattenPublishedDocumentEntries((prs.document as IPublishedRecordSetDocument).record)
                 .filter(x => x.category == "Gender")
                 .map((r) => ({ ...r, date: `${moment(prs.end).format("dd MMM yy")}` }))
         )
