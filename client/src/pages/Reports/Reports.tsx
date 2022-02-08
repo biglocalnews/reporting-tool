@@ -52,7 +52,7 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): Lin
     }*/
 });
 
-
+const panelStyle = { borderTopLeftRadius: "9px", borderTopRightRadius: "9px" };
 
 export const Reports = () => {
     const [filterState, setFilterState] = useState<PublishedRecordSetsInput>({
@@ -146,6 +146,7 @@ export const Reports = () => {
         <Col span={6}>
             <Collapse
                 defaultActiveKey={['1']}
+                style={panelStyle}
             >
                 <Panel
                     header={t("reports.selectCategories")}
@@ -161,6 +162,7 @@ export const Reports = () => {
         <Col span={6}>
             <Collapse
                 defaultActiveKey={['1']}
+                style={panelStyle}
             >
                 <Panel header={t("reports.selectTeams")} key="1">
                     <Checkbox.Group
@@ -173,6 +175,7 @@ export const Reports = () => {
         <Col span={6}>
             <Collapse
                 defaultActiveKey={['1']}
+                style={panelStyle}
             >
                 <Panel header={t("reports.selectDatasetGroups")} key="1">
                     <Checkbox.Group
@@ -185,6 +188,7 @@ export const Reports = () => {
         <Col span={6}>
             <Collapse
                 defaultActiveKey={['1']}
+                style={panelStyle}
             >
                 <Panel header={t("reports.selectTags")} key="1">
                     <Checkbox.Group
