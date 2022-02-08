@@ -64,6 +64,8 @@
     "lastName": "Turner"
   },
   "reports": {
+    "title": "Reports",
+    "subtitle": "Use this page to generate charts from the published data",
     "selectCategories": "Select Categories",
     "selectTeams": "Select Teams",
     "selectDatasetGroups": "Select Dataset Groups",

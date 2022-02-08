@@ -141,7 +141,7 @@ export const Reports = () => {
 
     return <Row justify="center" gutter={[16, 16]}>
         <Col span={24}>
-            <PageHeader title={"Reports"} />
+            <PageHeader title={t("reports.title")} subTitle={t("reports.subtitle")} />
         </Col>
         <Col span={6}>
             <Collapse
