@@ -3,6 +3,8 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
+import { PublishedRecordSetsInput } from "./globalTypes";
+
 // ====================================================
 // GraphQL query operation: GetAllPublishedRecordSets
 // ====================================================
@@ -18,4 +20,8 @@ export interface GetAllPublishedRecordSets_publishedRecordSets {
 
 export interface GetAllPublishedRecordSets {
   readonly publishedRecordSets: ReadonlyArray<GetAllPublishedRecordSets_publishedRecordSets>;
+}
+
+export interface GetAllPublishedRecordSetsVariables {
+  readonly input: PublishedRecordSetsInput;
 }

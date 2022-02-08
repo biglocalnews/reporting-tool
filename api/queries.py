@@ -317,7 +317,7 @@ def resolve_published_record_set(obj, info, id):
 
 
 @query.field("publishedRecordSets")
-def resolve_published_record_sets(obj, info):
+def resolve_published_record_sets(obj, info, input):
     session = info.context["dbsession"]
     record_sets = session.query(PublishedRecordSet).all()
     return record_sets

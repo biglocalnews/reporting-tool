@@ -97,6 +97,13 @@ export interface FirstTimeAppConfigurationInput {
   readonly lastName: string;
 }
 
+export interface PublishedRecordSetsInput {
+  readonly categories: ReadonlyArray<string>;
+  readonly teams: ReadonlyArray<string>;
+  readonly datasetGroups: ReadonlyArray<string>;
+  readonly tags: ReadonlyArray<string>;
+}
+
 export interface ReportingPeriodInput {
   readonly id?: string | null;
   readonly programId: string;

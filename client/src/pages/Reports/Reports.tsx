@@ -1,7 +1,13 @@
 import { Line, LineConfig } from "@ant-design/charts";
 import { useQuery } from "@apollo/client"
-import { Col, PageHeader, Row } from "antd";
+import { Checkbox, Col, Collapse, DatePicker, PageHeader, Row } from "antd";
+
+const { Panel } = Collapse;
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets"
+import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalTypes";
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 
@@ -27,7 +33,7 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): Lin
         type: 'time',
     },
     smooth: true,
-    color: ({ attribute }) => {
+    /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
         const colorChangeFactor = 255 / allAttributes.size;
@@ -43,54 +49,158 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): Lin
             default:
                 return targetMember ? "rgba(255,51,0,1)" : "rgba(46,117,182,0.5)";
         }
+    }*/
+});
 
 
-    }
-})
 
 export const Reports = () => {
-    const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS);
+    const [filterState, setFilterState] = useState<PublishedRecordSetsInput>({
+        categories: [],
+        teams: [],
+        tags: [],
+        datasetGroups: [],
+    });
 
-    const chartData = data?.publishedRecordSets
-        .flatMap(prs =>
-            flattenPublishedDocumentEntries((prs.document as IPublishedRecordSetDocument).record)
-                .filter(x => x.category == "Gender")
-                .map((r) => ({ ...r, date: new Date(prs.end) }))
-        )
+    const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS, {
+        variables: {
+            //for doing this server side later
+            input: { categories: [], teams: [], tags: [], datasetGroups: [] } as PublishedRecordSetsInput
+        }
+    });
 
-    const grouped = (): IChartData[] | undefined => Object.values(
-        chartData?.reduce((group, entry) => {
-            const month = entry.date.getMonth();
-            const monthName = new Intl.DateTimeFormat(window.navigator.language, {
-                month: "long",
-            }).format(entry.date);
-            const year = entry.date.getFullYear();
-            const monthYear = `${monthName} ${year}`;
-            const key = `${monthYear} ${entry.attribute}`
-            if (!(key in group)) {
-                group[key] = {} as IChartData;
-                group[key] = {
-                    ...entry,
-                    groupedDate: `${year}-${month + 1}-1`,
-                    count: 1,
-                    summedPercent: entry.percent
-                };
+    const { t } = useTranslation();
+
+    useEffect(() => {
+        console.log(filterState);
+    }, [filterState]);
+
+    const categories = useMemo(() => {
+        return Array.from(new Set(data?.publishedRecordSets
+            .flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+                .map((r) => r.category))
+        ));
+    }, [data]);
+
+    const teams = useMemo(() => {
+        return Array.from(new Set(data?.publishedRecordSets
+            .map(x => (x.document as IPublishedRecordSetDocument).teamName ?? "None")
+        ));
+    }, [data]);
+
+    const tags = useMemo(() => {
+        return Array.from(new Set(data?.publishedRecordSets
+            .flatMap(x => (x.document as IPublishedRecordSetDocument).datasetGroupTags.map(y => y.name))
+        ));
+    }, [data]);
+
+    const datasetGroups = useMemo(() => {
+        return Array.from(new Set(data?.publishedRecordSets
+            .map(x => (x.document as IPublishedRecordSetDocument).datasetGroup)
+        ));
+    }, [data]);
+
+    const chartData = useMemo(() => {
+        return data?.publishedRecordSets
+            .filter(x => !filterState.teams.length || filterState.teams.includes((x.document as IPublishedRecordSetDocument).teamName))
+            .filter(x => !filterState.tags.length || (x.document as IPublishedRecordSetDocument).datasetGroupTags.some(y => filterState.tags.includes(y.name)))
+            .filter(x => !filterState.datasetGroups.length || filterState.datasetGroups.includes((x.document as IPublishedRecordSetDocument).datasetGroup))
+            .flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+                .filter(x => !filterState.categories.length || filterState.categories.includes(x.category))
+                .map((r) => ({ ...r, date: new Date(x.end) }))
+            )
+    }, [data, filterState]);
+
+    const grouped: IChartData[] | undefined = useMemo(() => {
+        return Object.values(
+            chartData?.reduce((group, entry) => {
+                const month = entry.date.getMonth();
+                const monthName = new Intl.DateTimeFormat(window.navigator.language, {
+                    month: "long",
+                }).format(entry.date);
+                const year = entry.date.getFullYear();
+                const monthYear = `${monthName} ${year}`;
+                const key = `${monthYear} ${entry.attribute}`
+                if (!(key in group)) {
+                    group[key] = {} as IChartData;
+                    group[key] = {
+                        ...entry,
+                        groupedDate: `${year}-${month + 1}-1`,
+                        count: 1,
+                        summedPercent: entry.percent
+                    };
+                    return group;
+                }
+                group[key].count += 1;
+                group[key].summedPercent += entry.percent;
+                group[key].percent = (group[key].summedPercent) / group[key].count;
                 return group;
-            }
-            group[key].count += 1;
-            group[key].summedPercent += entry.percent;
-            group[key].percent = (group[key].summedPercent) / group[key].count;
-            return group;
-        }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>
-    ).sort((a, b) => a.date.getTime() - b.date.getTime())
+            }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>
+        ).sort((a, b) => a.date.getTime() - b.date.getTime())
+    }, [chartData]);
 
-    return <Row>
+    return <Row justify="center" gutter={[16, 16]}>
         <Col span={24}>
             <PageHeader title={"Reports"} />
+        </Col>
+        <Col span={6}>
+            <Collapse
+                defaultActiveKey={['1']}
+            >
+                <Panel
+                    header={t("reports.selectCategories")}
+                    key="1"
+                >
+                    <Checkbox.Group
+                        options={categories}
+                        onChange={(e) => setFilterState(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
+                    />
+                </Panel>
+            </Collapse>
+        </Col>
+        <Col span={6}>
+            <Collapse
+                defaultActiveKey={['1']}
+            >
+                <Panel header={t("reports.selectTeams")} key="1">
+                    <Checkbox.Group
+                        options={teams}
+                        onChange={(e) => setFilterState(curr => ({ ...curr, teams: e.map(x => x.toString()) }))}
+                    />
+                </Panel>
+            </Collapse>
+        </Col>
+        <Col span={6}>
+            <Collapse
+                defaultActiveKey={['1']}
+            >
+                <Panel header={t("reports.selectDatasetGroups")} key="1">
+                    <Checkbox.Group
+                        options={datasetGroups}
+                        onChange={(e) => setFilterState(curr => ({ ...curr, datasetGroups: e.map(x => x.toString()) }))}
+                    />
+                </Panel>
+            </Collapse>
+        </Col>
+        <Col span={6}>
+            <Collapse
+                defaultActiveKey={['1']}
+            >
+                <Panel header={t("reports.selectTags")} key="1">
+                    <Checkbox.Group
+                        options={tags}
+                        onChange={(e) => setFilterState(curr => ({ ...curr, tags: e.map(x => x.toString()) }))}
+                    />
+                </Panel>
+            </Collapse>
+        </Col>
+        <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
+            <DatePicker disabled picker="year" />
+        </Col>
+        <Col span={24}>
             <Line
-                {...chartConfig(grouped(), loading)}
+                {...chartConfig(grouped, loading)}
             />
-
         </Col>
     </Row>
 

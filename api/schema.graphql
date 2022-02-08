@@ -511,6 +511,13 @@ input CreateTagInput {
   description: String
 }
 
+input PublishedRecordSetsInput {
+  categories: [String!]!
+  teams: [String!]!
+  datasetGroups: [String!]!
+  tags: [String!]!
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -568,7 +575,7 @@ type Query {
 
   customColumns: [CustomColumn!]! @needsPermission(permission: [ADMIN])
 
-  publishedRecordSets: [PublishedRecordSet!]!
+  publishedRecordSets(input: PublishedRecordSetsInput): [PublishedRecordSet!]!
 
   reportingPeriods: [ReportingPeriod!]!
 

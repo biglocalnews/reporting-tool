@@ -36,6 +36,7 @@ export interface IPublishedRecordSetDocument {
     targets: IPublishedTarget[],
     datasetTags: IPublishedTag[],
     datasetGroupTags: IPublishedTag[],
+    teamName: string
 }
 
 interface IProps {
@@ -158,8 +159,7 @@ export const getRecordSetDocument = (dataset: GetDataset_dataset, reportingPerio
             .map(x => ({ category: x.category.name, target: x.target * 100 }))
             .sort((a, b) => catSort(a.category, b.category)),
         record: stripCountsFromEntries(reduceRecordsToOverallPercentages(dataset, reportingPeriod, true)),
-        segmentedRecord: stripCountsFromEntries(reduceRecordsToOverallPercentages(dataset, reportingPeriod, false)),
-
+        segmentedRecord: stripCountsFromEntries(reduceRecordsToOverallPercentages(dataset, reportingPeriod, false))
     }) as IPublishedRecordSetDocument;
 
 export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod, summary }: IProps) => {

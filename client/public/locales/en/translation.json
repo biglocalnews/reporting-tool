@@ -63,6 +63,12 @@
     "firstName": "Tina",
     "lastName": "Turner"
   },
+  "reports": {
+    "selectCategories": "Select Categories",
+    "selectTeams": "Select Teams",
+    "selectDatasetGroups": "Select Dataset Groups",
+    "selectTags": "Select Tags"
+  },
   "app": {
     "configure": {
       "title": "App configuration",
