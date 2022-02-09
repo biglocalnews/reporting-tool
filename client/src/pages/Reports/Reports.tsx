@@ -1,6 +1,6 @@
-import { Line, LineConfig } from "@ant-design/charts";
+import { Column, Line } from "@ant-design/charts";
 import { useQuery } from "@apollo/client"
-import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Space, Tag } from "antd";
+import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Select, Space, Tag } from "antd";
 
 const { Panel } = Collapse;
 import { useEffect, useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets"
 import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalTypes";
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
+import Pie5050 from "../Charts/Pie";
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 
 interface IChartData {
@@ -23,16 +24,13 @@ interface IChartData {
     summedPercent: number
 }
 
-const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): LineConfig => ({
+const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): any => ({
     loading: loading,
     data: chartData ?? [],
     xField: 'groupedDate',
     yField: 'percent',
     seriesField: 'attribute',
-    xAxis: {
-        type: 'time',
-    },
-    smooth: true,
+
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -61,6 +59,8 @@ export const Reports = () => {
         tags: [],
         datasetGroups: [],
     });
+
+    const [chartMode, setChartMode] = useState("line");
 
     const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS, {
         variables: {
@@ -111,231 +111,306 @@ export const Reports = () => {
             )
     }, [data, filterState]);
 
-    const grouped: IChartData[] | undefined = useMemo(() => {
-        return Object.values(
-            chartData?.reduce((group, entry) => {
-                const month = entry.date.getMonth();
-                const monthName = new Intl.DateTimeFormat(window.navigator.language, {
-                    month: "long",
-                }).format(entry.date);
-                const year = entry.date.getFullYear();
-                const monthYear = `${monthName} ${year}`;
-                const key = `${monthYear} ${entry.attribute}`
-                if (!(key in group)) {
-                    group[key] = {} as IChartData;
-                    group[key] = {
-                        ...entry,
-                        groupedDate: `${year}-${month + 1}-1`,
-                        count: 1,
-                        summedPercent: entry.percent
-                    };
-                    return group;
-                }
-                group[key].count += 1;
-                group[key].summedPercent += entry.percent;
-                group[key].percent = (group[key].summedPercent) / group[key].count;
+    const grouped: Record<string, IChartData> | undefined = useMemo(() => {
+        return (chartData?.reduce((group, entry) => {
+            const month = entry.date.getMonth();
+            const monthName = new Intl.DateTimeFormat(window.navigator.language, {
+                month: "long",
+            }).format(entry.date);
+            const year = entry.date.getFullYear();
+            const monthYear = `${monthName} ${year}`;
+            const key = `${monthYear} ${entry.attribute}`
+            if (!(key in group)) {
+                group[key] = {} as IChartData;
+                group[key] = {
+                    ...entry,
+                    groupedDate: `${year}-${month + 1}-1`,
+                    count: 1,
+                    summedPercent: entry.percent
+                };
                 return group;
-            }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>
-        ).sort((a, b) => a.date.getTime() - b.date.getTime())
+            }
+            group[key].count += 1;
+            group[key].summedPercent += entry.percent;
+            group[key].percent = (group[key].summedPercent) / group[key].count;
+            return group;
+        }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>)
     }, [chartData]);
 
-    return <Row justify="center" gutter={[16, 16]}>
-        <Col span={24}>
-            <PageHeader title={t("reports.title")} subTitle={t("reports.subtitle")} />
-        </Col>
-        <Col span={6}>
-            <Space direction="vertical">
-                <Collapse
-                    style={panelStyle}
-                >
+    const flattened: IChartData[] | undefined = useMemo(() => {
+        return Object.values(grouped).sort((a, b) => a.date.getTime() - b.date.getTime())
+    }, [grouped]);
 
-                    <Panel
-                        header={t("reports.selectCategories")}
-                        key="1"
-                        extra={
-                            <Button
-                                style={{ fontSize: "smaller" }}
-                                size="small"
-                                type="text"
-                                danger
-                                onClick={(e) => { setFilterState(curr => ({ ...curr, categories: [] })); e.stopPropagation(); }}
-                            >
-                                {t("reports.clear")}
-                            </Button>
-                        }
+    return <Space direction="vertical">
+        <Row justify="center" gutter={[16, 16]}>
+            <Col span={24}>
+                <PageHeader title={t("reports.title")} subTitle={t("reports.subtitle")} />
+            </Col>
+            <Col span={6}>
+                <Space direction="vertical">
+                    <Collapse
+                        style={panelStyle}
                     >
-                        <Checkbox.Group
-                            options={categories}
-                            value={filterState.categories.flat()}
-                            onChange={(e) => setFilterState(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
-                        />
-                    </Panel>
-                </Collapse>
-                <div style={{ display: "flex" }}>
-                    {
-                        filterState.categories.map(
-                            (x, i) => <Tag
-                                color={"blue"}
-                                key={i}
-                                closable
-                                onClose={(e) => {
-                                    e.preventDefault();
-                                    setFilterState((curr) => ({ ...curr, categories: curr.categories.filter(y => x !== y) }));
-                                }}
-                            >
-                                {x}
-                            </Tag>
-                        )
-                    }
-                </div>
-            </Space>
-        </Col>
-        <Col span={6}>
-            <Space direction="vertical">
-                <Collapse
-                    style={panelStyle}
-                >
-                    <Panel
-                        header={t("reports.selectTeams")}
-                        key="1"
-                        extra={
-                            <Button
-                                style={{ fontSize: "smaller" }}
-                                size="small"
-                                type="text"
-                                danger
-                                onClick={(e) => { setFilterState(curr => ({ ...curr, teams: [] })); e.stopPropagation(); }}
-                            >
-                                {t("reports.clear")}
-                            </Button>
-                        }
-                    >
-                        <Checkbox.Group
-                            options={teams}
-                            value={filterState.teams.flat()}
-                            onChange={(e) => setFilterState(curr => ({ ...curr, teams: e.map(x => x.toString()) }))}
-                        />
-                    </Panel>
-                </Collapse>
-                <div style={{ display: "flex" }}>
-                    {
-                        filterState.teams.map(
-                            (x, i) => <Tag
-                                color={"blue"}
-                                key={i}
-                                closable
-                                onClose={(e) => {
-                                    e.preventDefault();
-                                    setFilterState((curr) => ({ ...curr, teams: curr.teams.filter(y => x !== y) }));
-                                }}
-                            >
-                                {x}
-                            </Tag>
-                        )
-                    }
-                </div>
-            </Space>
-        </Col>
-        <Col span={6}>
-            <Space direction="vertical">
-                <Collapse
-                    style={panelStyle}
-                >
-                    <Panel
-                        header={t("reports.selectDatasetGroups")}
-                        key="1"
-                        extra={
-                            <Button
-                                style={{ fontSize: "smaller" }}
-                                size="small"
-                                type="text"
-                                danger
-                                onClick={(e) => { setFilterState(curr => ({ ...curr, datasetGroups: [] })); e.stopPropagation(); }}
-                            >
-                                {t("reports.clear")}
-                            </Button>
-                        }
-                    >
-                        <Checkbox.Group
-                            options={datasetGroups}
-                            value={filterState.datasetGroups.flat()}
-                            onChange={(e) => setFilterState(curr => ({ ...curr, datasetGroups: e.map(x => x.toString()) }))}
-                        />
-                    </Panel>
-                </Collapse>
-                <div style={{ display: "flex" }}>
-                    {
-                        filterState.datasetGroups.map(
-                            (x, i) => <Tag
-                                color={"blue"}
-                                key={i}
-                                closable
-                                onClose={(e) => {
-                                    e.preventDefault();
-                                    setFilterState((curr) => ({ ...curr, datasetGroups: curr.datasetGroups.filter(y => x !== y) }));
-                                }}
-                            >
-                                {x}
-                            </Tag>
-                        )
-                    }
-                </div>
-            </Space>
-        </Col>
-        <Col span={6}>
-            <Space direction="vertical">
-                <Collapse
-                    style={panelStyle}
-                >
-                    <Panel
-                        header={t("reports.selectTags")}
-                        key="1"
-                        extra={
-                            <Button
-                                style={{ fontSize: "smaller" }}
-                                size="small"
-                                type="text"
-                                danger
-                                onClick={(e) => { setFilterState(curr => ({ ...curr, tags: [] })); e.stopPropagation(); }}
-                            >
-                                {t("reports.clear")}
-                            </Button>
-                        }
-                    >
-                        <Checkbox.Group
-                            options={tags}
-                            value={filterState.tags.flat()}
-                            onChange={(e) => setFilterState(curr => ({ ...curr, tags: e.map(x => x.toString()) }))}
-                        />
-                    </Panel>
-                </Collapse>
-                <div style={{ display: "flex" }}>
-                    {
-                        filterState.tags.map(
-                            (x, i) => <Tag
-                                color={"blue"}
-                                key={i}
-                                closable
-                                onClose={(e) => {
-                                    e.preventDefault();
-                                    setFilterState((curr) => ({ ...curr, tags: curr.tags.filter(y => x !== y) }));
-                                }}
-                            >
-                                {x}
-                            </Tag>
-                        )
-                    }
-                </div>
-            </Space>
-        </Col>
-        <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
-            <DatePicker disabled picker="year" />
-        </Col>
-        <Col span={24}>
-            <Line
-                {...chartConfig(grouped, loading)}
-            />
-        </Col>
-    </Row >
 
+                        <Panel
+                            header={t("reports.selectCategories")}
+                            key="1"
+                            extra={
+                                <Button
+                                    style={{ fontSize: "smaller" }}
+                                    size="small"
+                                    type="text"
+                                    danger
+                                    onClick={(e) => {
+                                        setFilterState(curr => ({ ...curr, categories: [] }));
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {t("reports.clear")}
+                                </Button>
+                            }
+                        >
+                            <Checkbox.Group
+                                options={categories}
+                                value={filterState.categories.flat()}
+                                onChange={(e) => setFilterState(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
+                            />
+                        </Panel>
+                    </Collapse>
+                    <div style={{ display: "flex" }}>
+                        {
+                            filterState.categories.map(
+                                (x, i) => <Tag
+                                    color={"blue"}
+                                    key={i}
+                                    closable
+                                    onClose={(e) => {
+                                        e.preventDefault();
+                                        setFilterState((curr) => ({ ...curr, categories: curr.categories.filter(y => x !== y) }));
+                                    }}
+                                >
+                                    {x}
+                                </Tag>
+                            )
+                        }
+                    </div>
+                </Space>
+            </Col>
+            <Col span={6}>
+                <Space direction="vertical">
+                    <Collapse
+                        style={panelStyle}
+                    >
+                        <Panel
+                            header={t("reports.selectTeams")}
+                            key="1"
+                            extra={
+                                <Button
+                                    style={{ fontSize: "smaller" }}
+                                    size="small"
+                                    type="text"
+                                    danger
+                                    onClick={(e) => {
+                                        setFilterState(curr => ({ ...curr, teams: [] }));
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {t("reports.clear")}
+                                </Button>
+                            }
+                        >
+                            <Checkbox.Group
+                                options={teams}
+                                value={filterState.teams.flat()}
+                                onChange={(e) => setFilterState(curr => ({ ...curr, teams: e.map(x => x.toString()) }))}
+                            />
+                        </Panel>
+                    </Collapse>
+                    <div style={{ display: "flex" }}>
+                        {
+                            filterState.teams.map(
+                                (x, i) => <Tag
+                                    color={"blue"}
+                                    key={i}
+                                    closable
+                                    onClose={(e) => {
+                                        e.preventDefault();
+                                        setFilterState((curr) => ({ ...curr, teams: curr.teams.filter(y => x !== y) }));
+                                    }}
+                                >
+                                    {x}
+                                </Tag>
+                            )
+                        }
+                    </div>
+                </Space>
+            </Col>
+            <Col span={6}>
+                <Space direction="vertical">
+                    <Collapse
+                        style={panelStyle}
+                    >
+                        <Panel
+                            header={t("reports.selectDatasetGroups")}
+                            key="1"
+                            extra={
+                                <Button
+                                    style={{ fontSize: "smaller" }}
+                                    size="small"
+                                    type="text"
+                                    danger
+                                    onClick={(e) => {
+                                        setFilterState(curr => ({ ...curr, datasetGroups: [] }));
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {t("reports.clear")}
+                                </Button>
+                            }
+                        >
+                            <Checkbox.Group
+                                options={datasetGroups}
+                                value={filterState.datasetGroups.flat()}
+                                onChange={(e) => setFilterState(curr => ({ ...curr, datasetGroups: e.map(x => x.toString()) }))}
+                            />
+                        </Panel>
+                    </Collapse>
+                    <div style={{ display: "flex" }}>
+                        {
+                            filterState.datasetGroups.map(
+                                (x, i) => <Tag
+                                    color={"blue"}
+                                    key={i}
+                                    closable
+                                    onClose={(e) => {
+                                        e.preventDefault();
+                                        setFilterState((curr) => ({ ...curr, datasetGroups: curr.datasetGroups.filter(y => x !== y) }));
+                                    }}
+                                >
+                                    {x}
+                                </Tag>
+                            )
+                        }
+                    </div>
+                </Space>
+            </Col>
+            <Col span={6}>
+                <Space direction="vertical">
+                    <Collapse
+                        style={panelStyle}
+                    >
+                        <Panel
+                            header={t("reports.selectTags")}
+                            key="1"
+                            extra={
+                                <Button
+                                    style={{ fontSize: "smaller" }}
+                                    size="small"
+                                    type="text"
+                                    danger
+                                    onClick={(e) => {
+                                        setFilterState(curr => ({ ...curr, tags: [] }));
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    {t("reports.clear")}
+                                </Button>
+                            }
+                        >
+                            <Checkbox.Group
+                                options={tags}
+                                value={filterState.tags.flat()}
+                                onChange={(e) => setFilterState(curr => ({ ...curr, tags: e.map(x => x.toString()) }))}
+                            />
+                        </Panel>
+                    </Collapse>
+                    <div style={{ display: "flex" }}>
+                        {
+                            filterState.tags.map(
+                                (x, i) => <Tag
+                                    color={"blue"}
+                                    key={i}
+                                    closable
+                                    onClose={(e) => {
+                                        e.preventDefault();
+                                        setFilterState((curr) => ({ ...curr, tags: curr.tags.filter(y => x !== y) }));
+                                    }}
+                                >
+                                    {x}
+                                </Tag>
+                            )
+                        }
+                    </div>
+                </Space>
+            </Col>
+            <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
+                <DatePicker disabled picker="year" />
+            </Col>
+
+        </Row>
+        <Row
+            gutter={[16, 16]}
+            justify="center"
+
+        >
+            <Col span={24}>
+                <Row justify="center">
+                    {
+                        categories
+                            .filter(x => !filterState.categories.length || filterState.categories.includes(x))
+                            .map((x, i) =>
+                                <Col span={4} key={i}>
+                                    <Pie5050
+                                        legend={false}
+                                        categoryName={x}
+                                        status={0}
+                                        target={(() => {
+                                            switch (x) {
+                                                case "Gender":
+                                                    return 50;
+                                                case "Ethnicity":
+                                                    return 20;
+                                                case "Disability":
+                                                    return 12;
+                                            }
+                                        })()
+                                        }
+                                        attibute={x}
+                                    />
+                                </Col>
+                            )
+                    }
+                </Row>
+            </Col>
+
+            <Col span={24}>
+                <Row justify="center">
+                    <Col offset={20} span={4}>
+                        <Select
+                            style={{ width: "100%", float: "right" }}
+                            onChange={(e) => setChartMode(e)}
+                            defaultValue={chartMode}
+                            value={chartMode}
+                        >
+                            <Select.Option value={"line"}>Line</Select.Option>
+                            <Select.Option value={"column"}>Column</Select.Option>
+                        </Select>
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={24}>
+                {
+                    chartMode === "line" && <Line
+                        {...{ ...chartConfig(flattened, loading), smooth: true, xAxis: { type: "time" } }}
+                    />
+                }
+                {
+                    chartMode === "column" && <Column
+                        {...{ ...chartConfig(flattened, loading), isStack: true, isPercent: true }}
+                    />
+                }
+
+            </Col>
+        </Row>
+    </Space >
 }
