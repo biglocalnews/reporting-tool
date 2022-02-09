@@ -148,11 +148,9 @@ export const AppSidebarMenu = () => {
           </SubMenu>*/}
 
       {auth.isAdmin() ? (
-        <SubMenu key="stats" title="Reports" icon={<BarChartOutlined />}>
-          <Menu.Item key="reports" role="menuitem">
-            <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
-          </Menu.Item>
-        </SubMenu>
+        <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
+          <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
+        </Menu.Item>
       ) : (
         ""
       )}
