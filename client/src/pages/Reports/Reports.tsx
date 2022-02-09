@@ -178,7 +178,10 @@ export const Reports = () => {
                                 color={"blue"}
                                 key={i}
                                 closable
-                                onClose={() => setFilterState((curr) => ({ ...curr, categories: curr.categories.filter(y => x !== y) }))}
+                                onClose={(e) => {
+                                    e.preventDefault();
+                                    setFilterState((curr) => ({ ...curr, categories: curr.categories.filter(y => x !== y) }));
+                                }}
                             >
                                 {x}
                             </Tag>
@@ -221,7 +224,10 @@ export const Reports = () => {
                                 color={"blue"}
                                 key={i}
                                 closable
-                                onClose={() => setFilterState((curr) => ({ ...curr, teams: curr.teams.filter(y => x !== y) }))}
+                                onClose={(e) => {
+                                    e.preventDefault();
+                                    setFilterState((curr) => ({ ...curr, teams: curr.teams.filter(y => x !== y) }));
+                                }}
                             >
                                 {x}
                             </Tag>
@@ -264,7 +270,10 @@ export const Reports = () => {
                                 color={"blue"}
                                 key={i}
                                 closable
-                                onClose={() => setFilterState((curr) => ({ ...curr, datasetGroups: curr.datasetGroups.filter(y => x !== y) }))}
+                                onClose={(e) => {
+                                    e.preventDefault();
+                                    setFilterState((curr) => ({ ...curr, datasetGroups: curr.datasetGroups.filter(y => x !== y) }));
+                                }}
                             >
                                 {x}
                             </Tag>
@@ -307,7 +316,10 @@ export const Reports = () => {
                                 color={"blue"}
                                 key={i}
                                 closable
-                                onClose={() => setFilterState((curr) => ({ ...curr, tags: curr.tags.filter(y => x !== y) }))}
+                                onClose={(e) => {
+                                    e.preventDefault();
+                                    setFilterState((curr) => ({ ...curr, tags: curr.tags.filter(y => x !== y) }));
+                                }}
                             >
                                 {x}
                             </Tag>
