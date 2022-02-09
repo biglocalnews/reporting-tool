@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client"
 import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Select, Space, Tag } from "antd";
 
 const { Panel } = Collapse;
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets"
@@ -30,7 +30,8 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): any
     xField: 'groupedDate',
     yField: 'percent',
     seriesField: 'attribute',
-
+    width: 400,
+    height: 300
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -70,10 +71,6 @@ export const Reports = () => {
     });
 
     const { t } = useTranslation();
-
-    useEffect(() => {
-        console.log(filterState);
-    }, [filterState]);
 
     const categories = useMemo(() => {
         return Array.from(new Set(data?.publishedRecordSets
@@ -384,10 +381,10 @@ export const Reports = () => {
             </Col>
 
             <Col span={24}>
-                <Row justify="center">
+                <Row>
                     <Col offset={20} span={4}>
                         <Select
-                            style={{ width: "100%", float: "right" }}
+                            style={{ width: "130px", float: "right" }}
                             onChange={(e) => setChartMode(e)}
                             defaultValue={chartMode}
                             value={chartMode}
@@ -412,5 +409,5 @@ export const Reports = () => {
 
             </Col>
         </Row>
-    </Space >
+    </Space>
 }
