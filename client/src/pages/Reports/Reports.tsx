@@ -461,7 +461,15 @@ export const Reports = () => {
                 }
                 {
                     chartMode === "column" && <Column
-                        {...{ ...chartConfig(flattened, loading), isStack: true, isPercent: true }}
+                        {...
+                        {
+                            ...chartConfig(flattened, loading),
+                            isStack: true,
+                            isPercent: filterState.categories.length === 1,
+                            yAxis: {
+                                tickCount: filterState.categories.length === 1 ? 5 : 0
+                            }
+                        }}
                     />
                 }
 
