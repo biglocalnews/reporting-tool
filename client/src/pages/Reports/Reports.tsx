@@ -35,7 +35,8 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): any
     height: 300,
     legend: {
         position: "right"
-    }
+    },
+    isPercent: true,
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -465,9 +466,12 @@ export const Reports = () => {
                         {
                             ...chartConfig(flattened, loading),
                             isStack: true,
-                            isPercent: filterState.categories.length === 1,
+                            isGroup: true,
+                            groupField: 'category',
                             yAxis: {
-                                tickCount: filterState.categories.length === 1 ? 5 : 0
+                                label: {
+                                    formatter: (text) => `${Math.round(Number(text) * 100)}%`
+                                }
                             }
                         }}
                     />
