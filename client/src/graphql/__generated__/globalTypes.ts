@@ -102,6 +102,7 @@ export interface PublishedRecordSetsInput {
   readonly teams: ReadonlyArray<string>;
   readonly datasetGroups: ReadonlyArray<string>;
   readonly tags: ReadonlyArray<string>;
+  readonly year: number;
 }
 
 export interface ReportingPeriodInput {

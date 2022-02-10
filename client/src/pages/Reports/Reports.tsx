@@ -1,6 +1,7 @@
 import { Column, Line } from "@ant-design/charts";
 import { useQuery } from "@apollo/client"
 import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Select, Space, Tag } from "antd";
+import moment from "moment";
 
 const { Panel } = Collapse;
 import { useMemo, useState } from "react";
@@ -31,7 +32,10 @@ const chartConfig = (chartData: IChartData[] | undefined, loading: boolean): any
     yField: 'percent',
     seriesField: 'attribute',
     width: 400,
-    height: 300
+    height: 300,
+    legend: {
+        position: "right"
+    }
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -59,6 +63,7 @@ export const Reports = () => {
         teams: [],
         tags: [],
         datasetGroups: [],
+        year: new Date(Date.now()).getFullYear()
     });
 
     const [chartMode, setChartMode] = useState("line");
@@ -66,7 +71,7 @@ export const Reports = () => {
     const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS, {
         variables: {
             //for doing this server side later
-            input: { categories: [], teams: [], tags: [], datasetGroups: [] } as PublishedRecordSetsInput
+            input: { categories: [], teams: [], tags: [], datasetGroups: [], year: new Date(Date.now()).getFullYear() } as PublishedRecordSetsInput
         }
     });
 
@@ -99,6 +104,7 @@ export const Reports = () => {
 
     const chartData = useMemo(() => {
         return data?.publishedRecordSets
+            .filter(x => !filterState.year || filterState.year === new Date(x.end).getFullYear())
             .filter(x => !filterState.teams.length || filterState.teams.includes((x.document as IPublishedRecordSetDocument).teamName))
             .filter(x => !filterState.tags.length || (x.document as IPublishedRecordSetDocument).datasetGroupTags.some(y => filterState.tags.includes(y.name)))
             .filter(x => !filterState.datasetGroups.length || filterState.datasetGroups.includes((x.document as IPublishedRecordSetDocument).datasetGroup))
@@ -133,6 +139,54 @@ export const Reports = () => {
             return group;
         }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>)
     }, [chartData]);
+
+    const groupedByYearCategory: Record<string, Record<string, { percent: number, count: number, sum: number }>> = useMemo(() => {
+        if (!data) return {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>;
+        return data.publishedRecordSets
+            .reduce((groupedRecords, x) => {
+                const groupedEntries = flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+                    .map((r) => ({ ...r, date: new Date(x.end) }))
+                    .reduce((groupedEntries, entry) => {
+                        const year = entry.date.getFullYear();
+                        if (!(year in groupedEntries)) {
+                            groupedEntries[year] = {} as Record<string, number>;
+                        }
+                        if (!(entry.category in groupedEntries[year]) && entry.targetMember) {
+                            groupedEntries[year][entry.category] = entry.percent;
+                            return groupedEntries;
+                        }
+                        if (entry.targetMember) {
+                            groupedEntries[year][entry.category] += entry.percent;
+                        }
+                        return groupedEntries
+                    }, {} as Record<string, Record<string, number>>);
+                Object.entries(groupedEntries)
+                    .forEach(([year, categories]) => {
+                        if (!(year in groupedRecords)) {
+                            groupedRecords[year] = {} as Record<string, { percent: number, count: number, sum: number }>
+                        }
+                        Object.entries(categories)
+                            .forEach(([category, percent]) => {
+                                if (!(category in groupedRecords[year])) {
+                                    groupedRecords[year][category] = {} as { percent: number, count: number, sum: number };
+                                    groupedRecords[year][category].sum = percent;
+                                    groupedRecords[year][category].count = 1;
+                                    groupedRecords[year][category].percent = percent;
+                                }
+                                else {
+                                    groupedRecords[year][category].sum += percent;
+                                    groupedRecords[year][category].count += 1;
+                                    groupedRecords[year][category].percent = groupedRecords[year][category].sum / groupedRecords[year][category].count
+                                }
+
+                            });
+                    });
+
+                return groupedRecords;
+
+            }, {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>);
+
+    }, [data]);
 
     const flattened: IChartData[] | undefined = useMemo(() => {
         return Object.values(grouped).sort((a, b) => a.date.getTime() - b.date.getTime())
@@ -341,7 +395,7 @@ export const Reports = () => {
                 </Space>
             </Col>
             <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
-                <DatePicker disabled picker="year" />
+                <DatePicker value={moment(`${filterState.year}-01-01`)} onChange={((e) => setFilterState(curr => ({ ...curr, year: e?.year() ?? new Date(Date.now()).getFullYear() })))} picker="year" />
             </Col>
 
         </Row>
@@ -356,11 +410,12 @@ export const Reports = () => {
                         categories
                             .filter(x => !filterState.categories.length || filterState.categories.includes(x))
                             .map((x, i) =>
+                                ((filterState.year in groupedByYearCategory) && (x in groupedByYearCategory[filterState.year])) &&
                                 <Col span={4} key={i}>
                                     <Pie5050
                                         legend={false}
                                         categoryName={x}
-                                        status={0}
+                                        status={groupedByYearCategory[filterState.year][x].percent}
                                         target={(() => {
                                             switch (x) {
                                                 case "Gender":
@@ -375,6 +430,7 @@ export const Reports = () => {
                                         attibute={x}
                                     />
                                 </Col>
+
                             )
                     }
                 </Row>

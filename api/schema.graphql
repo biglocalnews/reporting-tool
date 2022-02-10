@@ -516,6 +516,7 @@ input PublishedRecordSetsInput {
   teams: [String!]!
   datasetGroups: [String!]!
   tags: [String!]!
+  year: Int!
 }
 
 type Query {
