@@ -102,17 +102,20 @@ export const Reports = () => {
         ));
     }, [data]);
 
-    const chartData = useMemo(() => {
+    const filteredData = useMemo(() => {
         return data?.publishedRecordSets
             .filter(x => !filterState.year || filterState.year === new Date(x.end).getFullYear())
             .filter(x => !filterState.teams.length || filterState.teams.includes((x.document as IPublishedRecordSetDocument).teamName))
             .filter(x => !filterState.tags.length || (x.document as IPublishedRecordSetDocument).datasetGroupTags.some(y => filterState.tags.includes(y.name)))
             .filter(x => !filterState.datasetGroups.length || filterState.datasetGroups.includes((x.document as IPublishedRecordSetDocument).datasetGroup))
-            .flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
-                .filter(x => !filterState.categories.length || filterState.categories.includes(x.category))
-                .map((r) => ({ ...r, date: new Date(x.end) }))
-            )
-    }, [data, filterState]);
+    }, [data, filterState.year, filterState.tags, filterState.teams, filterState.datasetGroups]);
+
+    const chartData = useMemo(() => {
+        return filteredData?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+            .filter(x => !filterState.categories.length || filterState.categories.includes(x.category))
+            .map((r) => ({ ...r, date: new Date(x.end) }))
+        )
+    }, [filterState.categories, filteredData]);
 
     const grouped: Record<string, IChartData> | undefined = useMemo(() => {
         return (chartData?.reduce((group, entry) => {
@@ -141,52 +144,51 @@ export const Reports = () => {
     }, [chartData]);
 
     const groupedByYearCategory: Record<string, Record<string, { percent: number, count: number, sum: number }>> = useMemo(() => {
-        if (!data) return {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>;
-        return data.publishedRecordSets
-            .reduce((groupedRecords, x) => {
-                const groupedEntries = flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
-                    .map((r) => ({ ...r, date: new Date(x.end) }))
-                    .reduce((groupedEntries, entry) => {
-                        const year = entry.date.getFullYear();
-                        if (!(year in groupedEntries)) {
-                            groupedEntries[year] = {} as Record<string, number>;
-                        }
-                        if (!(entry.category in groupedEntries[year]) && entry.targetMember) {
-                            groupedEntries[year][entry.category] = entry.percent;
-                            return groupedEntries;
-                        }
-                        if (entry.targetMember) {
-                            groupedEntries[year][entry.category] += entry.percent;
-                        }
-                        return groupedEntries
-                    }, {} as Record<string, Record<string, number>>);
-                Object.entries(groupedEntries)
-                    .forEach(([year, categories]) => {
-                        if (!(year in groupedRecords)) {
-                            groupedRecords[year] = {} as Record<string, { percent: number, count: number, sum: number }>
-                        }
-                        Object.entries(categories)
-                            .forEach(([category, percent]) => {
-                                if (!(category in groupedRecords[year])) {
-                                    groupedRecords[year][category] = {} as { percent: number, count: number, sum: number };
-                                    groupedRecords[year][category].sum = percent;
-                                    groupedRecords[year][category].count = 1;
-                                    groupedRecords[year][category].percent = percent;
-                                }
-                                else {
-                                    groupedRecords[year][category].sum += percent;
-                                    groupedRecords[year][category].count += 1;
-                                    groupedRecords[year][category].percent = groupedRecords[year][category].sum / groupedRecords[year][category].count
-                                }
+        if (!filteredData) return {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>;
+        return filteredData.reduce((groupedRecords, x) => {
+            const groupedEntries = flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+                .map((r) => ({ ...r, date: new Date(x.end) }))
+                .reduce((groupedEntries, entry) => {
+                    const year = entry.date.getFullYear();
+                    if (!(year in groupedEntries)) {
+                        groupedEntries[year] = {} as Record<string, number>;
+                    }
+                    if (!(entry.category in groupedEntries[year]) && entry.targetMember) {
+                        groupedEntries[year][entry.category] = entry.percent;
+                        return groupedEntries;
+                    }
+                    if (entry.targetMember) {
+                        groupedEntries[year][entry.category] += entry.percent;
+                    }
+                    return groupedEntries
+                }, {} as Record<string, Record<string, number>>);
+            Object.entries(groupedEntries)
+                .forEach(([year, categories]) => {
+                    if (!(year in groupedRecords)) {
+                        groupedRecords[year] = {} as Record<string, { percent: number, count: number, sum: number }>
+                    }
+                    Object.entries(categories)
+                        .forEach(([category, percent]) => {
+                            if (!(category in groupedRecords[year])) {
+                                groupedRecords[year][category] = {} as { percent: number, count: number, sum: number };
+                                groupedRecords[year][category].sum = percent;
+                                groupedRecords[year][category].count = 1;
+                                groupedRecords[year][category].percent = percent;
+                            }
+                            else {
+                                groupedRecords[year][category].sum += percent;
+                                groupedRecords[year][category].count += 1;
+                                groupedRecords[year][category].percent = groupedRecords[year][category].sum / groupedRecords[year][category].count
+                            }
 
-                            });
-                    });
+                        });
+                });
 
-                return groupedRecords;
+            return groupedRecords;
 
-            }, {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>);
+        }, {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>);
 
-    }, [data]);
+    }, [filteredData]);
 
     const flattened: IChartData[] | undefined = useMemo(() => {
         return Object.values(grouped).sort((a, b) => a.date.getTime() - b.date.getTime())
