@@ -104,16 +104,29 @@ export const Reports = () => {
         ));
     }, [data]);
 
-    const filteredData = useMemo(() => {
+    const filteredByDateMinusOne = useMemo(() => {
+        return data?.publishedRecordSets
+            .filter(x => !filterState.year || filterState.year - 1 === new Date(x.end).getFullYear())
+    }, [data, filterState.year]);
+
+    const filteredByDate = useMemo(() => {
         return data?.publishedRecordSets
             .filter(x => !filterState.year || filterState.year === new Date(x.end).getFullYear())
-            .filter(x => !filterState.teams.length || filterState.teams.includes((x.document as IPublishedRecordSetDocument).teamName))
-            .filter(x => !filterState.tags.length || (x.document as IPublishedRecordSetDocument).datasetGroupTags.some(y => filterState.tags.includes(y.name)))
-            .filter(x => !filterState.datasetGroups.length || filterState.datasetGroups.includes((x.document as IPublishedRecordSetDocument).datasetGroup))
-    }, [data, filterState.year, filterState.tags, filterState.teams, filterState.datasetGroups]);
+    }, [data, filterState.year]);
+
+
+    const filteredData = useMemo(() => {
+        return [filteredByDate, filteredByDateMinusOne]
+            .map((x) => x?.filter(x => !filterState.teams.length || filterState.teams.includes((x.document as IPublishedRecordSetDocument).teamName))
+                .filter(x => !filterState.tags.length || (x.document as IPublishedRecordSetDocument).datasetGroupTags.some(y => filterState.tags.includes(y.name)))
+                .filter(x => !filterState.datasetGroups.length || filterState.datasetGroups.includes((x.document as IPublishedRecordSetDocument).datasetGroup))
+            );
+    }, [filteredByDate, filteredByDateMinusOne, filterState.tags, filterState.teams, filterState.datasetGroups]);
+
+
 
     const chartData = useMemo(() => {
-        return filteredData?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+        return filteredData[0]?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
             .filter(x => !filterState.categories.length || filterState.categories.includes(x.category))
             .map((r) => ({ ...r, date: new Date(x.end) }))
         )
@@ -145,9 +158,9 @@ export const Reports = () => {
         }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>)
     }, [chartData]);
 
-    const groupedByYearCategory: Record<string, Record<string, { percent: number, count: number, sum: number }>> = useMemo(() => {
-        if (!filteredData) return {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>;
-        return filteredData.reduce((groupedRecords, x) => {
+    const groupedByYearCategory: (Record<string, Record<string, { percent: number, count: number, sum: number }>> | undefined)[] = useMemo(() => {
+        if (!filteredData) return [{}] as Record<string, Record<string, { percent: number, count: number, sum: number }>>[];
+        return filteredData.map(x => x?.reduce((groupedRecords, x) => {
             const groupedEntries = flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
                 .map((r) => ({ ...r, date: new Date(x.end) }))
                 .reduce((groupedEntries, entry) => {
@@ -188,7 +201,7 @@ export const Reports = () => {
 
             return groupedRecords;
 
-        }, {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>);
+        }, {} as Record<string, Record<string, { percent: number, count: number, sum: number }>>));
 
     }, [filteredData]);
 
@@ -409,18 +422,20 @@ export const Reports = () => {
 
         >
             <Col span={24}>
-                <Row justify="center">
+                <Row justify="center" gutter={[128, 16]}>
                     {
                         categories
                             .filter(x => !filterState.categories.length || filterState.categories.includes(x))
                             .map((x, i) =>
-                                ((filterState.year in groupedByYearCategory) && (x in groupedByYearCategory[filterState.year])) &&
+                                groupedByYearCategory[0] &&
+                                filterState.year in groupedByYearCategory[0] &&
+                                x in groupedByYearCategory[0][filterState.year] &&
                                 <Col span={4} key={i}>
                                     <Space direction="vertical">
                                         <Pie5050
                                             legend={false}
                                             categoryName={x}
-                                            status={groupedByYearCategory[filterState.year][x].percent}
+                                            status={groupedByYearCategory[0][filterState.year][x].percent}
                                             target={(() => {
                                                 switch (x) {
                                                     case "Gender":
@@ -433,14 +448,16 @@ export const Reports = () => {
                                             })()
                                             }
                                             attibute={x}
-                                        />{
-                                            groupedByYearCategory[filterState.year - 1] && groupedByYearCategory[filterState.year - 1][x] &&
-
+                                        />
+                                        {
+                                            groupedByYearCategory[1] &&
+                                            filterState.year - 1 in groupedByYearCategory[1] &&
+                                            x in groupedByYearCategory[1][filterState.year - 1] &&
                                             <Statistic
-                                                value={groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent}
+                                                value={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent}
                                                 precision={2}
-                                                valueStyle={{ color: groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent === 0 ? "grey" : groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent > 0 ? "green" : "red", textAlign: "center" }}
-                                                prefix={groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent === 0 ? null : groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                                valueStyle={{ color: groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? "grey" : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? "green" : "red", textAlign: "center" }}
+                                                prefix={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? null : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
                                                 suffix="%"
                                             />
                                         }
@@ -492,6 +509,6 @@ export const Reports = () => {
                 }
 
             </Col>
-        </Row>
-    </Space>
+        </Row >
+    </Space >
 }
