@@ -1,6 +1,7 @@
 import { Column, Line } from "@ant-design/charts";
 import { useQuery } from "@apollo/client"
-import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Select, Space, Tag } from "antd";
+import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Select, Space, Statistic, Tag } from "antd";
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import moment from "moment";
 
 const { Panel } = Collapse;
@@ -415,28 +416,41 @@ export const Reports = () => {
                             .map((x, i) =>
                                 ((filterState.year in groupedByYearCategory) && (x in groupedByYearCategory[filterState.year])) &&
                                 <Col span={4} key={i}>
-                                    <Pie5050
-                                        legend={false}
-                                        categoryName={x}
-                                        status={groupedByYearCategory[filterState.year][x].percent}
-                                        target={(() => {
-                                            switch (x) {
-                                                case "Gender":
-                                                    return 50;
-                                                case "Ethnicity":
-                                                    return 20;
-                                                case "Disability":
-                                                    return 12;
+                                    <Space direction="vertical">
+                                        <Pie5050
+                                            legend={false}
+                                            categoryName={x}
+                                            status={groupedByYearCategory[filterState.year][x].percent}
+                                            target={(() => {
+                                                switch (x) {
+                                                    case "Gender":
+                                                        return 50;
+                                                    case "Ethnicity":
+                                                        return 20;
+                                                    case "Disability":
+                                                        return 12;
+                                                }
+                                            })()
                                             }
-                                        })()
+                                            attibute={x}
+                                        />{
+                                            groupedByYearCategory[filterState.year - 1] && groupedByYearCategory[filterState.year - 1][x] &&
+
+                                            <Statistic
+                                                value={groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent}
+                                                precision={2}
+                                                valueStyle={{ color: groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent === 0 ? "grey" : groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent > 0 ? "green" : "red", textAlign: "center" }}
+                                                prefix={groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent === 0 ? null : groupedByYearCategory[filterState.year][x].percent - groupedByYearCategory[filterState.year - 1][x].percent > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                                suffix="%"
+                                            />
                                         }
-                                        attibute={x}
-                                    />
+                                    </Space>
                                 </Col>
 
                             )
                     }
                 </Row>
+
             </Col>
 
             <Col span={24}>
