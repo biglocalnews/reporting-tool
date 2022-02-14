@@ -422,7 +422,7 @@ export const Reports = () => {
 
         >
             <Col span={24}>
-                <Row justify="center" gutter={[128, 16]}>
+                <Row justify="center" gutter={[16, 16]}>
                     {
                         categories
                             .filter(x => !filterState.categories.length || filterState.categories.includes(x))
@@ -431,37 +431,37 @@ export const Reports = () => {
                                 filterState.year in groupedByYearCategory[0] &&
                                 x in groupedByYearCategory[0][filterState.year] &&
                                 <Col span={4} key={i}>
-                                    <Space direction="vertical">
-                                        <Pie5050
-                                            legend={false}
-                                            categoryName={x}
-                                            status={groupedByYearCategory[0][filterState.year][x].percent}
-                                            target={(() => {
-                                                switch (x) {
-                                                    case "Gender":
-                                                        return 50;
-                                                    case "Ethnicity":
-                                                        return 20;
-                                                    case "Disability":
-                                                        return 12;
-                                                }
-                                            })()
+
+                                    <Pie5050
+                                        legend={false}
+                                        categoryName={x}
+                                        status={groupedByYearCategory[0][filterState.year][x].percent}
+                                        target={(() => {
+                                            switch (x) {
+                                                case "Gender":
+                                                    return 50;
+                                                case "Ethnicity":
+                                                    return 20;
+                                                case "Disability":
+                                                    return 12;
                                             }
-                                            attibute={x}
-                                        />
-                                        {
-                                            groupedByYearCategory[1] &&
-                                            filterState.year - 1 in groupedByYearCategory[1] &&
-                                            x in groupedByYearCategory[1][filterState.year - 1] &&
-                                            <Statistic
-                                                value={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent}
-                                                precision={2}
-                                                valueStyle={{ color: groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? "grey" : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? "green" : "red", textAlign: "center" }}
-                                                prefix={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? null : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                                                suffix="%"
-                                            />
+                                        })()
                                         }
-                                    </Space>
+                                        attibute={x}
+                                    />
+                                    {
+                                        groupedByYearCategory[1] &&
+                                        filterState.year - 1 in groupedByYearCategory[1] &&
+                                        x in groupedByYearCategory[1][filterState.year - 1] &&
+                                        <Statistic
+                                            value={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent}
+                                            precision={2}
+                                            valueStyle={{ color: groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? "grey" : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? "green" : "red", textAlign: "center" }}
+                                            prefix={groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent === 0 ? null : groupedByYearCategory[0][filterState.year][x].percent - groupedByYearCategory[1][filterState.year - 1][x].percent > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                            suffix="%"
+                                        />
+                                    }
+
                                 </Col>
 
                             )
