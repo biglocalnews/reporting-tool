@@ -186,6 +186,9 @@ def get_admin_overview(stats: Dict, session: Session):
             target_members_sum = sum(percents)
             oot_target_members_sum = sum(oot_percents)
 
+            if not target_members_sum or not target:
+                continue
+
             dataset_details = {
                 "date": date_end,
                 "category": category,
