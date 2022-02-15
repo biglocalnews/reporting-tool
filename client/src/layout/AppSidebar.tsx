@@ -147,13 +147,11 @@ export const AppSidebarMenu = () => {
         <div style={{ padding: "20px", background: "#fff" }}></div>
           </SubMenu>*/}
 
-      {auth.isAdmin() ? (
-        <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
-          <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
-        </Menu.Item>
-      ) : (
-        ""
-      )}
+
+      <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
+        <Link to="/reports">{t("admin.sidebar.reports")}</Link>
+      </Menu.Item>
+
 
       {auth.isAdmin() ? (
         <SubMenu key="admin" title="Admin" icon={<SettingOutlined />}>
@@ -172,6 +170,9 @@ export const AppSidebarMenu = () => {
             <Link to="/admin/tags">
               {t("admin.sidebar.manageTags")}
             </Link>
+          </Menu.Item>
+          <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
+            <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
           </Menu.Item>
         </SubMenu>
       ) : (

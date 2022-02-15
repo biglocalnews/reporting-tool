@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Dict
 from unicodedata import category
 from h11 import Data
@@ -10,6 +11,7 @@ from enum import Enum
 def get_overview(stats: Dict, session: Session):
     categories = ["Gender", "Ethnicity", "Disability"]
     stats["overviews"] = []
+
     for category in categories:
 
         date_poss = ["min", "max"]
@@ -33,6 +35,7 @@ def get_overview(stats: Dict, session: Session):
             stmt = (
                 select(
                     Dataset.id,
+                    Dataset.name,
                     PublishedRecordSet.id,
                     func.jsonb_path_query_array(
                         PublishedRecordSet.document,
@@ -61,7 +64,7 @@ def get_overview(stats: Dict, session: Session):
 
             res = session.execute(stmt, execution_options={"stream_results": True})
 
-            target_state = Enum("target_state", "exceeds lt5 lt10 gt10")
+            target_state = Enum("target_state", "exceeds lt5 lt10 gt10 fails")
 
             scores = {
                 target_state.exceeds: 0,
@@ -70,25 +73,32 @@ def get_overview(stats: Dict, session: Session):
                 target_state.gt10: 0,
             }
 
-            for [dataset_id, prs_id, percents, oot_percents, target] in res.yield_per(
-                100
-            ):
+            for [
+                dataset_id,
+                dataset_name,
+                prs_id,
+                percents,
+                oot_percents,
+                target,
+            ] in res.yield_per(100):
 
                 if category == "Gender":
-                    target = 50  # so not in comparison with the individual dataset's target but the BBC global target of 50
+                    global_target = 50  # so not in comparison with the individual dataset's target but the BBC global target of 50
                 elif category == "Ethnicity":
-                    target = 20
+                    global_target = 20
                 elif category == "Disability":
-                    target = 12
+                    global_target = 12
+                else:
+                    global_target == target
 
                 target_members_sum = sum(percents)
                 oot_target_members_sum = sum(oot_percents)
 
-                if target_members_sum >= target:
+                if target_members_sum >= global_target:
                     scores[target_state.exceeds] += 1
-                elif target_members_sum >= target - 5:
+                elif target_members_sum >= global_target - 5:
                     scores[target_state.lt5] += 1
-                elif target_members_sum >= target - 10:
+                elif target_members_sum >= global_target - 10:
                     scores[target_state.lt10] += 1
                 elif target_members_sum > 0 or oot_target_members_sum > 0:
                     # if these are both zero, then nothing was recorded for gender
@@ -122,6 +132,74 @@ def get_overview(stats: Dict, session: Session):
                     "value": scores[target_state.gt10],
                 }
             )
+
+
+def get_admin_overview(stats: Dict, session: Session):
+    stats["target_states"] = []
+    categories = ["Gender", "Ethnicity", "Disability"]
+    for category in categories:
+
+        stmt = (
+            select(
+                Dataset.id,
+                Dataset.name,
+                PublishedRecordSet.id,
+                PublishedRecordSet.end,
+                func.jsonb_path_query_array(
+                    PublishedRecordSet.document,
+                    f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
+                ),
+                func.jsonb_path_query_array(
+                    PublishedRecordSet.document,
+                    f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
+                ),
+                func.jsonb_path_query_first(
+                    PublishedRecordSet.document,
+                    f'$.targets[*] ? (@.category == "{category}")."target"',
+                ),
+            )
+            .select_from(PublishedRecordSet)
+            .filter(
+                and_(
+                    PublishedRecordSet.end >= datetime.today() - timedelta(days=61),
+                    PublishedRecordSet.end <= datetime.now(),
+                )
+            )
+            .join(Dataset, PublishedRecordSet.dataset_id == Dataset.id)
+            .filter(Dataset.deleted == None)
+        )
+
+        res = session.execute(stmt, execution_options={"stream_results": True})
+
+        target_state = Enum("target_state", "exceeds fails")
+
+        for [
+            dataset_id,
+            dataset_name,
+            prs_id,
+            date_end,
+            percents,
+            oot_percents,
+            target,
+        ] in res.yield_per(100):
+
+            target_members_sum = sum(percents)
+            oot_target_members_sum = sum(oot_percents)
+
+            dataset_details = {
+                "date": date_end,
+                "category": category,
+                "id": dataset_id,
+                "name": dataset_name,
+            }
+            if target_members_sum >= target:
+                stats["target_states"].append(
+                    {**dataset_details, "state": target_state.exceeds.name}
+                )
+            else:
+                stats["target_states"].append(
+                    {**dataset_details, "state": target_state.fails.name}
+                )
 
 
 def get_headline_totals(stats: Dict, session: Session):

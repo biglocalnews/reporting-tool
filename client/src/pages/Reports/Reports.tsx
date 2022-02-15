@@ -13,6 +13,8 @@ import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalType
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
 import Pie5050 from "../Charts/Pie";
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
+import { GetAdminStats } from "../../graphql/__generated__/GetAdminStats";
+import { GET_ADMIN_STATS } from "../../graphql/__queries__/GetAdminStats";
 
 interface IChartData {
     category: string,
@@ -76,6 +78,13 @@ export const Reports = () => {
             input: { categories: [], teams: [], tags: [], datasetGroups: [], year: new Date(Date.now()).getFullYear() } as PublishedRecordSetsInput
         }
     });
+
+    const { data: adminStats } = useQuery<GetAdminStats>(GET_ADMIN_STATS);
+
+    if (adminStats) {
+        debugger;
+    }
+
 
     const { t } = useTranslation();
 

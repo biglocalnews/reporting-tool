@@ -28,7 +28,12 @@ from database import (
     Tag,
 )
 
-from stats import get_consistencies, get_headline_totals, get_overview
+from stats import (
+    get_consistencies,
+    get_headline_totals,
+    get_overview,
+    get_admin_overview,
+)
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
@@ -363,4 +368,13 @@ def resolve_stats(obj, info):
 
     stats["lgbtqa"] = 0.0
 
+    return stats
+
+
+@query.field("adminStats")
+def resolve_admin_stats(obj, info):
+    # to get intellisense
+    session = cast(Session, info.context["dbsession"])
+    stats = {}
+    get_admin_overview(stats, session)
     return stats

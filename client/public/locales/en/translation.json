@@ -361,6 +361,15 @@
         "group": "Group",
         "submit": "Create"
       }
+    },
+    "reports": {
+      "title": "Reports",
+      "clear": "Clear all",
+      "subtitle": "Performance of Teams and Datasets over the last month",
+      "failed": "Failed to meet targets",
+      "exceeds": "Exceeded targets",
+      "selectDatasetGroups": "Select Dataset Groups",
+      "selectTags": "Select Tags"
     }
   }
 }

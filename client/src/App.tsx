@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { Home } from "./pages/Home/Home";
 import { Datasets } from "./pages/Datasets/Datasets";
 import { Reports } from "./pages/Reports/Reports";
+import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
 
@@ -118,6 +119,7 @@ function App() {
               <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
               <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
               <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
+              <Route path="reports" element={<Reports />} />
             </Route>
             <Route path="/admin/" element={<WrappedPrivateAdmin />}>
               <Route path="users" element={<UserList />} />
@@ -128,7 +130,7 @@ function App() {
               <Route path="programs/:programId" element={<EditProgram />} />
               <Route path="tags" element={<EditTags />} />
               <Route path="datasets" element={<Datasets />} />
-              <Route path="reports" element={<Reports />} />
+              <Route path="reports" element={<AdminReports />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

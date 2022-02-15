@@ -48,6 +48,11 @@ enum CustomColumnType {
   boolean
 }
 
+enum TargetStateType {
+  exceeds
+  fails
+} 
+
 schema {
   query: Query
   mutation: Mutation
@@ -292,6 +297,18 @@ type Stats {
   lgbtqa: Float!
   consistencies: [Consistency!]!
   overviews: [Overview!]!
+}
+
+type DatasetDetails {
+  id: ID!
+  name: String!
+  date: String!
+  category: String!
+  state: TargetStateType!
+}
+
+type AdminStats @needsPermission(permission: [ADMIN]) {
+  targetStates: [DatasetDetails!]!
 }
 
 input UpsertUserInput {
@@ -583,6 +600,8 @@ type Query {
   stats: Stats!
 
   consistencies(categories: [String!]!, threshold: Int!): [Consistency!]!
+
+  adminStats: AdminStats!
 }
 
 type Mutation {

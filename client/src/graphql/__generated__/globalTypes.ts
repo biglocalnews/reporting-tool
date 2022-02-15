@@ -22,6 +22,11 @@ export enum ReportingPeriodType {
   quarterly = "quarterly",
 }
 
+export enum TargetStateType {
+  exceeds = "exceeds",
+  fails = "fails",
+}
+
 export interface BaseCategoryInput {
   readonly id: string;
 }
