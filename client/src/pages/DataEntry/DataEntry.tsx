@@ -110,7 +110,7 @@ const DataEntry = (): JSX.Element => {
         datasetId={datasetId}
         recordId={recordId}
         onFormSubmitted={setIsFormSubmittedSuccess}
-        existingRecord={existingRecordCalled && existingRecord}
+        existingRecord={existingRecordCalled ? existingRecord : undefined}
       />
     </>
   );

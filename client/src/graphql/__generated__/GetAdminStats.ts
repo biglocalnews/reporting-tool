@@ -13,7 +13,7 @@ export interface GetAdminStats_adminStats_targetStates {
   readonly __typename: "DatasetDetails";
   readonly category: string;
   readonly date: string;
-  readonly id: string;
+  readonly prs_id: string;
   readonly name: string;
   readonly state: TargetStateType;
   readonly percent: number;

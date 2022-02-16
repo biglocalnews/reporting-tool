@@ -193,7 +193,7 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
             dataset_details = {
                 "date": date_end,
                 "category": category,
-                "id": prs_id,
+                "prs_id": prs_id,
                 "dataset_id": dataset_id,
                 "name": dataset_name,
                 "percent": target_members_sum,

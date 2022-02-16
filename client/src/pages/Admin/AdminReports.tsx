@@ -8,8 +8,6 @@ import { GET_ADMIN_STATS } from "../../graphql/__queries__/GetAdminStats";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-
-
 export const AdminReports = () => {
 
     const [filterState, setFilterState] = useState<AdminStatsInput>({ duration: 31 });
@@ -30,12 +28,15 @@ export const AdminReports = () => {
     }, [adminStats]);
 
     const failedDatasets = useMemo(() => {
-        return allDatasets?.filter(x => x.state === TargetStateType.fails);
+        const stf = allDatasets?.filter(x => x.state === TargetStateType.fails);
+        return stf;
     }, [allDatasets]);
 
     const goodDatasets = useMemo(() => {
         return allDatasets?.filter(x => x.state === TargetStateType.exceeds);
     }, [allDatasets]);
+
+
 
     const failPercentage = useMemo(() => {
         return failedDatasets && allDatasets ? (failedDatasets.length / allDatasets.length) * 100 : 0;
@@ -46,28 +47,6 @@ export const AdminReports = () => {
     }, [goodDatasets, allDatasets]);
 
     const { t } = useTranslation();
-
-    const datasetListItem = (x: GetAdminStats_adminStats_targetStates, key: number) =>
-        <List.Item
-            key={key}
-            actions={[
-                <Space key={"email"}>{<MailOutlined />}{t("admin.reports.emailTeam")}</Space>,
-                <Space key={"alert"}>{<AlertOutlined />}{t("admin.reports.alertTeam")}</Space>,
-            ]}
-        >
-            <Space>
-                {(() => {
-                    switch (x.category) {
-                        case "Gender":
-                            return <WomanOutlined />
-                        case "Ethnicity":
-                            return <IdcardOutlined />
-                        case "Disability":
-                            return <EyeInvisibleOutlined />
-                    }
-                })()}{`${x.category} ${x.percent.toFixed(2)}%`}<Link to={`/dataset/${x.id}/details`}>{x.name}</Link>
-            </Space>
-        </List.Item>
 
     return <Row gutter={[16, 16]}>
         <Col span={24}>
@@ -101,7 +80,7 @@ export const AdminReports = () => {
                 valueStyle={{ color: "red" }}
                 suffix="%"
             />
-            <Button onClick={() => setDatasetList(() => failedDatasets ?? [])}>Details</Button>
+            <Button onClick={() => setDatasetList(() => [...(failedDatasets ?? [])])}>Details</Button>
         </Col>
         <Col span={6}>
             <Statistic
@@ -112,7 +91,7 @@ export const AdminReports = () => {
                 valueStyle={{ color: "green" }}
                 suffix="%"
             />
-            <Button onClick={() => setDatasetList(() => goodDatasets ?? [])}>Details</Button>
+            <Button onClick={() => setDatasetList(() => [...(goodDatasets ?? [])])}>Details</Button>
         </Col>
         <Col span={24}>
             <Divider />
@@ -122,7 +101,27 @@ export const AdminReports = () => {
                 size="small"
             >
                 {
-                    datasetList?.map((x, i) => datasetListItem(x, i))
+                    datasetList?.map((x) =>
+                        <List.Item
+                            key={`${x.category}-${x.prs_id}-${x.state}`}
+                            actions={[
+                                <Space key={"email"}>{<MailOutlined />}{t("admin.reports.emailTeam")}</Space>,
+                                <Space key={"alert"}>{<AlertOutlined />}{t("admin.reports.alertTeam")}</Space>,
+                            ]}
+                        >
+                            <Space>
+                                {(() => {
+                                    switch (x.category) {
+                                        case "Gender":
+                                            return <WomanOutlined />
+                                        case "Ethnicity":
+                                            return <IdcardOutlined />
+                                        case "Disability":
+                                            return <EyeInvisibleOutlined />
+                                    }
+                                })()}{`${x.category} ${x.percent.toFixed(2)}%`}<Link to={`/dataset/${x.dataset_id}/details`}>{x.name}</Link>
+                            </Space>
+                        </List.Item>)
                 }
             </List>
         </Col>

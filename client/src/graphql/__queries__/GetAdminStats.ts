@@ -6,7 +6,7 @@ export const GET_ADMIN_STATS = gql`
       targetStates {
         category
         date
-        id
+        prs_id
         name
         state
         percent

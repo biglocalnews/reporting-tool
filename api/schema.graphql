@@ -300,7 +300,7 @@ type Stats {
 }
 
 type DatasetDetails {
-  id: ID!
+  prs_id: ID!
   dataset_id: ID!
   name: String!
   date: String!
