@@ -363,13 +363,16 @@
       }
     },
     "reports": {
-      "title": "Reports",
+      "title": "Admin Reports",
       "clear": "Clear all",
-      "subtitle": "Performance of Teams and Datasets over the last month",
+      "subtitle": "Performance of Teams and Datasets",
       "failed": "Failed to meet targets",
       "exceeds": "Exceeded targets",
-      "selectDatasetGroups": "Select Dataset Groups",
-      "selectTags": "Select Tags"
+      "selectDays": "Select Days",
+      "filtersTitle": "Filters",
+      "statsTitle": "Stats",
+      "emailTeam": "Email Team",
+      "alertTeam": "Alert Team"
     }
   }
 }

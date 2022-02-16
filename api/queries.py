@@ -372,9 +372,9 @@ def resolve_stats(obj, info):
 
 
 @query.field("adminStats")
-def resolve_admin_stats(obj, info):
+def resolve_admin_stats(obj, info, input):
     # to get intellisense
     session = cast(Session, info.context["dbsession"])
     stats = {}
-    get_admin_overview(stats, session)
+    get_admin_overview(stats, session, input["duration"])
     return stats

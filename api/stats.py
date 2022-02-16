@@ -134,7 +134,7 @@ def get_overview(stats: Dict, session: Session):
             )
 
 
-def get_admin_overview(stats: Dict, session: Session):
+def get_admin_overview(stats: Dict, session: Session, duration: int):
     stats["target_states"] = []
     categories = ["Gender", "Ethnicity", "Disability"]
     for category in categories:
@@ -161,7 +161,8 @@ def get_admin_overview(stats: Dict, session: Session):
             .select_from(PublishedRecordSet)
             .filter(
                 and_(
-                    PublishedRecordSet.end >= datetime.today() - timedelta(days=61),
+                    PublishedRecordSet.end
+                    >= datetime.today() - timedelta(days=duration),
                     PublishedRecordSet.end <= datetime.now(),
                 )
             )
@@ -192,11 +193,13 @@ def get_admin_overview(stats: Dict, session: Session):
             dataset_details = {
                 "date": date_end,
                 "category": category,
-                "id": dataset_id,
+                "id": prs_id,
+                "dataset_id": dataset_id,
                 "name": dataset_name,
                 "percent": target_members_sum,
                 "target": target,
             }
+
             if target_members_sum >= target:
                 stats["target_states"].append(
                     {**dataset_details, "state": target_state.exceeds.name}

@@ -171,7 +171,7 @@ export const AppSidebarMenu = () => {
               {t("admin.sidebar.manageTags")}
             </Link>
           </Menu.Item>
-          <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
+          <Menu.Item key="admin.reports" role="menuitem" icon={<BarChartOutlined />}>
             <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
           </Menu.Item>
         </SubMenu>

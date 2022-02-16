@@ -27,6 +27,10 @@ export enum TargetStateType {
   fails = "fails",
 }
 
+export interface AdminStatsInput {
+  readonly duration: number;
+}
+
 export interface BaseCategoryInput {
   readonly id: string;
 }

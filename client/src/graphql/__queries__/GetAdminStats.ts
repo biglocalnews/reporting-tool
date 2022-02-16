@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_ADMIN_STATS = gql`
-  query GetAdminStats {
-    adminStats {
+  query GetAdminStats($input: AdminStatsInput) {
+    adminStats(input: $input) {
       targetStates {
         category
         date
@@ -11,6 +11,7 @@ export const GET_ADMIN_STATS = gql`
         state
         percent
         target
+        dataset_id
       }
     }
   }

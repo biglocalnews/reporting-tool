@@ -301,6 +301,7 @@ type Stats {
 
 type DatasetDetails {
   id: ID!
+  dataset_id: ID!
   name: String!
   date: String!
   category: String!
@@ -538,6 +539,10 @@ input PublishedRecordSetsInput {
   year: Int!
 }
 
+input AdminStatsInput {
+  duration: Int!
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -603,7 +608,7 @@ type Query {
 
   consistencies(categories: [String!]!, threshold: Int!): [Consistency!]!
 
-  adminStats: AdminStats!
+  adminStats(input: AdminStatsInput): AdminStats!
 }
 
 type Mutation {
