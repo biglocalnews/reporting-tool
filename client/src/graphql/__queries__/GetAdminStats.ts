@@ -9,6 +9,8 @@ export const GET_ADMIN_STATS = gql`
         id
         name
         state
+        percent
+        target
       }
     }
   }

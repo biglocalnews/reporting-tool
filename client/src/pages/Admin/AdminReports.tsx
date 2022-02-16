@@ -1,34 +1,19 @@
 import { useQuery } from "@apollo/client";
-import { Col, List, PageHeader, Row, Statistic } from "antd";
-import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { Button, Col, Divider, List, PageHeader, Row, Space, Statistic } from "antd";
+import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { GetAdminStats, GetAdminStats_adminStats_targetStates } from "../../graphql/__generated__/GetAdminStats";
 import { TargetStateType } from "../../graphql/__generated__/globalTypes";
 import { GET_ADMIN_STATS } from "../../graphql/__queries__/GetAdminStats";
-//import dayjs from "dayjs";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-const datasetListItem = (x: GetAdminStats_adminStats_targetStates) =>
-    <List.Item key={x.id}>
-        <List.Item.Meta
-            avatar={(() => {
-                switch (x.category) {
-                    case "Gender":
-                        return <WomanOutlined />
-                    case "Ethnicity":
-                        return <IdcardOutlined />
-                    case "Disability":
-                        return <EyeInvisibleOutlined />
-                }
-            })()}
-            title={x.category}
-        />
-        <Link to={`/dataset/${x.id}/details`}>{x.name}</Link>
-    </List.Item>
+
 
 export const AdminReports = () => {
     const { data: adminStats, loading } = useQuery<GetAdminStats>(GET_ADMIN_STATS);
+
+    const [datasetList, setDatasetList] = useState<GetAdminStats_adminStats_targetStates[]>();
 
     const failedDatasets = useMemo(() => {
         return adminStats?.adminStats
@@ -59,6 +44,29 @@ export const AdminReports = () => {
 
     const { t } = useTranslation();
 
+    const datasetListItem = (x: GetAdminStats_adminStats_targetStates) =>
+        <List.Item
+            key={x.id}
+
+            actions={[
+                <Space key={"email"}>{<MailOutlined />}{t("admin.reports.emailTeam")}</Space>,
+                <Space key={"alert"}>{<AlertOutlined />}{"admin.reports.alertTeam"}</Space>,
+            ]}
+        >
+            <Space>
+                {(() => {
+                    switch (x.category) {
+                        case "Gender":
+                            return <WomanOutlined />
+                        case "Ethnicity":
+                            return <IdcardOutlined />
+                        case "Disability":
+                            return <EyeInvisibleOutlined />
+                    }
+                })()}{`${x.category} ${x.percent.toFixed(2)}%`}<Link to={`/dataset/${x.id}/details`}>{x.name}</Link>
+            </Space>
+        </List.Item>
+
     return <Row>
         <Col span={24}>
             <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
@@ -72,12 +80,7 @@ export const AdminReports = () => {
                 valueStyle={{ color: "red" }}
                 suffix="%"
             />
-            <List loading={loading}>
-                {
-                    failedDatasets?.map(x => datasetListItem(x))
-                }
-            </List>
-
+            <Button onClick={() => setDatasetList(failedDatasets)}>Details</Button>
         </Col>
         <Col span={6}>
             <Statistic
@@ -88,13 +91,18 @@ export const AdminReports = () => {
                 valueStyle={{ color: "green" }}
                 suffix="%"
             />
-            <List loading={loading}>
-                {
-                    goodDatasets?.map(x => datasetListItem(x))
-                }
-            </List>
+            <Button onClick={() => setDatasetList(goodDatasets)}>Details</Button>
         </Col>
-
+        <Col span={24}>
+            <Divider />
+            <List
+                loading={loading}
+                dataSource={datasetList}
+                renderItem={(x) => datasetListItem(x)}
+                itemLayout="vertical"
+                size="small"
+            />
+        </Col>
     </Row>
 
 }

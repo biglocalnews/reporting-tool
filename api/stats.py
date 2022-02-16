@@ -194,6 +194,8 @@ def get_admin_overview(stats: Dict, session: Session):
                 "category": category,
                 "id": dataset_id,
                 "name": dataset_name,
+                "percent": target_members_sum,
+                "target": target,
             }
             if target_members_sum >= target:
                 stats["target_states"].append(

@@ -304,6 +304,8 @@ type DatasetDetails {
   name: String!
   date: String!
   category: String!
+  percent: Float!
+  target: Int!
   state: TargetStateType!
 }
 

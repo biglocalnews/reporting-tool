@@ -16,6 +16,8 @@ export interface GetAdminStats_adminStats_targetStates {
   readonly id: string;
   readonly name: string;
   readonly state: TargetStateType;
+  readonly percent: number;
+  readonly target: number;
 }
 
 export interface GetAdminStats_adminStats {
