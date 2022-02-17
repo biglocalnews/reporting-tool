@@ -52,14 +52,11 @@ export const AdminReports = () => {
     const { t } = useTranslation();
 
     return <>
+        <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
         <Row gutter={[16, 16]}>
-            <Col span={24}>
-                <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
-            </Col>
 
-            <Col span={24}>
-                <Divider orientation="left">{t("admin.reports.statsTitle")}</Divider>
-            </Col>
+
+
             <Col span={6}>
                 <div
                     role="button"
