@@ -21,7 +21,7 @@ const gradientStyle = ({
     "-moz-text-fill-color": "transparent"
 })
 
-const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", backgroundColor: "#fafafa" });
+export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", backgroundColor: "#fafafa" });
 
 export const Home = () => {
 
