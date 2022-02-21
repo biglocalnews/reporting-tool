@@ -58,7 +58,7 @@ export const AdminReports = () => {
             name: x.name,
             reportingPeriodEnd: x.reportingPeriodEnd,
             reportingPeriodName: x.reportingPeriodName,
-            key: `${x.datasetId}`,
+            key: `${x.datasetId}-${x.reportingPeriodEnd}`,
             render: () => renderOverdueListItem(x)
         }));
 
