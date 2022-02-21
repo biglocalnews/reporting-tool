@@ -10,20 +10,29 @@ import { AdminStatsInput, TargetStateType } from "./globalTypes";
 // ====================================================
 
 export interface GetAdminStats_adminStats_targetStates {
-  readonly __typename: "DatasetDetails";
+  readonly __typename: "TargetStates";
   readonly category: string;
-  readonly date: string;
-  readonly prs_id: string;
+  readonly reportingPeriodEnd: any;
+  readonly prsId: string;
   readonly name: string;
   readonly state: TargetStateType;
   readonly percent: number;
   readonly target: number;
-  readonly dataset_id: string;
+  readonly datasetId: string;
+}
+
+export interface GetAdminStats_adminStats_overdue {
+  readonly __typename: "Overdue";
+  readonly reportingPeriodEnd: any;
+  readonly name: string;
+  readonly datasetId: string;
+  readonly reportingPeriodName: string | null;
 }
 
 export interface GetAdminStats_adminStats {
   readonly __typename: "AdminStats";
   readonly targetStates: ReadonlyArray<GetAdminStats_adminStats_targetStates>;
+  readonly overdue: ReadonlyArray<GetAdminStats_adminStats_overdue>;
 }
 
 export interface GetAdminStats {

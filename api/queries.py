@@ -1,14 +1,7 @@
-from datetime import datetime
-from enum import Enum
-from multiprocessing.dummy import Array
-from os import putenv
-import time
 from typing import cast
-from unicodedata import category
-from xmlrpc.client import DateTime
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.orm import Session
-from sqlalchemy import DATE, column, func, select
+from sqlalchemy import func, select
 from database import (
     CustomColumn,
     Dataset,
@@ -29,6 +22,7 @@ from database import (
 )
 
 from stats import (
+    get_admin_overdue,
     get_consistencies,
     get_headline_totals,
     get_overview,
@@ -377,4 +371,5 @@ def resolve_admin_stats(obj, info, input):
     session = cast(Session, info.context["dbsession"])
     stats = {}
     get_admin_overview(stats, session, input["duration"])
+    get_admin_overdue(stats, session)
     return stats

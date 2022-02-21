@@ -4,7 +4,7 @@ from unicodedata import category
 from h11 import Data
 from sqlalchemy import and_, column, func, select, subquery
 from sqlalchemy.orm import Session
-from database import Dataset, PublishedRecordSet
+from database import Dataset, Program, PublishedRecordSet, ReportingPeriod
 from enum import Enum
 
 
@@ -191,7 +191,7 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
                 continue
 
             dataset_details = {
-                "date": date_end,
+                "reporting_period_end": date_end,
                 "category": category,
                 "prs_id": prs_id,
                 "dataset_id": dataset_id,
@@ -208,6 +208,61 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
                 stats["target_states"].append(
                     {**dataset_details, "state": target_state.fails.name}
                 )
+
+
+def get_admin_overdue(stats: Dict, session: Session):
+
+    stats["overdue"] = []
+
+    stmt = (
+        select(
+            ReportingPeriod.id,
+            ReportingPeriod.program_id,
+            ReportingPeriod.description,
+            ReportingPeriod.end,
+            Dataset.id,
+            Dataset.name,
+            PublishedRecordSet.id,
+        )
+        .select_from(ReportingPeriod)
+        .filter(
+            and_(
+                ReportingPeriod.program_id != None,
+                ReportingPeriod.end <= datetime.today() - timedelta(days=7),
+            )
+        )
+        .join(
+            Dataset,
+            Dataset.program_id == ReportingPeriod.program_id,
+        )
+        .outerjoin(
+            PublishedRecordSet,
+            and_(
+                PublishedRecordSet.dataset_id == Dataset.id,
+                PublishedRecordSet.deleted == None,
+            ),
+        )
+    )
+
+    res = session.execute(stmt, execution_options={"stream_results": True})
+
+    for [
+        rp_id,
+        prog_id,
+        rp_description,
+        date_end,
+        dataset_id,
+        dataset_name,
+        prs_id,
+    ] in res.yield_per(100):
+        if not prs_id:
+            dataset_details = {
+                "reporting_period_end": date_end,
+                "reporting_period_name": rp_description,
+                "dataset_id": dataset_id,
+                "name": dataset_name,
+            }
+            stats["overdue"].append(dataset_details)
 
 
 def get_headline_totals(stats: Dict, session: Session):

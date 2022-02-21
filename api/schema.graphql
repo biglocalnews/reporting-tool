@@ -299,19 +299,33 @@ type Stats {
   overviews: [Overview!]!
 }
 
-type DatasetDetails {
-  prs_id: ID!
-  dataset_id: ID!
+interface IDatasetInfo {
+  datasetId: ID!
   name: String!
-  date: String!
+  reportingPeriodEnd: DateTime!
+}
+
+type TargetStates implements IDatasetInfo {
+  prsId: ID!
+  datasetId: ID!
+  name: String!
+  reportingPeriodEnd: DateTime!
   category: String!
   percent: Float!
   target: Int!
   state: TargetStateType!
 }
 
+type Overdue implements IDatasetInfo {
+  datasetId: ID!
+  name: String!
+  reportingPeriodName: String
+  reportingPeriodEnd: DateTime!
+}
+
 type AdminStats @needsPermission(permission: [ADMIN]) {
-  targetStates: [DatasetDetails!]!
+  targetStates: [TargetStates!]!
+  overdue: [Overdue!]!
 }
 
 input UpsertUserInput {

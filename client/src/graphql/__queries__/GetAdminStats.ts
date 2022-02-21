@@ -5,13 +5,19 @@ export const GET_ADMIN_STATS = gql`
     adminStats(input: $input) {
       targetStates {
         category
-        date
-        prs_id
+        reportingPeriodEnd
+        prsId
         name
         state
         percent
         target
-        dataset_id
+        datasetId
+      }
+      overdue {
+        reportingPeriodEnd
+        name
+        datasetId
+        reportingPeriodName
       }
     }
   }
