@@ -146,8 +146,8 @@ export const AdminReports = () => {
             align: "right" as AlignType,
             render: () => (
                 <Space>
-                    <MailOutlined /><Button type="text">{t("admin.reports.emailTeam")}</Button>
-                    <AlertOutlined /><Button type="text">{t("admin.reports.alertTeam")}</Button>
+                    <Button icon={<MailOutlined />} type="text">{t("admin.reports.emailTeam")}</Button>
+                    <Button icon={<AlertOutlined />} type="text">{t("admin.reports.alertTeam")}</Button>
                 </Space>
             )
         };
@@ -220,7 +220,14 @@ export const AdminReports = () => {
             default:
                 setDatasetList(undefined);
         }
-    }, [selectedStat, setDatasetList, failedDatasets, goodDatasets, overdueDatasetsListItems, needsAttentionDatasetsListItems]);
+    }, [
+        selectedStat,
+        setDatasetList,
+        failedDatasets,
+        goodDatasets,
+        overdueDatasetsListItems,
+        needsAttentionDatasetsListItems
+    ]);
 
     return <>
         <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
@@ -349,7 +356,7 @@ export const AdminReports = () => {
                                     onMouseEnter: () => setActiveListItem(record.key),
                                     onMouseLeave: () => setActiveListItem(undefined),
                                     onClick: () => setActiveListItem((curr) => curr ? undefined : record.key),
-                                    backgroundColor: activeListItem ? "cyan" : "unset"
+                                    backgroundColor: activeListItem ? "rgba(0,0,255,0.1)" : "unset"
                                 }
                             }}
                         />

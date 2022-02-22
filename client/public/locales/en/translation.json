@@ -368,7 +368,7 @@
       "subtitle": "Performance of Teams and Datasets",
       "failed": "Failed to meet targets",
       "exceeds": "Exceeded targets",
-      "selectDays": "Select Days",
+      "selectDays": "Select Last n Days",
       "filtersTitle": "Filters",
       "statsTitle": "Stats",
       "emailTeam": "Email Team",
