@@ -125,7 +125,7 @@ export const AdminReports = () => {
                 title: t("admin.reports.datasetReportingPeriodEndColumnTitle"),
                 dataIndex: "reportingPeriodEnd",
                 key: "reportingPeriodEnd",
-                sorter: (a: IDatasetList, b: IDatasetList) => a.reportingPeriodEnd.valueOf() - b.reportingPeriodEnd.valueOf(),
+                sorter: (a: IDatasetList, b: IDatasetList) => new Date(a.reportingPeriodEnd).valueOf() - new Date(b.reportingPeriodEnd).valueOf(),
                 sortDirections: ['ascend', 'descend'] as SortOrder[],
                 defaultSortOrder: "descend" as SortOrder,
                 render: (rpe: Date) => new Date(rpe).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)
