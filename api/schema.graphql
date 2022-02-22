@@ -323,9 +323,17 @@ type Overdue implements IDatasetInfo {
   reportingPeriodEnd: DateTime!
 }
 
+type NeedsAttention implements IDatasetInfo {
+  datasetId: ID!
+  name: String!
+  reportingPeriodEnd: DateTime!
+  count: Int!
+}
+
 type AdminStats @needsPermission(permission: [ADMIN]) {
   targetStates: [TargetStates!]!
   overdue: [Overdue!]!
+  needsAttention: [NeedsAttention!]!
 }
 
 input UpsertUserInput {

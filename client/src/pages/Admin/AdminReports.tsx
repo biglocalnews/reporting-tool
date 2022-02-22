@@ -20,12 +20,13 @@ interface IDatasetList {
     category?: string,
     percent?: number,
     reportingPeriodName?: string | null | undefined
+    count?: number
 }
 
 const selectedCardStyle = {
     ...cardStyle,
-    border: "2px solid green",
-    boxShadow: "0.2em 0.3em 0.75em rgba(0,50,0,0.3)"
+    border: "1px solid blue",
+    boxShadow: "0.2em 0.3em 0.75em rgba(0,0,50,0.3)"
 }
 
 export const AdminReports = () => {
@@ -59,6 +60,21 @@ export const AdminReports = () => {
         }));
 
     }, [overdueDatasets]);
+
+    const needsAttentionDatasets = useMemo(() => {
+        return adminStats?.adminStats.needsAttention ?? []
+    }, [adminStats]);
+
+    const needsAttentionDatasetsListItems = useMemo(() => {
+        return needsAttentionDatasets.map(x => ({
+            datasetId: x.datasetId,
+            name: x.name,
+            reportingPeriodEnd: x.reportingPeriodEnd,
+            count: x.count,
+            key: `${x.datasetId}`
+        }));
+
+    }, [needsAttentionDatasets]);
 
 
     const allDatasets = useMemo(() => {
@@ -111,6 +127,7 @@ export const AdminReports = () => {
                 key: "reportingPeriodEnd",
                 sorter: (a: IDatasetList, b: IDatasetList) => a.reportingPeriodEnd.valueOf() - b.reportingPeriodEnd.valueOf(),
                 sortDirections: ['ascend', 'descend'] as SortOrder[],
+                defaultSortOrder: "descend" as SortOrder,
                 render: (rpe: Date) => new Date(rpe).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)
             },
             {
@@ -139,6 +156,8 @@ export const AdminReports = () => {
             title: t("admin.reports.datasetCategoryColumnTitle"),
             dataIndex: "category",
             key: "category",
+            sorter: (a: IDatasetList, b: IDatasetList) => (a.category && b.category) ? a.category.localeCompare(b.category) : 0,
+            sortDirections: ['ascend', 'descend'] as SortOrder[],
             render: (category: string, record: IDatasetList) => <Space>
                 {(() => {
                     switch (record.category) {
@@ -156,13 +175,31 @@ export const AdminReports = () => {
             title: t("admin.reports.datasetPercentColumnTitle"),
             dataIndex: "percent",
             key: "percent",
+            sorter: (a: IDatasetList, b: IDatasetList) => (a.percent && b.percent) ? a.percent - b.percent : 0,
+            sortDirections: ['ascend', 'descend'] as SortOrder[],
             render: (percent: number | undefined) => `${percent?.toFixed(2)}%`
         }
         ];
 
+        const countColumn = {
+            title: t("admin.reports.datasetMissedCountColumnTitle"),
+            dataIndex: "count",
+            key: "count",
+            sorter: (a: IDatasetList, b: IDatasetList) => (a.count && b.count) ? a.count - b.count : 0,
+            sortDirections: ['ascend', 'descend'] as SortOrder[],
+            render: (count: number | undefined) => count?.toString()
+        }
+
         if (!datasetList || !datasetList.length) return basicColumns;
 
-        return "percent" && "category" in datasetList[0] ? [...basicColumns, ...targetColumns, actionsColumn] : [...basicColumns, actionsColumn];
+        if ("percent" && "category" in datasetList[0]) {
+            return [...basicColumns, ...targetColumns, actionsColumn];
+        }
+        else if ("count" in datasetList[0]) {
+            return [...basicColumns, countColumn, actionsColumn];
+        }
+
+        return [...basicColumns, actionsColumn];
 
     }, [t, datasetList]);
 
@@ -178,12 +215,12 @@ export const AdminReports = () => {
                 setDatasetList(overdueDatasetsListItems);
                 break;
             case "needsAttention":
-                setDatasetList(overdueDatasetsListItems);
+                setDatasetList(needsAttentionDatasetsListItems);
                 break;
             default:
                 setDatasetList(undefined);
         }
-    }, [selectedStat, setDatasetList, failedDatasets, goodDatasets, overdueDatasetsListItems]);
+    }, [selectedStat, setDatasetList, failedDatasets, goodDatasets, overdueDatasetsListItems, needsAttentionDatasetsListItems]);
 
     return <>
         <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
@@ -260,34 +297,37 @@ export const AdminReports = () => {
                         <Statistic
                             loading={loading}
                             title={t("admin.reports.reqAttentionStatTitle")}
-                            value={1 / 0}
+                            value={needsAttentionDatasets.length}
                             precision={0}
-                            valueStyle={{ color: "green" }}
-                            suffix="%"
+                            valueStyle={{ color: "red" }}
                         />
                     </Card>
                 </div>
             </Col>
         </Row>
-        <Row justify="center">
-            <Col span={24}>
-                <Divider orientation="left">{t("admin.reports.filtersTitle")}</Divider>
-            </Col>
-            <Col span={24}>
-                <Space>
-                    {t("admin.reports.selectDays")}
-                    <Select
-                        value={filterState.duration}
-                        onChange={(e) => setFilterState((curr) => ({ ...curr, duration: e }))}
-                    >
-                        <Select.Option value={31}>31</Select.Option>
-                        <Select.Option value={62}>62</Select.Option>
-                        <Select.Option value={93}>93</Select.Option>
-                    </Select>
-                </Space>
-            </Col>
+        {
+            selectedStat.toLowerCase().indexOf("target") !== -1 &&
+            <Row justify="center">
+                <Col span={24}>
+                    <Divider orientation="left">{t("admin.reports.filtersTitle")}</Divider>
+                </Col>
+                <Col span={24}>
+                    <Space>
+                        {t("admin.reports.selectDays")}
+                        <Select
+                            value={filterState.duration}
+                            onChange={(e) => setFilterState((curr) => ({ ...curr, duration: e }))}
+                        >
+                            <Select.Option value={31}>31</Select.Option>
+                            <Select.Option value={62}>62</Select.Option>
+                            <Select.Option value={93}>93</Select.Option>
+                        </Select>
+                    </Space>
+                </Col>
 
-        </Row >
+            </Row >
+        }
+
 
         {
             datasetList &&

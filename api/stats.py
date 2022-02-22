@@ -210,6 +210,81 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
                 )
 
 
+def get_admin_needs_attention(stats: Dict, session: Session):
+
+    stats["needs_attention"] = []
+
+    stmt = (
+        select(
+            Dataset.id,
+            Dataset.name,
+            ReportingPeriod.id,
+            ReportingPeriod.program_id,
+            ReportingPeriod.description,
+            ReportingPeriod.end,
+            PublishedRecordSet.id,
+            PublishedRecordSet.created,
+        )
+        .select_from(Dataset)
+        .join(
+            ReportingPeriod,
+            and_(
+                ReportingPeriod.program_id == Dataset.program_id,
+                ReportingPeriod.end < datetime.today() - timedelta(days=1),
+            ),
+        )
+        .join(
+            PublishedRecordSet,
+            and_(
+                PublishedRecordSet.dataset_id == Dataset.id,
+                PublishedRecordSet.deleted == None,
+                PublishedRecordSet.created > ReportingPeriod.end + timedelta(days=1),
+            ),
+        )
+        .order_by(ReportingPeriod.end)
+    )
+
+    res = session.execute(stmt, execution_options={"stream_results": True})
+
+    counts = {}
+    datasets = {}
+
+    for [
+        dataset_id,
+        dataset_name,
+        rp_id,
+        prog_id,
+        rp_description,
+        date_end,
+        prs_id,
+        created,
+    ] in res.yield_per(100):
+
+        if dataset_id not in counts:
+            counts[dataset_id] = 0
+
+        counts[dataset_id] += 1
+
+        if counts[dataset_id] >= 3:
+            if dataset_id not in datasets:
+                datasets[dataset_id] = {
+                    "dataset_id": dataset_id,
+                    "reporting_period_end": date_end,
+                    "reporting_period_name": rp_description,
+                    "name": dataset_name,
+                    "count": counts[dataset_id],
+                }
+            else:
+                datasets[dataset_id] = {
+                    **datasets[dataset_id],
+                    "count": counts[dataset_id],
+                    "reporting_period_end": date_end,
+                    "reporting_period_name": rp_description,
+                }
+
+    stats["needs_attention"] = datasets.values()
+
+
 def get_admin_overdue(stats: Dict, session: Session):
 
     stats["overdue"] = []
@@ -228,7 +303,7 @@ def get_admin_overdue(stats: Dict, session: Session):
         .filter(
             and_(
                 ReportingPeriod.program_id != None,
-                ReportingPeriod.end <= datetime.today() - timedelta(days=7),
+                ReportingPeriod.end < datetime.today() - timedelta(days=1),
             )
         )
         .join(

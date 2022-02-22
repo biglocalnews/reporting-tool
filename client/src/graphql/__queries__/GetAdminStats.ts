@@ -19,6 +19,12 @@ export const GET_ADMIN_STATS = gql`
         datasetId
         reportingPeriodName
       }
+      needsAttention {
+        name
+        datasetId
+        reportingPeriodEnd
+        count
+      }
     }
   }
 `;

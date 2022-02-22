@@ -29,10 +29,19 @@ export interface GetAdminStats_adminStats_overdue {
   readonly reportingPeriodName: string | null;
 }
 
+export interface GetAdminStats_adminStats_needsAttention {
+  readonly __typename: "NeedsAttention";
+  readonly name: string;
+  readonly datasetId: string;
+  readonly reportingPeriodEnd: any;
+  readonly count: number;
+}
+
 export interface GetAdminStats_adminStats {
   readonly __typename: "AdminStats";
   readonly targetStates: ReadonlyArray<GetAdminStats_adminStats_targetStates>;
   readonly overdue: ReadonlyArray<GetAdminStats_adminStats_overdue>;
+  readonly needsAttention: ReadonlyArray<GetAdminStats_adminStats_needsAttention>;
 }
 
 export interface GetAdminStats {

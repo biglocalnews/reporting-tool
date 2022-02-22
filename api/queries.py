@@ -22,6 +22,7 @@ from database import (
 )
 
 from stats import (
+    get_admin_needs_attention,
     get_admin_overdue,
     get_consistencies,
     get_headline_totals,
@@ -372,4 +373,5 @@ def resolve_admin_stats(obj, info, input):
     stats = {}
     get_admin_overview(stats, session, input["duration"])
     get_admin_overdue(stats, session)
+    get_admin_needs_attention(stats, session)
     return stats
