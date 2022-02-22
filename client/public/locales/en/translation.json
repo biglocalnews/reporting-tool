@@ -375,7 +375,12 @@
       "alertTeam": "Alert Team",
       "dataTitle": "Results",
       "reqImprovementStatTitle": "Datasets showed improvement",
-      "reqAttentionStatTitle": "Datasets require attention"
+      "reqAttentionStatTitle": "Needs attention",
+      "overdueStatTitle": "Overdue",
+      "datasetCategoryColumnTitle": "Category",
+      "datasetPercentColumnTitle": "",
+      "datasetReportingPeriodEndColumnTitle": "Reporting Period End",
+      "datasetNameColumnTitle": "Dataset Name"
     }
   }
 }
