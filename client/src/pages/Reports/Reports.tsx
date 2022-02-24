@@ -98,8 +98,6 @@ export const Reports = () => {
 
     const flattenedChartData = useMemo(() => { return flattenChartData(chartData2) }, [chartData2]);
 
-    debugger;
-
     const grouping = useMemo(() => {
         return groupedByYearCategory(filteredData) ?? [[]];
     }, [filteredData])

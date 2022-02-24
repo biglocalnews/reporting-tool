@@ -155,7 +155,9 @@ export const groupedByMonthYearCategory =
 
 
 export const flattenChartData = (records: Record<string, Record<string, IChartData>>): IChartData[] =>
-    Object.values(records).flatMap(byMonthYear => Object.values(byMonthYear)).sort((a, b) => a.date.valueOf() - b.date.valueOf())
+    Object.values(records)
+        .flatMap(byMonthYear => Object.values(byMonthYear))
+        .sort((a, b) => a.date.valueOf() - b.date.valueOf())
 
 export const flattened = (grouped: Record<string, IChartData>) => {
     return Object.values(grouped).sort((a, b) => a.date.getTime() - b.date.getTime())
