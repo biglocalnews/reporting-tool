@@ -14,7 +14,7 @@ import {
 const { Panel } = Collapse;
 import moment, { Moment } from "moment";
 import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { IDatasetDetailsFilter } from "../../components/DatasetDetailsFilterProvider";
@@ -22,11 +22,7 @@ import { Loading } from "../../components/Loading/Loading";
 import { PageTitleBar } from "../../components/PageTitleBar";
 import {
   GetDataset,
-  GetDatasetVariables,
-  GetDataset_dataset_personTypes,
-  GetDataset_dataset_program_targets_category,
-  GetDataset_dataset_records,
-  GetDataset_dataset_records_entries,
+  GetDatasetVariables
 } from "../../graphql/__generated__/GetDataset";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { DELETE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/DeletePublishedRecordSet.gql";
@@ -34,11 +30,13 @@ import { DataEntryTable } from "../DataEntry/DataEntryTable";
 import { DatasetDetailsScoreCard } from "./DatasetDetailsScoreCard";
 import "./DatasetDetails.css"
 import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
-import { IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedRecordSet";
+import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedRecordSet";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import Pie5050 from "../Charts/Pie";
 import { ProgressColumns } from "../Charts/Progress";
-import { catSort } from "../CatSort";
+import { LineColumn } from "../Charts/LineColumn";
+import { targetStates, filteredRecords, sortedRecords } from "../../selectors/TargetStates";
+import { flattened, grouped, IChartData } from "../../selectors/ChartData";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -77,7 +75,10 @@ const DatasetDetails = (): JSX.Element => {
   const { t } = useTranslation();
   const defaultPresetDate = "This Month";
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
-    { DateRange: PresetDateRanges[defaultPresetDate] }
+    {
+      DateRange: PresetDateRanges[defaultPresetDate],
+      categories: [] as string[]
+    }
   );
   const [presetDate, setPresetDate] = useState<string | null>(
     defaultPresetDate
@@ -106,165 +107,28 @@ const DatasetDetails = (): JSX.Element => {
   );
 
 
-  const sumOfEntriesByAttributeCategory = (
-    entries: readonly GetDataset_dataset_records_entries[],
-    attributeCategory: GetDataset_dataset_program_targets_category,
-    personType: GetDataset_dataset_personTypes | undefined
-  ) => {
-    return entries.reduce((prevEntry, currEntry) => {
-      const personTypeBool =
-        personType !== undefined
-          ? currEntry.personType?.id === personType.id
-          : true;
-      return currEntry.categoryValue.category.id === attributeCategory.id &&
-        personTypeBool
-        ? currEntry.count + prevEntry
-        : prevEntry;
-    }, 0);
-  };
+  const chartData = useMemo(() => {
+    return queryData?.dataset.publishedRecordSets?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+      .filter(x => !selectedFilters.categories.length || selectedFilters.categories.includes(x.category))
+      .map((r) => ({ ...r, date: new Date(x.end) } as IChartData))
+    )
+  }, [queryData?.dataset.publishedRecordSets, selectedFilters]);
 
-  const sumOfRecordsByAttributeCategory = (
-    records: readonly GetDataset_dataset_records[],
-    attributeCategory: GetDataset_dataset_program_targets_category,
-    personType: GetDataset_dataset_personTypes | undefined
-  ) => {
-    return records.reduce((prev, curr) => {
-      return (
-        prev +
-        sumOfEntriesByAttributeCategory(
-          curr.entries,
-          attributeCategory,
-          personType
-        )
-      );
-    }, 0);
-  };
+  useEffect(() => {
 
+    if (!selectedFilters.DateRange) return setPresetDate("All Time");
 
-  const sumOfEntriesByInTargetAttribute = (
-    entries: readonly GetDataset_dataset_records_entries[],
-    personType: GetDataset_dataset_personTypes | undefined,
-    attributesInTarget: string[]
-  ) => {
-    return entries.reduce((prevEntry, currEntry) => {
-      const personTypeBool =
-        personType !== undefined
-          ? currEntry.personType?.id === personType.id
-          : true;
-      const inTargetBool = attributesInTarget.includes(
-        currEntry.categoryValue.name
-      );
-      return personTypeBool && inTargetBool
-        ? currEntry.count + prevEntry
-        : prevEntry;
-    }, 0);
-  };
-
-  const sumOfRecordsByInTargetAttribute = (
-    records: readonly GetDataset_dataset_records[],
-    personType: GetDataset_dataset_personTypes | undefined,
-    attributesInTarget: string[]
-  ) => {
-    return records.reduce((prev, curr) => {
-      return (
-        prev +
-        sumOfEntriesByInTargetAttribute(
-          curr.entries,
-          undefined, //personType, this causes personType to be ignored in the sum
-          attributesInTarget
-        )
-      );
-    }, 0);
-  };
-
-  const percentOfInTargetAttributeCategories = (
-    records: readonly GetDataset_dataset_records[],
-    category: GetDataset_dataset_program_targets_category,
-    personType: GetDataset_dataset_personTypes | undefined,
-    attributesInTarget: string[]
-  ) => {
-    return Math.round(
-      (sumOfRecordsByInTargetAttribute(
-        records,
-        personType,
-        attributesInTarget
-      ) /
-        sumOfRecordsByAttributeCategory(records, category, personType)) *
-      100
-    );
-  };
-
-
-  const isTargetMember = (categoryValueId: string) => {
-    return queryData?.dataset.program.targets
-      .flat()
-      .flatMap(x => x.tracks)
-      .find((track) => track.categoryValue.id === categoryValueId)
-      ?.targetMember ?? false
-  }
-
-  const sortedRecords = useMemo(() => {
-    if (queryData?.dataset?.records) {
-      return Array.from(queryData.dataset.records)
-        .sort(
-          (a, b) =>
-            Date.parse(a.publicationDate) - Date.parse(b.publicationDate)
-        )
-        .map((x) => ({
-          ...x,
-          entries: Array.from(x.entries).sort(
-            (a, b) =>
-              Number(isTargetMember(a.categoryValue.id)) - Number(isTargetMember(b.categoryValue.id))
-          ),
-        }));
+    const presetDate = Object.entries(PresetDateRanges).find(
+      ([, v]) => v === selectedFilters.DateRange
+    )?.[0];
+    if (presetDate) {
+      setPresetDate(presetDate);
+    } else {
+      setPresetDate(null);
     }
-  }, [queryData]);
 
-  const filteredRecords = useMemo(() => {
-    if (selectedFilters && sortedRecords) {
-      if (selectedFilters.DateRange && selectedFilters.DateRange.length === 2) {
-        const from = selectedFilters.DateRange[0];
-        const to = selectedFilters.DateRange[1];
-        if (from && to) {
-          const presetDate = Object.entries(PresetDateRanges).find(
-            ([, v]) => v === selectedFilters.DateRange
-          )?.[0];
-          if (presetDate) {
-            setPresetDate(presetDate);
-          } else {
-            setPresetDate(null);
-          }
-          return sortedRecords.filter(
-            (record: GetDataset_dataset_records) =>
-              moment(record.publicationDate) >= from &&
-              moment(record.publicationDate) <= to
-          );
-        }
-      }
-    }
-    setPresetDate("All Time");
-    return queryData?.dataset?.records;
-  }, [sortedRecords, selectedFilters]);
+  }, [selectedFilters.DateRange]);
 
-
-  const targetStates = useMemo(() => {
-    return queryData?.dataset?.program.targets.map((target) => {
-      const status = filteredRecords
-        ? percentOfInTargetAttributeCategories(
-          filteredRecords,
-          target.category,
-          undefined,
-          queryData?.dataset?.program.targets
-            .find((x) => x.category.id === target.category.id)
-            ?.tracks
-            .filter(x => x.targetMember)
-            .map((x) => x.categoryValue.name) ?? new Array<string>()
-        )
-        : 0;
-      return { target: target, status: status };
-    })
-      .sort((a, b) => catSort(a.target.category.name, b.target.category.name));
-  }, [queryData?.dataset?.program.targets, filteredRecords]);
 
   if (!datasetId) return <>bad route</>
 
@@ -341,12 +205,11 @@ const DatasetDetails = (): JSX.Element => {
 
         <Col span={24}>
           <Tabs tabBarExtraContent={dateRangePicker}>
-
             <TabPane tab="Progress" key="progress">
               <h2>{presetDate}</h2>
               <Row justify="center" gutter={[0, 50]}>
                 {
-                  targetStates?.map((targetState, i) => (
+                  targetStates(queryData, selectedFilters)?.map((targetState, i) => (
                     <Col key={i} span={4} offset={i ? 4 : 0}>
                       {!isNaN(targetState.status) ? (
                         <Pie5050
@@ -372,7 +235,7 @@ const DatasetDetails = (): JSX.Element => {
                       key="1">
                       {
                         <Row justify="center">
-                          <ProgressColumns dataset={queryData?.dataset} records={sortedRecords} />
+                          <ProgressColumns dataset={queryData?.dataset} records={sortedRecords(queryData)} />
                         </Row>
                       }
                     </Panel>
@@ -393,14 +256,14 @@ const DatasetDetails = (): JSX.Element => {
                       <DatasetDetailsScoreCard
                         data={queryData}
                         datasetId={datasetId}
-                        filteredRecords={filteredRecords}
+                        filteredRecords={filteredRecords(queryData, selectedFilters)}
                       />
                     </Col>
                     <Col span={24}>
                       <DatasetDetailsRecordsTable
                         datasetId={datasetId}
                         datasetData={queryData}
-                        records={filteredRecords}
+                        records={filteredRecords(queryData, selectedFilters)}
                         isLoading={queryLoading}
 
                       />
@@ -412,42 +275,49 @@ const DatasetDetails = (): JSX.Element => {
               }
             </TabPane>
             <TabPane tab="Published" key="published">
-              {
-                queryData?.dataset.publishedRecordSets?.length ?
-                  <Collapse>
-                    {
-                      queryData?.dataset.publishedRecordSets?.map(prs =>
-                        <Panel
-                          key={prs.reportingPeriodId}
-                          header={
-                            `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
-                          }
-                          extra={
-                            <Button
-                              tabIndex={-1}
-                              type="text"
-                              danger
-                              title={t("deletePublishedRecordSet")}
-                              aria-label={t("deletePublishedRecordSet")}
-                              icon={<CloseCircleOutlined />}
-                              onClick={async () => await deletePublishedRecordSet({
-                                variables: {
-                                  id: prs.id
-                                }
-                              })
-                                .then(() => console.log("Deleted!"))
-                                .catch((e) => alert(e))
+              <Row gutter={[16, 16]}>
+                <Col span={24}>
+                  <LineColumn data={flattened(grouped(chartData))} loading={queryLoading} />
+                </Col>
+                <Col span={24}>
+                  {
+                    queryData?.dataset.publishedRecordSets?.length ?
+                      <Collapse>
+                        {
+                          queryData?.dataset.publishedRecordSets?.map(prs =>
+                            <Panel
+                              key={prs.reportingPeriodId}
+                              header={
+                                `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
                               }
-                            />
-                          }
-                        >
-                          <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />
-                        </Panel>
-                      )
-                    }
-                  </Collapse>
-                  : <h3>{t("noPublishedRecordSets")}</h3>
-              }
+                              extra={
+                                <Button
+                                  tabIndex={-1}
+                                  type="text"
+                                  danger
+                                  title={t("deletePublishedRecordSet")}
+                                  aria-label={t("deletePublishedRecordSet")}
+                                  icon={<CloseCircleOutlined />}
+                                  onClick={async () => await deletePublishedRecordSet({
+                                    variables: {
+                                      id: prs.id
+                                    }
+                                  })
+                                    .then(() => console.log("Deleted!"))
+                                    .catch((e) => alert(e))
+                                  }
+                                />
+                              }
+                            >
+                              <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />
+                            </Panel>
+                          )
+                        }
+                      </Collapse>
+                      : <h3>{t("noPublishedRecordSets")}</h3>
+                  }
+                </Col>
+              </Row>
             </TabPane>
           </Tabs>
         </Col>
@@ -458,3 +328,4 @@ const DatasetDetails = (): JSX.Element => {
 };
 
 export { DatasetDetails };
+

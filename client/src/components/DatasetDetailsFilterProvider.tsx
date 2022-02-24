@@ -4,6 +4,7 @@ import React from "react";
 
 export interface IDatasetDetailsFilter {
   DateRange: RangeValue<Moment>;
+  categories: string[];
 }
 
 const DatasetDetailsFilterContext = React.createContext<

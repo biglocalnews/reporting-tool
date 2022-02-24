@@ -554,6 +554,7 @@ input CreateTagInput {
 }
 
 input PublishedRecordSetsInput {
+  id: ID
   categories: [String!]!
   teams: [String!]!
   datasetGroups: [String!]!
