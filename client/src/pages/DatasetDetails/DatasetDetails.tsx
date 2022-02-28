@@ -323,7 +323,7 @@ const DatasetDetails = (): JSX.Element => {
                                 >
                                   <Button
                                     tabIndex={-1}
-                                    type="text"
+                                    type="default"
                                     danger
                                     title={t("deletePublishedRecordSet")}
                                     aria-label={t("deletePublishedRecordSet")}
