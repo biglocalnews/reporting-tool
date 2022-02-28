@@ -149,6 +149,9 @@
     "yes": "Yes",
     "no": "No"
   },
+  "datasetDetails": {
+    "unPublish": "Unpublish"
+  },
   "admin": {
     "sidebar": {
       "controlsHeader": "Manage application",

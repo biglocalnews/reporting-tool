@@ -329,7 +329,7 @@ const DatasetDetails = (): JSX.Element => {
                                     aria-label={t("deletePublishedRecordSet")}
                                     icon={<CloseCircleOutlined />}
                                     onClick={(e) => e.stopPropagation()}
-                                  />
+                                  >{t("datasetDetails.unPublish")}</Button>
                                 </Popconfirm>
                               }
                             >
