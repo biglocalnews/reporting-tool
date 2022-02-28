@@ -7,6 +7,7 @@ import {
   Col,
   Collapse,
   DatePicker,
+  Popconfirm,
   Row,
   Space,
   Tabs,
@@ -94,7 +95,7 @@ const DatasetDetails = (): JSX.Element => {
     variables: { id: datasetId },
   });
 
-  const [deletePublishedRecordSet] = useMutation(
+  const [deletePublishedRecordSet, { loading: deleting }] = useMutation(
     DELETE_PUBLISHED_RECORD_SET,
     {
       refetchQueries: [
@@ -304,22 +305,32 @@ const DatasetDetails = (): JSX.Element => {
                                 `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
                               }
                               extra={
-                                <Button
-                                  tabIndex={-1}
-                                  type="text"
-                                  danger
-                                  title={t("deletePublishedRecordSet")}
-                                  aria-label={t("deletePublishedRecordSet")}
-                                  icon={<CloseCircleOutlined />}
-                                  onClick={async () => await deletePublishedRecordSet({
-                                    variables: {
-                                      id: prs.id
-                                    }
-                                  })
-                                    .then(() => console.log("Deleted!"))
-                                    .catch((e) => alert(e))
+                                <Popconfirm
+                                  title={t("confirmDelete")}
+                                  onConfirm={async (e) => {
+                                    e?.stopPropagation();
+                                    await deletePublishedRecordSet({
+                                      variables: {
+                                        id: prs.id
+                                      }
+                                    })
+                                      .then(() => console.log("Deleted!"))
+                                      .catch((e) => alert(e))
                                   }
-                                />
+                                  }
+                                  okButtonProps={{ loading: deleting }}
+                                  onCancel={(e) => e?.stopPropagation()}
+                                >
+                                  <Button
+                                    tabIndex={-1}
+                                    type="text"
+                                    danger
+                                    title={t("deletePublishedRecordSet")}
+                                    aria-label={t("deletePublishedRecordSet")}
+                                    icon={<CloseCircleOutlined />}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </Popconfirm>
                               }
                             >
                               <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />

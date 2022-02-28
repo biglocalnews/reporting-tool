@@ -42,6 +42,7 @@
   "submitUpdateFail": "Failed to save changes.",
   "cancel": "Cancel",
   "loading": "Loading",
+  "confirmDelete": "Are you sure?",
   "confirmLeavePage": "Your changes have not been saved, are you sure you want to leave this page?",
   "This Month": "This Month",
   "Last Month": "Last Month",
