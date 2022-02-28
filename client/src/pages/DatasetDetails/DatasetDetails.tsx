@@ -3,6 +3,7 @@ import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   Button,
+  Checkbox,
   Col,
   Collapse,
   DatePicker,
@@ -107,6 +108,10 @@ const DatasetDetails = (): JSX.Element => {
     }
   );
 
+  const categories = useMemo(() => {
+    return Array.from(new Set(queryData?.dataset.publishedRecordSets?.
+      flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record).map(x => x.category))));
+  }, [queryData?.dataset.publishedRecordSets]);
 
   const chartData = useMemo(() => {
     return queryData?.dataset.publishedRecordSets?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
@@ -276,7 +281,14 @@ const DatasetDetails = (): JSX.Element => {
               }
             </TabPane>
             <TabPane tab="Published" key="published">
-              <Row gutter={[16, 16]}>
+              <Row gutter={[16, 16]} justify="center">
+                <Col span={12} style={{ textAlign: "center" }}>
+                  <Checkbox.Group
+                    options={categories}
+                    value={selectedFilters.categories.flat()}
+                    onChange={(e) => setSelectedFilters(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
+                  />
+                </Col>
                 <Col span={24}>
                   <LineColumn data={flattened(grouped(chartData))} loading={queryLoading} />
                 </Col>
