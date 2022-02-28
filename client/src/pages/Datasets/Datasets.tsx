@@ -27,6 +27,7 @@ export interface TableData {
   dataset: string;
   lastUpdated: string;
   tags: Array<string>;
+  modified: string;
 }
 
 const columns: ColumnsType<TableData> = [
@@ -47,6 +48,8 @@ const columns: ColumnsType<TableData> = [
   {
     title: "Last Updated",
     dataIndex: "lastUpdated",
+    sortDirections: ["ascend", "descend"],
+    sorter: (a, b) => dayjs(a.lastUpdated).unix() - dayjs(b.lastUpdated).unix()
   },
   {
     title: "Tags",
@@ -99,10 +102,11 @@ const getTableData = (
           id: dataset.id,
           team: program.name,
           dataset: dataset.name,
+          modified: dataset.lastUpdated ? dataset.lastUpdated : dayjs(0),
           lastUpdated: dataset.lastUpdated
             ? dayjs(dataset.lastUpdated).format("ll")
             : t("noDataAvailable"),
-          tags: dataset.tags.map((tag) => {
+          tags: program.tags.map((tag) => {
             return tag.name;
           }),
         });
@@ -110,7 +114,7 @@ const getTableData = (
     });
   });
 
-  return rowData;
+  return rowData.sort((a, b) => dayjs(b.modified).unix() - dayjs(a.modified).unix());
 };
 
 export const Datasets = (): JSX.Element => {

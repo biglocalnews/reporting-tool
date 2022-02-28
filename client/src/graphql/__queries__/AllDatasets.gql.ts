@@ -19,6 +19,9 @@ export const ALL_DATASETS = gql`
             name
           }
         }
+        tags {
+          name
+        }
       }
     }
   }

@@ -107,6 +107,7 @@ export interface FirstTimeAppConfigurationInput {
 }
 
 export interface PublishedRecordSetsInput {
+  readonly id?: string | null;
   readonly categories: ReadonlyArray<string>;
   readonly teams: ReadonlyArray<string>;
   readonly datasetGroups: ReadonlyArray<string>;
