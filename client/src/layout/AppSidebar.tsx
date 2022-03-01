@@ -51,7 +51,7 @@ export const AppSidebarMenu = () => {
   const { t } = useTranslation();
   const userId = useAuth().getUserId();
   const auth = useAuth();
-  const { data, loading } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+  const { data } = useQuery<GetUser, GetUserVariables>(GET_USER, {
     variables: { id: userId },
   });
 
@@ -88,72 +88,44 @@ export const AppSidebarMenu = () => {
       <Menu.Item key="home" icon={<HomeOutlined />} role="menuitem">
         <Link to="/">{t("admin.sidebar.home")}</Link>
       </Menu.Item>
-      {auth.isAdmin() ? (
+      {
+        auth.isAdmin() &&
         <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
           <Link to="/admin/datasets">{t("admin.sidebar.viewAll")}</Link>
         </Menu.Item>
-      ) : (
-        ""
-      )}
+      }
 
 
       <SubMenu
-        key="my-teams"
-        title="My Teams"
+        key="my-datasets"
+        title="My Datasets"
         icon={<TeamOutlined />}
       >
-        {loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          sidebarTeams?.map((item) => {
-            return (
-              <SubMenu
-                className="ds-container"
-                key={item.key}
-                title={item.name}
-              >
-                {item.programmes
-                  .sort((a, b) => a.team.localeCompare(b.team))
-                  .map((item) => (
-                    <SubMenu
-                      className="ds-container"
-                      key={item.key}
-                      title={item.team}
-                    >
-                      {item.datasets.map((dataset) => (
-                        <Menu.Item key={dataset.id}>
-                          <Link
-                            to={{
-                              pathname: `/dataset/${dataset.id}/details`,
-                            }}
-                          >
-                            {dataset.title}
-                          </Link>
-                        </Menu.Item>
-                      ))
-
-                      }
-
-                    </SubMenu>
-                  ))}
-              </SubMenu>
-            );
-          }
-          )
-        )}
+        {
+          sidebarTeams?.
+            flatMap((x) => x.programmes)
+            .flatMap(x => x.datasets)
+            .map((dataset) => (
+              <Menu.Item key={dataset.id}>
+                <Link
+                  to={{
+                    pathname: `/dataset/${dataset.id}/details`,
+                  }}
+                >
+                  {dataset.title}
+                </Link>
+              </Menu.Item>
+            ))
+        }
       </SubMenu>
-
-      {/*<SubMenu key="stats" title="My Stats" icon={<BarChartOutlined />}>
-        <div style={{ padding: "20px", background: "#fff" }}></div>
-          </SubMenu>*/}
-
 
       <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
         <Link to="/reports">{t("admin.sidebar.reports")}</Link>
       </Menu.Item>
 
 
-      {auth.isAdmin() ? (
+      {
+        auth.isAdmin() &&
         <SubMenu key="admin" title="Admin" icon={<SettingOutlined />}>
           <Menu.Item key="users" role="menuitem">
             <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
@@ -175,9 +147,7 @@ export const AppSidebarMenu = () => {
             <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
           </Menu.Item>
         </SubMenu>
-      ) : (
-        ""
-      )}
+      }
     </Menu>
   );
 };
