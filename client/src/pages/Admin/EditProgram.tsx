@@ -69,6 +69,7 @@ import {
 } from "./programHooks";
 
 import { usePrompt } from "../../components/usePrompt";
+import { catSort } from "../CatSort";
 
 /**
  * URL parameters expected for this page.
@@ -809,19 +810,23 @@ export const EditProgram = (): JSX.Element => {
                       });
                     }}
                   >
-                    {catsResponse
-                      .data!.categories.filter(
-                        (category) =>
-                          !(
-                            (editForm?.getFieldValue("targets") ||
-                              []) as Target[]
-                          ).find((target) => target.category.id === category.id)
-                      )
-                      .map((category) => (
-                        <Option key={category.id} value={category.id}>
-                          {category.name}
-                        </Option>
-                      ))}
+                    {
+                      catsResponse
+                        .data!.categories
+                        .flat()
+                        .sort((a, b) => catSort(a.name, b.name))
+                        .filter(
+                          (category) =>
+                            !(
+                              (editForm?.getFieldValue("targets") ||
+                                []) as Target[]
+                            ).find((target) => target.category.id === category.id)
+                        )
+                        .map((category) => (
+                          <Option key={category.id} value={category.id}>
+                            {category.name}
+                          </Option>
+                        ))}
                   </Select>
                 </Col>
               </Row>

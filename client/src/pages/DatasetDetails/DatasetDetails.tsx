@@ -76,7 +76,7 @@ const DatasetDetails = (): JSX.Element => {
 
   const { t } = useTranslation();
   const defaultPresetDate = "This Month";
-  const [activeTab, setActiveTab] = useState("progress");
+  const [activeTab, setActiveTab] = useState("input");
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
     {
       DateRange: PresetDateRanges[defaultPresetDate],
@@ -212,7 +212,7 @@ const DatasetDetails = (): JSX.Element => {
 
         <Col span={24}>
           <Tabs onTabClick={(key) => setActiveTab(key)} tabBarExtraContent={activeTab !== "published" && dateRangePicker}>
-            <TabPane tab="Progress" key="progress">
+            <TabPane tab="Input" key="input">
               <h2>{presetDate}</h2>
               <Row justify="center" gutter={[0, 50]}>
                 {

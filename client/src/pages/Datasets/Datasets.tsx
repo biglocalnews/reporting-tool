@@ -62,7 +62,7 @@ const columns: ColumnsType<TableData> = [
         return (
           // TODO: Create component to link tags to datasets with the same tags
           <Tag color={color} key={tag}>
-            {tag.toUpperCase()}
+            {tag}
           </Tag>
         );
       });
