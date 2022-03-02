@@ -519,7 +519,7 @@ class Category(Base):
 
     @classmethod
     def clean_name(cls, name):
-        return name.strip().capitalize()
+        return name.strip()
 
     @classmethod
     def get_not_deleted(cls, session, id_):
@@ -596,7 +596,7 @@ class CategoryValue(Base):
         :param name: string
         :returns: Normalized string
         """
-        return name.strip().capitalize()
+        return name.strip()
 
     @classmethod
     def get_or_create(cls, session, spec):
