@@ -41,7 +41,13 @@ export const Reports = () => {
     const { data, loading } = useQuery<GetAllPublishedRecordSets>(GET_ALL_PUBLISHED_RECORD_SETS, {
         variables: {
             //for doing this server side later
-            input: { categories: [], teams: [], tags: [], datasetGroups: [], year: new Date(Date.now()).getFullYear() } as PublishedRecordSetsInput
+            input: {
+                categories: [],
+                teams: [],
+                tags: [],
+                datasetGroups: [],
+                year: new Date(Date.now()).getFullYear()
+            } as PublishedRecordSetsInput
         }
     });
 

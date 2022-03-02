@@ -1029,7 +1029,7 @@ export const EditProgram = (): JSX.Element => {
                       disabled={inactive}
                       aria-label={t("admin.program.edit.form.addDataset")}
                       onClick={() =>
-                        datasetOps.add({ name: "", description: "" })
+                        datasetOps.add({ name: "", description: "None" })
                       }
                       icon={<PlusCircleOutlined />}
                     >
