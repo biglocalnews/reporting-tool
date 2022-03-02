@@ -211,6 +211,7 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
                             {
                                 Object.entries(categories)
                                     .filter(([, v]) => !Object.values(v.entries).every(e => !e.percent))
+                                    .sort((kva, kvb) => catSort(kva[0], kvb[0]))
                                     .map(([category, v]) =>
                                         <Row justify="center" key={category} gutter={[16, 0]}>
                                             <Col span={24}>
