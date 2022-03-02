@@ -14,15 +14,23 @@ import Pie5050 from "../Charts/Pie";
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 import { LineColumn } from "../Charts/LineColumn";
 import { flattenChartData, groupedByMonthYearCategory, groupedByYearCategory } from "../../selectors/ChartData";
+import { useAuth } from "../../components/AuthProvider";
+import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 
 
 
 const panelStyle = { borderTopLeftRadius: "9px", borderTopRightRadius: "9px" };
 
 export const Reports = () => {
+    const userId = useAuth().getUserId();
+    const { data: user } = useQuery<GetUser, GetUserVariables>(GET_USER, {
+        variables: { id: userId },
+    });
+
     const [filterState, setFilterState] = useState<PublishedRecordSetsInput>({
         categories: [],
-        teams: [],
+        teams: user?.user.teams.map(x => x.name) ?? [],
         tags: [],
         datasetGroups: [],
         year: new Date(Date.now()).getFullYear()
