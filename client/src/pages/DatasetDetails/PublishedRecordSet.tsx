@@ -46,6 +46,29 @@ interface IProps {
     summary?: boolean
 }
 
+/*
+const arrayToCsv = (data:[[]]) => {
+  return data.map(row =>
+    row
+    .map(String)  // convert every value to String
+    .map(v => v.replaceAll('"', '""'))  // escape double colons
+    .map(v => `"${v}"`)  // quote it
+    .join(',')  // comma-separated
+  ).join('\r\n');  // rows starting on new lines
+}
+
+const downloadBlob = (content:string, filename:string, contentType:string) => {
+    // Create a blob
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+  
+    // Create a link to download it
+    const pom = document.createElement('a');
+    pom.href = url;
+    pom.setAttribute('download', filename);
+    pom.click();
+  }
+*/
 
 export const stripCountsFromEntries = (record: Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>) => {
     for (const personType in record) {
@@ -59,19 +82,11 @@ export const stripCountsFromEntries = (record: Record<string, Record<string, { t
     return record;
 }
 
-export const flattenPublishedDocumentEntries = (record: Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>) =>
-    Object.values(record)
-        .map(byPersonType => Object.values(byPersonType)
-            .map(byCategory => Object.values(byCategory.entries)
-                .map(byAttribute => {
-                    const { count, ...rest } = byAttribute;
-                    count;
-                    return rest;
-                })
-            )
-            .flat()
-        )
-        .flat()
+export const flattenPublishedDocumentEntries = (
+    record: Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>
+) => Object.values(record)
+    .flatMap(x => Object.values(x))
+    .flatMap(x => Object.values(x.entries));
 
 const reduceRecordsToOverallPercentages = (
     dataset: GetDataset_dataset,

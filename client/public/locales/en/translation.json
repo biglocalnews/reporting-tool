@@ -353,7 +353,8 @@
         "email": "Email",
         "firstName": "First Name",
         "lastName": "Last Name",
-        "active": "Active"
+        "active": "Active",
+        "roles": "Roles"
       }
     },
     "tag": {

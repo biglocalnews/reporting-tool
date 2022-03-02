@@ -9,6 +9,8 @@ import {
   PageHeader,
   Popconfirm,
   Row,
+  Space,
+  Tag,
   Transfer,
 } from "antd";
 import { useState } from "react";
@@ -240,7 +242,11 @@ export const EditTeam = (): JSX.Element => {
                 titles={[tp("nonTeamMembers"), tp("teamMembers")]}
                 dataSource={allUsers}
                 onChange={(keys) => form.setFieldsValue({ userIds: keys })}
-                render={(user) => `${user.firstName} ${user.lastName}`}
+                render={(user) => <Space>
+                  {`${user.firstName} ${user.lastName}`}
+                  {user.roles.some(x => x.name === "admin") && <Tag>Admin</Tag>}
+                  {user.roles.some(x => x.name === "publisher") && <Tag>Publisher</Tag>}
+                </Space>}
               />
             </Form.Item>
 

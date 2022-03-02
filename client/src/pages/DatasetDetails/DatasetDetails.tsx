@@ -282,20 +282,21 @@ const DatasetDetails = (): JSX.Element => {
               }
             </TabPane>
             <TabPane tab="Published" key="published">
-              <Row gutter={[16, 16]} justify="center">
-                <Col span={12} style={{ textAlign: "center" }}>
-                  <Checkbox.Group
-                    options={categories}
-                    value={selectedFilters.categories.flat()}
-                    onChange={(e) => setSelectedFilters(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
-                  />
-                </Col>
-                <Col span={24}>
-                  <LineColumn data={flattened(grouped(chartData))} loading={queryLoading} />
-                </Col>
-                <Col span={24}>
-                  {
-                    queryData?.dataset.publishedRecordSets?.length ?
+              {
+                queryData?.dataset.publishedRecordSets?.length ?
+                  <Row gutter={[16, 16]} justify="center">
+                    <Col span={12} style={{ textAlign: "center" }}>
+                      <Checkbox.Group
+                        options={categories}
+                        value={selectedFilters.categories.flat()}
+                        onChange={(e) => setSelectedFilters(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <LineColumn data={flattened(grouped(chartData))} loading={queryLoading} />
+                    </Col>
+                    <Col span={24}>
+
                       <Collapse>
                         {
                           queryData?.dataset.publishedRecordSets?.map(prs =>
@@ -338,10 +339,11 @@ const DatasetDetails = (): JSX.Element => {
                           )
                         }
                       </Collapse>
-                      : <h3>{t("noPublishedRecordSets")}</h3>
-                  }
-                </Col>
-              </Row>
+
+                    </Col>
+                  </Row>
+                  : <h3>{t("noPublishedRecordSets")}</h3>
+              }
             </TabPane>
           </Tabs>
         </Col>

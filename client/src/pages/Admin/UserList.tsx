@@ -1,12 +1,13 @@
 import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Form, Modal, PageHeader, Table } from "antd";
+import { Button, Form, Modal, PageHeader, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   GetUserList,
   GetUserList_users,
+  GetUserList_users_roles,
 } from "../../graphql/__generated__/GetUserList";
 import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
 import { CreateUserFormValues } from "../../services/account";
@@ -42,6 +43,12 @@ export const UserList = () => {
   }));
 
   const Active = (active: boolean) => (active ? <CheckCircleOutlined /> : null);
+
+  columns.push({
+    title: t(`admin.userList.columnTitle.roles`),
+    dataIndex: "roles",
+    render: (roles: GetUserList_users_roles[]) => roles.map(role => <Tag key={role.name}>{role.name}</Tag>)
+  })
 
   columns.push({
     title: t(`admin.userList.columnTitle.active`),
