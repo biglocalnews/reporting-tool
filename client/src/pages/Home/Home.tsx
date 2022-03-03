@@ -15,10 +15,10 @@ const gradientStyle = ({
     backgroundImage: `linear-gradient(to right, ${getPalette("Gender")}, ${getPalette("Ethnicity")}, ${getPalette("Disability")})`,
     backgroundSize: "100%",
     backgroundClip: "text",
-    "-webkit-background-clip": "text",
-    "-moz-background-clip": "text",
-    "-webkit-text-fill-color": "transparent",
-    "-moz-text-fill-color": "transparent"
+    WebkitBackgroundClip: "text",
+    MozBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    MozTextFillColor: "transparent"
 })
 
 export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", backgroundColor: "#fafafa" });

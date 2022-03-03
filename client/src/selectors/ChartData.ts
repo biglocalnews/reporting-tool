@@ -60,9 +60,7 @@ export const groupedByYearCategory = (filteredData: (GetAllPublishedRecordSets_p
                 }
                 return groupedEntries
             }, {} as Record<string, Record<string, number>>);
-        const t = flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record);
-        t;
-        debugger;
+
         Object.entries(groupedEntries)
             .forEach(([year, categories]) => {
                 if (!(year in groupedRecords)) {

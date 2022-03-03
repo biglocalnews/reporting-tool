@@ -1,7 +1,7 @@
 import { Button, Col, Row, Switch } from "antd";
 import Title from "antd/lib/typography/Title";
 import moment from "moment";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GetDataset_dataset, GetDataset_dataset_program_reportingPeriods } from "../../graphql/__generated__/GetDataset";
 import { catSort } from "../CatSort";
@@ -27,7 +27,8 @@ interface IPublishedTarget {
 }
 
 export interface IPublishedRecordSetDocument {
-    datasetGroup: string
+    datasetName: string,
+    datasetGroup: string,
     reportingPeriodDescription: string,
     begin: Date,
     end: Date,
@@ -46,29 +47,29 @@ interface IProps {
     summary?: boolean
 }
 
-/*
-const arrayToCsv = (data:[[]]) => {
-  return data.map(row =>
-    row
-    .map(String)  // convert every value to String
-    .map(v => v.replaceAll('"', '""'))  // escape double colons
-    .map(v => `"${v}"`)  // quote it
-    .join(',')  // comma-separated
-  ).join('\r\n');  // rows starting on new lines
+
+const arrayToCsv = (data: [string[], string[]]) => {
+    return data.map(row =>
+        row
+            .map(String)  // convert every value to String
+            .map(v => v.replaceAll('"', '""'))  // escape double colons
+            .map(v => `"${v}"`)  // quote it
+            .join(',')  // comma-separated
+    ).join('\r\n');  // rows starting on new lines
 }
 
-const downloadBlob = (content:string, filename:string, contentType:string) => {
+const downloadBlob = (content: string, filename: string, contentType: string) => {
     // Create a blob
     const blob = new Blob([content], { type: contentType });
     const url = URL.createObjectURL(blob);
-  
+
     // Create a link to download it
     const pom = document.createElement('a');
     pom.href = url;
     pom.setAttribute('download', filename);
     pom.click();
-  }
-*/
+}
+
 
 export const stripCountsFromEntries = (record: Record<string, Record<string, { total?: number, entries: Record<string, IPublishedEntry> }>>) => {
     for (const personType in record) {
@@ -183,9 +184,52 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
 
     const document = publishedDocument ? publishedDocument : dataset && reportingPeriod ? getRecordSetDocument(dataset, reportingPeriod) : undefined;
 
+    const csv = useMemo(() => {
+
+        if (!document) return null;
+
+        function csvIse(objectKey: string, obj: object, csv: Record<string, string>): Record<string, string> {
+            if (!obj) return csv;
+            Object
+                .entries(obj)
+                .forEach((kv) => {
+
+                    let key = objectKey ? objectKey + "_" + kv[0] : kv[0];
+
+                    if ((kv[0] === "category" && objectKey.indexOf("targets") === -1) || kv[0] === "attribute" || kv[0] === "personType") {
+                        return csv;
+                    }
+                    if (kv[0] === "segmentedRecord" || kv[0] === "entries" || kv[0] === "record") {
+                        key = objectKey;
+                    }
+
+
+                    if (
+                        typeof (kv[0]) === "string" &&
+                        (typeof (kv[1]) === "string" || typeof (kv[1]) === "number" || typeof (kv[1]) === "boolean")
+                    ) {
+                        csv[key] = kv[1].toString();
+                    }
+
+                    if (typeof (kv[0]) === "string" && typeof (kv[1]) === "object") {
+                        csvIse(key, kv[1], csv);
+                    }
+
+                }, {} as Record<string, string>);
+            return csv;
+        }
+
+        return csvIse("", document, {} as Record<string, string>)
+
+    }, [document]);
+
     if (!document) {
         return null;
     }
+
+
+
+
 
     return <>
         <Row justify="center">
@@ -247,7 +291,11 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
                 <Col span={2}>
                     <Button
                         type="primary"
-                        onClick={() => alert(JSON.stringify(flattenPublishedDocumentEntries(document.record), null, 2))}
+                        onClick={() => downloadBlob(
+                            arrayToCsv(
+                                [Object.keys(csv ?? {}), Object.values(csv ?? {})]),
+                            `${document.datasetName}_${new Date(document.begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(document.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}.csv`,
+                            "text/csv")}
                     >{t("exportCSV")}</Button>
                 </Col>
             </Row>
