@@ -14,4 +14,7 @@ klist -e
 
 cron
 
+export HTTP_PROXY=
+export HTTPS_PROXY=
+
 uvicorn app:app --host 0.0.0.0 --port 8000
