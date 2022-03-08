@@ -1,5 +1,7 @@
 FROM python:3.9-buster
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # Install postgres dev stuff for psycopg, and psql for other CLI scripts
 RUN apt update && apt install -y libpq-dev postgresql-client pkg-config libxml2-dev libxmlsec1-dev
 
@@ -12,4 +14,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000" ]
+RUN bash install_kerberos.sh
+
+ENTRYPOINT [ "bash", "start.sh" ]

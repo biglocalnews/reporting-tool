@@ -1,3 +1,4 @@
+import imp
 from typing import cast
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.orm import Session
@@ -29,6 +30,8 @@ from stats import (
     get_overview,
     get_admin_overview,
 )
+
+import sap_data
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
@@ -375,3 +378,8 @@ def resolve_admin_stats(obj, info, input):
     get_admin_overdue(stats, session)
     get_admin_needs_attention(stats, session)
     return stats
+
+
+@query.field("adUsers")
+def resolve_ad_users(obj, info, search):
+    return sap_data.search(search)

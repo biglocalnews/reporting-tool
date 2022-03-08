@@ -21,6 +21,7 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import (
     relationship,
@@ -262,15 +263,10 @@ class User(Base, SQLAlchemyBaseUserTable):
 
     @classmethod
     def get_by_username(cls, session, username: str) -> "Optional[User]":
-        """Get a user by their email address.
-
-        :param email:
-        :returns: User, if one was found
-        """
         return (
             session.query(User)
             .filter(
-                User.username == username,
+                func.lower(User.username) == func.lower(username),
                 User.deleted == None,
             )
             .one_or_none()

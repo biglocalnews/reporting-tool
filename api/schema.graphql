@@ -336,6 +336,17 @@ type AdminStats @needsPermission(permission: [ADMIN]) {
   needsAttention: [NeedsAttention!]!
 }
 
+type ADUser {
+  prefName: String
+  firstName: String
+  middleName: String
+  surname: String
+  username: String
+  positionName: String
+  workEmail: String
+  idCardPhotoUrl: String
+}
+
 input UpsertUserInput {
   id: ID
   firstName: String!
@@ -632,6 +643,8 @@ type Query {
   consistencies(categories: [String!]!, threshold: Int!): [Consistency!]!
 
   adminStats(input: AdminStatsInput): AdminStats!
+
+  adUsers(search: String): [ADUser!]!
 }
 
 type Mutation {

@@ -1,9 +1,11 @@
 import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Form, Modal, PageHeader, Table, Tag } from "antd";
+import { Button, message, Modal, PageHeader, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import {
   GetUserList,
   GetUserList_users,
@@ -14,13 +16,16 @@ import { CreateUserFormValues } from "../../services/account";
 import { CreateUser } from "./CreateUser";
 import { EditLink } from "./EditLink";
 
+
 /**
  * Index of all users in the organization.
  */
 export const UserList = () => {
-  const [createUserForm] = Form.useForm<CreateUserFormValues>();
   const { t } = useTranslation();
   const [showCreateUser, setShowCreateUser] = useState(false);
+  const [userDetails, setUserDetails] = useState<CreateUserFormValues | undefined>(undefined);
+  const navigate = useNavigate();
+  const account = useUserAccountManager();
   const { data, loading, error } = useQuery<GetUserList>(GET_USER_LIST, {
     fetchPolicy: "network-only",
   });
@@ -32,6 +37,24 @@ export const UserList = () => {
   if (!loading && !(data && data.users)) {
     throw new Error(t("admin.user.malformedData"));
   }
+
+  /**
+   * Create a new user and handle success / error conditions.
+   */
+  const saveNewUser = async (values: CreateUserFormValues) => {
+    try {
+      const id = await account.createUser(values);
+      try {
+        await account.requestVerifyUser(values.email);
+      } catch (e: unknown) {
+        if (e instanceof Error) return message.warn(e.message);
+      }
+      navigate(`/admin/users/${id}`);
+    } catch (e: unknown) {
+      if (e instanceof Error) return message.error(e.message);
+    }
+  };
+
 
   const columns: ColumnsType<GetUserList_users> = (
     ["email", "firstName", "lastName"] as Array<keyof GetUserList_users>
@@ -94,16 +117,17 @@ export const UserList = () => {
       <Modal
         forceRender
         visible={showCreateUser}
-        onOk={() => createUserForm.submit()}
+        onOk={() => { userDetails && saveNewUser(userDetails).then(() => { setShowCreateUser(false); setUserDetails(undefined); }) }}
+        okButtonProps={userDetails ? undefined : { disabled: true }}
         okText={t("admin.user.save")}
         onCancel={() => {
           setShowCreateUser(false);
-          createUserForm.resetFields();
+          setUserDetails(undefined);
         }}
         cancelText={t("admin.user.cancel")}
         title={t("admin.user.createTitle")}
       >
-        <CreateUser form={createUserForm} />
+        <CreateUser setUserDetails={setUserDetails} />
       </Modal>
       <Table
         loading={loading}
