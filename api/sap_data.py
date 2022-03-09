@@ -6,6 +6,13 @@ import humps
 from settings import settings
 
 
+def auth():
+    if settings.debug:
+        # only works over zscaler bizarrely
+        return HTTPKerberosAuth()
+    return HttpNtlmAuth("national\\ni-app-tig", settings.app_account_pw)
+
+
 def search(query):
 
     data = {"data": []}
@@ -17,9 +24,7 @@ def search(query):
         r = requests.get(
             f"https://laravel-api.mobileapps.bbc.co.uk/sapdata/employees/search?q={query}",
             verify=False,
-            # only works over zscaler bizarrely
-            # auth=HTTPKerberosAuth(),
-            auth=HttpNtlmAuth("national\\ni-app-tig", settings.app_account_pw),
+            auth=auth(),
         )
         # decamilize because Ariadne assumes an API that returns snake case
         data = humps.decamelize(r.json()["data"])

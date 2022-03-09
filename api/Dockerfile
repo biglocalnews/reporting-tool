@@ -16,6 +16,8 @@ COPY install_kerberos.sh install_kerberos.sh
 
 RUN bash install_kerberos.sh
 
+ENV RT_debug=0
+
 COPY . .
 
 ENTRYPOINT [ "bash", "start.sh" ]
