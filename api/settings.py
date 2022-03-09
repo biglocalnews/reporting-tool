@@ -105,7 +105,7 @@ class Settings(BaseSettingsModel):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        env_prefix = "RT"
+        env_prefix = "RT_"
         secrets_dir = "/run/secrets"
 
 
