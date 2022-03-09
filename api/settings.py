@@ -1,6 +1,4 @@
-from pydantic import BaseModel
-from pydantic_settings import load_settings, BaseSettingsModel
-from dotenv import load_dotenv
+from pydantic import BaseModel, BaseSettings
 
 
 class SmtpSettings(BaseModel):
@@ -87,7 +85,7 @@ class EmailSettings(BaseModel):
     )
 
 
-class Settings(BaseSettingsModel):
+class Settings(BaseSettings):
     db_user: str = "postgres"
     db_pw: str = "pass"
     db_host: str = "localhost"
@@ -105,19 +103,8 @@ class Settings(BaseSettingsModel):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        # this version of pydantic automagically inserts underscore after the prefix
-        env_prefix = "RT"
+        env_prefix = "RT_"
         secrets_dir = "/run/secrets"
 
 
-# Only load dotenv from this directory (not parent directories). If it doesn't
-# exist, this is a no-op.
-# NOTE: not using Pydantic's own dotenv parser because it misses nested keys.
-# https://github.com/samuelcolvin/pydantic/issues/2304
-load_dotenv(".env")
-
-
-settings = load_settings(
-    Settings,
-    load_env=True,
-)
+settings = Settings()

@@ -35,8 +35,7 @@ pluggy==0.13.1
 psycopg2==2.8.6
 py==1.10.0
 pycparser==2.20
-pydantic==1.8.2
-pydantic-settings==0.2.5
+pydantic==1.9.0
 PyJWT==2.1.0
 pyparsing==2.4.7
 pytest==6.2.4
