@@ -12,8 +12,10 @@ COPY requirements.txt requirements.txt
 
 RUN pip3 install -r requirements.txt
 
-COPY . .
+COPY install_kerberos.sh install_kerberos.sh
 
 RUN bash install_kerberos.sh
+
+COPY . .
 
 ENTRYPOINT [ "bash", "start.sh" ]
