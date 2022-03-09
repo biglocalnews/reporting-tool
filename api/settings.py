@@ -105,7 +105,8 @@ class Settings(BaseSettingsModel):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        env_prefix = "rt_"
+        # this version of pydantic automagically inserts underscore after the prefix
+        env_prefix = "RT"
         secrets_dir = "/run/secrets"
 
 
