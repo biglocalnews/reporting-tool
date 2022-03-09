@@ -16,7 +16,7 @@ COPY requirements.txt requirements.txt
 
 RUN pip3 install -r requirements.txt
 
-ENV RT_debug=0
+ENV rt_debug=0
 
 COPY . .
 
