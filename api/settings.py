@@ -103,10 +103,10 @@ class Settings(BaseSettings):
     email: EmailSettings = EmailSettings()
 
     class Config:
+        secrets_dir = "/run/secrets"
         env_file = ".env"
         env_file_encoding = "utf-8"
         env_prefix = "RT_"
-        secrets_dir = "/run/secrets"
 
 
 settings = Settings()

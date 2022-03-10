@@ -26,7 +26,7 @@ def search(query):
             verify=False,
             auth=auth(),
         )
-        # decamilize because Ariadne assumes an API that returns snake case
+        # decamelize because Ariadne assumes an API that returns snake case
         data = humps.decamelize(r.json()["data"])
     except Exception as ex:
         print(ex)

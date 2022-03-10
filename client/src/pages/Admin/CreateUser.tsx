@@ -1,6 +1,6 @@
 import { useLazyQuery } from "@apollo/client";
 import { Card, Col, Input, Row, Spin } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SearchADUsers } from "../../graphql/__generated__/SearchADUsers";
 import { SEARCH_AD_USERS } from "../../graphql/__queries__/SearchADUsers.gql";
@@ -25,20 +25,39 @@ export const CreateUser = ({ setUserDetails }: CreateUserProps) => {
   const { t } = useTranslation();
   const [getADUsers, { data, loading }] = useLazyQuery<SearchADUsers>(SEARCH_AD_USERS);
   const [selectedUser, setSelectedUser] = useState<string>();
+  const [searchTerm, setSearchTerm] = useState<string>();
+  const [, setDelay] = useState<ReturnType<typeof setTimeout> | undefined>();
 
+
+  useEffect(() => {
+    if (searchTerm && searchTerm.length > 2) {
+      setDelay(delay => {
+        if (delay) {
+          clearTimeout(delay);
+        }
+        return setTimeout(
+          () => setSearchTerm(currSearchTerm => {
+            //check we still have more than 2 chars.
+            if (currSearchTerm && currSearchTerm.length > 2) {
+              getADUsers({ variables: { search: currSearchTerm } })
+                .then(() => setSelectedUser(undefined))
+                .finally(() => delay && clearTimeout(delay));
+            }
+            return currSearchTerm;
+          }), 1000);
+      });
+    }
+  }, [searchTerm, setSearchTerm, setDelay, getADUsers]);
 
   return (
     <Row gutter={[16, 16]} justify="center">
       <Col span={24}>
         <Input
-          autoFocus={true}
+          autoFocus
           allowClear
           placeholder={t("admin.user.search")}
           aria-label={t("admin.user.search")}
-          onChange={(e) => {
-            getADUsers({ variables: { search: e.target.value } })
-              .then(() => setSelectedUser(undefined));
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Col>
       {
