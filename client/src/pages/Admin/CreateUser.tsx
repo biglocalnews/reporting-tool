@@ -73,7 +73,7 @@ export const CreateUser = ({ setUserDetails }: CreateUserProps) => {
               .sort((a, b) => (a.surname ?? "").localeCompare(b.surname ?? ""))
               .sort((a, b) => Number(!!b.idCardPhotoUrl) - Number(!!a.idCardPhotoUrl))
               .map(x =>
-                <Col key={x.username} span={12}>
+                <Col key={x.username} span={8}>
                   <Card
                     hoverable
                     size="small"
