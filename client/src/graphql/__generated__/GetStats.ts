@@ -21,6 +21,7 @@ export interface GetStats_stats_overviews {
   readonly date: string;
   readonly value: number;
   readonly targetState: string;
+  readonly filter: string;
 }
 
 export interface GetStats_stats {

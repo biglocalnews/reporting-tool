@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Dict
 from unicodedata import category
 from h11 import Data
-from sqlalchemy import and_, column, func, select, subquery
+from sqlalchemy import and_, column, func, select, subquery, text
 from sqlalchemy.orm import Session
 from database import Dataset, Program, PublishedRecordSet, ReportingPeriod
 from enum import Enum
@@ -10,128 +10,159 @@ from enum import Enum
 
 def get_overview(stats: Dict, session: Session):
     categories = ["Gender", "Ethnicity", "Disability"]
+    filters = [
+        {"name": "Everyone", "filter": True},
+        {
+            "name": "Minus Music and Sport",
+            "filter": func.jsonb_path_exists(
+                PublishedRecordSet.document,
+                f'$.datasetGroupTags[*].group ? (@ like_regex "music|sport" flag "i")',
+            )
+            == False,
+        },
+        {
+            "name": "Minus Music",
+            "filter": func.jsonb_path_exists(
+                PublishedRecordSet.document,
+                f'$.datasetGroupTags[*].group ? (@ like_regex "music" flag "i")',
+            )
+            == False,
+        },
+        {
+            "name": "Minus Sport",
+            "filter": func.jsonb_path_exists(
+                PublishedRecordSet.document,
+                f'$.datasetGroupTags[*].group ? (@ like_regex "sport" flag "i")',
+            )
+            == False,
+        },
+    ]
+
     stats["overviews"] = []
 
     for category in categories:
+        for filter in filters:
 
-        date_poss = ["min", "max"]
+            date_poss = ["min", "max"]
 
-        for date_pos in date_poss:
-            funk = (
-                func.min(PublishedRecordSet.begin).label("date_pos")
-                if date_pos == "min"
-                else func.max(PublishedRecordSet.begin).label("date_pos")
-            )
-            sbqry = (
-                select(
-                    PublishedRecordSet.dataset_id.label("did"),
-                    funk,
+            for date_pos in date_poss:
+                funk = (
+                    func.min(PublishedRecordSet.begin).label("date_pos")
+                    if date_pos == "min"
+                    else func.max(PublishedRecordSet.begin).label("date_pos")
                 )
-                .select_from(PublishedRecordSet)
-                .group_by("did")
-                .subquery()
-            )
-
-            stmt = (
-                select(
-                    Dataset.id,
-                    Dataset.name,
-                    PublishedRecordSet.id,
-                    func.jsonb_path_query_array(
-                        PublishedRecordSet.document,
-                        f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
-                    ),
-                    func.jsonb_path_query_array(
-                        PublishedRecordSet.document,
-                        f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
-                    ),
-                    func.jsonb_path_query_first(
-                        PublishedRecordSet.document,
-                        f'$.targets[*] ? (@.category == "{category}")."target"',
-                    ),
+                sbqry = (
+                    select(
+                        PublishedRecordSet.dataset_id.label("did"),
+                        funk,
+                    )
+                    .select_from(PublishedRecordSet)
+                    .group_by("did")
+                    .subquery()
                 )
-                .select_from(PublishedRecordSet)
-                .join(
-                    sbqry,
-                    and_(
-                        sbqry.c.did == PublishedRecordSet.dataset_id,
-                        PublishedRecordSet.begin == sbqry.c.date_pos,
-                    ),
+
+                stmt = (
+                    select(
+                        Dataset.id,
+                        Dataset.name,
+                        PublishedRecordSet.id,
+                        func.jsonb_path_query_array(
+                            PublishedRecordSet.document,
+                            f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
+                        ),
+                        func.jsonb_path_query_array(
+                            PublishedRecordSet.document,
+                            f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
+                        ),
+                        func.jsonb_path_query_first(
+                            PublishedRecordSet.document,
+                            f'$.targets[*] ? (@.category == "{category}")."target"',
+                        ),
+                    )
+                    .select_from(PublishedRecordSet)
+                    .filter(filter["filter"])
+                    .join(
+                        sbqry,
+                        and_(
+                            sbqry.c.did == PublishedRecordSet.dataset_id,
+                            PublishedRecordSet.begin == sbqry.c.date_pos,
+                        ),
+                    )
+                    .join(Dataset, PublishedRecordSet.dataset_id == Dataset.id)
+                    .filter(Dataset.deleted == None)
                 )
-                .join(Dataset, PublishedRecordSet.dataset_id == Dataset.id)
-                .filter(Dataset.deleted == None)
-            )
 
-            res = session.execute(stmt, execution_options={"stream_results": True})
+                res = session.execute(stmt, execution_options={"stream_results": True})
 
-            target_state = Enum("target_state", "exceeds lt5 lt10 gt10 fails")
+                target_state = Enum("target_state", "exceeds lt5 lt10 gt10 fails")
 
-            scores = {
-                target_state.exceeds: 0,
-                target_state.lt5: 0,
-                target_state.lt10: 0,
-                target_state.gt10: 0,
-            }
-
-            for [
-                dataset_id,
-                dataset_name,
-                prs_id,
-                percents,
-                oot_percents,
-                target,
-            ] in res.yield_per(100):
-
-                if category == "Gender":
-                    global_target = 50  # so not in comparison with the individual dataset's target but the BBC global target of 50
-                elif category == "Ethnicity":
-                    global_target = 20
-                elif category == "Disability":
-                    global_target = 12
-                else:
-                    global_target == target
-
-                target_members_sum = sum(percents)
-                oot_target_members_sum = sum(oot_percents)
-
-                if target_members_sum >= global_target:
-                    scores[target_state.exceeds] += 1
-                elif target_members_sum >= global_target - 5:
-                    scores[target_state.lt5] += 1
-                elif target_members_sum >= global_target - 10:
-                    scores[target_state.lt10] += 1
-                elif target_members_sum > 0 or oot_target_members_sum > 0:
-                    # if these are both zero, then nothing was recorded for gender
-                    scores[target_state.gt10] += 1
-
-            proto = {
-                "date": date_pos,
-                "category": category,
-                "target_state": target_state.exceeds.name,
-                "value": scores[target_state.exceeds],
-            }
-            stats["overviews"].append(proto)
-            stats["overviews"].append(
-                {
-                    **proto,
-                    "target_state": target_state.lt5.name,
-                    "value": scores[target_state.lt5],
+                scores = {
+                    target_state.exceeds: 0,
+                    target_state.lt5: 0,
+                    target_state.lt10: 0,
+                    target_state.gt10: 0,
                 }
-            )
-            stats["overviews"].append(
-                {
-                    **proto,
-                    "target_state": target_state.lt10.name,
-                    "value": scores[target_state.lt10],
+
+                for [
+                    dataset_id,
+                    dataset_name,
+                    prs_id,
+                    percents,
+                    oot_percents,
+                    target,
+                ] in res.yield_per(100):
+
+                    if category == "Gender":
+                        global_target = 50  # so not in comparison with the individual dataset's target but the BBC global target of 50
+                    elif category == "Ethnicity":
+                        global_target = 20
+                    elif category == "Disability":
+                        global_target = 12
+                    else:
+                        global_target == target
+
+                    target_members_sum = sum(percents)
+                    oot_target_members_sum = sum(oot_percents)
+
+                    if target_members_sum >= global_target:
+                        scores[target_state.exceeds] += 1
+                    elif target_members_sum >= global_target - 5:
+                        scores[target_state.lt5] += 1
+                    elif target_members_sum >= global_target - 10:
+                        scores[target_state.lt10] += 1
+                    elif target_members_sum > 0 or oot_target_members_sum > 0:
+                        # if these are both zero, then nothing was recorded for gender
+                        scores[target_state.gt10] += 1
+
+                proto = {
+                    "date": date_pos,
+                    "category": category,
+                    "target_state": target_state.exceeds.name,
+                    "value": scores[target_state.exceeds],
+                    "filter": filter["name"],
                 }
-            )
-            stats["overviews"].append(
-                {
-                    **proto,
-                    "target_state": target_state.gt10.name,
-                    "value": scores[target_state.gt10],
-                }
-            )
+                stats["overviews"].append(proto)
+                stats["overviews"].append(
+                    {
+                        **proto,
+                        "target_state": target_state.lt5.name,
+                        "value": scores[target_state.lt5],
+                    }
+                )
+                stats["overviews"].append(
+                    {
+                        **proto,
+                        "target_state": target_state.lt10.name,
+                        "value": scores[target_state.lt10],
+                    }
+                )
+                stats["overviews"].append(
+                    {
+                        **proto,
+                        "target_state": target_state.gt10.name,
+                        "value": scores[target_state.gt10],
+                    }
+                )
 
 
 def get_admin_overview(stats: Dict, session: Session, duration: int):

@@ -285,6 +285,7 @@ type Overview {
   category: String!
   targetState: String!
   value: Int!
+  filter: String!
 }
 
 type Stats {

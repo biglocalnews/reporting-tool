@@ -64,7 +64,11 @@ export const CreateUser = ({ setUserDetails }: CreateUserProps) => {
         loading && <Col span={1}><Spin size="large" /></Col>
       }
       <Col span={24}>
-        <Row justify="center" gutter={[16, 16]} style={{ maxHeight: "50vh", overflowY: "scroll" }}>
+        <Row
+          justify="center"
+          gutter={[16, 16]}
+          style={{ maxHeight: "50vh", overflowY: "scroll" }}
+        >
           {
             data?.adUsers &&
             data.adUsers

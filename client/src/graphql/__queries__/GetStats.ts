@@ -21,6 +21,7 @@ export const GET_STATS = gql`
         date
         value
         targetState
+        filter
       }
     }
   }

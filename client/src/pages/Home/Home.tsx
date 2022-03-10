@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Card, Col, Divider, Row, Skeleton, Statistic } from "antd";
+import { Card, Col, Divider, Radio, Row, Skeleton, Statistic } from "antd";
 import { useTranslation } from "react-i18next";
 import { GetStats } from "../../graphql/__generated__/GetStats";
 import { GET_STATS } from "../../graphql/__queries__/GetStats";
@@ -7,6 +7,7 @@ import { Typography } from 'antd';
 import { getPalette } from "../DatasetDetails/DatasetDetails";
 import "./Home.css";
 import { Bar } from "@ant-design/charts";
+import { useMemo, useState } from "react";
 
 const { Title } = Typography;
 
@@ -27,6 +28,15 @@ export const Home = () => {
 
     const { data: statsData, loading: loadingStats } = useQuery<GetStats>(GET_STATS);
     const { t } = useTranslation();
+    const [selectedOverviewCategory, setSelectedOverviewCategory] = useState("Gender");
+
+    const overviewCategories = useMemo(() => {
+        return Array.from(new Set(statsData?.stats.overviews.map(x => x.category)));
+    }, [statsData]);
+
+    const overviewFilters = useMemo(() => {
+        return Array.from(new Set(statsData?.stats.overviews.map(x => x.filter)));
+    }, [statsData]);
 
     return <Row gutter={[16, 16]}>
         <Col span={24} style={{ textAlign: "center" }}>
@@ -114,60 +124,78 @@ export const Home = () => {
                         Shows the improvement in the proportion of datasets that exceed 50% gender target
                     </Typography>
                 </Col>
+                <Col span={24} style={{ textAlign: "center" }}>
+                    <Radio.Group
+                        defaultValue={"Gender"}
+                        onChange={(e) => setSelectedOverviewCategory(e.target.value)}
+                    >
+                        {
+                            overviewCategories.map(category =>
+                                <Radio key={category} value={category}>{category}</Radio>
+                            )
+                        }
+                    </Radio.Group>
+                </Col>
                 {
                     statsData && statsData.stats.overviews.length &&
-                    <Col span={24}>
-                        <Bar
-                            data={statsData.stats.overviews
-                                .filter(x => x.category === "Gender")
-                                .sort((a, b) => b.date.localeCompare(a.date))}
-                            xField="value"
-                            yField="date"
-                            seriesField="targetState"
-                            isPercent
-                            isStack
-                            height={150}
-                            width={300}
-                            barWidthRatio={1 / 3}
-                            label={{
-                                formatter: (v) => Number(v.value) > 0 ? `${Math.round(Number(v.value) * 100)}%` : ""
-                            }}
-                            xAxis={false}
-                            yAxis={{
-                                label: {
-                                    formatter: (v) => {
-                                        switch (v) {
-                                            case "min":
-                                                return "First Entry";
-                                            case "max":
-                                                return "Last Entry";
-                                            default:
-                                                return v;
+
+                    overviewFilters.map(filter =>
+                        <Col span={24} key={`${selectedOverviewCategory + filter}`}>
+                            <Card title={filter} size="small">
+                                <Bar
+                                    data={statsData.stats.overviews
+                                        .filter(x => x.filter === filter)
+                                        .filter(x => x.category === selectedOverviewCategory)
+                                        .sort((a, b) => b.date.localeCompare(a.date))}
+                                    xField="value"
+                                    yField="date"
+                                    seriesField="targetState"
+                                    isPercent
+                                    isStack
+                                    height={150}
+                                    width={300}
+                                    barWidthRatio={1 / 3}
+                                    label={{
+                                        formatter: (v) => Number(v.value) > 0 ? `${Math.round(Number(v.value) * 100)}%` : ""
+                                    }}
+                                    xAxis={false}
+                                    yAxis={{
+                                        label: {
+                                            formatter: (v) => {
+                                                switch (v) {
+                                                    case "min":
+                                                        return "First Entry";
+                                                    case "max":
+                                                        return "Last Entry";
+                                                    default:
+                                                        return v;
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                            }}
-                            legend={{
-                                position: "top-right",
-                                itemName: {
-                                    formatter: (v) => {
-                                        switch (v) {
-                                            case "exceeds":
-                                                return "50% and above";
-                                            case "lt5":
-                                                return "45-49%";
-                                            case "lt10":
-                                                return "40-44%";
-                                            case "gt10":
-                                                return "Under 40%";
-                                            default:
-                                                return v;
+                                    }}
+                                    legend={{
+                                        position: "top-right",
+                                        itemName: {
+                                            formatter: (v) => {
+                                                switch (v) {
+                                                    case "exceeds":
+                                                        return "50% and above";
+                                                    case "lt5":
+                                                        return "45-49%";
+                                                    case "lt10":
+                                                        return "40-44%";
+                                                    case "gt10":
+                                                        return "Under 40%";
+                                                    default:
+                                                        return v;
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                            }}
-                        />
-                    </Col>
+                                    }}
+                                />
+                            </Card>
+                        </Col>
+                    )
                 }
             </Row>
         </Col>
