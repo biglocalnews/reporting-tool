@@ -181,13 +181,13 @@ export const Home = () => {
                                             formatter: (v) => {
                                                 switch (v) {
                                                     case "exceeds":
-                                                        return "50% and above";
+                                                        return "Exceeded";
                                                     case "lt5":
-                                                        return "45-49%";
+                                                        return "Within 5%";
                                                     case "lt10":
-                                                        return "40-44%";
+                                                        return "Within 10%";
                                                     case "gt10":
-                                                        return "Under 40%";
+                                                        return "More than 10%";
                                                     default:
                                                         return v;
                                                 }
