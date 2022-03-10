@@ -8,6 +8,7 @@ import { getPalette } from "../DatasetDetails/DatasetDetails";
 import "./Home.css";
 import { Bar } from "@ant-design/charts";
 import { useMemo, useState } from "react";
+import { catSort } from "../CatSort";
 
 const { Title } = Typography;
 
@@ -31,7 +32,8 @@ export const Home = () => {
     const [selectedOverviewCategory, setSelectedOverviewCategory] = useState("Gender");
 
     const overviewCategories = useMemo(() => {
-        return Array.from(new Set(statsData?.stats.overviews.map(x => x.category)));
+        return Array.from(new Set(statsData?.stats.overviews.map(x => x.category)))
+            .sort((a, b) => catSort(a, b));
     }, [statsData]);
 
     const overviewFilters = useMemo(() => {
@@ -121,7 +123,7 @@ export const Home = () => {
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <Typography>
-                        Shows the improvement in the proportion of datasets that exceed 50% gender target
+                        Shows the improvement in the proportion of datasets that exceeded the target for that category
                     </Typography>
                 </Col>
                 <Col span={24} style={{ textAlign: "center" }}>
