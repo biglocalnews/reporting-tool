@@ -350,7 +350,7 @@ def get_person_type(person_type_name):
     return db_person_type
 
 
-def get_dataset(programme, dataset_name):
+def get_dataset(programme, dataset_name, everyone_person_type):
     dataset_name = dataset_name.strip()
     if not dataset_name:
         return None
@@ -376,7 +376,7 @@ def get_dataset(programme, dataset_name):
             id=uuid4(),
             name=dataset_name,
             description="",
-            person_types=[get_person_type("Everyone")],
+            person_types=[everyone_person_type],
             program=programme,
         )
         session.add(db_dataset)
@@ -598,7 +598,9 @@ for programme in get_api_programmes():
     if not db_programme.id in [x.id for x in db_team.programs]:
         db_team.programs.append(db_programme)
 
-    db_dataset = get_dataset(db_programme, programme["name"])
+    everyone_person_type = get_person_type("Everyone")
+
+    db_dataset = get_dataset(db_programme, programme["name"], everyone_person_type)
 
     if category_gender not in [x.category for x in db_programme.targets]:
         db_programme.targets.append(get_target(category_gender, db_programme))
@@ -613,8 +615,6 @@ for programme in get_api_programmes():
 
     if category_gender not in [x.category for x in db_programme.targets]:
         db_programme.targets.append(get_target(category_gender, db_programme))
-
-    everyone_person_type = get_person_type("Everyone")
 
     male_attribute = get_attribute("Men", category_gender)
     female_attribute = get_attribute("Women", category_gender)
