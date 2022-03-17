@@ -613,9 +613,6 @@ for programme in get_api_programmes():
         if tag not in [x.name for x in db_programme.tags]:
             db_programme.tags.append(get_tag(tag))
 
-    if category_gender not in [x.category for x in db_programme.targets]:
-        db_programme.targets.append(get_target(category_gender, db_programme))
-
     male_attribute = get_attribute("Men", category_gender)
     female_attribute = get_attribute("Women", category_gender)
 
