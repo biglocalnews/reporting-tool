@@ -2,12 +2,10 @@ import sys
 import csv
 from typing import List, Set
 from datetime import datetime
-from unicodedata import category
+import calendar
+
 from uuid import uuid4
 
-from attr import attributes
-from black import target_version_option_callback
-from tensorboard import program
 from database import (
     Category,
     CategoryValue,
@@ -15,6 +13,7 @@ from database import (
     Entry,
     Organization,
     PersonType,
+    PublishedRecordSet,
     Record,
     ReportingPeriod,
     Tag,
@@ -417,6 +416,140 @@ def get_record(dataset, publication_date):
     return db_record
 
 
+def get_reporting_period(programme, year, month):
+
+    if not year or not month:
+        return None
+
+    begin = datetime(year, month, 1)
+    end = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+
+    db_reporting_period = None
+
+    try:
+        db_reporting_period = (
+            session.query(ReportingPeriod)
+            .filter(
+                ReportingPeriod.program == programme,
+                ReportingPeriod.begin == begin,
+                ReportingPeriod.end == end,
+            )
+            .one()
+        )
+    except MultipleResultsFound as e:
+        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        exit(1)
+    except NoResultFound as e:
+        print(
+            f"Reporting period starting {begin} and ending {end} not found in 5050 db"
+        )
+
+    if not db_reporting_period:
+        db_reporting_period = ReportingPeriod(
+            id=uuid4(), begin=begin, end=end, program=programme
+        )
+
+        session.add(db_reporting_period)
+
+    return db_reporting_period
+
+
+def get_published_record_set(
+    team: Team,
+    programme: Program,
+    dataset: Dataset,
+    reporting_period: ReportingPeriod,
+    record: Record,
+):
+
+    if not team or not programme or not dataset or not reporting_period or not record:
+        return None
+
+    db_published_record_set = None
+
+    try:
+        db_published_record_set = (
+            session.query(PublishedRecordSet)
+            .filter(
+                PublishedRecordSet.reporting_period == reporting_period,
+                PublishedRecordSet.begin == reporting_period.begin,
+                PublishedRecordSet.end == reporting_period.end,
+            )
+            .one()
+        )
+    except MultipleResultsFound as e:
+        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        exit(1)
+    except NoResultFound as e:
+        print(
+            f"Published record set starting {reporting_period.begin} and ending {reporting_period.begin} not found in 5050 db"
+        )
+
+    record = {
+        "Everyone": {
+            "Gender": {
+                "entries": {
+                    "Men": {
+                        "percent": next(
+                            x.count
+                            for x in record.entries
+                            if x.category_value.name == "Men"
+                        ),
+                        "category": "Gender",
+                        "attribute": "Men",
+                        "personType": "Everyone",
+                        "targetMember": False,
+                    },
+                    "Women": {
+                        "percent": next(
+                            x.count
+                            for x in record.entries
+                            if x.category_value.name == "Women"
+                        ),
+                        "category": "Gender",
+                        "attribute": "Women",
+                        "personType": "Everyone",
+                        "targetMember": True,
+                    },
+                }
+            }
+        }
+    }
+
+    document = {
+        "datasetName": dataset.name,
+        "teamName": team.name,
+        "datasetGroup": programme.name,
+        "reportingPeriodDescription": reporting_period.description,
+        "begin": str(reporting_period.begin),
+        "end": str(reporting_period.end),
+        "targets": [
+            {"category": x.category.name, "target": x.target * 100}
+            for x in programme.targets
+        ],
+        "datasetGroupTags": [
+            {"name": x.name, "group": x.tag_type} for x in programme.tags
+        ],
+        "datasetTags": [{"name": x.name, "group": x.tag_type} for x in programme.tags],
+        "record": record,
+        "segmentedRecord": record,
+    }
+
+    if not db_published_record_set:
+        db_published_record_set = PublishedRecordSet(
+            id=uuid4(),
+            begin=reporting_period.begin,
+            end=reporting_period.end,
+            reporting_period=reporting_period,
+            dataset=dataset,
+        )
+        session.add(db_published_record_set)
+
+    db_published_record_set.document = document
+
+    return db_published_record_set
+
+
 """
 for group in get_api_groups():
     if "groupName" not in group or not group["groupName"]:
@@ -425,6 +558,7 @@ for group in get_api_groups():
 
 session.commit()
 """
+groups = get_api_groups()
 
 for programme in get_api_programmes():
 
@@ -469,12 +603,13 @@ for programme in get_api_programmes():
     if category_gender not in [x.category for x in db_programme.targets]:
         db_programme.targets.append(get_target(category_gender, db_programme))
 
-    if (
-        "groupName" in programme
-        and programme["groupName"]
-        and programme["groupName"] not in [x.name for x in db_programme.tags]
-    ):
-        db_programme.tags.append(get_tag(programme["groupName"]))
+    for tag in [
+        x["groupName"]
+        for x in groups
+        if programme["id"] in [y["id"] for y in x["programmes"]["data"]]
+    ]:
+        if tag not in [x.name for x in db_programme.tags]:
+            db_programme.tags.append(get_tag(tag))
 
     if category_gender not in [x.category for x in db_programme.targets]:
         db_programme.targets.append(get_target(category_gender, db_programme))
@@ -484,7 +619,12 @@ for programme in get_api_programmes():
     male_attribute = get_attribute("Men", category_gender)
     female_attribute = get_attribute("Women", category_gender)
 
-    for record in get_api_records(programme["id"]):
+    prev_month_year = None
+
+    for record in sorted(
+        get_api_records(programme["id"]), key=lambda x: int(f'{x["year"]}{x["month"]}')
+    ):
+
         db_record = get_record(
             db_dataset,
             datetime(day=1, month=record["month"], year=record["year"]),
@@ -508,6 +648,14 @@ for programme in get_api_programmes():
             session.add(female_entry)
             db_record.entries.append(male_entry)
             db_record.entries.append(female_entry)
+
+        db_reporting_period = get_reporting_period(
+            db_programme, record["year"], record["month"]
+        )
+        db_published_record_set = get_published_record_set(
+            db_team, db_programme, db_dataset, db_reporting_period, db_record
+        )
+
     db_programme.reporting_period_type = "monthly"
 
     session.commit()
