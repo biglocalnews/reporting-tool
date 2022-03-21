@@ -1,4 +1,5 @@
 import { Column, ColumnConfig, Line, LineConfig } from "@ant-design/charts";
+import { Datum } from "@antv/g2plot";
 import { Col, Row, Select } from "antd"
 import { useState } from "react";
 import { IChartData } from "../../selectors/ChartData";
@@ -19,6 +20,15 @@ const chartConfig = ({
         position: "right"
     },
     isPercent: true,
+    tooltip: {
+        formatter: (datum: Datum) => ({ name: datum.attribute ? datum.attribute : datum.category, value: `${Number(datum.percent).toFixed(2)}%` })
+    },
+    xAxis: {
+        type: "time",
+        label: {
+            formatter: (text: string) => new Date(text).toLocaleString(navigator.language, { month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)
+        }
+    }
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -70,7 +80,6 @@ export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
                         data: chartData,
                         loading: loading,
                         smooth: true,
-                        xAxis: { type: "time" },
                         ...options
                     } as LineConfig
                     }
@@ -84,8 +93,6 @@ export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
                         data: chartData,
                         loading: loading,
                         isStack: true,
-                        isGroup: true,
-                        groupField: 'category',
                         yAxis: {
                             label: {
                                 formatter: (text) => `${Math.round(Number(text) * 100)}%`
