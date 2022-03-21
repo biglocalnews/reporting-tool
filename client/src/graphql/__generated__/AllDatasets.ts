@@ -16,6 +16,7 @@ export interface AllDatasets_teams_programs_datasets_records {
 export interface AllDatasets_teams_programs_datasets_tags {
   readonly __typename: "Tag";
   readonly name: string;
+  readonly tagType: string;
 }
 
 export interface AllDatasets_teams_programs_datasets {
@@ -31,6 +32,7 @@ export interface AllDatasets_teams_programs_datasets {
 export interface AllDatasets_teams_programs_tags {
   readonly __typename: "Tag";
   readonly name: string;
+  readonly tagType: string;
 }
 
 export interface AllDatasets_teams_programs {

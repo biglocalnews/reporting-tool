@@ -68,7 +68,7 @@ export const ProgramList = () => {
         {
           text: t("admin.program.index.columnTitle.inactiveFilter"),
           value: false,
-        },
+        }
       ],
       onFilter: (
         value: boolean | string | number,

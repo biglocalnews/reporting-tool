@@ -16,6 +16,7 @@ export interface GetUser_user_teams_programs_datasets_records {
 export interface GetUser_user_teams_programs_datasets_tags {
   readonly __typename: "Tag";
   readonly name: string;
+  readonly tagType: string;
 }
 
 export interface GetUser_user_teams_programs_datasets {
@@ -31,6 +32,7 @@ export interface GetUser_user_teams_programs_datasets {
 export interface GetUser_user_teams_programs_tags {
   readonly __typename: "Tag";
   readonly name: string;
+  readonly tagType: string;
 }
 
 export interface GetUser_user_teams_programs {

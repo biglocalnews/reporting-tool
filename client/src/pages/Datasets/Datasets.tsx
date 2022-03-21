@@ -12,7 +12,7 @@ import { ErrorFallback } from "../../components/Error/ErrorFallback";
 import { Loading } from "../../components/Loading/Loading";
 import {
   AllDatasets,
-  AllDatasets_teams,
+  AllDatasets_teams
 } from "../../graphql/__generated__/AllDatasets";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
@@ -26,7 +26,7 @@ export interface TableData {
   team: string;
   dataset: string;
   lastUpdated: string;
-  tags: Array<string>;
+  tags: string[];
   modified: string;
 }
 
@@ -106,9 +106,17 @@ const getTableData = (
           lastUpdated: dataset.lastUpdated
             ? dayjs(dataset.lastUpdated).format("ll")
             : t("noDataAvailable"),
-          tags: program.tags.map((tag) => {
-            return tag.name;
-          }),
+          tags: program.tags
+            .map(x => x.name)
+            .concat(
+              Array.from(
+                new Set(
+                  program.tags
+                    .filter(x => x.tagType !== "unassigned")
+                    .map(x => x.tagType)
+                )
+              )
+            ),
         });
       });
     });

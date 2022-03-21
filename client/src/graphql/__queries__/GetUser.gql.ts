@@ -22,10 +22,12 @@ export const GET_USER = gql`
             }
             tags {
               name
+              tagType
             }
           }
           tags{
             name
+            tagType
           }
         }
       }

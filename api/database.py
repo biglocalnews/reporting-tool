@@ -255,10 +255,10 @@ class User(Base, SQLAlchemyBaseUserTable):
         return (
             session.query(User)
             .filter(
-                User.email == email,
+                func.lower(User.email) == func.lower(email),
                 User.deleted == None,
             )
-            .first()
+            .one_or_none()
         )
 
     @classmethod

@@ -17,10 +17,12 @@ export const ALL_DATASETS = gql`
           }
           tags {
             name
+            tagType
           }
         }
         tags {
           name
+          tagType
         }
       }
     }
