@@ -10,33 +10,35 @@ from enum import Enum
 
 def get_overview(stats: Dict, session: Session):
     categories = ["Gender", "Ethnicity", "Disability"]
-    filters = [
-        {"name": "Everyone", "filter": True},
-        {
-            "name": "Minus Music and Sport",
-            "filter": func.jsonb_path_exists(
-                PublishedRecordSet.document,
-                f'$.datasetGroupTags[*].group ? (@ like_regex "music|sport" flag "i")',
-            )
-            == False,
-        },
-        {
-            "name": "Minus Music",
-            "filter": func.jsonb_path_exists(
-                PublishedRecordSet.document,
-                f'$.datasetGroupTags[*].group ? (@ like_regex "music" flag "i")',
-            )
-            == False,
-        },
-        {
-            "name": "Minus Sport",
-            "filter": func.jsonb_path_exists(
-                PublishedRecordSet.document,
-                f'$.datasetGroupTags[*].group ? (@ like_regex "sport" flag "i")',
-            )
-            == False,
-        },
-    ]
+    filters = [{"name": "Everyone", "filter": True}]
+
+    """
+    additional filters
+    {
+        "name": "Minus Music and Sport",
+        "filter": func.jsonb_path_exists(
+            PublishedRecordSet.document,
+            f'$.datasetGroupTags[*].group ? (@ like_regex "music|sport" flag "i")',
+        )
+        == False,
+    },
+    {
+        "name": "Minus Music",
+        "filter": func.jsonb_path_exists(
+            PublishedRecordSet.document,
+            f'$.datasetGroupTags[*].group ? (@ like_regex "music" flag "i")',
+        )
+        == False,
+    },
+    {
+        "name": "Minus Sport",
+        "filter": func.jsonb_path_exists(
+            PublishedRecordSet.document,
+            f'$.datasetGroupTags[*].group ? (@ like_regex "sport" flag "i")',
+        )
+        == False,
+    },
+    """
 
     stats["overviews"] = []
 
