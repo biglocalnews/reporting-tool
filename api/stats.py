@@ -329,7 +329,16 @@ def get_admin_needs_attention(stats: Dict, session: Session):
             for category, entries in categories.items():
                 if "entries" not in entries:
                     continue
-                [target] = (x["target"] for x in targets if x["category"] == category)
+
+                [target, *_] = (
+                    x["target"] for x in targets if x["category"] == category
+                )
+
+                # a strange thing
+                if len([x["target"] for x in targets if x["category"] == category]) > 1:
+                    print(targets)
+                    print(proto)
+
                 if not target:
                     continue
                 if category not in targets_missed:
