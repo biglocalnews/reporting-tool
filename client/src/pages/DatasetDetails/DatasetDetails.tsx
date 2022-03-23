@@ -293,7 +293,11 @@ const DatasetDetails = (): JSX.Element => {
                       />
                     </Col>
                     <Col span={24}>
-                      <LineColumn data={flattened(grouped(chartData))} loading={queryLoading} />
+                      <LineColumn
+                        data={flattened(grouped(chartData))}
+                        loading={queryLoading}
+                        columnOptions={{ isGroup: true, groupField: "category", isStack: true }}
+                      />
                     </Col>
                     <Col span={24}>
 

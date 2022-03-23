@@ -211,7 +211,7 @@ export const AdminReports = () => {
         if (!datasetList || !datasetList.length) return basicColumns;
 
         if ("percent" && "category" in datasetList[0]) {
-            return [...basicColumns, ...targetColumns, actionsColumn];
+            return [...basicColumns, ...targetColumns];
         }
         else if ("needsAttentionTypes" in datasetList[0]) {
             return [...basicColumns, attentionTypeColumn, actionsColumn];

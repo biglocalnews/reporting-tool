@@ -373,7 +373,12 @@ export const Reports = () => {
                     }
                 </Row>
                 {
-                    <LineColumn data={flattenedChartData} loading={loading} options={{ seriesField: "category", groupField: null }} />
+                    <LineColumn
+                        data={flattenedChartData}
+                        loading={loading}
+                        options={{ seriesField: "category" }}
+                        columnOptions={{ isGroup: true }}
+                    />
                 }
 
             </Col>

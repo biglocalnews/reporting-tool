@@ -7,7 +7,9 @@ import { IChartData } from "../../selectors/ChartData";
 interface IProps {
     data: IChartData[],
     loading: boolean,
-    options?: object
+    options?: object,
+    columnOptions?: object,
+    lineOptions?: object
 }
 
 const chartConfig = ({
@@ -19,16 +21,21 @@ const chartConfig = ({
     legend: {
         position: "right"
     },
-    isPercent: true,
+    //isPercent: true,
     tooltip: {
         formatter: (datum: Datum) => ({ name: datum.attribute ? datum.attribute : datum.category, value: `${Number(datum.percent).toFixed(2)}%` })
     },
     xAxis: {
-        type: "time",
+        type: "cat",
         label: {
             formatter: (text: string) => new Date(text).toLocaleString(navigator.language, { month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)
         }
-    }
+    },
+    yAxis: {
+        label: {
+            formatter: (text: string) => `${text}%`
+        }
+    },
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;
         const allAttributes = new Set(chartData?.filter(x => x.targetMember === targetMember).map(x => x.attribute))
@@ -48,7 +55,7 @@ const chartConfig = ({
     }*/
 });
 
-export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
+export const LineColumn = ({ data: chartData, loading, options, columnOptions, lineOptions }: IProps) => {
 
     const [chartMode, setChartMode] = useState("column");
 
@@ -80,6 +87,7 @@ export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
                         data: chartData,
                         loading: loading,
                         smooth: true,
+                        ...lineOptions,
                         ...options
                     } as LineConfig
                     }
@@ -92,12 +100,7 @@ export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
                         ...chartConfig,
                         data: chartData,
                         loading: loading,
-                        isStack: true,
-                        yAxis: {
-                            label: {
-                                formatter: (text) => `${Math.round(Number(text) * 100)}%`
-                            }
-                        },
+                        ...columnOptions,
                         ...options
                     } as ColumnConfig
                     }
