@@ -299,44 +299,47 @@ const DatasetDetails = (): JSX.Element => {
 
                       <Collapse>
                         {
-                          queryData?.dataset.publishedRecordSets?.map(prs =>
-                            <Panel
-                              key={prs.reportingPeriodId}
-                              header={
-                                `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
-                              }
-                              extra={
-                                <Popconfirm
-                                  title={t("confirmDelete")}
-                                  onConfirm={async (e) => {
-                                    e?.stopPropagation();
-                                    await deletePublishedRecordSet({
-                                      variables: {
-                                        id: prs.id
-                                      }
-                                    })
-                                      .then(() => console.log("Deleted!"))
-                                      .catch((e) => alert(e))
-                                  }
-                                  }
-                                  okButtonProps={{ loading: deleting }}
-                                  onCancel={(e) => e?.stopPropagation()}
-                                >
-                                  <Button
-                                    tabIndex={-1}
-                                    type="default"
-                                    danger
-                                    title={t("deletePublishedRecordSet")}
-                                    aria-label={t("deletePublishedRecordSet")}
-                                    icon={<CloseCircleOutlined />}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >{t("datasetDetails.unPublish")}</Button>
-                                </Popconfirm>
-                              }
-                            >
-                              <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />
-                            </Panel>
-                          )
+                          queryData?.dataset.publishedRecordSets?.
+                            flat()
+                            .sort((a, b) => Date.parse(b.end) - Date.parse(a.end))
+                            .map(prs =>
+                              <Panel
+                                key={prs.reportingPeriodId}
+                                header={
+                                  `${moment(prs.begin).format("D MMM YY")} - ${moment(prs.end).format("D MMM YY")}`
+                                }
+                                extra={
+                                  <Popconfirm
+                                    title={t("confirmDelete")}
+                                    onConfirm={async (e) => {
+                                      e?.stopPropagation();
+                                      await deletePublishedRecordSet({
+                                        variables: {
+                                          id: prs.id
+                                        }
+                                      })
+                                        .then(() => console.log("Deleted!"))
+                                        .catch((e) => alert(e))
+                                    }
+                                    }
+                                    okButtonProps={{ loading: deleting }}
+                                    onCancel={(e) => e?.stopPropagation()}
+                                  >
+                                    <Button
+                                      tabIndex={-1}
+                                      type="default"
+                                      danger
+                                      title={t("deletePublishedRecordSet")}
+                                      aria-label={t("deletePublishedRecordSet")}
+                                      icon={<CloseCircleOutlined />}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >{t("datasetDetails.unPublish")}</Button>
+                                  </Popconfirm>
+                                }
+                              >
+                                <PublishedRecordSet publishedDocument={prs.document as IPublishedRecordSetDocument} />
+                              </Panel>
+                            )
                         }
                       </Collapse>
 

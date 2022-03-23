@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { AdminStatsInput, TargetStateType } from "./globalTypes";
+import { AdminStatsInput, TargetStateType, NeedsAttentionType } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: GetAdminStats
@@ -35,6 +35,7 @@ export interface GetAdminStats_adminStats_needsAttention {
   readonly datasetId: string;
   readonly reportingPeriodEnd: any;
   readonly count: number;
+  readonly needsAttentionTypes: ReadonlyArray<NeedsAttentionType>;
 }
 
 export interface GetAdminStats_adminStats {

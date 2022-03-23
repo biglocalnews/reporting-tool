@@ -24,6 +24,7 @@ export const GET_ADMIN_STATS = gql`
         datasetId
         reportingPeriodEnd
         count
+        needsAttentionTypes
       }
     }
   }

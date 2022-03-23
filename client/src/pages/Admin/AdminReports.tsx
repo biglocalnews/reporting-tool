@@ -1,15 +1,16 @@
 import { useQuery } from "@apollo/client";
-import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table } from "antd";
+import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
 import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { GetAdminStats } from "../../graphql/__generated__/GetAdminStats";
-import { AdminStatsInput, TargetStateType } from "../../graphql/__generated__/globalTypes";
+import { AdminStatsInput, NeedsAttentionType, TargetStateType } from "../../graphql/__generated__/globalTypes";
 import { GET_ADMIN_STATS } from "../../graphql/__queries__/GetAdminStats";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { cardStyle } from "../Home/Home";
 import { SortOrder } from "antd/lib/table/interface";
 import { AlignType } from "rc-table/lib/interface";
+import { FallOutlined, FileExclamationOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
 
 
 interface IDatasetList {
@@ -21,6 +22,7 @@ interface IDatasetList {
     percent?: number,
     reportingPeriodName?: string | null | undefined
     count?: number
+    needsAttentionType?: NeedsAttentionType[]
 }
 
 const selectedCardStyle = {
@@ -71,6 +73,7 @@ export const AdminReports = () => {
             name: x.name,
             reportingPeriodEnd: x.reportingPeriodEnd,
             count: x.count,
+            needsAttentionTypes: x.needsAttentionTypes,
             key: `${x.datasetId}`
         }));
 
@@ -181,13 +184,28 @@ export const AdminReports = () => {
         }
         ];
 
-        const countColumn = {
-            title: t("admin.reports.datasetMissedCountColumnTitle"),
-            dataIndex: "count",
-            key: "count",
-            sorter: (a: IDatasetList, b: IDatasetList) => (a.count && b.count) ? a.count - b.count : 0,
-            sortDirections: ['ascend', 'descend'] as SortOrder[],
-            render: (count: number | undefined) => count?.toString()
+        const iconSize = 30;
+
+        const attentionTypeColumn = {
+            title: t("admin.reports.datasetAttentionTypeColumnTitle"),
+            dataIndex: "needsAttentionTypes",
+            key: "needsAttentionTypes",
+            render: (needsAttentionTypes: NeedsAttentionType[] | undefined) => <Space>
+                {
+                    needsAttentionTypes?.map(x => {
+                        switch (x) {
+                            case NeedsAttentionType.MissedATargetInAllLast3Periods:
+                                return <FallOutlined style={{ fontSize: iconSize }} title={t(`admin.reports.${x}`)} />
+                            case NeedsAttentionType.MoreThan10PercentBelowATargetLastPeriod:
+                                return <VerticalAlignBottomOutlined style={{ fontSize: iconSize }} title={t(`admin.reports.${x}`)} />
+                            case NeedsAttentionType.NothingPublishedLast3Periods:
+                                return <FileExclamationOutlined style={{ fontSize: iconSize }} title={t(`admin.reports.${x}`)} />
+                            default:
+                                return <AlertOutlined style={{ fontSize: iconSize }} title="Unknown attention reason" />
+                        }
+                    })
+                }
+            </Space>
         }
 
         if (!datasetList || !datasetList.length) return basicColumns;
@@ -195,8 +213,8 @@ export const AdminReports = () => {
         if ("percent" && "category" in datasetList[0]) {
             return [...basicColumns, ...targetColumns, actionsColumn];
         }
-        else if ("count" in datasetList[0]) {
-            return [...basicColumns, countColumn, actionsColumn];
+        else if ("needsAttentionTypes" in datasetList[0]) {
+            return [...basicColumns, attentionTypeColumn, actionsColumn];
         }
 
         return [...basicColumns, actionsColumn];
@@ -281,7 +299,9 @@ export const AdminReports = () => {
                     onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedStat("overdue") } }}
                     onClick={() => setSelectedStat("overdue")}
                 >
-                    <Card style={selectedStat === "overdue" ? selectedCardStyle : cardStyle}>
+                    <Card
+                        style={selectedStat === "overdue" ? selectedCardStyle : cardStyle}
+                    >
                         <Statistic
                             loading={loading}
                             title={t("admin.reports.overdueStatTitle")}
@@ -293,23 +313,31 @@ export const AdminReports = () => {
                 </div>
             </Col>
             <Col span={6}>
-                <div
-                    role="button"
-                    tabIndex={0}
-                    style={{ cursor: "pointer" }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedStat("needsAttention") } }}
-                    onClick={() => setSelectedStat("needsAttention")}
+                <Tooltip
+                    title="Datasets which fulfil one or several of the following criteria:
+                            A) Missed any target by any amount below their target for last 3 reporting periods consistently.                
+                            OR: B) Anyone 10% or more below target of gender / ethnicity / disability this in last reporting period.                
+                            OR: C) Not submitted any data for last 3 reporting periods."
                 >
-                    <Card style={selectedStat === "needsAttention" ? selectedCardStyle : cardStyle}>
-                        <Statistic
-                            loading={loading}
-                            title={t("admin.reports.reqAttentionStatTitle")}
-                            value={needsAttentionDatasets.length}
-                            precision={0}
-                            valueStyle={{ color: "red" }}
-                        />
-                    </Card>
-                </div>
+                    <div
+                        role="button"
+                        tabIndex={0}
+                        style={{ cursor: "pointer" }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedStat("needsAttention") } }}
+                        onClick={() => setSelectedStat("needsAttention")}
+
+                    >
+                        <Card style={selectedStat === "needsAttention" ? selectedCardStyle : cardStyle}>
+                            <Statistic
+                                loading={loading}
+                                title={t("admin.reports.reqAttentionStatTitle")}
+                                value={needsAttentionDatasets.length}
+                                precision={0}
+                                valueStyle={{ color: "red" }}
+                            />
+                        </Card>
+                    </div>
+                </Tooltip>
             </Col>
         </Row>
         {

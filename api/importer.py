@@ -5,6 +5,7 @@ from datetime import datetime
 import calendar
 
 from uuid import uuid4
+from venv import create
 
 from database import (
     Category,
@@ -186,13 +187,29 @@ def get_team(team_name):
     return db_team
 
 
+non_bbc_emails = []
+
+
 def get_user(email):
     email = email.strip()
     if not email or "@" not in email:
         print(f"non email address {email}")
         return None
     email = email.lower()
+
+    email_components = email.split("@")
+
+    if len(email_components) != 2:
+        print(f"invalid email address {email}")
+        return None
+
+    if "bbc" not in email_components[1]:
+        non_bbc_emails.append(email)
+        print(f"non bbc email address {email}")
+        return None
+
     db_user = None
+
     try:
         db_user = session.query(User).filter(func.lower(User.email) == email).one()
     except MultipleResultsFound as e:
@@ -384,7 +401,7 @@ def get_dataset(programme, dataset_name, everyone_person_type):
     return db_dataset
 
 
-def get_record(dataset, publication_date):
+def get_record(dataset, publication_date, created, updated):
 
     if not publication_date:
         return None
@@ -412,6 +429,20 @@ def get_record(dataset, publication_date):
         )
 
         session.add(db_record)
+
+    if created:
+        try:
+            created = int(created)
+            db_record.created = datetime.fromtimestamp(created)
+        except Exception as ex:
+            print(f"invalid timestamp for dataset {dataset.name}: {created}")
+
+    if updated:
+        try:
+            updated = int(updated)
+            db_record.updated = datetime.fromtimestamp(updated)
+        except Exception as ex:
+            print(f"invalid timestamp for dataset {dataset.name}: {updated}")
 
     return db_record
 
@@ -558,6 +589,8 @@ for group in get_api_groups():
 
 session.commit()
 """
+
+
 groups = get_api_groups()
 
 for programme in get_api_programmes():
@@ -625,6 +658,8 @@ for programme in get_api_programmes():
         db_record = get_record(
             db_dataset,
             datetime(day=1, month=record["month"], year=record["year"]),
+            record["createdAt"],
+            record["updatedAt"],
         )
         if len(db_record.entries) == 0:
             male_entry = Entry(
@@ -656,3 +691,5 @@ for programme in get_api_programmes():
     db_programme.reporting_period_type = "monthly"
 
     session.commit()
+
+[print(x) for x in non_bbc_emails]

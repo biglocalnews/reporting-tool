@@ -51,7 +51,13 @@ enum CustomColumnType {
 enum TargetStateType {
   exceeds
   fails
-} 
+}
+
+enum NeedsAttentionType {
+  NothingPublishedLast3Periods
+  MissedATargetInAllLast3Periods
+  MoreThan10PercentBelowATargetLastPeriod
+}
 
 schema {
   query: Query
@@ -329,6 +335,7 @@ type NeedsAttention implements IDatasetInfo {
   name: String!
   reportingPeriodEnd: DateTime!
   count: Int!
+  needsAttentionTypes: [NeedsAttentionType!]!
 }
 
 type AdminStats @needsPermission(permission: [ADMIN]) {

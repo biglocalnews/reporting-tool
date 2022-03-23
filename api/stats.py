@@ -203,7 +203,7 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
             .filter(Dataset.deleted == None)
         )
 
-        res = session.execute(stmt, execution_options={"stream_results": True})
+        res = session.execute(stmt)
 
         target_state = Enum("target_state", "exceeds fails")
 
@@ -215,7 +215,7 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
             percents,
             oot_percents,
             target,
-        ] in res.yield_per(100):
+        ] in res:
 
             target_members_sum = sum(percents)
             oot_target_members_sum = sum(oot_percents)
@@ -247,6 +247,10 @@ def get_admin_needs_attention(stats: Dict, session: Session):
 
     stats["needs_attention"] = []
 
+    today = datetime.today()
+    first = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    end_of_last_month = first - timedelta(microseconds=1)
+
     stmt = (
         select(
             Dataset.id,
@@ -257,70 +261,144 @@ def get_admin_needs_attention(stats: Dict, session: Session):
             ReportingPeriod.end,
             PublishedRecordSet.id,
             PublishedRecordSet.created,
+            PublishedRecordSet.document,
         )
-        .select_from(Dataset)
+        .select_from(ReportingPeriod)
         .join(
-            ReportingPeriod,
+            Dataset,
             and_(
                 ReportingPeriod.program_id == Dataset.program_id,
-                ReportingPeriod.end < datetime.today() - timedelta(days=1),
+                ReportingPeriod.end <= end_of_last_month,
             ),
         )
-        .join(
+        .outerjoin(
             PublishedRecordSet,
             and_(
-                PublishedRecordSet.dataset_id == Dataset.id,
+                PublishedRecordSet.reporting_period_id == ReportingPeriod.id,
                 PublishedRecordSet.deleted == None,
-                PublishedRecordSet.created > ReportingPeriod.end + timedelta(days=1),
             ),
         )
-        .order_by(ReportingPeriod.end)
+        .order_by(ReportingPeriod.end.desc())
     )
 
-    res = session.execute(stmt, execution_options={"stream_results": True})
+    res = session.execute(stmt)
 
-    counts = {}
-    datasets = {}
+    result_list = [x for x in res]
 
-    for [
-        dataset_id,
-        dataset_name,
-        rp_id,
-        prog_id,
-        rp_description,
-        date_end,
-        prs_id,
-        created,
-    ] in res.yield_per(100):
+    dataset_ids = set([x[0] for x in result_list])
 
-        if dataset_id not in counts:
-            counts[dataset_id] = 0
+    datasets_needing_attention = {}
 
-        counts[dataset_id] += 1
+    for dataset_id in dataset_ids:
 
-        if counts[dataset_id] >= 3:
-            if dataset_id not in datasets:
-                datasets[dataset_id] = {
-                    "dataset_id": dataset_id,
-                    "reporting_period_end": date_end,
-                    "reporting_period_name": rp_description,
-                    "name": dataset_name,
-                    "count": counts[dataset_id],
-                }
-            else:
-                datasets[dataset_id] = {
-                    **datasets[dataset_id],
-                    "count": counts[dataset_id],
-                    "reporting_period_end": date_end,
-                    "reporting_period_name": rp_description,
-                }
+        dataset_rps = [x for x in result_list if x[0] == dataset_id]
 
-    stats["needs_attention"] = datasets.values()
+        if not len(dataset_rps):
+            continue
+
+        proto = {
+            "dataset_id": dataset_id,
+            "reporting_period_end": dataset_rps[0][5],
+            "reporting_period_name": dataset_rps[0][4],
+            "name": dataset_rps[0][1],
+            "count": 0,
+        }
+
+        targets_missed = {}
+
+        for i, dataset_rp in enumerate(dataset_rps):
+
+            if i > 2:
+                break
+
+            document = dataset_rp[8]
+
+            if not document:
+                continue
+
+            if not "targets" in document:
+                continue
+
+            targets = document["targets"]
+
+            if not "record" in document or not "Everyone" in document["record"]:
+                continue
+
+            categories = document["record"]["Everyone"]
+
+            for category, entries in categories.items():
+                if "entries" not in entries:
+                    continue
+                [target] = (x["target"] for x in targets if x["category"] == category)
+                if not target:
+                    continue
+                if category not in targets_missed:
+                    targets_missed[category] = 0
+                target_member_count = 0
+                total_count = 0
+                for attribute, entry in entries["entries"].items():
+                    if not entry["percent"]:
+                        continue
+                    total_count += entry["percent"]
+                    if entry["targetMember"]:
+                        target_member_count += entry["percent"]
+
+                if not total_count:
+                    # everything was 0, so nothing recorded
+                    continue
+
+                if target_member_count < target:
+                    targets_missed[category] += 1
+                    if targets_missed[category] == 3:
+                        if dataset_id in datasets_needing_attention:
+                            datasets_needing_attention[dataset_id][
+                                "needs_attention_types"
+                            ].append("MissedATargetInAllLast3Periods")
+                        datasets_needing_attention[dataset_id] = {
+                            **proto,
+                            "needs_attention_types": ["MissedATargetInAllLast3Periods"],
+                        }
+                    target_delta = target - target_member_count
+                    if target_delta >= 10:
+                        if dataset_id in datasets_needing_attention:
+                            datasets_needing_attention[dataset_id][
+                                "needs_attention_types"
+                            ].append("MoreThan10PercentBelowATargetLastPeriod")
+                        datasets_needing_attention[dataset_id] = {
+                            **proto,
+                            "needs_attention_types": [
+                                "MoreThan10PercentBelowATargetLastPeriod"
+                            ],
+                        }
+
+        if len(dataset_rps) < 3:
+            continue
+
+        last_3 = [x for x in dataset_rps][:3]
+
+        if all([x[6] == None for x in last_3]):
+            if dataset_id in datasets_needing_attention:
+                datasets_needing_attention[dataset_id]["needs_attention_types"].append(
+                    "NothingPublishedLast3Periods"
+                )
+            datasets_needing_attention[dataset_id] = {
+                **proto,
+                "needs_attention_types": ["NothingPublishedLast3Periods"],
+            }
+
+    stats["needs_attention"] = datasets_needing_attention.values()
 
 
 def get_admin_overdue(stats: Dict, session: Session):
 
     stats["overdue"] = []
+
+    today = datetime.today()
+    first = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    end_of_last_month = first - timedelta(microseconds=1)
+    start_of_last_month = end_of_last_month.replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
 
     stmt = (
         select(
@@ -336,7 +414,8 @@ def get_admin_overdue(stats: Dict, session: Session):
         .filter(
             and_(
                 ReportingPeriod.program_id != None,
-                ReportingPeriod.end < datetime.today() - timedelta(days=1),
+                ReportingPeriod.end <= end_of_last_month,
+                ReportingPeriod.end >= start_of_last_month,
             )
         )
         .join(
@@ -352,7 +431,7 @@ def get_admin_overdue(stats: Dict, session: Session):
         )
     )
 
-    res = session.execute(stmt, execution_options={"stream_results": True})
+    res = session.execute(stmt)
 
     for [
         rp_id,
@@ -362,7 +441,7 @@ def get_admin_overdue(stats: Dict, session: Session):
         dataset_id,
         dataset_name,
         prs_id,
-    ] in res.yield_per(100):
+    ] in res:
         if not prs_id:
             dataset_details = {
                 "reporting_period_end": date_end,

@@ -50,7 +50,7 @@ const chartConfig = ({
 
 export const LineColumn = ({ data: chartData, loading, options }: IProps) => {
 
-    const [chartMode, setChartMode] = useState("line");
+    const [chartMode, setChartMode] = useState("column");
 
     return <Row
         gutter={[16, 16]}

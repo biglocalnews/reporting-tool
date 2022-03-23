@@ -15,6 +15,12 @@ export enum CustomColumnType {
   string = "string",
 }
 
+export enum NeedsAttentionType {
+  MissedATargetInAllLast3Periods = "MissedATargetInAllLast3Periods",
+  MoreThan10PercentBelowATargetLastPeriod = "MoreThan10PercentBelowATargetLastPeriod",
+  NothingPublishedLast3Periods = "NothingPublishedLast3Periods",
+}
+
 export enum ReportingPeriodType {
   annual = "annual",
   custom = "custom",
