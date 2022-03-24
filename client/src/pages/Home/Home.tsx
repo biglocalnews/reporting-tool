@@ -152,8 +152,9 @@ export const Home = () => {
                         }
                     </Radio.Group>
                 </Col>
-                <Skeleton loading={loadingOverviews} paragraph={{ rows: 1 }}>
-                    <Col span={24} >
+                <Col span={24} >
+                    <Skeleton loading={loadingOverviews} paragraph={{ rows: 1 }}>
+
                         {
                             overviews && overviews.stats.overviews.length &&
 
@@ -219,8 +220,9 @@ export const Home = () => {
 
                             )
                         }
-                    </Col>
-                </Skeleton>
+
+                    </Skeleton>
+                </Col>
             </Row>
         </Col>
 

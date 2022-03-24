@@ -355,25 +355,41 @@ def get_admin_needs_attention(stats: Dict, session: Session):
                     targets_missed[category] += 1
                     if targets_missed[category] == 3:
                         if dataset_id in datasets_needing_attention:
-                            datasets_needing_attention[dataset_id][
-                                "needs_attention_types"
-                            ].append("MissedATargetInAllLast3Periods")
-                        datasets_needing_attention[dataset_id] = {
-                            **proto,
-                            "needs_attention_types": ["MissedATargetInAllLast3Periods"],
-                        }
+                            if (
+                                "MissedATargetInAllLast3Periods"
+                                not in datasets_needing_attention[dataset_id][
+                                    "needs_attention_types"
+                                ]
+                            ):
+                                datasets_needing_attention[dataset_id][
+                                    "needs_attention_types"
+                                ].append("MissedATargetInAllLast3Periods")
+                        else:
+                            datasets_needing_attention[dataset_id] = {
+                                **proto,
+                                "needs_attention_types": [
+                                    "MissedATargetInAllLast3Periods"
+                                ],
+                            }
                     target_delta = target - target_member_count
                     if target_delta >= 10:
                         if dataset_id in datasets_needing_attention:
-                            datasets_needing_attention[dataset_id][
-                                "needs_attention_types"
-                            ].append("MoreThan10PercentBelowATargetLastPeriod")
-                        datasets_needing_attention[dataset_id] = {
-                            **proto,
-                            "needs_attention_types": [
+                            if (
                                 "MoreThan10PercentBelowATargetLastPeriod"
-                            ],
-                        }
+                                not in datasets_needing_attention[dataset_id][
+                                    "needs_attention_types"
+                                ]
+                            ):
+                                datasets_needing_attention[dataset_id][
+                                    "needs_attention_types"
+                                ].append("MoreThan10PercentBelowATargetLastPeriod")
+                        else:
+                            datasets_needing_attention[dataset_id] = {
+                                **proto,
+                                "needs_attention_types": [
+                                    "MoreThan10PercentBelowATargetLastPeriod"
+                                ],
+                            }
 
         if len(dataset_rps) < 3:
             continue
@@ -385,10 +401,11 @@ def get_admin_needs_attention(stats: Dict, session: Session):
                 datasets_needing_attention[dataset_id]["needs_attention_types"].append(
                     "NothingPublishedLast3Periods"
                 )
-            datasets_needing_attention[dataset_id] = {
-                **proto,
-                "needs_attention_types": ["NothingPublishedLast3Periods"],
-            }
+            else:
+                datasets_needing_attention[dataset_id] = {
+                    **proto,
+                    "needs_attention_types": ["NothingPublishedLast3Periods"],
+                }
 
     stats["needs_attention"] = datasets_needing_attention.values()
 
