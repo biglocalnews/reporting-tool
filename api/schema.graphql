@@ -294,6 +294,19 @@ type Overview {
   filter: String!
 }
 
+type HeadlineTotals {
+  gender: Float!
+  ethnicity: Float!
+  disability: Float!
+  lgbtqa: Float!
+}
+
+type BasicStats {
+  teams: Int!
+  datasets: Int!
+  tags: Int!
+}
+
 type Stats {
   teams: Int!
   datasets: Int!
@@ -648,7 +661,13 @@ type Query {
 
   stats: Stats!
 
-  consistencies(categories: [String!]!, threshold: Int!): [Consistency!]!
+  headlineTotals: HeadlineTotals!
+
+  basicStats: BasicStats!
+
+  consistencies: [Consistency!]!
+
+  overviews: [Overview!]!
 
   adminStats(input: AdminStatsInput): AdminStats!
 

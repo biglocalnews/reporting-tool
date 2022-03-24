@@ -94,7 +94,7 @@ def get_overview(stats: Dict, session: Session):
                     .filter(Dataset.deleted == None)
                 )
 
-                res = session.execute(stmt, execution_options={"stream_results": True})
+                res = session.execute(stmt)
 
                 target_state = Enum("target_state", "exceeds lt5 lt10 gt10 fails")
 
@@ -112,7 +112,7 @@ def get_overview(stats: Dict, session: Session):
                     percents,
                     oot_percents,
                     target,
-                ] in res.yield_per(100):
+                ] in res:
 
                     if category == "Gender":
                         global_target = 50  # so not in comparison with the individual dataset's target but the BBC global target of 50
@@ -479,6 +479,10 @@ def get_headline_totals(stats: Dict, session: Session):
                 PublishedRecordSet.document,
                 f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
             ),
+            func.jsonb_path_query_array(
+                PublishedRecordSet.document,
+                f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
+            ),
             func.jsonb_path_query_first(
                 PublishedRecordSet.document,
                 f'$.targets[*] ? (@.category == "{category}")."target"',
@@ -487,14 +491,27 @@ def get_headline_totals(stats: Dict, session: Session):
             column("end"),
         ).select_from(PublishedRecordSet)
 
-        percents = session.execute(stmt, execution_options={"stream_results": True})
+        percents = session.execute(stmt)
 
         total = 0
         count = 0
 
-        for [percent, target, dataset_id, end] in percents.yield_per(100):
-            this_total = sum(percent)
-            total += this_total
+        for [
+            target_member_percent,
+            oot_member_percent,
+            target,
+            dataset_id,
+            end,
+        ] in percents:
+
+            this_total_in_target = sum(target_member_percent)
+            this_total_oot = sum(oot_member_percent)
+
+            if this_total_in_target + this_total_oot == 0:
+                # eveything was zero so nothing actually recorded
+                continue
+
+            total += this_total_in_target
             count += 1
 
         stats[category.lower()] = total / count
@@ -523,9 +540,9 @@ def get_consistencies(stats: Dict, session: Session):
         column("end"),
     ).select_from(PublishedRecordSet)
 
-    percents = session.execute(stmt, execution_options={"stream_results": True})
+    percents = session.execute(stmt)
 
-    for [percent, target, dataset_id, end] in percents.yield_per(100):
+    for [percent, target, dataset_id, end] in percents:
         this_total = sum(percent)
 
         year = end.year

@@ -369,6 +369,62 @@ def resolve_stats(obj, info):
     return stats
 
 
+@query.field("headlineTotals")
+def resolve_headline_totals(obj, info):
+    # to get intellisense
+    session = cast(Session, info.context["dbsession"])
+    stats = {}
+
+    get_headline_totals(stats, session)
+
+    stats["lgbtqa"] = 0.0
+
+    return stats
+
+
+@query.field("basicStats")
+def resolve_basic_stats(obj, info):
+    # to get intellisense
+    session = cast(Session, info.context["dbsession"])
+    stats = {}
+
+    stmt = select(func.count()).select_from(Team).where(Team.deleted == None)
+    team_count = session.scalar(stmt)
+    stats["teams"] = team_count
+
+    stmt = select(func.count()).select_from(Dataset).where(Dataset.deleted == None)
+    datasets_count = session.scalar(stmt)
+    stats["datasets"] = datasets_count
+
+    stmt = select(func.count()).select_from(Tag).where(Tag.deleted == None)
+    tags_count = session.scalar(stmt)
+    stats["tags"] = tags_count
+
+    return stats
+
+
+@query.field("consistencies")
+def resolve_consistencies(obj, info):
+    # to get intellisense
+    session = cast(Session, info.context["dbsession"])
+    stats = {}
+
+    get_consistencies(stats, session)
+
+    return stats
+
+
+@query.field("overviews")
+def resolve_overviews(obj, info):
+    # to get intellisense
+    session = cast(Session, info.context["dbsession"])
+    stats = {}
+
+    get_overview(stats, session)
+
+    return stats
+
+
 @query.field("adminStats")
 def resolve_admin_stats(obj, info, input):
     # to get intellisense
