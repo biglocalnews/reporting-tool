@@ -215,6 +215,18 @@ def resolve_team(obj, info, id):
     return team
 
 
+@query.field("teamByDatasetId")
+def resolve_team_by_dataset_id(obj, info, id):
+    """GraphQL query to find a Team based on Team ID.
+    :param id: Id for the Team to be fetched
+    :returns: Team object
+    """
+    session = info.context["dbsession"]
+    dataset = session.query(Dataset).get(id)
+
+    return dataset.program.team
+
+
 @query.field("teams")
 def resolve_teams(obj, info):
     """GraphQL query to fetch full list of teams.

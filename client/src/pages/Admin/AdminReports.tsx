@@ -1,5 +1,5 @@
-import { useQuery } from "@apollo/client";
-import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { Button, Card, Col, Divider, List, Modal, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
 import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { GetAdminStats } from "../../graphql/__generated__/GetAdminStats";
@@ -11,6 +11,8 @@ import { cardStyle } from "../Home/Home";
 import { SortOrder } from "antd/lib/table/interface";
 import { AlignType } from "rc-table/lib/interface";
 import { FallOutlined, FileExclamationOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
+import { ADMIN_GET_TEAM_BY_DATASET_ID } from "../../graphql/__queries__/AdminGetTeamByDatasetId.gql";
+import { AdminGetTeamByDatasetId, AdminGetTeamByDatasetId_teamByDatasetId } from "../../graphql/__generated__/AdminGetTeamByDatasetId";
 
 
 interface IDatasetList {
@@ -35,8 +37,6 @@ export const AdminReports = () => {
 
     const [filterState, setFilterState] = useState<AdminStatsInput>({ duration: 31 });
 
-    const [selectedStat, setSelectedStat] = useState("failedTarget");
-
     const { data: adminStats, loading } = useQuery<GetAdminStats>(GET_ADMIN_STATS,
         {
             variables: {
@@ -44,6 +44,19 @@ export const AdminReports = () => {
             }
         }
     );
+
+    const [getTeam, { data: team }] = useLazyQuery<AdminGetTeamByDatasetId>(ADMIN_GET_TEAM_BY_DATASET_ID);
+
+    const [selectedTeam, setSelectedTeam] = useState<AdminGetTeamByDatasetId_teamByDatasetId>();
+
+    useEffect(() => {
+        if (team?.teamByDatasetId) {
+            console.log(team);
+            setSelectedTeam(team.teamByDatasetId)
+        }
+    }, [team]);
+
+    const [selectedStat, setSelectedStat] = useState("failedTarget");
 
     const [datasetList, setDatasetList] = useState<IDatasetList[]>();
     const [activeListItem, setActiveListItem] = useState<string>();
@@ -121,7 +134,6 @@ export const AdminReports = () => {
 
     const { t } = useTranslation();
 
-
     const dataListBaseColumns = useMemo(() => {
         const basicColumns = [
             {
@@ -147,10 +159,16 @@ export const AdminReports = () => {
             title: "",
             key: "action",
             align: "right" as AlignType,
-            render: () => (
+            render: (_: undefined, record: IDatasetList) => (
                 <Space>
-                    <Button icon={<MailOutlined />} type="text">{t("admin.reports.emailTeam")}</Button>
-                    <Button icon={<AlertOutlined />} type="text">{t("admin.reports.alertTeam")}</Button>
+                    <Button
+                        icon={<MailOutlined />}
+                        type="text"
+                        onClick={() => getTeam({ variables: { id: record.datasetId } })}
+                    >
+                        {t("admin.reports.emailTeam")}
+                    </Button>
+
                 </Space>
             )
         };
@@ -219,7 +237,7 @@ export const AdminReports = () => {
 
         return [...basicColumns, actionsColumn];
 
-    }, [t, datasetList]);
+    }, [t, datasetList, getTeam]);
 
     useEffect(() => {
         switch (selectedStat) {
@@ -248,6 +266,12 @@ export const AdminReports = () => {
     ]);
 
     return <>
+
+        <Modal visible={selectedTeam !== undefined} onOk={() => setSelectedTeam(undefined)} onCancel={() => setSelectedTeam(undefined)}>
+            {
+                selectedTeam?.users.map(x => <p key={x.id}>{x.email}</p>)
+            }
+        </Modal>
         <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
         <Row gutter={[16, 16]}>
             <Col span={6}>

@@ -633,6 +633,8 @@ type Query {
   # Retrieve a team.
   team(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
 
+  teamByDatasetId(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
+
   # Retrieve list of all teams.
   teams: [Team!]! @needsPermission(permission: [ADMIN])
 
