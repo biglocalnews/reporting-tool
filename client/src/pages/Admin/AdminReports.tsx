@@ -1,5 +1,5 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { Button, Card, Col, Divider, List, Modal, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
+import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
 import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { GetAdminStats } from "../../graphql/__generated__/GetAdminStats";
@@ -12,7 +12,7 @@ import { SortOrder } from "antd/lib/table/interface";
 import { AlignType } from "rc-table/lib/interface";
 import { FallOutlined, FileExclamationOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
 import { ADMIN_GET_TEAM_BY_DATASET_ID } from "../../graphql/__queries__/AdminGetTeamByDatasetId.gql";
-import { AdminGetTeamByDatasetId, AdminGetTeamByDatasetId_teamByDatasetId } from "../../graphql/__generated__/AdminGetTeamByDatasetId";
+import { AdminGetTeamByDatasetId } from "../../graphql/__generated__/AdminGetTeamByDatasetId";
 
 
 interface IDatasetList {
@@ -47,12 +47,23 @@ export const AdminReports = () => {
 
     const [getTeam, { data: team }] = useLazyQuery<AdminGetTeamByDatasetId>(ADMIN_GET_TEAM_BY_DATASET_ID);
 
-    const [selectedTeam, setSelectedTeam] = useState<AdminGetTeamByDatasetId_teamByDatasetId>();
-
     useEffect(() => {
         if (team?.teamByDatasetId) {
-            console.log(team);
-            setSelectedTeam(team.teamByDatasetId)
+            let text = [
+                `Hi,`,
+                `I hope you're well. This is just a gentle reminder that today is the deadline for your THEMONTH 50:50 data.`,
+                `We can see you've not yet submitted your figures on the 50:50 Tracker, so please make sure you get your data in and hit the 'PUBLISH' button by 1700gmt today to ensure you're included in this month's stats.`,
+                `If you need any help with the Tracker, or have any questions at all, don't hesitate to get in touch.`,
+                `We're excited to see how you've done this month. Thank you so much and happy counting!`,
+                `All the best,`
+            ];
+
+            text = text.map(x => encodeURI(x));
+
+            const body = text.join("%0D%0A%0D%0A")
+
+            window.location.assign(`mailto:${team.teamByDatasetId.users.map(x => x.email).join(",")}?subject=Overdue&body=${body}`);
+
         }
     }, [team]);
 
@@ -266,12 +277,6 @@ export const AdminReports = () => {
     ]);
 
     return <>
-
-        <Modal visible={selectedTeam !== undefined} onOk={() => setSelectedTeam(undefined)} onCancel={() => setSelectedTeam(undefined)}>
-            {
-                selectedTeam?.users.map(x => <p key={x.id}>{x.email}</p>)
-            }
-        </Modal>
         <PageHeader title={t("admin.reports.title")} subTitle={t("admin.reports.subtitle")} />
         <Row gutter={[16, 16]}>
             <Col span={6}>
