@@ -580,7 +580,7 @@ export const DataEntryTable = (props: IProps) => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                <Tabs centered={true}>
+                                <Tabs centered={true} type="card" size="large">
                                     {
                                         (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
                                             .map((personType: IPersonType, pTypeindex: number) =>
