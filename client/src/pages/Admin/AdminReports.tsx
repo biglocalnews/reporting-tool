@@ -24,7 +24,7 @@ interface IDatasetList {
     percent?: number,
     reportingPeriodName?: string | null | undefined
     count?: number
-    needsAttentionType?: NeedsAttentionType[]
+    needsAttentionTypes?: readonly NeedsAttentionType[]
 }
 
 const selectedCardStyle = {
@@ -219,6 +219,9 @@ export const AdminReports = () => {
             title: t("admin.reports.datasetAttentionTypeColumnTitle"),
             dataIndex: "needsAttentionTypes",
             key: "needsAttentionTypes",
+            filters: Object.entries(NeedsAttentionType).map(([k,]) => ({ "text": t(`admin.reports.${k}`), "value": k })),
+            onFilter: (value: string | number | boolean, record: IDatasetList) =>
+                record.needsAttentionTypes ? Object.values(record.needsAttentionTypes).map(x => x as string).includes(NeedsAttentionType[(value as keyof typeof NeedsAttentionType)]) : false,
             render: (needsAttentionTypes: NeedsAttentionType[] | undefined) => <Space>
                 {
                     needsAttentionTypes?.map(x => {
