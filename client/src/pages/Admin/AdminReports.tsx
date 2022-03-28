@@ -221,7 +221,7 @@ export const AdminReports = () => {
             key: "needsAttentionTypes",
             filters: Object.entries(NeedsAttentionType).map(([k,]) => ({ "text": t(`admin.reports.${k}`), "value": k })),
             onFilter: (value: string | number | boolean, record: IDatasetList) =>
-                record.needsAttentionTypes ? Object.values(record.needsAttentionTypes).map(x => x as string).includes(NeedsAttentionType[(value as keyof typeof NeedsAttentionType)]) : false,
+                record.needsAttentionTypes ? Object.values(record.needsAttentionTypes).map(x => x as string).includes(NeedsAttentionType[(value as keyof typeof NeedsAttentionType)]) : true,
             render: (needsAttentionTypes: NeedsAttentionType[] | undefined) => <Space>
                 {
                     needsAttentionTypes?.map(x => {
