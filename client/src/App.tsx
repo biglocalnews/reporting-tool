@@ -1,4 +1,4 @@
-import { Empty, Layout } from "antd";
+import { Divider, Empty, Layout } from "antd";
 import { Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
@@ -62,25 +62,35 @@ function App() {
       <AppSidebar setCollapseState={setSidebarCollapse} collapsed={sidebarCollapsed} />
       <Layout
         style={{
+          backgroundColor: "#fff",
           marginLeft: sidebarCollapsed ? 80 : 300,
           overflowY: "auto",
-          height: `calc(100vh - ${footerHeight})`
+          overflowX: "auto",
+          height: `calc(100vh - ${footerHeight})`,
+          width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
         }}
       >
         <AppHeader />
-        <Content className="site-layout-background">
+        <Divider style={{ margin: 0, borderTop: "15px solid #f0f2f5" }} />
+        <Content
+          style={{
+            padding: "20px",
+            height: "auto",
+            width: "100%"
+          }}
+        >
           {children}
         </Content>
         <Footer
           style={{
-            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
             padding: "14px 50px",
             height: footerHeight,
             textAlign: 'center',
             position: 'fixed',
             zIndex: 1,
             bottom: 0,
-            boxShadow: "0.5em 0.5em 0.85em rgba(0,0,50,0.6)"
+            boxShadow: "0.5em 0.5em 0.5em rgba(0,0,50,0.6)",
+            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`
           }}
         >
           BBC Northern Ireland Products Team et Stanford Fecit
