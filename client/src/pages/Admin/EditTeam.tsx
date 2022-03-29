@@ -147,7 +147,7 @@ export const EditTeam = (): JSX.Element => {
       },
     });
 
-  usePrompt(t("conflirmLeavePage"), dirty);
+  usePrompt(t("confirmLeavePage"), dirty);
 
   if (!teamId) return <p>bad route</p>;
 

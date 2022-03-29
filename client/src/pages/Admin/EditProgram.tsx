@@ -261,7 +261,7 @@ export const EditProgram = (): JSX.Element => {
     }
   }, [allTeams]);
 
-  usePrompt(t("conflirmLeavePage"), dirty);
+  usePrompt(t("confirmLeavePage"), dirty);
 
   if (!programId) return <p>bad route</p>;
 

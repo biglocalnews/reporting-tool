@@ -1,4 +1,4 @@
-import { Divider, Empty, Layout } from "antd";
+import { Button, Divider, Empty, Layout } from "antd";
 import { Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
@@ -25,7 +25,7 @@ import { Reports } from "./pages/Reports/Reports";
 import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
-
+import { InfoCircleFilled, ProjectFilled, GithubFilled } from "@ant-design/icons";
 
 
 function Redirecter(props: { from: string }) {
@@ -54,6 +54,7 @@ const NotFound = () => {
 function App() {
   const [sidebarCollapsed, setSidebarCollapse] = useState(false);
   const footerHeight = "48px";
+  const { t } = useTranslation();
   /**
  * Layout container for an authenticated user.
  */
@@ -83,20 +84,64 @@ function App() {
         </Content>
         <Footer
           style={{
-            padding: "14px 50px",
+            padding: "14px",
             height: footerHeight,
-            textAlign: 'center',
+            textAlign: 'left',
             position: 'fixed',
             zIndex: 1,
             bottom: 0,
             boxShadow: "0.5em 0.5em 0.5em rgba(0,0,50,0.6)",
-            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`
+            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
+            backgroundColor: "#002140",
+            display: "flex",
+            alignItems: "center"
+
           }}
         >
-          BBC Northern Ireland Products Team et Stanford Fecit
+
+          <Button
+            type="text"
+            style={{
+              color: "white"
+            }}
+          >
+            <span style={{ fontFamily: "monospace", color: "#33FF33" }}>&gt;_&nbsp;
+              {t("footer")}
+            </span>
+          </Button>
+
+          <div style={{ flexGrow: 1 }} />
+
+          <Button
+            type="text"
+            icon={<InfoCircleFilled />}
+            style={{
+              color: "white"
+            }}
+          >
+            {t("userGuide")}
+          </Button>
+          <Button
+            type="text"
+            icon={<ProjectFilled />}
+            style={{
+              color: "white"
+            }}
+          >
+            {t("project")}
+          </Button>
+          <Button
+            type="text"
+            icon={<GithubFilled />}
+            style={{
+              color: "white"
+            }}
+          >
+            {t("version")} 1.0
+          </Button>
         </Footer>
       </Layout>
-    </Layout>
+    </Layout >
 
   // Additional routes that only authed admins can visit.
   // When a user is logged in but lacks permission, they will see an error

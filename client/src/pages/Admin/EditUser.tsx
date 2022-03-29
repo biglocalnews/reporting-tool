@@ -242,7 +242,7 @@ export const EditUser = (): JSX.Element => {
   const { deleting, deleteError, deleteUser } = useDeleteUser(userId, refresh);
   const { restoreError, restoreUser } = useRestoreUser(userId, refresh);
 
-  usePrompt(t("conflirmLeavePage"), dirty);
+  usePrompt(t("confirmLeavePage"), dirty);
 
   if (!userId) return <p>bad route</p>;
 

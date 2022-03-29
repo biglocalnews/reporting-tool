@@ -1,4 +1,8 @@
 {
+  "footer": "Built by BBC NI Product Team",
+  "project": "Project Confluence",
+  "version": "Version",
+  "userGuide": "User Guide",
   "program": "dataset group",
   "program_plural": "dataset groups",
   "Program": "Dataset Group",
