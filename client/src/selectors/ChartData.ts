@@ -15,30 +15,32 @@ export interface IChartData {
 
 
 export const grouped = (chartData: IChartData[] | undefined) => {
-    return (chartData?.reduce((group, entry) => {
-        const month = entry.date.getMonth();
-        const monthName = new Intl.DateTimeFormat(window.navigator.language, {
-            month: "long",
-        }).format(entry.date);
-        const year = entry.date.getFullYear();
-        const monthYear = `${monthName} ${year}`;
-        const key = `${monthYear} ${entry.attribute}`
-        if (!group[key]) {
-            group[key] = {} as IChartData;
-            group[key] = {
-                ...entry,
-                groupedDate: `${year}-${month + 1}-1`,
-                count: 1,
-                summedPercent: entry.percent
-            };
-            return group;
-        }
+    return (chartData?.
+        sort((a, b) => Number(a.targetMember) - Number(b.targetMember))
+        .reduce((group, entry) => {
+            const month = entry.date.getMonth();
+            const monthName = new Intl.DateTimeFormat(window.navigator.language, {
+                month: "long",
+            }).format(entry.date);
+            const year = entry.date.getFullYear();
+            const monthYear = `${monthName} ${year}`;
+            const key = `${monthYear} ${entry.attribute}`
+            if (!group[key]) {
+                group[key] = {} as IChartData;
+                group[key] = {
+                    ...entry,
+                    groupedDate: `${year}-${month + 1}-1`,
+                    count: 1,
+                    summedPercent: entry.percent
+                };
+                return group;
+            }
 
-        group[key].count += 1;
-        group[key].summedPercent += entry.percent;
-        group[key].percent = (group[key].summedPercent) / group[key].count;
-        return group;
-    }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>)
+            group[key].count += 1;
+            group[key].summedPercent += entry.percent;
+            group[key].percent = (group[key].summedPercent) / group[key].count;
+            return group;
+        }, {} as Record<string, IChartData>) ?? {} as Record<string, IChartData>)
 }
 
 export const groupedByYearCategory = (filteredData: (GetAllPublishedRecordSets_publishedRecordSets[] | undefined)[]) => {
