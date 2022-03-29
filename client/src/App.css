@@ -1,10 +1,11 @@
 @import "~antd/dist/antd.css";
 
 .site-layout-background {
-  background: #fff;
-  padding: 15px 24px;
+  background-color: #fff;
   margin-top: 10px;
-  min-height: 280px;
+  padding: 20px;
+  height: auto;
+  display: table;
 }
 
 .ant-layout {
@@ -176,4 +177,6 @@ body {
   font-family: "BBC Reith Sans Regular";
   -webkit-font-smoothing: antialiased;
   color: rgba(0, 0, 0, 0.65);
+  width: 100vw;
+  height: 100vh;
 }

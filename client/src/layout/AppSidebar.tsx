@@ -8,7 +8,7 @@ import {
   HomeOutlined
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Layout, Menu } from "antd";
+import { Button, Layout, Menu } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
@@ -152,17 +152,45 @@ export const AppSidebarMenu = () => {
   );
 };
 
+interface IProps {
+  setCollapseState: (newState: boolean) => void
+  collapsed: boolean
+}
+
 /**
  * App sidebar content: info and navigation links
  */
-const AppSidebar = (): JSX.Element => {
+const AppSidebar = ({ setCollapseState, collapsed }: IProps): JSX.Element => {
   return (
     <Sider
+
+      collapsed={collapsed}
       width={300}
       className="sidebar"
       breakpoint="md"
       theme="dark"
       collapsible
+      style={{
+        overflow: 'auto',
+        height: '100vh',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        bottom: 0,
+      }}
+      trigger={
+        <Button
+          type="text"
+          style={{
+            color: "white",
+            fontSize: "xx-large",
+            width: "100%"
+          }}
+          onClick={() => setCollapseState(!collapsed)}
+        >
+          {collapsed ? <>&gt;</> : <>&lt;</>}
+        </Button>
+      }
     >
       <AppSidebarMenu />
       {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}

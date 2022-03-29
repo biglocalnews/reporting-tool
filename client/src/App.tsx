@@ -1,5 +1,5 @@
 import { Empty, Layout } from "antd";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import { ErrorBoundary } from "./components/Error/ErrorBoundary";
@@ -26,63 +26,7 @@ import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
 
-/**
- * Layout container for an authenticated user.
- */
-const ProtectedAppContainer: React.FC = ({ children }) => <Layout>
-  <AppSidebar />
-  <Layout>
-    <AppHeader />
-    <Content className="site-layout-background">
-      {children}
-    </Content>
-    <Footer></Footer>
-  </Layout>
-</Layout>
 
-// Routes that a normal authed user can visit.
-// If the user is not logged in, they will be redirected to the login screen.
-const WrappedPrivate = () => {
-  const location = useLocation();
-  const auth = useAuth();
-  if (!auth.isLoggedIn()) {
-    if (process.env.NODE_ENV !== "production") {
-      return <Navigate to="/login" state={{ from: location }} />
-    }
-    return <Redirecter from={location.pathname} />
-  }
-  return <ProtectedAppContainer>
-    <ErrorBoundary>
-      <Outlet />
-    </ErrorBoundary>
-  </ProtectedAppContainer>
-
-}
-// Additional routes that only authed admins can visit.
-// When a user is logged in but lacks permission, they will see an error
-// telling them that they can't view the requested site.
-//
-// If a user is *not* logged in, they will be redirected to login screen.
-const WrappedPrivateAdmin = () => {
-  const location = useLocation();
-  const auth = useAuth();
-  const { t } = useTranslation();
-  if (!auth.isLoggedIn()) {
-    if (process.env.NODE_ENV !== "production") {
-      return <Navigate to="/login" state={{ from: location }} />
-    }
-    return <Redirecter from={location.pathname} />
-  }
-  return <ProtectedAppContainer>
-    <ErrorBoundary>
-      {auth.isAdmin() ? (
-        <Outlet />
-      ) : (
-        <div>{t("notAuthorized")}</div>
-      )}
-    </ErrorBoundary>
-  </ProtectedAppContainer>
-}
 
 function Redirecter(props: { from: string }) {
   useEffect(() => {
@@ -108,34 +52,115 @@ const NotFound = () => {
  * Top-level app layout.
  */
 function App() {
+  const [sidebarCollapsed, setSidebarCollapse] = useState(false);
+  const footerHeight = "48px";
+  /**
+ * Layout container for an authenticated user.
+ */
+  const ProtectedAppContainer: React.FC = ({ children }) =>
+    <Layout hasSider>
+      <AppSidebar setCollapseState={setSidebarCollapse} collapsed={sidebarCollapsed} />
+      <Layout
+        style={{
+          marginLeft: sidebarCollapsed ? 80 : 300,
+          overflowY: "auto",
+          height: `calc(100vh - ${footerHeight})`
+        }}
+      >
+        <AppHeader />
+        <Content className="site-layout-background">
+          {children}
+        </Content>
+        <Footer
+          style={{
+            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
+            padding: "14px 50px",
+            height: footerHeight,
+            textAlign: 'center',
+            position: 'fixed',
+            zIndex: 1,
+            bottom: 0
+          }}
+        >
+          BBC Northern Ireland Products Team et Stanford Fecit
+        </Footer>
+      </Layout>
+    </Layout>
+
+  // Additional routes that only authed admins can visit.
+  // When a user is logged in but lacks permission, they will see an error
+  // telling them that they can't view the requested site.
+  //
+  // If a user is *not* logged in, they will be redirected to login screen.
+  const WrappedPrivateAdmin = () => {
+    const location = useLocation();
+    const auth = useAuth();
+    const { t } = useTranslation();
+    if (!auth.isLoggedIn()) {
+      if (process.env.NODE_ENV !== "production") {
+        return <Navigate to="/login" state={{ from: location }} />
+      }
+      return <Redirecter from={location.pathname} />
+    }
+    return <ProtectedAppContainer>
+      <ErrorBoundary>
+        {auth.isAdmin() ? (
+          <Outlet />
+        ) : (
+          <div>{t("notAuthorized")}</div>
+        )}
+      </ErrorBoundary>
+    </ProtectedAppContainer>
+  }
+
+
+
+  // Routes that a normal authed user can visit.
+  // If the user is not logged in, they will be redirected to the login screen.
+  const WrappedPrivate = () => {
+    const location = useLocation();
+    const auth = useAuth();
+    if (!auth.isLoggedIn()) {
+      if (process.env.NODE_ENV !== "production") {
+        return <Navigate to="/login" state={{ from: location }} />
+      }
+      return <Redirecter from={location.pathname} />
+    }
+    return <ProtectedAppContainer>
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
+    </ProtectedAppContainer>
+
+  }
+
+
   return (
     <Suspense fallback={<Loading />}>
-      <Layout style={{ height: "100vh" }}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<WrappedPrivate />}>
-              <Route index element={<Home />} />
-              <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
-              <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
-              <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
-              <Route path="reports" element={<Reports />} />
-            </Route>
-            <Route path="/admin/" element={<WrappedPrivateAdmin />}>
-              <Route path="users" element={<UserList />} />
-              <Route path="users/:userId" element={<EditUser />} />
-              <Route path="teams" element={<TeamList />} />
-              <Route path="teams/:teamId" element={<EditTeam />} />
-              <Route path="programs" element={<ProgramList />} />
-              <Route path="programs/:programId" element={<EditProgram />} />
-              <Route path="tags" element={<EditTags />} />
-              <Route path="datasets" element={<Datasets />} />
-              <Route path="reports" element={<AdminReports />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </Layout>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<WrappedPrivate />}>
+            <Route index element={<Home />} />
+            <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
+            <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
+            <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
+            <Route path="reports" element={<Reports />} />
+          </Route>
+          <Route path="/admin/" element={<WrappedPrivateAdmin />}>
+            <Route path="users" element={<UserList />} />
+            <Route path="users/:userId" element={<EditUser />} />
+            <Route path="teams" element={<TeamList />} />
+            <Route path="teams/:teamId" element={<EditTeam />} />
+            <Route path="programs" element={<ProgramList />} />
+            <Route path="programs/:programId" element={<EditProgram />} />
+            <Route path="tags" element={<EditTags />} />
+            <Route path="datasets" element={<Datasets />} />
+            <Route path="reports" element={<AdminReports />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </Suspense>
   );
 }
