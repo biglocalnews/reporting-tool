@@ -1,5 +1,3 @@
-import BarChartOutlined from "@ant-design/icons/lib/icons/BarChartOutlined";
-
 import { useMutation, useQuery } from "@apollo/client";
 import {
   Button,
@@ -35,9 +33,8 @@ import { DatasetDetailsRecordsTable } from "./DatasetDetailsRecordsTable";
 import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument, PublishedRecordSet } from "./PublishedRecordSet";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import Pie5050 from "../Charts/Pie";
-import { ProgressColumns } from "../Charts/Progress";
 import { LineColumn } from "../Charts/LineColumn";
-import { targetStates, filteredRecords, sortedRecords } from "../../selectors/TargetStates";
+import { targetStates, filteredRecords } from "../../selectors/TargetStates";
 import { flattened, grouped, IChartData } from "../../selectors/ChartData";
 
 const { TabPane } = Tabs;
@@ -114,12 +111,16 @@ const DatasetDetails = (): JSX.Element => {
       flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record).map(x => x.category))));
   }, [queryData?.dataset.publishedRecordSets]);
 
-  const chartData = useMemo(() => {
+  const filteredData = useMemo(() => {
     return queryData?.dataset.publishedRecordSets?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
       .filter(x => !selectedFilters.categories.length || selectedFilters.categories.includes(x.category))
       .map((r) => ({ ...r, date: new Date(x.end) } as IChartData))
     )
   }, [queryData?.dataset.publishedRecordSets, selectedFilters]);
+
+  const chartData = useMemo(() => {
+    return flattened(grouped(filteredData));
+  }, [filteredData]);
 
   useEffect(() => {
 
@@ -232,22 +233,7 @@ const DatasetDetails = (): JSX.Element => {
                     </Col>
                   ))
                 }
-                <Col span={24}>
-                  <Collapse>
-                    <Panel
-                      className="customPanel"
-                      showArrow={true}
-                      header={<span style={{ fontSize: "1.5rem" }}>3 Month Trend</span>}
-                      extra={<BarChartOutlined style={{ fontSize: "2rem", fontWeight: 600 }} />}
-                      key="1">
-                      {
-                        <Row justify="center">
-                          <ProgressColumns dataset={queryData?.dataset} records={sortedRecords(queryData)} />
-                        </Row>
-                      }
-                    </Panel>
-                  </Collapse>
-                </Col>
+
                 <Col span={24}>
                   <DataEntryTable
                     id={datasetId}
@@ -294,9 +280,36 @@ const DatasetDetails = (): JSX.Element => {
                     </Col>
                     <Col span={24}>
                       <LineColumn
-                        data={flattened(grouped(chartData))}
+                        data={chartData}
                         loading={queryLoading}
-                        columnOptions={{ isGroup: true, groupField: "category", isStack: true }}
+                        columnOptions={{
+                          isGroup: true,
+                          groupField: "category",
+                          isStack: true,
+                          annotations: Array.from(new Set(chartData.map(x => x.category)))
+                            .map(category => {
+                              const target = queryData.dataset.program.targets.find(y => y.category.name === category)?.target;
+                              if (!target) return;
+                              return {
+                                type: "line",
+                                top: true,
+                                start: ["-1%", 100 - (target * 100)],
+                                end: ["101%", 100 - (target * 100)],
+                                style: {
+                                  lineWidth: 3,
+                                  stroke: getPalette(category)[0],
+                                },
+                                text: {
+                                  content: "",
+                                  position: "start",
+                                  offsetY: 10,
+                                  offsetX: -35,
+                                  style: { fontSize: 20, fontWeight: 300 },
+                                },
+                              };
+                            }
+                            )
+                        }}
                       />
                     </Col>
                     <Col span={24}>

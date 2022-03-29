@@ -79,7 +79,8 @@ function App() {
             textAlign: 'center',
             position: 'fixed',
             zIndex: 1,
-            bottom: 0
+            bottom: 0,
+            boxShadow: "0.5em 0.5em 0.85em rgba(0,0,50,0.6)"
           }}
         >
           BBC Northern Ireland Products Team et Stanford Fecit
