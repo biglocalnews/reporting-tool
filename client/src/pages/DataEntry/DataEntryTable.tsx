@@ -289,6 +289,7 @@ export const DataEntryTable = (props: IProps) => {
     const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         mergedCustomColumns(reportingPeriod)
             .map((customColumn) => ({
+                fixed: true,
                 title: customColumn.name,
                 dataIndex: customColumn.name,
                 key: customColumn.name,
@@ -592,6 +593,7 @@ export const DataEntryTable = (props: IProps) => {
                                                         dataSource={getTableData(reportingPeriod, personType)}
                                                         columns={[
                                                             {
+                                                                fixed: true,
                                                                 render: function d(record) {
                                                                     return <Button
                                                                         tabIndex={-1}
@@ -612,6 +614,7 @@ export const DataEntryTable = (props: IProps) => {
                                                                 }
                                                             },
                                                             {
+                                                                fixed: true,
                                                                 title: "Date",
                                                                 dataIndex: "date",
                                                                 key: "date",
