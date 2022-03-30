@@ -19,7 +19,7 @@ import { GetOverviews } from "../../graphql/__generated__/GetOverviews";
 const { Title } = Typography;
 
 const gradientStyle = ({
-    backgroundColor: "#f3ec78",
+    background: "#f3ec78",
     backgroundImage: `linear-gradient(to right, ${getPalette("Gender")}, ${getPalette("Ethnicity")}, ${getPalette("Disability")})`,
     backgroundSize: "100%",
     backgroundClip: "text",
@@ -29,7 +29,7 @@ const gradientStyle = ({
     MozTextFillColor: "transparent"
 })
 
-export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", backgroundColor: "#fafafa" });
+export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", background: "#fafafa" });
 
 export const Home = () => {
 

@@ -217,14 +217,31 @@ def resolve_team(obj, info, id):
 
 @query.field("teamByDatasetId")
 def resolve_team_by_dataset_id(obj, info, id):
-    """GraphQL query to find a Team based on Team ID.
-    :param id: Id for the Team to be fetched
-    :returns: Team object
-    """
+
     session = info.context["dbsession"]
     dataset = session.query(Dataset).get(id)
 
     return dataset.program.team
+
+
+@query.field("teamsByDatasetIds")
+def resolve_teams_by_dataset_ids(obj, info, ids):
+    session = cast(Session, info.context["dbsession"])
+    session = info.context["dbsession"]
+
+    stmt = (
+        select(Team)
+        .filter(Dataset.id.in_(ids))
+        .select_from(Dataset)
+        .join(Program, Dataset.program_id == Program.id)
+        .join(Team, Program.team_id == Team.id)
+    )
+
+    result = session.execute(stmt)
+
+    teams = [x[0] for x in result]
+
+    return teams
 
 
 @query.field("teams")

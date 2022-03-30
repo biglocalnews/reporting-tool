@@ -63,7 +63,7 @@ function App() {
       <AppSidebar setCollapseState={setSidebarCollapse} collapsed={sidebarCollapsed} />
       <Layout
         style={{
-          backgroundColor: "#fff",
+          background: "#fff",
           marginLeft: sidebarCollapsed ? 80 : 300,
           overflowY: "auto",
           overflowX: "auto",
@@ -92,7 +92,7 @@ function App() {
             bottom: 0,
             boxShadow: "0.5em 0.5em 0.5em rgba(0,0,50,0.6)",
             width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
-            backgroundColor: "#002140",
+            background: "#002140",
             display: "flex",
             alignItems: "center"
 
@@ -105,8 +105,13 @@ function App() {
               color: "white"
             }}
           >
-            <span style={{ fontFamily: "monospace", color: "#33FF33" }}>&gt;_&nbsp;
-              {t("footer")}
+            <span
+              style={{
+                fontFamily: "monospace",
+                color: "#33FF33"
+              }}
+            >
+              &gt;_&nbsp;{t("footer")}
             </span>
           </Button>
 

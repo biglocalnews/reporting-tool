@@ -635,6 +635,8 @@ type Query {
 
   teamByDatasetId(id: ID!): Team! @needsPermission(permission: [LOGGED_IN])
 
+  teamsByDatasetIds(ids: [ID!]!): [Team!]! @needsPermission(permission: [LOGGED_IN])
+
   # Retrieve list of all teams.
   teams: [Team!]! @needsPermission(permission: [ADMIN])
 

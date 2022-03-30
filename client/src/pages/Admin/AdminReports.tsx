@@ -1,4 +1,5 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
+import dayjs from 'dayjs';
 import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
 import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,8 @@ import { AlignType } from "rc-table/lib/interface";
 import { FallOutlined, FileExclamationOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
 import { ADMIN_GET_TEAM_BY_DATASET_ID } from "../../graphql/__queries__/AdminGetTeamByDatasetId.gql";
 import { AdminGetTeamByDatasetId } from "../../graphql/__generated__/AdminGetTeamByDatasetId";
+import { ADMIN_GET_TEAMS_BY_DATASET_IDS } from "../../graphql/__queries__/AdminGetTeamsByDatasetIds.gql";
+import { AdminGetTeamsByDatasetIds } from "../../graphql/__generated__/AdminGetTeamsByDatasetIds";
 
 
 interface IDatasetList {
@@ -44,33 +47,40 @@ export const AdminReports = () => {
             }
         }
     );
+    const [getTeam, { loading: teamLoading, }] = useLazyQuery<AdminGetTeamByDatasetId>(ADMIN_GET_TEAM_BY_DATASET_ID);
+    const [getTeams, { loading: teamsLoading }] = useLazyQuery<AdminGetTeamsByDatasetIds>(ADMIN_GET_TEAMS_BY_DATASET_IDS);
 
-    const [getTeam, { data: team }] = useLazyQuery<AdminGetTeamByDatasetId>(ADMIN_GET_TEAM_BY_DATASET_ID);
-
-    useEffect(() => {
-        if (team?.teamByDatasetId) {
-            let text = [
-                `Hi,`,
-                `I hope you're well. This is just a gentle reminder that today is the deadline for your THEMONTH 50:50 data.`,
-                `We can see you've not yet submitted your figures on the 50:50 Tracker, so please make sure you get your data in and hit the 'PUBLISH' button by 1700gmt today to ensure you're included in this month's stats.`,
-                `If you need any help with the Tracker, or have any questions at all, don't hesitate to get in touch.`,
-                `We're excited to see how you've done this month. Thank you so much and happy counting!`,
-                `All the best,`
-            ];
-
-            text = text.map(x => encodeURI(x));
-
-            const body = text.join("%0D%0A%0D%0A")
-
-            window.location.assign(`mailto:${team.teamByDatasetId.users.map(x => x.email).join(",")}?subject=Overdue&body=${body}`);
-
-        }
-    }, [team]);
 
     const [selectedStat, setSelectedStat] = useState("failedTarget");
-
     const [datasetList, setDatasetList] = useState<IDatasetList[]>();
     const [activeListItem, setActiveListItem] = useState<string>();
+
+    const email = (emailAddresses: string[]) => {
+        setSelectedStat(stat => {
+            let body = "";
+            if (stat === "overdue") {
+                const lastMonth = dayjs().subtract(1, "month").format("MMMM");
+                let text = [
+                    `Hi,`,
+                    `I hope you're well. This is just a gentle reminder that today is the deadline for your ${lastMonth} 50:50 data.`,
+                    `We can see you've not yet submitted your figures on the 50:50 Tracker, so please make sure you get your data in and hit the 'PUBLISH' button by 1700gmt today to ensure you're included in this month's stats.`,
+                    `If you need any help with the Tracker, or have any questions at all, don't hesitate to get in touch.`,
+                    `We're excited to see how you've done this month. Thank you so much and happy counting!`,
+                    `All the best,`
+                ];
+                text = text.map(x => encodeURI(x));
+                body = text.join("%0D%0A%0D%0A");
+            }
+            window.location.assign(`mailto:${emailAddresses.join(";")}?subject=Overdue&body=${body}`);
+            return stat
+        });
+    }
+
+    /*const chunker = (a: string[], n: number) => a.reduce((r, v, i) => {
+        const c = Math.floor(i / n); // which chunk it belongs to
+        (r[c] = r[c] || []).push(v);
+        return r
+    }, [[] as string[]]);*/
 
     const overdueDatasets = useMemo(() => {
         return adminStats?.adminStats.overdue ?? []
@@ -167,15 +177,47 @@ export const AdminReports = () => {
         ];
 
         const actionsColumn = {
-            title: "",
+            title: <Button
+                loading={teamsLoading}
+                icon={<MailOutlined />}
+                type="text"
+                onClick={
+                    () => datasetList && getTeams({ variables: { ids: datasetList.map(x => x.datasetId) } })
+                        .then(result => {
+                            if (result.data?.teamsByDatasetIds) {
+                                const teams = result.data?.teamsByDatasetIds;
+                                const emailAddresses = Array.from(new Set(teams.flatMap(x => x.users.map(x => x.email))));
+                                if (emailAddresses.length > 50) {
+                                    navigator.clipboard.writeText(emailAddresses.join(";"));
+                                    /* Alert the copied text */
+                                    alert("Copied email list to clipboard, please paste into new Outlook Mail message");
+                                }
+                                else {
+                                    email(emailAddresses);
+                                }
+
+                            }
+                        })
+                }
+            >
+                {t("admin.reports.emailAllOverdue")}
+            </Button>,
             key: "action",
             align: "right" as AlignType,
             render: (_: undefined, record: IDatasetList) => (
                 <Space>
                     <Button
+                        loading={teamLoading}
                         icon={<MailOutlined />}
                         type="text"
-                        onClick={() => getTeam({ variables: { id: record.datasetId } })}
+                        onClick={() => getTeam({ variables: { id: record.datasetId } })
+                            .then(result => {
+                                if (result.data?.teamByDatasetId) {
+                                    const team = result.data?.teamByDatasetId;
+                                    email(team.users.map(x => x.email));
+                                }
+                            })
+                        }
                     >
                         {t("admin.reports.emailTeam")}
                     </Button>
@@ -251,7 +293,7 @@ export const AdminReports = () => {
 
         return [...basicColumns, actionsColumn];
 
-    }, [t, datasetList, getTeam]);
+    }, [t, datasetList, getTeam, getTeams, teamLoading, teamsLoading]);
 
     useEffect(() => {
         switch (selectedStat) {
@@ -416,7 +458,7 @@ export const AdminReports = () => {
                                     onMouseEnter: () => setActiveListItem(record.key),
                                     onMouseLeave: () => setActiveListItem(undefined),
                                     onClick: () => setActiveListItem((curr) => curr ? undefined : record.key),
-                                    backgroundColor: activeListItem ? "rgba(0,0,255,0.1)" : "unset"
+                                    background: activeListItem ? "rgba(0,0,255,0.1)" : "unset"
                                 }
                             }}
                         />
