@@ -1,8 +1,7 @@
 import uuid
 import secrets
-
 import mailer
-from user import fastapi_users, UserCreateModel, UserRole, get_valid_token
+from more_itertools import chunked
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from settings import settings
 from database import (
@@ -17,6 +16,7 @@ from database import (
     ReportingPeriod,
     Record,
     Role,
+    SentItem,
     Tag,
     User,
     Target,
@@ -28,6 +28,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
 from fastapi_users.router.verify import VERIFY_USER_TOKEN_AUDIENCE
 import json
+from smtplib import SMTP
+from email.message import EmailMessage
 
 mutation = ObjectType("Mutation")
 
@@ -639,3 +641,43 @@ def resolve_update_tag(obj, info, id):
         session.delete(tag)
         session.commit()
     return id
+
+
+@mutation.field("sendEmail")
+@convert_kwargs_to_snake_case
+def resolve_send_email(obj, info, input):
+    session = info.context["dbsession"]
+    all_errs = None
+    with SMTP("smtp.national.core.bbc.co.uk") as smtp:
+        for email_chunk in chunked(input["to"], 50):
+            msg = EmailMessage()
+            msg.set_content(input["body"])
+            msg["Subject"] = input["subject"]
+            msg["To"] = "5050Contact@bbc.co.uk"
+            msg["From"] = "5050Contact@bbc.co.uk"
+            msg["Bcc"] = ", ".join(email_chunk)
+
+            db_sent_item = SentItem.map_message(msg, input["month_year"])
+
+            this_chunks_errors = None
+
+            try:
+                errs = smtp.send_message(msg)
+                if errs:
+                    [print(err) for err in errs]
+                    this_chunks_errors = "\n".join(errs)
+                    all_errs = all_errs + this_chunks_errors + "\n"
+                    db_sent_item.succeeded = False
+                    db_sent_item.errors = this_chunks_errors
+                else:
+                    db_sent_item.succeeded = True
+            except Exception as ex:
+                print(ex)
+                all_errs = all_errs + ex + "\n"
+                db_sent_item.succeeded = False
+                db_sent_item.errors = ex
+
+            session.add(db_sent_item)
+
+    session.commit()
+    return all_errs

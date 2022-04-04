@@ -598,6 +598,13 @@ input AdminStatsInput {
   duration: Int!
 }
 
+input SendEmailInput {
+  to: [String!]!
+  body: String!
+  subject: String!
+  monthYear: String!
+}
+
 type Query {
   # NOTE: Permissions are enforced at the object-level as objects are returned.
 
@@ -676,6 +683,7 @@ type Query {
   adminStats(input: AdminStatsInput): AdminStats!
 
   adUsers(search: String): [ADUser!]!
+
 }
 
 type Mutation {
@@ -764,5 +772,7 @@ type Mutation {
   updateTag(input: UpdateTagInput!): Tag! @needsPermission(permission: [ADMIN])
 
   deleteTag(id: ID!): ID! @needsPermission(permission: [ADMIN])
+
+  sendEmail(input: SendEmailInput!): String @needsPermission(permission: [ADMIN])
 
 }

@@ -7,7 +7,7 @@ bcrypt==3.2.0
 certifi==2021.5.30
 cffi==1.14.5
 chardet==4.0.0
-class-doc==0.2.0b0
+class-doc==0.2.6
 click==7.1.2
 databases==0.5.3
 Deprecated==1.2.12
@@ -58,3 +58,4 @@ python3-saml==1.11.0
 requests-kerberos
 requests-ntlm
 pyhumps
+more-itertools==8.12.0

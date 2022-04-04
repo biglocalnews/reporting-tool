@@ -396,7 +396,9 @@
       "MoreThan10PercentBelowATargetLastPeriod": "More than 10 percent below a target last period",
       "MissedATargetInAllLast3Periods": "Missed a target in all last 3 periods",
       "NothingPublishedLast3Periods": "Nothing published last 3 periods",
-      "emailAllOverdue": "Email all"
+      "emailAllOverdue": "Email all",
+      "confirmSendEmails": "Are you sure you want to send an email to all these teams?",
+      "sentOk": "Overdue emails sent"
     }
   }
 }

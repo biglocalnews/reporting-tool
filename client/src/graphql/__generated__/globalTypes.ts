@@ -130,6 +130,13 @@ export interface ReportingPeriodInput {
   readonly description?: string | null;
 }
 
+export interface SendEmailInput {
+  readonly to: ReadonlyArray<string>;
+  readonly body: string;
+  readonly subject: string;
+  readonly monthYear: string;
+}
+
 export interface TagInput {
   readonly id?: string | null;
   readonly name?: string | null;

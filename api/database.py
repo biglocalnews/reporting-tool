@@ -6,6 +6,7 @@ Run this as a script to create the database tables:
 Can also add dummy data for development with:
     python database.py --dummy-data
 """
+from email.message import EmailMessage
 import uuid
 import click
 from datetime import datetime
@@ -990,6 +991,43 @@ class PublishedRecordSet(Base, PermissionsMixin):
             session.query(PublishedRecordSet)
             .filter(PublishedRecordSet.id == id_, PublishedRecordSet.deleted == None)
             .scalar()
+        )
+
+
+class SentItem(Base, PermissionsMixin):
+    __tablename__ = "sent_item"
+
+    id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+
+    month_year = Column(String(255), nullable=False)
+
+    sent_as = Column(String(255), nullable=False)
+
+    to = Column(String(255), nullable=False)
+
+    subject = Column(String(255), nullable=False)
+
+    body_text = Column(String, nullable=False)
+
+    bcc = Column(String, nullable=False)
+
+    succeeded = Column(Boolean, nullable=False)
+
+    errors = Column(String, nullable=True)
+
+    created = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    deleted = Column(TIMESTAMP)
+
+    @classmethod
+    def map_message(self, email_message: EmailMessage, month_year):
+        return SentItem(
+            month_year=month_year,
+            sent_as=email_message["From"],
+            to=email_message["To"],
+            subject=email_message["Subject"],
+            bcc=email_message["Bcc"],
+            body_text=email_message.get_body().as_string(),
         )
 
 

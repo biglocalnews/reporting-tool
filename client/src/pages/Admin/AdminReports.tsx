@@ -1,6 +1,6 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import dayjs from 'dayjs';
-import { Button, Card, Col, Divider, List, PageHeader, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
+import { Button, Card, Col, Divider, List, message, PageHeader, Popconfirm, Row, Select, Space, Statistic, Table, Tooltip } from "antd";
 import { WomanOutlined, IdcardOutlined, EyeInvisibleOutlined, MailOutlined, AlertOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { GetAdminStats } from "../../graphql/__generated__/GetAdminStats";
@@ -16,6 +16,7 @@ import { ADMIN_GET_TEAM_BY_DATASET_ID } from "../../graphql/__queries__/AdminGet
 import { AdminGetTeamByDatasetId } from "../../graphql/__generated__/AdminGetTeamByDatasetId";
 import { ADMIN_GET_TEAMS_BY_DATASET_IDS } from "../../graphql/__queries__/AdminGetTeamsByDatasetIds.gql";
 import { AdminGetTeamsByDatasetIds } from "../../graphql/__generated__/AdminGetTeamsByDatasetIds";
+import { ADMIN_SEND_EMAIL } from "../../graphql/__mutations__/AdminSendEmail.gql";
 
 
 interface IDatasetList {
@@ -49,32 +50,14 @@ export const AdminReports = () => {
     );
     const [getTeam, { loading: teamLoading, }] = useLazyQuery<AdminGetTeamByDatasetId>(ADMIN_GET_TEAM_BY_DATASET_ID);
     const [getTeams, { loading: teamsLoading }] = useLazyQuery<AdminGetTeamsByDatasetIds>(ADMIN_GET_TEAMS_BY_DATASET_IDS);
+    const [sendEmail] = useMutation(ADMIN_SEND_EMAIL);
 
 
     const [selectedStat, setSelectedStat] = useState("failedTarget");
     const [datasetList, setDatasetList] = useState<IDatasetList[]>();
     const [activeListItem, setActiveListItem] = useState<string>();
 
-    const email = (emailAddresses: string[]) => {
-        setSelectedStat(stat => {
-            let body = "";
-            if (stat === "overdue") {
-                const lastMonth = dayjs().subtract(1, "month").format("MMMM");
-                let text = [
-                    `Hi,`,
-                    `I hope you're well. This is just a gentle reminder that today is the deadline for your ${lastMonth} 50:50 data.`,
-                    `We can see you've not yet submitted your figures on the 50:50 Tracker, so please make sure you get your data in and hit the 'PUBLISH' button by 1700gmt today to ensure you're included in this month's stats.`,
-                    `If you need any help with the Tracker, or have any questions at all, don't hesitate to get in touch.`,
-                    `We're excited to see how you've done this month. Thank you so much and happy counting!`,
-                    `All the best,`
-                ];
-                text = text.map(x => encodeURI(x));
-                body = text.join("%0D%0A%0D%0A");
-            }
-            window.location.assign(`mailto:${emailAddresses.join(";")}?subject=Overdue&body=${body}`);
-            return stat
-        });
-    }
+
 
     /*const chunker = (a: string[], n: number) => a.reduce((r, v, i) => {
         const c = Math.floor(i / n); // which chunk it belongs to
@@ -156,6 +139,35 @@ export const AdminReports = () => {
     const { t } = useTranslation();
 
     const dataListBaseColumns = useMemo(() => {
+
+        const emailBody = (lastMonth = dayjs().subtract(1, "month"), encoded = true) => {
+            let body = "";
+            const monthName = lastMonth.format("MMMM");
+            let text = [
+                `Hi,`,
+                `I hope you're well. This is just a gentle reminder that today is the deadline for your ${monthName} 50:50 data.`,
+                `We can see you've not yet submitted your figures on the 50:50 Tracker, so please make sure you get your data in and hit the 'PUBLISH' button by 1700gmt today to ensure you're included in this month's stats.`,
+                `If you need any help with the Tracker, or have any questions at all, don't hesitate to get in touch.`,
+                `We're excited to see how you've done this month. Thank you so much and happy counting!`,
+                `All the best,`
+            ];
+            if (encoded) {
+                text = text.map(x => encodeURI(x));
+                body = text.join("%0D%0A%0D%0A");
+            }
+            else {
+                body = text.join("\n\n");
+            }
+
+
+            return body;
+        }
+
+
+        const email = (emailAddresses: string[]) => {
+            window.location.assign(`mailto:${emailAddresses.join(";")}?subject=Overdue&body=${emailBody()}`);
+        }
+
         const basicColumns = [
             {
                 title: t("admin.reports.datasetReportingPeriodEndColumnTitle"),
@@ -177,31 +189,6 @@ export const AdminReports = () => {
         ];
 
         const actionsColumn = {
-            title: <Button
-                loading={teamsLoading}
-                icon={<MailOutlined />}
-                type="text"
-                onClick={
-                    () => datasetList && getTeams({ variables: { ids: datasetList.map(x => x.datasetId) } })
-                        .then(result => {
-                            if (result.data?.teamsByDatasetIds) {
-                                const teams = result.data?.teamsByDatasetIds;
-                                const emailAddresses = Array.from(new Set(teams.flatMap(x => x.users.map(x => x.email))));
-                                if (emailAddresses.length > 50) {
-                                    navigator.clipboard.writeText(emailAddresses.join(";"));
-                                    /* Alert the copied text */
-                                    alert("Copied email list to clipboard, please paste into new Outlook Mail message");
-                                }
-                                else {
-                                    email(emailAddresses);
-                                }
-
-                            }
-                        })
-                }
-            >
-                {t("admin.reports.emailAllOverdue")}
-            </Button>,
             key: "action",
             align: "right" as AlignType,
             render: (_: undefined, record: IDatasetList) => (
@@ -225,6 +212,49 @@ export const AdminReports = () => {
                 </Space>
             )
         };
+
+        const overdueActionsColumn = {
+            ...actionsColumn,
+            title:
+                <Popconfirm
+                    title={t("admin.reports.confirmSendEmails")}
+                    okText={t("confirm.yes")}
+                    cancelText={t("confirm.no")}
+                    onConfirm={
+                        () => datasetList && getTeams({ variables: { ids: datasetList.map(x => x.datasetId) } })
+                            .then(result => {
+                                if (result.data?.teamsByDatasetIds) {
+                                    const lastMonth = dayjs().subtract(1, "month");
+                                    const teams = result.data?.teamsByDatasetIds;
+                                    const emailAddresses = Array.from(new Set(teams.flatMap(x => x.users.map(x => x.email))));
+                                    sendEmail({
+                                        variables: {
+                                            input: {
+                                                to: emailAddresses,
+                                                subject: "Overdue",
+                                                body: emailBody(lastMonth, false),
+                                                monthYear: lastMonth.format("M YYYY")
+                                            }
+                                        }
+                                    })
+                                        .then(result => {
+                                            result.data.sendEmail ? message.error(result.data.sendEmail) : message.success(t("admin.reports.sentOk"));
+                                        });
+                                }
+                            })
+                    }
+                >
+                    <Button
+                        loading={teamsLoading}
+                        icon={<MailOutlined />}
+                        type="text"
+
+                    >
+                        {t("admin.reports.emailAllOverdue")}
+                    </Button>
+                </Popconfirm>
+
+        }
 
         const targetColumns = [{
             title: t("admin.reports.datasetCategoryColumnTitle"),
@@ -291,9 +321,9 @@ export const AdminReports = () => {
             return [...basicColumns, attentionTypeColumn, actionsColumn];
         }
 
-        return [...basicColumns, actionsColumn];
+        return [...basicColumns, overdueActionsColumn];
 
-    }, [t, datasetList, getTeam, getTeams, teamLoading, teamsLoading]);
+    }, [t, datasetList, getTeam, getTeams, teamLoading, teamsLoading, sendEmail]);
 
     useEffect(() => {
         switch (selectedStat) {

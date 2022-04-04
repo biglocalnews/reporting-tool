@@ -131,6 +131,7 @@ in the playground's query variables section:
 ### Db Migrations
 
 ```shell
+cd alembic"
 alembic revision --autogenerate -m "Added account table"
 alembic upgrade head
 ```

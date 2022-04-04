@@ -5,6 +5,7 @@ import {
   Col,
   Collapse,
   DatePicker,
+  message,
   Popconfirm,
   Row,
   Space,
@@ -336,7 +337,7 @@ const DatasetDetails = (): JSX.Element => {
                                         }
                                       })
                                         .then(() => console.log("Deleted!"))
-                                        .catch((e) => alert(e))
+                                        .catch((e) => message.error(e))
                                     }
                                     }
                                     okButtonProps={{ loading: deleting }}

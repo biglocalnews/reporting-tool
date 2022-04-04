@@ -12,7 +12,7 @@ import {
 
 import { CreatePublishedRecordSetInput, CreateRecordInput, CustomColumnType, CustomColumnValueInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
 
-import { Button, Col, DatePicker, Input, InputNumber, Modal, Radio, Row, Space, Table, Tabs } from 'antd';
+import { Button, Col, DatePicker, Input, InputNumber, message, Modal, Radio, Row, Space, Table, Tabs } from 'antd';
 const { TabPane } = Tabs;
 
 import {
@@ -239,7 +239,10 @@ export const DataEntryTable = (props: IProps) => {
                                 }
                             })
                         await promise
-                            .catch((e) => setSelectedForInput(() => alert(e) as undefined))
+                            .catch((e) => {
+                                setSelectedForInput(undefined);
+                                message.error(e)
+                            })
                             .finally(() => setSelectedForInput((curr) => curr?.id === entry.id ? undefined : curr));
 
                     }
@@ -330,7 +333,10 @@ export const DataEntryTable = (props: IProps) => {
                                 }
                             })
                         await promise
-                            .catch((e) => setSelectedForCustomInput(() => alert(e) as undefined))
+                            .catch((e) => {
+                                setSelectedForCustomInput(undefined);
+                                message.error(e)
+                            })
                             .finally(() => setSelectedForCustomInput((curr) => curr?.id === customValue.id ? undefined : curr));
 
                     }
@@ -471,7 +477,7 @@ export const DataEntryTable = (props: IProps) => {
                                     }
                                 })
                                     .then(() => console.log("Published!"))
-                                    .catch((e) => alert(e))
+                                    .catch((e) => message.error(e))
                                 setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }));
                             }
                             }
@@ -607,8 +613,8 @@ export const DataEntryTable = (props: IProps) => {
                                                                                 id: record.id
                                                                             }
                                                                         })
-                                                                            .then(() => console.log("Deleted!"))
-                                                                            .catch((e) => alert(e))
+                                                                            .then(() => message.success("Deleted!"))
+                                                                            .catch((e) => message.error(e))
                                                                         }
                                                                     />
                                                                 }
@@ -630,7 +636,10 @@ export const DataEntryTable = (props: IProps) => {
                                                                             }
                                                                         })
                                                                         await promise
-                                                                            .catch((e) => setSelectedForRowInput(() => alert(e) as undefined))
+                                                                            .catch((e) => {
+                                                                                setSelectedForRowInput(undefined);
+                                                                                message.error(e)
+                                                                            })
                                                                             .finally(() => setSelectedForRowInput(undefined));
 
                                                                     }
