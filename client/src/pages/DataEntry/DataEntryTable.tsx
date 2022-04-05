@@ -462,7 +462,9 @@ export const DataEntryTable = (props: IProps) => {
                         tab={
                             <span
                                 style={{
-                                    color: moment().isAfter(moment(reportingPeriod.range[1])) ? "red" : "unset",
+                                    color:
+                                        moment().add(-5, "days").isAfter(moment(reportingPeriod.range[1])) ? "red" :
+                                            moment().isBetween(moment(reportingPeriod.range[1]).add(-5, "days"), moment().add(1, "day")) ? "orange" : "unset",
                                     fontWeight: moment().isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1])) ? 600 : 400
                                 }}
                             >
