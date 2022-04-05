@@ -154,7 +154,9 @@
     "no": "No"
   },
   "datasetDetails": {
-    "unPublish": "Unpublish"
+    "unPublish": "Unpublish",
+    "last3Periods": "Last 3 periods",
+    "last6Periods": "Last 6 periods"
   },
   "admin": {
     "sidebar": {

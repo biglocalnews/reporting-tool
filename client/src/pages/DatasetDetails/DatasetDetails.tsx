@@ -8,6 +8,7 @@ import {
   message,
   Popconfirm,
   Row,
+  Select,
   Space,
   Tabs,
   Typography,
@@ -18,7 +19,7 @@ import { EventValue, RangeValue } from "rc-picker/lib/interface.d";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { IDatasetDetailsFilter } from "../../components/DatasetDetailsFilterProvider";
+import { IDatasetDetailsFilter, PublishedDateRange } from "../../components/DatasetDetailsFilterProvider";
 import { Loading } from "../../components/Loading/Loading";
 import { PageTitleBar } from "../../components/PageTitleBar";
 import {
@@ -78,7 +79,8 @@ const DatasetDetails = (): JSX.Element => {
   const [selectedFilters, setSelectedFilters] = useState<IDatasetDetailsFilter>(
     {
       DateRange: PresetDateRanges[defaultPresetDate],
-      categories: [] as string[]
+      categories: [] as string[],
+      PublishedDateRange: PublishedDateRange.last3Periods
     }
   );
   const [presetDate, setPresetDate] = useState<string | null>(
@@ -113,10 +115,22 @@ const DatasetDetails = (): JSX.Element => {
   }, [queryData?.dataset.publishedRecordSets]);
 
   const filteredData = useMemo(() => {
-    return queryData?.dataset.publishedRecordSets?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
-      .filter(x => !selectedFilters.categories.length || selectedFilters.categories.includes(x.category))
-      .map((r) => ({ ...r, date: new Date(x.end) } as IChartData))
-    )
+    console.log(selectedFilters.PublishedDateRange);
+    return queryData?.dataset.publishedRecordSets?.
+      flat()
+      .sort((a, b) => moment(b.end).unix() - moment(a.end).unix())
+      .filter(x => {
+        if (!selectedFilters.PublishedDateRange || Number(selectedFilters.PublishedDateRange) < 2000) {
+          return true;
+        } else {
+          return moment(x.end).get("year") == Number(selectedFilters.PublishedDateRange);
+        }
+      })
+      .slice(0, Number(selectedFilters.PublishedDateRange))
+      .flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
+        .filter(x => !selectedFilters.categories.length || selectedFilters.categories.includes(x.category))
+        .map((r) => ({ ...r, date: new Date(x.end) } as IChartData))
+      )
   }, [queryData?.dataset.publishedRecordSets, selectedFilters]);
 
   const chartData = useMemo(() => {
@@ -272,12 +286,39 @@ const DatasetDetails = (): JSX.Element => {
               {
                 queryData?.dataset.publishedRecordSets?.length ?
                   <Row gutter={[16, 16]} justify="center">
-                    <Col span={12} style={{ textAlign: "center" }}>
+                    <Col span={24} style={{ textAlign: "center" }}>
                       <Checkbox.Group
                         options={categories}
                         value={selectedFilters.categories.flat()}
                         onChange={(e) => setSelectedFilters(curr => ({ ...curr, categories: e.map(x => x.toString()) }))}
                       />
+                    </Col>
+                    <Col span={4} style={{ textAlign: "center" }}>
+                      <Select
+                        defaultValue={selectedFilters.PublishedDateRange}
+                        style={{ width: "100%" }}
+                        onChange={(e) => setSelectedFilters((curr) => ({ ...curr, PublishedDateRange: e }))}
+                      >
+                        {
+                          Object.entries(PublishedDateRange)
+                            .filter(([k,]) => isNaN(Number(k)))
+                            .map(([k, v]) =>
+                              <Select.Option value={v} key={k}>
+                                {t(`datasetDetails.${PublishedDateRange[Number(v)]}`)}
+                              </Select.Option>
+                            )
+                        }
+                        {
+                          Array.from(new Set(queryData?.dataset.publishedRecordSets?.
+                            map(x => moment(x.end).get("year"))))
+                            .sort((a, b) => b - a)
+                            .map(year =>
+                              <Select.Option value={year} key={year}>
+                                {year}
+                              </Select.Option>
+                            )
+                        }
+                      </Select>
                     </Col>
                     <Col span={24}>
                       <LineColumn
@@ -336,7 +377,7 @@ const DatasetDetails = (): JSX.Element => {
                                           id: prs.id
                                         }
                                       })
-                                        .then(() => console.log("Deleted!"))
+                                        .then(() => message.success("Deleted!"))
                                         .catch((e) => message.error(e))
                                     }
                                     }
