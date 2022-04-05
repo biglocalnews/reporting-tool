@@ -489,13 +489,7 @@ export const DataEntryTable = (props: IProps) => {
                         </Modal>
                         <Row gutter={[10, 10]}>
                             <Col span={24} style={{ display: "flex" }}>
-                                <Button
-                                    type="primary"
-                                    icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
-                                    onClick={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: true }))}
-                                >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
-                                </Button>
-                                <div style={{ flexGrow: 1 }} />
+
                                 <Space
                                     align="center"
                                 >
@@ -585,6 +579,13 @@ export const DataEntryTable = (props: IProps) => {
                                         {addRecordDatePicker ? t("saveRecord") : t("newRow")}
                                     </Button>
                                 </Space>
+                                <div style={{ flexGrow: 1 }} />
+                                <Button
+                                    type="primary"
+                                    icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
+                                    onClick={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: true }))}
+                                >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
+                                </Button>
                             </Col>
                             <Col span={24}>
                                 <Tabs centered={true} type="card" size="large">
