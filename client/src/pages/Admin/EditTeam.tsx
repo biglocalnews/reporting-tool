@@ -240,7 +240,10 @@ export const EditTeam = (): JSX.Element => {
                     .indexOf(input.toLowerCase()) >= 0
                 }
                 titles={[tp("nonTeamMembers"), tp("teamMembers")]}
-                dataSource={allUsers}
+                dataSource={
+                  allUsers?.map(x => ({ ...x, disabled: !x.active ? true : false }))
+                    .sort((a, b) => a.lastName.localeCompare(b.lastName))
+                }
                 onChange={(keys) => form.setFieldsValue({ userIds: keys })}
                 render={(user) => <Space>
                   {`${user.firstName} ${user.lastName}`}
