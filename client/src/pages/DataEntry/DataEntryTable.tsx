@@ -459,7 +459,16 @@ export const DataEntryTable = (props: IProps) => {
             getReportingPeriods(false)?.
                 map((reportingPeriod, rpIndex: number) =>
                     <TabPane
-                        tab={`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
+                        tab={
+                            <span
+                                style={{
+                                    color: moment().isAfter(moment(reportingPeriod.range[1])) ? "red" : "unset",
+                                    fontWeight: moment().isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1])) ? 600 : 400
+                                }}
+                            >
+                                {`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
+                            </span>
+                        }
                         key={rpIndex}
                     >
                         <Modal title="Publish this?"
