@@ -115,7 +115,6 @@ const DatasetDetails = (): JSX.Element => {
   }, [queryData?.dataset.publishedRecordSets]);
 
   const filteredData = useMemo(() => {
-    console.log(selectedFilters.PublishedDateRange);
     return queryData?.dataset.publishedRecordSets?.
       flat()
       .sort((a, b) => moment(b.end).unix() - moment(a.end).unix())
@@ -388,8 +387,8 @@ const DatasetDetails = (): JSX.Element => {
                                       tabIndex={-1}
                                       type="default"
                                       danger
-                                      title={t("deletePublishedRecordSet")}
-                                      aria-label={t("deletePublishedRecordSet")}
+                                      title={t("datasetDetails.deletePublishedRecordSet")}
+                                      aria-label={t("datasetDetails.deletePublishedRecordSet")}
                                       icon={<CloseCircleOutlined />}
                                       onClick={(e) => e.stopPropagation()}
                                     >{t("datasetDetails.unPublish")}</Button>

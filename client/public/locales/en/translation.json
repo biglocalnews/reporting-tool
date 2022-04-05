@@ -154,6 +154,7 @@
     "no": "No"
   },
   "datasetDetails": {
+    "deletePublishedRecordSet": "Deleted Published Record Set",
     "unPublish": "Unpublish",
     "last3Periods": "Last 3 periods",
     "last6Periods": "Last 6 periods"
