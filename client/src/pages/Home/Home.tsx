@@ -118,7 +118,7 @@ export const Home = () => {
                                 height={150}
                                 width={300}
                                 barWidthRatio={1 / 3}
-                                color={[getPalette("Gender")[1], "rgba(0,0,0,0)"]}
+                                color={[getPalette("Gender")[0], "rgba(0,0,0,0)"]}
                                 label={{
                                     formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${Math.round(Number(v.value)) * 100}%` : "",
 

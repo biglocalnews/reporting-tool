@@ -26,8 +26,8 @@ const Pie5050 = (props: IProps) => {
         colorField: "targetName",
         color: (datum: Datum) => {
             return datum.targetName === "Other"
-                ? getPalette(props.categoryName)[0]
-                : getPalette(props.categoryName)[1];
+                ? getPalette(props.categoryName)[1]
+                : getPalette(props.categoryName)[0];
         },
         tooltip: {
             formatter: (datum: Datum) => datum.targetName === "Other" ? { name: t("other"), value: `${Number(datum.value).toFixed(2)}%` } : {
