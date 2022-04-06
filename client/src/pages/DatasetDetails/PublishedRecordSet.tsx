@@ -131,9 +131,9 @@ const reduceRecordsToOverallPercentages = (
                             category: currEntry.categoryValue.category.name,
                             count: currEntry.count,
                             personType: personType,
-                            targetMember: dataset.program.targets
+                            targetMember: dataset?.program?.targets
                                 .flatMap(x => x.tracks)
-                                .some(track => track.categoryValue.id === currEntry.categoryValue.id && track.targetMember),
+                                .some(track => track.categoryValue.id === currEntry.categoryValue.id && track.targetMember) ?? false,
                             percent: (
                                 currEntry.count /
                                 total
@@ -161,17 +161,17 @@ const reduceRecordsToOverallPercentages = (
 
 export const getRecordSetDocument = (dataset: GetDataset_dataset, reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
     ({
-        datasetGroup: dataset.program.name,
+        datasetGroup: dataset?.program?.name,
         datasetName: dataset.name,
-        teamName: dataset.program.team?.name,
+        teamName: dataset?.program?.team?.name,
         reportingPeriodDescription: reportingPeriod.description ?? "",
         begin: reportingPeriod.range[0],
         end: reportingPeriod.range[1],
         datasetTags: dataset.tags
             .map(x => ({ name: x.name, group: x.tagType })),
-        datasetGroupTags: dataset.program.tags
+        datasetGroupTags: dataset?.program?.tags
             .map(x => ({ name: x.name, group: x.tagType })),
-        targets: dataset.program.targets
+        targets: dataset?.program?.targets
             .map(x => ({ category: x.category.name, target: x.target * 100 }))
             .sort((a, b) => catSort(a.category, b.category)),
         record: stripCountsFromEntries(reduceRecordsToOverallPercentages(dataset, reportingPeriod, true)),

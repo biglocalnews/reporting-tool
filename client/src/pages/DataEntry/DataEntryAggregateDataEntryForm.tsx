@@ -81,7 +81,7 @@ export const renderFormEntries = (
   let addIndex = 0;
 
   for (const personType of personTypes) {
-    for (const target of metadata?.dataset.program.targets || []) {
+    for (const target of metadata?.dataset?.program?.targets || []) {
       for (const track of target.tracks) {
         form.push({
           index: addIndex++,

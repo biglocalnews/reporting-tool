@@ -219,7 +219,7 @@ const DatasetDetails = (): JSX.Element => {
       <Row gutter={[0, 40]}>
         <Col span={24}>
           <PageTitleBar
-            title={queryData?.dataset?.program.name}
+            title={queryData?.dataset?.program?.name}
             subtitle={queryData?.dataset?.name}
 
           />
@@ -329,7 +329,7 @@ const DatasetDetails = (): JSX.Element => {
                           isStack: true,
                           annotations: Array.from(new Set(chartData.map(x => x.category)))
                             .map(category => {
-                              const target = queryData.dataset.program.targets.find(y => y.category.name === category)?.target;
+                              const target = queryData.dataset?.program?.targets.find(y => y.category.name === category)?.target;
                               if (!target) return;
                               return {
                                 type: "line",

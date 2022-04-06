@@ -104,8 +104,8 @@ export const ProgressColumns = ({ dataset, records }: IProps) => {
             AttributeCategoryCount: undefined,
             AttributeCount: entry.count,
             PersonType: undefined, //entry.personType?.personTypeName,
-            Target: dataset?.program.targets.find(x => x.category.id === entry.categoryValue.category.id)?.target,
-            TargetMember: dataset?.program.targets
+            Target: dataset?.program?.targets.find(x => x.category.id === entry.categoryValue.category.id)?.target,
+            TargetMember: dataset?.program?.targets
                 .find(x => x.category.id === entry.categoryValue.category.id)?.
                 tracks.find(x => x.categoryValue.id === entry.categoryValue.id)?.
                 targetMember,
@@ -169,7 +169,7 @@ export const ProgressColumns = ({ dataset, records }: IProps) => {
             !groupedByMonthYearRecords ||
             Object.keys(groupedByMonthYearRecords).length < 2
         ) { return undefined; }
-        return Array.from(dataset?.program.targets ?? [])
+        return Array.from(dataset?.program?.targets ?? [])
             .sort((a, b) => catSort(a.category.name, b.category.name))
             .reduce(
                 (configs, target) => {
@@ -233,7 +233,7 @@ export const ProgressColumns = ({ dataset, records }: IProps) => {
                 },
                 ([] as customColumnConfig[]) ?? new Array<customColumnConfig>()
             )
-    }, [groupedByMonthYearRecords, dataset?.program.targets]);
+    }, [groupedByMonthYearRecords, dataset?.program?.targets, t]);
 
     return <>
         {

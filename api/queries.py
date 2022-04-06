@@ -86,6 +86,25 @@ def resolve_dataset(obj, info, id):
     return dataset
 
 
+@query.field("datasets")
+@convert_kwargs_to_snake_case
+def resolve_datasets(obj, info, only_unassigned):
+    """GraphQL query to find a dataset based on dataset ID.
+    :param id: Id for the dataset to be fetched
+    :returns: Dataset OR None if Dataset was soft-deleted
+    """
+    session = info.context["dbsession"]
+
+    if only_unassigned:
+        return (
+            session.query(Dataset)
+            .filter(Dataset.deleted == None, Dataset.program_id == None)
+            .all()
+        )
+
+    return session.query(Dataset).filter(Dataset.deleted == None).all()
+
+
 @dataset.field("lastUpdated")
 @convert_kwargs_to_snake_case
 def resolve_dataset_last_updated(dataset, info):

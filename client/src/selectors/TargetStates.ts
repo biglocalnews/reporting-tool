@@ -99,7 +99,7 @@ const percentOfInTargetAttributeCategories = (
 
 
 const isTargetMember = (queryData: GetDataset, categoryValueId: string) => {
-    return queryData?.dataset.program.targets
+    return queryData?.dataset?.program?.targets
         .flat()
         .flatMap(x => x.tracks)
         .find((track) => track.categoryValue.id === categoryValueId)
@@ -143,13 +143,13 @@ export const filteredRecords = (queryData: GetDataset | undefined, selectedFilte
 
 
 export const targetStates = (queryData: GetDataset | undefined, selectedFilters: IDatasetDetailsFilter) => {
-    return queryData?.dataset?.program.targets.map((target) => {
+    return queryData?.dataset?.program?.targets.map((target) => {
         const status = filteredRecords
             ? percentOfInTargetAttributeCategories(
                 filteredRecords(queryData, selectedFilters),
                 target.category,
                 undefined,
-                queryData?.dataset?.program.targets
+                queryData?.dataset?.program?.targets
                     .find((x) => x.category.id === target.category.id)
                     ?.tracks
                     .filter(x => x.targetMember)

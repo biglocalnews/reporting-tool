@@ -29,7 +29,7 @@ const { Option } = Select;
 import { FormListOperation } from "antd/lib/form/FormList";
 import moment from "moment";
 const { RangePicker } = DatePicker;
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
@@ -44,10 +44,6 @@ import {
   AdminGetProgramVariables,
   AdminGetProgram_program_targets,
 } from "../../graphql/__generated__/AdminGetProgram";
-import {
-  AllDatasets,
-  AllDatasets_teams_programs_datasets,
-} from "../../graphql/__generated__/AllDatasets";
 import { GetAllTags } from "../../graphql/__generated__/GetAllTags";
 import { ReportingPeriodType } from "../../graphql/__generated__/globalTypes";
 
@@ -56,7 +52,6 @@ import { ADMIN_GET_ALL_CUSTOM_COLUMNS } from "../../graphql/__queries__/AdminGet
 import { ADMIN_GET_ALL_PERSON_TYPES } from "../../graphql/__queries__/AdminGetAllPersonTypes.gql";
 import { ADMIN_GET_ALL_TEAMS } from "../../graphql/__queries__/AdminGetAllTeams.gql";
 import { ADMIN_GET_PROGRAM } from "../../graphql/__queries__/AdminGetProgram.gql";
-import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_ALL_TAGS } from "../../graphql/__queries__/GetAllTags.gql";
 import {
   Target,
@@ -70,6 +65,8 @@ import {
 
 import { usePrompt } from "../../components/usePrompt";
 import { catSort } from "../CatSort";
+import { ADMIN_GET_ALL_DATASETS } from "../../graphql/__queries__/AdminGetAllDatasets.gql";
+import { AdminGetAllDatasets } from "../../graphql/__generated__/AdminGetAllDatasets";
 
 /**
  * URL parameters expected for this page.
@@ -199,9 +196,6 @@ export const EditProgram = (): JSX.Element => {
   const restore = useRestore();
   const deactivate = useDeactivate();
   const [showDatasets, setShowDatasets] = useState(false);
-  const [datasets, setAllDatasets] = useState(
-    new Array<AllDatasets_teams_programs_datasets>()
-  );
   const [newTagValue, setNewTagValue] = useState<{ name: string } | undefined>();
 
   const programResponse = useQueryWithErrorHandling<
@@ -243,23 +237,16 @@ export const EditProgram = (): JSX.Element => {
     "customColumns"
   );
 
-  const { data: allTeams, loading: allTeamsLoading } = useQuery<AllDatasets>(
-    ALL_DATASETS,
+  const { data: datasetsQry, loading: allDatasetsLoading } = useQuery<AdminGetAllDatasets>(
+    ADMIN_GET_ALL_DATASETS,
     {
       skip: !showDatasets,
+      variables: {
+        onlyUnassigned: true
+      }
     }
   );
 
-  useEffect(() => {
-    if (allTeams) {
-      setAllDatasets(
-        allTeams.teams
-          .flatMap((team) => team.programs)
-          .filter((programme) => programme.name === "Unassigned")
-          .flatMap((progs) => progs.datasets)
-      );
-    }
-  }, [allTeams]);
 
   usePrompt(t("confirmLeavePage"), dirty);
 
@@ -987,7 +974,7 @@ export const EditProgram = (): JSX.Element => {
                     </List.Item>
                   ))}
                   <List.Item style={{ width: "100%" }} hidden={!showDatasets}>
-                    {!allTeamsLoading ? (
+                    {!allDatasetsLoading ? (
                       <Select<string, { value: string; children: string }>
                         showSearch
                         filterOption={(input, option) =>
@@ -995,12 +982,12 @@ export const EditProgram = (): JSX.Element => {
                             .indexOf(input.toLocaleLowerCase()) >= 0
                         }
                         onChange={(value) =>
-                          datasetOps.add(datasets.find((x) => x.id === value))
+                          datasetOps.add(datasetsQry?.datasets.find((x) => x.id === value))
                         }
                         style={{ width: "100%" }}
                         placeholder="Select dataset"
                       >
-                        {datasets.map((dataset, i) => (
+                        {datasetsQry?.datasets.map((dataset, i) => (
                           <option key={i} value={dataset.id}>
                             {dataset.name}
                           </option>

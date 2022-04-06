@@ -97,7 +97,7 @@ const DatasetDetailsScoreCard = ({
                   ? entry.personType.personTypeName
                   : t("unknownPersonType"),
                 count: entry.count,
-                target: data.program.targets
+                target: data.program?.targets
                   .find(x => x.category.id === category.id)
                   ?.target,
               };
@@ -109,7 +109,7 @@ const DatasetDetailsScoreCard = ({
       }, {} as Dictionary<ColStat>))
   }
 
-  return data?.dataset.program.targets.length && filteredRecords ? (
+  return data?.dataset?.program?.targets.length && filteredRecords ? (
     <Tabs defaultActiveKey="Gender">
       {
         Array.from(data.dataset.program.targets)

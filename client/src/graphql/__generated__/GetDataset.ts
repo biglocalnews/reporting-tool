@@ -169,7 +169,7 @@ export interface GetDataset_dataset {
   readonly lastUpdated: any | null;
   readonly personTypes: ReadonlyArray<GetDataset_dataset_personTypes>;
   readonly sumOfCategoryValueCounts: ReadonlyArray<GetDataset_dataset_sumOfCategoryValueCounts>;
-  readonly program: GetDataset_dataset_program;
+  readonly program: GetDataset_dataset_program | null;
   readonly records: ReadonlyArray<GetDataset_dataset_records>;
   readonly tags: ReadonlyArray<GetDataset_dataset_tags>;
   readonly publishedRecordSets: ReadonlyArray<GetDataset_dataset_publishedRecordSets> | null;

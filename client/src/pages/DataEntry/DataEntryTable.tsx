@@ -169,17 +169,17 @@ export const DataEntryTable = (props: IProps) => {
         .filter(x => x)
         .sort((a, b) => a.name.localeCompare(b.name));
 
-    const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset.program.targets
+    const currentTrackedAttributesByCategory = (attributeCategory: GetDataset_dataset_program_targets_category) => getDatasetData.dataset?.program?.targets
         .filter(x => x.category.id === attributeCategory.id)
         .sort((a, b) => catSort(a.category.name, b.category.name))
         .flatMap(x => x.tracks)
-        .map(x => x.categoryValue);
+        .map(x => x.categoryValue) ?? [];
 
-    const currentTrackedAttributes = getDatasetData.dataset.program.targets
+    const currentTrackedAttributes = getDatasetData.dataset?.program?.targets
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
 
-    const currentTrackedAttributeCategories = Array.from(getDatasetData.dataset.program.targets)
+    const currentTrackedAttributeCategories = Array.from(getDatasetData.dataset?.program?.targets ?? [])
         .sort((a, b) => catSort(a.category.name, b.category.name))
         .map(x => x.category);
 
@@ -431,7 +431,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().subtract(1, "day").unix(), date.unix()));
 
-    const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset.program.reportingPeriods?.
+    const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset?.program?.reportingPeriods?.
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
@@ -561,7 +561,7 @@ export const DataEntryTable = (props: IProps) => {
                                                             input: {
                                                                 publicationDate: getRandomDateTime(addRecordDatePicker).toISOString(),
                                                                 datasetId: getDatasetData.dataset.id,
-                                                                entries: currentTrackedAttributes.map(cv => {
+                                                                entries: currentTrackedAttributes?.map(cv => {
                                                                     if (personTypeArrayFromDataset.length) {
                                                                         return personTypeArrayFromDataset.map(pt => ({
                                                                             personTypeId: pt.id,

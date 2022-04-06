@@ -156,7 +156,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   name: String!
   description: String
   lastUpdated: DateTime
-  program: Program!
+  program: Program
   records: [Record!]!
   publishedRecordSets: [PublishedRecordSet!]
   tags: [Tag!]!
@@ -616,6 +616,9 @@ type Query {
 
   # Retrieve a single dataset.
   dataset(id: ID!): Dataset! @needsPermission(permission: [LOGGED_IN])
+
+  # Retrieve all datasets.
+  datasets(onlyUnassigned: Boolean): [Dataset!]! @needsPermission(permission: [ADMIN])
 
   # Retrieve a single Record.
   record(id: ID!): Record! @needsPermission(permission: [LOGGED_IN])

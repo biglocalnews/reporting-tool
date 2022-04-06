@@ -74,7 +74,7 @@ const DatasetDetailsRecordsTable = ({
         render={(date: string) => dayjs(date).format("YYYY-MM-DD")}
       />
       {
-        datasetData?.dataset.program.targets
+        datasetData?.dataset?.program?.targets
           .flatMap((target) => target.tracks)
           .map(track =>
             <Table.Column<TableData>

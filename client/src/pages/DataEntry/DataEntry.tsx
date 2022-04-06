@@ -36,7 +36,7 @@ const DataEntry = (): JSX.Element => {
     variables: { id: datasetId ?? "" },
   });
 
-  const programAndDatasetPageTitle = `${datasetData?.dataset.program.name} | ${datasetData?.dataset.name}`;
+  const programAndDatasetPageTitle = `${datasetData?.dataset?.program?.name} | ${datasetData?.dataset.name}`;
 
   /* Retrieve a record to populate the data entry form if editing */
 
