@@ -203,10 +203,12 @@ def get_user(email):
         print(f"invalid email address {email}")
         return None
 
+    bbc_user = True
+
     if "bbc" not in email_components[1]:
         non_bbc_emails.append(email)
         print(f"non bbc email address {email}")
-        return None
+        bbc_user = False
 
     db_user = None
 
@@ -219,25 +221,44 @@ def get_user(email):
         print(f"User {email} not found in 5050 db")
 
     if not db_user:
-        api_user = get_api_user(email)
-        if not api_user:
-            return None
-        if (
-            "accountName" not in api_user
-            or "givenName" not in api_user
-            or "surname" not in api_user
-        ):
-            print(f"{email} doesn't return all the normal metadata from the api")
-            return None
+        first_name = None
+        last_name = None
+        username = None
+        if bbc_user:
+            api_user = get_api_user(email)
+            if not api_user:
+                return None
+            if (
+                "accountName" not in api_user
+                or "givenName" not in api_user
+                or "surname" not in api_user
+            ):
+                print(f"{email} doesn't return all the normal metadata from the api")
+                return None
+            first_name = api_user["givenName"]
+            last_name = api_user["surname"]
+            username = api_user["accountName"].lower()
+        else:
+            # try and see if we can split it and get a name, seems they mostly follow this pattern
+            username_components = email_components[0].split(".")
+            if len(username_components) > 1:
+                first_name = username_components[0]
+                last_name = username_components[-1]
+            else:
+                first_name = email_components[0]
+                last_name = ""
+            username = email
+
         db_user = User(
             id=uuid4(),
-            first_name=api_user["givenName"],
-            last_name=api_user["surname"],
-            username=api_user["accountName"].lower(),
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
             email=email,
             hashed_password=hash(uuid4()),
         )
         session.add(db_user)
+
     return db_user
 
 
