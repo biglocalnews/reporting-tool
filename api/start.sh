@@ -17,4 +17,4 @@ cron
 export HTTP_PROXY=
 export HTTPS_PROXY=
 
-uvicorn app:app --host 0.0.0.0 --port 8000
+gunicorn -w 32 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker app:app 
