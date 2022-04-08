@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Card, Col, Divider, Radio, Row, Skeleton, Statistic } from "antd";
+import { Card, Col, Divider, Radio, Row, Skeleton, Space, Statistic } from "antd";
 import { useTranslation } from "react-i18next";
 import { Typography } from 'antd';
 import { getPalette } from "../DatasetDetails/DatasetDetails";
@@ -19,14 +19,19 @@ import { GetOverviews } from "../../graphql/__generated__/GetOverviews";
 const { Title } = Typography;
 
 const gradientStyle = ({
-    background: "#f3ec78",
-    backgroundImage: `linear-gradient(to right, ${getPalette("Gender")}, ${getPalette("Ethnicity")}, ${getPalette("Disability")})`,
+    backgroundImage: `linear-gradient(to right, ${getPalette("Gender").join(",")}, ${getPalette("Ethnicity").join(",")}, ${getPalette("Disability").join(",")})`,
     backgroundSize: "100%",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
     MozBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    MozTextFillColor: "transparent"
+    MozTextFillColor: "transparent",
+    width: "fit-content",
+    fontSize: "5rem",
+    textAlign: "center" as const,
+    fontWeight: 600,
+    margin: "auto",
+    lineHeight: 1
 })
 
 export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", background: "#fafafa" });
@@ -34,7 +39,7 @@ export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", ba
 export const Home = () => {
 
     const { data: basicStats, loading: loadingBasicStats } = useQuery<GetBasicStats>(GET_BASIC_STATS);
-    const { data: headlineTotals, loading: loadingHeadlineTotals } = useQuery<GetHeadlineTotals>(GET_HEADLINE_TOTALS, { fetchPolicy: "network-only" });
+    const { data: headlineTotals, loading: loadingHeadlineTotals } = useQuery<GetHeadlineTotals>(GET_HEADLINE_TOTALS);
     const { data: consistencies, loading: loadingConsistencies } = useQuery<GetConsistencies>(GET_CONSISTENCIES);
     const { data: overviews, loading: loadingOverviews } = useQuery<GetOverviews>(GET_OVERVIEWS);
     const { t } = useTranslation();
@@ -50,16 +55,30 @@ export const Home = () => {
     }, [overviews]);
 
     return <Row gutter={[16, 16]}>
-        <Col span={24} style={{ textAlign: "center" }}>
-            <Title level={1} style={{ fontSize: "5rem" }}>
-                <Skeleton loading={loadingHeadlineTotals} paragraph={{ rows: 1 }}>
-                    {headlineTotals &&
-                        <span style={gradientStyle}>
-                            {Math.round(headlineTotals.headlineTotals.gender)} : {Math.round(headlineTotals.headlineTotals.ethnicity)} : {Math.round(headlineTotals.headlineTotals.disability)}
-                        </span>
-                    }
-                </Skeleton>
-            </Title>
+        <Col span={24}>
+            <Skeleton
+                loading={loadingHeadlineTotals}
+                paragraph={{ rows: 1 }}
+            >
+                {headlineTotals &&
+                    <div style={gradientStyle}>
+                        <Space direction="vertical">
+                            <div>{Math.round(headlineTotals.headlineTotals.gender)}</div>
+                            <div style={{ fontSize: "1rem" }}>{t("gender")}</div>
+                        </Space>
+                        &nbsp;:&nbsp;
+                        <Space direction="vertical">
+                            <div>{Math.round(headlineTotals.headlineTotals.ethnicity)}</div>
+                            <div style={{ fontSize: "1rem" }}>{t("ethnicity")}</div>
+                        </Space>
+                        &nbsp;:&nbsp;
+                        <Space direction="vertical">
+                            <div>{Math.round(headlineTotals.headlineTotals.disability)}</div>
+                            <div style={{ fontSize: "1rem" }}>{t("disability")}</div>
+                        </Space>
+                    </div>
+                }
+            </Skeleton>
         </Col>
         <Col span={8}>
             <Card style={cardStyle}>

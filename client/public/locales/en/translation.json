@@ -25,6 +25,8 @@
   "consistencyChallenge": "Consistency Challenge",
   "consistent": "Consistent",
   "gender": "Gender",
+  "ethnicity": "Ethnicity",
+  "disability": "Disability",
   "overview": "Overview",
   "failed": "Not met",
   "publishRecordSet": "Publish",
