@@ -151,7 +151,7 @@ export const Reports = () => {
                             />
                         </Panel>
                     </Collapse>
-                    <div style={{ display: "flex" }}>
+                    <div>
                         {
                             filterState.categories.map(
                                 (x, i) => <Tag
@@ -200,7 +200,7 @@ export const Reports = () => {
                             />
                         </Panel>
                     </Collapse>
-                    <div style={{ display: "flex" }}>
+                    <div>
                         {
                             filterState.teams.map(
                                 (x, i) => <Tag
@@ -249,7 +249,7 @@ export const Reports = () => {
                             />
                         </Panel>
                     </Collapse>
-                    <div style={{ display: "flex" }}>
+                    <div>
                         {
                             filterState.datasetGroups.map(
                                 (x, i) => <Tag
@@ -298,7 +298,7 @@ export const Reports = () => {
                             />
                         </Panel>
                     </Collapse>
-                    <div style={{ display: "flex" }}>
+                    <div>
                         {
                             filterState.tags.map(
                                 (x, i) => <Tag
