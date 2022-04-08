@@ -7,13 +7,13 @@
 // GraphQL query operation: GetBasicStats
 // ====================================================
 
-export interface GetBasicStats_stats {
-  readonly __typename: "Stats";
+export interface GetBasicStats_basicStats {
+  readonly __typename: "BasicStats";
   readonly teams: number;
   readonly datasets: number;
   readonly tags: number;
 }
 
 export interface GetBasicStats {
-  readonly stats: GetBasicStats_stats;
+  readonly basicStats: GetBasicStats_basicStats;
 }

@@ -7,7 +7,7 @@
 // GraphQL query operation: GetOverviews
 // ====================================================
 
-export interface GetOverviews_stats_overviews {
+export interface GetOverviews_overviews {
   readonly __typename: "Overview";
   readonly category: string;
   readonly date: string;
@@ -16,11 +16,6 @@ export interface GetOverviews_stats_overviews {
   readonly filter: string;
 }
 
-export interface GetOverviews_stats {
-  readonly __typename: "Stats";
-  readonly overviews: ReadonlyArray<GetOverviews_stats_overviews>;
-}
-
 export interface GetOverviews {
-  readonly stats: GetOverviews_stats;
+  readonly overviews: ReadonlyArray<GetOverviews_overviews>;
 }

@@ -34,19 +34,19 @@ export const cardStyle = ({ border: "3px solid #f0f0f0", borderRadius: "5px", ba
 export const Home = () => {
 
     const { data: basicStats, loading: loadingBasicStats } = useQuery<GetBasicStats>(GET_BASIC_STATS);
-    const { data: headlineTotals, loading: loadingHeadlineTotals } = useQuery<GetHeadlineTotals>(GET_HEADLINE_TOTALS);
+    const { data: headlineTotals, loading: loadingHeadlineTotals } = useQuery<GetHeadlineTotals>(GET_HEADLINE_TOTALS, { fetchPolicy: "network-only" });
     const { data: consistencies, loading: loadingConsistencies } = useQuery<GetConsistencies>(GET_CONSISTENCIES);
     const { data: overviews, loading: loadingOverviews } = useQuery<GetOverviews>(GET_OVERVIEWS);
     const { t } = useTranslation();
     const [selectedOverviewCategory, setSelectedOverviewCategory] = useState("Gender");
 
     const overviewCategories = useMemo(() => {
-        return Array.from(new Set(overviews?.stats.overviews.map(x => x.category)))
+        return Array.from(new Set(overviews?.overviews.map(x => x.category)))
             .sort((a, b) => catSort(a, b));
     }, [overviews]);
 
     const overviewFilters = useMemo(() => {
-        return Array.from(new Set(overviews?.stats.overviews.map(x => x.filter)));
+        return Array.from(new Set(overviews?.overviews.map(x => x.filter)));
     }, [overviews]);
 
     return <Row gutter={[16, 16]}>
@@ -55,7 +55,7 @@ export const Home = () => {
                 <Skeleton loading={loadingHeadlineTotals} paragraph={{ rows: 1 }}>
                     {headlineTotals &&
                         <span style={gradientStyle}>
-                            {Math.round(headlineTotals.stats.gender)} : {Math.round(headlineTotals.stats.ethnicity)} : {Math.round(headlineTotals.stats.disability)}
+                            {Math.round(headlineTotals.headlineTotals.gender)} : {Math.round(headlineTotals.headlineTotals.ethnicity)} : {Math.round(headlineTotals.headlineTotals.disability)}
                         </span>
                     }
                 </Skeleton>
@@ -66,7 +66,7 @@ export const Home = () => {
                 <Statistic
                     loading={loadingBasicStats}
                     title={t("teams")}
-                    value={basicStats?.stats.teams}
+                    value={basicStats?.basicStats.teams}
                 />
             </Card>
         </Col>
@@ -75,7 +75,7 @@ export const Home = () => {
                 <Statistic
                     loading={loadingBasicStats}
                     title={t("datasets")}
-                    value={basicStats?.stats.datasets}
+                    value={basicStats?.basicStats.datasets}
                 />
             </Card>
         </Col>
@@ -84,7 +84,7 @@ export const Home = () => {
                 <Statistic
                     loading={loadingBasicStats}
                     title={t("tags")}
-                    value={basicStats?.stats.tags}
+                    value={basicStats?.basicStats.tags}
                 />
             </Card>
         </Col>
@@ -104,10 +104,10 @@ export const Home = () => {
                 <Col span={24}>
                     <Skeleton loading={loadingConsistencies} paragraph={{ rows: 1 }}>
                         {
-                            consistencies && consistencies.stats.consistencies.length &&
+                            consistencies && consistencies.consistencies.length &&
 
                             <Bar
-                                data={consistencies.stats.consistencies
+                                data={consistencies.consistencies
                                     .filter(x => x.category === "Gender")
                                     .sort((a, b) => a.year - b.year)}
                                 xField="value"
@@ -156,7 +156,7 @@ export const Home = () => {
                     <Skeleton loading={loadingOverviews} paragraph={{ rows: 1 }}>
 
                         {
-                            overviews && overviews.stats.overviews.length &&
+                            overviews && overviews.overviews.length &&
 
                             overviewFilters.map(filter =>
 
@@ -166,7 +166,7 @@ export const Home = () => {
                                     size="small"
                                 >
                                     <Bar
-                                        data={overviews.stats.overviews
+                                        data={overviews.overviews
                                             .filter(x => x.filter === filter)
                                             .filter(x => x.category === selectedOverviewCategory)
                                             .sort((a, b) => b.date.localeCompare(a.date))}

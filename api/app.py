@@ -20,7 +20,9 @@ from ariadne import (
 )
 from ariadne.asgi import GraphQL
 
-from database import connection, User, is_blank_slate, Role
+from connection import connection
+from seed import is_blank_slate
+from database import User, Role
 from queries import queries
 from mutations import mutation
 from settings import settings

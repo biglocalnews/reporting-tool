@@ -4,11 +4,29 @@ from unicodedata import category
 from h11 import Data
 from sqlalchemy import and_, column, func, select, subquery, text
 from sqlalchemy.orm import Session
-from database import Dataset, Program, PublishedRecordSet, ReportingPeriod
+from database import Dataset, Program, PublishedRecordSet, ReportingPeriod, Tag, Team
 from enum import Enum
 
 
-def get_overview(stats: Dict, session: Session):
+def get_basic_stats(session: Session):
+    stats = {}
+
+    stmt = select(func.count()).select_from(Team).where(Team.deleted == None)
+    team_count = session.scalar(stmt)
+    stats["teams"] = team_count
+
+    stmt = select(func.count()).select_from(Dataset).where(Dataset.deleted == None)
+    datasets_count = session.scalar(stmt)
+    stats["datasets"] = datasets_count
+
+    stmt = select(func.count()).select_from(Tag).where(Tag.deleted == None)
+    tags_count = session.scalar(stmt)
+    stats["tags"] = tags_count
+
+    return stats
+
+
+def get_overviews(session: Session):
     categories = ["Gender", "Ethnicity", "Disability"]
     filters = [{"name": "Everyone", "filter": True}]
 
@@ -40,7 +58,7 @@ def get_overview(stats: Dict, session: Session):
     },
     """
 
-    stats["overviews"] = []
+    overviews = []
 
     for category in categories:
         for filter in filters:
@@ -143,28 +161,30 @@ def get_overview(stats: Dict, session: Session):
                     "value": scores[target_state.exceeds],
                     "filter": filter["name"],
                 }
-                stats["overviews"].append(proto)
-                stats["overviews"].append(
+                overviews.append(proto)
+                overviews.append(
                     {
                         **proto,
                         "target_state": target_state.lt5.name,
                         "value": scores[target_state.lt5],
                     }
                 )
-                stats["overviews"].append(
+                overviews.append(
                     {
                         **proto,
                         "target_state": target_state.lt10.name,
                         "value": scores[target_state.lt10],
                     }
                 )
-                stats["overviews"].append(
+                overviews.append(
                     {
                         **proto,
                         "target_state": target_state.gt10.name,
                         "value": scores[target_state.gt10],
                     }
                 )
+
+    return overviews
 
 
 def get_admin_overview(stats: Dict, session: Session, duration: int):
@@ -473,7 +493,10 @@ def get_admin_overdue(stats: Dict, session: Session):
             stats["overdue"].append(dataset_details)
 
 
-def get_headline_totals(stats: Dict, session: Session):
+def get_headline_totals(session: Session):
+
+    headline_totals = {}
+
     stmt = (
         select(
             func.jsonb_object_keys(
@@ -531,15 +554,17 @@ def get_headline_totals(stats: Dict, session: Session):
             total += this_total_in_target
             count += 1
 
-        stats[category.lower()] = total / count
+        headline_totals[category.lower()] = total / count
+
+    return headline_totals
 
 
-def get_consistencies(stats: Dict, session: Session):
+def get_consistencies(session: Session):
     category = "Gender"
     consistency_state = Enum("consistency_state", "met almost failed")
     consistency_threshold = 5
 
-    stats["consistencies"] = []
+    consistencies_obj = []
 
     consistency_counts = {}
 
@@ -599,7 +624,7 @@ def get_consistencies(stats: Dict, session: Session):
                 consistency_counts[year]["failed"] += 1
 
     # this suits antd charts
-    stats["consistencies"].extend(
+    consistencies_obj.extend(
         [
             {
                 "category": category,
@@ -610,7 +635,7 @@ def get_consistencies(stats: Dict, session: Session):
             for [year, counts] in consistency_counts.items()
         ]
     )
-    stats["consistencies"].extend(
+    consistencies_obj.extend(
         [
             {
                 "category": category,
@@ -621,3 +646,5 @@ def get_consistencies(stats: Dict, session: Session):
             for [year, counts] in consistency_counts.items()
         ]
     )
+
+    return consistencies_obj

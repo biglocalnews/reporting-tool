@@ -7,7 +7,7 @@
 // GraphQL query operation: GetConsistencies
 // ====================================================
 
-export interface GetConsistencies_stats_consistencies {
+export interface GetConsistencies_consistencies {
   readonly __typename: "Consistency";
   readonly category: string;
   readonly year: number;
@@ -15,11 +15,6 @@ export interface GetConsistencies_stats_consistencies {
   readonly consistencyState: string;
 }
 
-export interface GetConsistencies_stats {
-  readonly __typename: "Stats";
-  readonly consistencies: ReadonlyArray<GetConsistencies_stats_consistencies>;
-}
-
 export interface GetConsistencies {
-  readonly stats: GetConsistencies_stats;
+  readonly consistencies: ReadonlyArray<GetConsistencies_consistencies>;
 }

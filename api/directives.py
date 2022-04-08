@@ -4,7 +4,8 @@ from graphql.type import (
     GraphQLField,
     GraphQLObjectType,
 )
-from database import is_blank_slate, PermissionsMixin, User, Dataset, Record, Program
+from database import PermissionsMixin, User, Dataset, Record
+from seed import is_blank_slate
 
 from typing import List, Iterable
 

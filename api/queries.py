@@ -1,8 +1,9 @@
-import imp
+import time
 from typing import cast
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
+from cache import get_or_create_cached_object
 from database import (
     CustomColumn,
     Dataset,
@@ -20,15 +21,17 @@ from database import (
     Program,
     Organization,
     Tag,
+    Cache,
 )
 
 from stats import (
     get_admin_needs_attention,
     get_admin_overdue,
+    get_basic_stats,
     get_consistencies,
     get_headline_totals,
-    get_overview,
     get_admin_overview,
+    get_overviews,
 )
 
 import sap_data
@@ -388,6 +391,7 @@ def resolve_reporting_periods(obj, info):
     return rps
 
 
+"""
 @query.field("stats")
 def resolve_stats(obj, info):
     # to get intellisense
@@ -415,62 +419,47 @@ def resolve_stats(obj, info):
     stats["lgbtqa"] = 0.0
 
     return stats
+"""
 
 
 @query.field("headlineTotals")
 def resolve_headline_totals(obj, info):
     # to get intellisense
     session = cast(Session, info.context["dbsession"])
-    stats = {}
 
-    get_headline_totals(stats, session)
+    key = f"{time.strftime('%Y-%m-%d')}_headline_totals"
 
-    stats["lgbtqa"] = 0.0
+    headline_totals = get_or_create_cached_object(session, key, get_headline_totals)
 
-    return stats
+    headline_totals["lgbtqa"] = 0.0
+
+    return headline_totals
 
 
 @query.field("basicStats")
 def resolve_basic_stats(obj, info):
     # to get intellisense
     session = cast(Session, info.context["dbsession"])
-    stats = {}
-
-    stmt = select(func.count()).select_from(Team).where(Team.deleted == None)
-    team_count = session.scalar(stmt)
-    stats["teams"] = team_count
-
-    stmt = select(func.count()).select_from(Dataset).where(Dataset.deleted == None)
-    datasets_count = session.scalar(stmt)
-    stats["datasets"] = datasets_count
-
-    stmt = select(func.count()).select_from(Tag).where(Tag.deleted == None)
-    tags_count = session.scalar(stmt)
-    stats["tags"] = tags_count
-
-    return stats
+    key = f"{time.strftime('%Y-%m-%d')}_basic_stats"
+    return get_or_create_cached_object(session, key, get_basic_stats)
 
 
 @query.field("consistencies")
 def resolve_consistencies(obj, info):
     # to get intellisense
     session = cast(Session, info.context["dbsession"])
-    stats = {}
+    key = f"{time.strftime('%Y-%m-%d')}_consistencies"
 
-    get_consistencies(stats, session)
-
-    return stats
+    return get_or_create_cached_object(session, key, get_consistencies)
 
 
 @query.field("overviews")
 def resolve_overviews(obj, info):
     # to get intellisense
     session = cast(Session, info.context["dbsession"])
-    stats = {}
+    key = f"{time.strftime('%Y-%m-%d')}_overviews"
 
-    get_overview(stats, session)
-
-    return stats
+    return get_or_create_cached_object(session, key, get_overviews)
 
 
 @query.field("adminStats")

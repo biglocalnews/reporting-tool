@@ -10,6 +10,7 @@ from sqlalchemy.sql import func
 from typing import Optional, List, Dict
 from settings import settings
 import database
+from connection import connection
 
 
 class BaseUserCreateUpdate(BaseModel):
@@ -237,7 +238,7 @@ class SQLAlchemyORMUserDatabase(BaseUserDatabase):
         return user
 
 
-user_db = SQLAlchemyORMUserDatabase(database.connection)
+user_db = SQLAlchemyORMUserDatabase(connection)
 
 
 # remove cookie_secure=False later for production

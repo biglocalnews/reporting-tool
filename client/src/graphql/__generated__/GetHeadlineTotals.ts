@@ -7,8 +7,8 @@
 // GraphQL query operation: GetHeadlineTotals
 // ====================================================
 
-export interface GetHeadlineTotals_stats {
-  readonly __typename: "Stats";
+export interface GetHeadlineTotals_headlineTotals {
+  readonly __typename: "HeadlineTotals";
   readonly gender: number;
   readonly ethnicity: number;
   readonly disability: number;
@@ -16,5 +16,5 @@ export interface GetHeadlineTotals_stats {
 }
 
 export interface GetHeadlineTotals {
-  readonly stats: GetHeadlineTotals_stats;
+  readonly headlineTotals: GetHeadlineTotals_headlineTotals;
 }
