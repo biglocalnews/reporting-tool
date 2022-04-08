@@ -54,7 +54,7 @@ export const Home = () => {
         return Array.from(new Set(overviews?.overviews.map(x => x.filter)));
     }, [overviews]);
 
-    return <Row gutter={[16, 16]}>
+    return <Row gutter={[32, 32]}>
         <Col span={24}>
             <Skeleton
                 loading={loadingHeadlineTotals}
