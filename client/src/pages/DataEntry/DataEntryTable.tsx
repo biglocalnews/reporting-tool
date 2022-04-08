@@ -201,7 +201,7 @@ export const DataEntryTable = (props: IProps) => {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(x => ({
                 className: getColumnClassName(attributeCategory),
-                title: x.name,
+                title: <b>{x.name}</b>,
                 dataIndex: x.name,
                 key: x.name,
                 render: function pd(entry: ITableEntry, record: ITableRow) {
@@ -285,7 +285,7 @@ export const DataEntryTable = (props: IProps) => {
             .filter(x => !currentTrackedAttributeCategories.some(y => y.id === x.id))
             .concat(currentTrackedAttributeCategories)
             .map((attributeCategory) => ({
-                title: attributeCategory,
+                title: <span style={{ fontSize: "larger" }}>{attributeCategory.name}</span>,
                 children: getChildren(reportingPeriod, attributeCategory, personType)
             }));
 
