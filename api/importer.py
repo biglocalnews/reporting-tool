@@ -1,11 +1,11 @@
 import sys
-import csv
-from typing import List, Set
+from typing import Set
 from datetime import datetime
 import calendar
 
 from uuid import uuid4
-from venv import create
+
+from connection import connection
 
 from database import (
     Category,
@@ -21,7 +21,6 @@ from database import (
     Target,
     Track,
     User,
-    connection,
     Team,
     Program,
 )
