@@ -17,7 +17,7 @@ const HomeSearchAutoComplete = ({
     <AutoComplete
       style={{ width: 300 }}
       aria-label="Search"
-      placeholder={`Search your ${t("program")}s`}
+      placeholder={`Search ${t("Dataset_plural")}`}
       aria-expanded="false"
       onSearch={onSearch}
     >

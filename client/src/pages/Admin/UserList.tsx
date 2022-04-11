@@ -1,8 +1,9 @@
 import { CheckCircleOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, message, Modal, PageHeader, Table, Tag } from "antd";
+import { Button, Col, Input, message, Modal, PageHeader, Row, Table, Tag } from "antd";
+const { Search } = Input;
 import { ColumnsType } from "antd/lib/table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
@@ -29,6 +30,13 @@ export const UserList = () => {
   const { data, loading, error } = useQuery<GetUserList>(GET_USER_LIST, {
     fetchPolicy: "network-only",
   });
+
+  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return data?.users;
+    return data?.users.filter(x => [x.lastName, x.firstName, x.email].join(" ").toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()));
+  }, [data, searchTerm]);
 
   if (error) {
     throw error;
@@ -99,42 +107,51 @@ export const UserList = () => {
   });
 
   return (
-    <div className="admin user-userlist_container">
-      <PageHeader
-        title={t("admin.user.userListTitle")}
-        subTitle={t("admin.user.userListSubTitle")}
-        extra={[
-          <Button
-            icon={<UserAddOutlined />}
-            key="add-user"
-            type="primary"
-            onClick={() => setShowCreateUser(true)}
-          >
-            {t("admin.user.createNew")}
-          </Button>,
-        ]}
-      />
-      <Modal
-        forceRender
-        visible={showCreateUser}
-        onOk={() => { userDetails && saveNewUser(userDetails).then(() => { setShowCreateUser(false); setUserDetails(undefined); }) }}
-        okButtonProps={userDetails ? undefined : { disabled: true }}
-        okText={t("admin.user.save")}
-        onCancel={() => {
-          setShowCreateUser(false);
-          setUserDetails(undefined);
-        }}
-        cancelText={t("admin.user.cancel")}
-        title={t("admin.user.createTitle")}
-      >
-        <CreateUser setUserDetails={setUserDetails} />
-      </Modal>
-      <Table
-        loading={loading}
-        rowKey={(user) => user.id}
-        dataSource={data?.users}
-        columns={columns}
-      />
-    </div>
+    <Row gutter={[16, 16]}>
+      <Col span={24}>
+        <PageHeader
+          title={t("admin.user.userListTitle")}
+          subTitle={t("admin.user.userListSubTitle")}
+          extra={[
+            <Button
+              icon={<UserAddOutlined />}
+              key="add-user"
+              type="primary"
+              onClick={() => setShowCreateUser(true)}
+            >
+              {t("admin.user.createNew")}
+            </Button>,
+            <Modal
+              key={2}
+              forceRender
+              visible={showCreateUser}
+              onOk={() => { userDetails && saveNewUser(userDetails).then(() => { setShowCreateUser(false); setUserDetails(undefined); }) }}
+              okButtonProps={userDetails ? undefined : { disabled: true }}
+              okText={t("admin.user.save")}
+              onCancel={() => {
+                setShowCreateUser(false);
+                setUserDetails(undefined);
+              }}
+              cancelText={t("admin.user.cancel")}
+              title={t("admin.user.createTitle")}
+            >
+              <CreateUser setUserDetails={setUserDetails} />
+            </Modal>
+          ]}
+        />
+      </Col>
+      <Col span={6} offset={18}>
+        <Search placeholder={t("admin.userList.searchUsers")} allowClear onSearch={(e) => setSearchTerm(e)} />
+
+      </Col>
+      <Col span={24}>
+        <Table
+          loading={loading}
+          rowKey={(user) => user.id}
+          dataSource={filteredUsers}
+          columns={columns}
+        />
+      </Col>
+    </Row>
   );
 };

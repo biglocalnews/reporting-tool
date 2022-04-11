@@ -7,6 +7,9 @@
   "program_plural": "dataset groups",
   "Program": "Dataset Group",
   "Program_plural": "Dataset Groups",
+  "Team_plural": "Teams",
+  "User_plural": "Users",
+  "Dataset_plural": "Datasets",
   "teamsSideBarTitle": "My $t(Program_plural)",
   "aboutAttribute": "About {{attribute}}",
   "attributeDescription": "{{description}}",
@@ -187,7 +190,8 @@
           "programCount": "$t(Program_plural)"
         },
         "cancel": "$t(cancel)",
-        "save": "Create team"
+        "save": "Create team",
+        "searchTeams": "Search $t(Team_plural)"
       },
       "create": {
         "name": "Name",
@@ -235,7 +239,8 @@
           "active": "Active",
           "activeFilter": "Active",
           "inactiveFilter": "Deleted"
-        }
+        },
+        "searchDatasetGroups": "Search $t(Program_plural)"
       },
       "create": {
         "name": "Name",
@@ -359,6 +364,7 @@
       }
     },
     "userList": {
+      "searchUsers": "Search $t(User_plural)",
       "columnTitle": {
         "email": "Email",
         "firstName": "First Name",

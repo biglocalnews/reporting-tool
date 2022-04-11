@@ -148,11 +148,13 @@ export const Datasets = (): JSX.Element => {
   // Filters datasets table by search term
   const handleTableSearchFilter = (searchText: string) => {
     const data = [...rowData];
-    const filteredData = data.filter(({ team, dataset }) => {
-      team = team.toLowerCase();
-      dataset = dataset.toLowerCase();
-      return team.includes(searchText) || dataset.includes(searchText);
-    });
+    const filteredData = data.filter(
+      ({ team, dataset, tags }) =>
+        [tags.join(" "), team, dataset]
+          .join(" ")
+          .toLocaleLowerCase()
+          .includes(searchText.toLocaleLowerCase())
+    );
 
     setFilteredData(filteredData);
   };
