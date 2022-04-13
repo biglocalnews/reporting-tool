@@ -435,10 +435,6 @@ export const DataEntryTable = (props: IProps) => {
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
         .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
 
-
-
-
-
     if (!getReportingPeriods(false)?.length) {
         if (getReportingPeriods(true)?.length) return <p>{t("allReportingPeriodsPublished")}</p>
         return <p>{t("noReportingPeriodsConfigured")}</p>

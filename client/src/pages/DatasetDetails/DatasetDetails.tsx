@@ -329,7 +329,7 @@ const DatasetDetails = (): JSX.Element => {
                           isStack: true,
                           annotations: Array.from(new Set(chartData.map(x => x.category)))
                             .map(category => {
-                              const target = queryData.dataset?.program?.targets.find(y => y.category.name === category)?.target;
+                              const target = queryData.dataset?.program?.targets.find(y => y.category.name.toLowerCase() === category.toLowerCase())?.target;
                               if (!target) return;
                               return {
                                 type: "line",

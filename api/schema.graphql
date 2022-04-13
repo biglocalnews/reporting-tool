@@ -295,10 +295,10 @@ type Overview {
 }
 
 type HeadlineTotals {
-  gender: Float!
-  ethnicity: Float!
-  disability: Float!
-  lgbtqa: Float!
+  gender: Float
+  ethnicity: Float
+  disability: Float
+  lgbtqa: Float
 }
 
 type BasicStats {

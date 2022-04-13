@@ -159,7 +159,7 @@ def create_tables(session):
     session.add(
         Category(
             id="51349e29-290e-4398-a401-5bf7d04af75e",
-            name="gender",
+            name="Gender",
             description=(
                 "Gender: A social construct based on a group of emotional and "
                 "psychological characteristics that classify an individual as "
@@ -172,7 +172,7 @@ def create_tables(session):
     session.add(
         Category(
             id="2f98f223-417f-41ea-8fdb-35f0c5fe5b41",
-            name="ethnicity",
+            name="Ethnicity",
             description=(
                 "Race & Ethnicity: Social constructs that categorize groups of "
                 "people based on shared social and physical qualities. Definitions "
@@ -185,7 +185,7 @@ def create_tables(session):
     session.add(
         Category(
             id="55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-            name="disability",
+            name="Disability",
             description=(
                 "A disability is any condition of the body or mind (impairment) "
                 "that makes it more difficult for the person with the condition "
@@ -195,6 +195,8 @@ def create_tables(session):
             ),
         )
     )
+
+    session.add(Organization(id="15d89a19-b78d-4ee8-b321-043f26bdd48a", name="BBC"))
 
     session.commit()
 
@@ -215,45 +217,58 @@ def create_dummy_data(session):
         return bcrypt.hash(pw, salt="0" * 22, rounds=4)
 
     print("👩🏽‍💻 Adding dummy data ...")
-    user = User(
-        id="cd7e6d44-4b4d-4d7a-8a67-31efffe53e77",
-        email="tester@notrealemail.info",
-        username="tester@notrealemail.info",
-        hashed_password=hash_test_password("password"),
-        first_name="Cat",
-        last_name="Berry",
-        last_changed_password=datetime.now(),
-        last_login=datetime.now(),
-    )
+
+    admin_role = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
+
+    user_id = "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"
+    user = session.query(User).get(user_id)
+    if not user:
+        user = User(
+            id=user_id,
+            email="tester@notrealemail.info",
+            username="tester@notrealemail.info",
+            hashed_password=hash_test_password("password"),
+            first_name="Cat",
+            last_name="Berry",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+        )
+        session.add(user)
 
     # Secondary app user (no perms, used for testing access controls)
-    other_user = User(
-        id="a47085ba-3d01-46a4-963b-9ffaeda18113",
-        email="other@notrealemail.info",
-        username="other@notrealemail.info",
-        hashed_password=hash_test_password("otherpassword"),
-        first_name="Penelope",
-        last_name="Pineapple",
-        last_changed_password=datetime.now(),
-        last_login=datetime.now(),
-    )
-    session.add(other_user)
+    other_user_id = "a47085ba-3d01-46a4-963b-9ffaeda18113"
+    other_user_db = session.query(User).get(other_user_id)
+    if not other_user_db:
+        other_user = User(
+            id=other_user_id,
+            email="other@notrealemail.info",
+            username="other@notrealemail.info",
+            hashed_password=hash_test_password("otherpassword"),
+            first_name="Penelope",
+            last_name="Pineapple",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+        )
+        session.add(other_user)
 
     # Admin user
-    admin_user = User(
-        id="df6413b4-b910-4f6e-8f3c-8201c9e65af3",
-        email="admin@notrealemail.info",
-        username="admin@notrealemail.info",
-        hashed_password=hash_test_password("adminpassword"),
-        first_name="Daisy",
-        last_name="Carrot",
-        last_changed_password=datetime.now(),
-        last_login=datetime.now(),
-        roles=[],
-    )
-    admin_role = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-    admin_user.roles.append(admin_role)
-    session.add(admin_user)
+    admin_id = "df6413b4-b910-4f6e-8f3c-8201c9e65af3"
+    admin_user = session.query(User).get(admin_id)
+    if not admin_user:
+        admin_user = User(
+            id=admin_id,
+            email="admin@notrealemail.info",
+            username="admin@notrealemail.info",
+            hashed_password=hash_test_password("adminpassword"),
+            first_name="Daisy",
+            last_name="Carrot",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+            roles=[],
+        )
+
+        admin_user.roles.append(admin_role)
+        session.add(admin_user)
 
     ds1 = Dataset(
         id="b3e7d42d-2bb7-4e25-a4e1-b8d30f3f6e89",

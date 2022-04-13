@@ -35,7 +35,13 @@ export const UserList = () => {
 
   const filteredUsers = useMemo(() => {
     if (!searchTerm) return data?.users;
-    return data?.users.filter(x => [x.lastName, x.firstName, x.email].join(" ").toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()));
+    return data?.users
+      .filter(x =>
+        [x.lastName, x.firstName, x.email]
+          .join(" ")
+          .toLocaleLowerCase()
+          .includes(searchTerm.toLocaleLowerCase())
+      );
   }, [data, searchTerm]);
 
   if (error) {

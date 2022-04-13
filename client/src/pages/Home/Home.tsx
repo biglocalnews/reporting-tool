@@ -62,20 +62,32 @@ export const Home = () => {
             >
                 {headlineTotals &&
                     <div style={gradientStyle}>
-                        <Space direction="vertical">
-                            <div>{Math.round(headlineTotals.headlineTotals.gender)}</div>
-                            <div style={{ fontSize: "1rem" }}>{t("gender")}</div>
-                        </Space>
-                        &nbsp;:&nbsp;
-                        <Space direction="vertical">
-                            <div>{Math.round(headlineTotals.headlineTotals.ethnicity)}</div>
-                            <div style={{ fontSize: "1rem" }}>{t("ethnicity")}</div>
-                        </Space>
-                        &nbsp;:&nbsp;
-                        <Space direction="vertical">
-                            <div>{Math.round(headlineTotals.headlineTotals.disability)}</div>
-                            <div style={{ fontSize: "1rem" }}>{t("disability")}</div>
-                        </Space>
+                        {
+                            headlineTotals.headlineTotals.gender &&
+                            <Space direction="vertical">
+                                <div>{Math.round(headlineTotals.headlineTotals.gender)}</div>
+                                <div style={{ fontSize: "1rem" }}>{t("gender")}</div>
+                            </Space>
+                        }
+
+                        {
+                            headlineTotals.headlineTotals.ethnicity &&
+                            <span>&nbsp;:&nbsp;
+                                <Space direction="vertical">
+                                    <div>{Math.round(headlineTotals.headlineTotals.ethnicity)}</div>
+                                    <div style={{ fontSize: "1rem" }}>{t("ethnicity")}</div>
+                                </Space>
+                            </span>
+                        }
+                        {
+                            headlineTotals.headlineTotals.disability &&
+                            <span> &nbsp;:&nbsp;
+                                <Space direction="vertical">
+                                    <div>{Math.round(headlineTotals.headlineTotals.disability)}</div>
+                                    <div style={{ fontSize: "1rem" }}>{t("disability")}</div>
+                                </Space>
+                            </span>
+                        }
                     </div>
                 }
             </Skeleton>

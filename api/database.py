@@ -202,6 +202,11 @@ class Program(Base, PermissionsMixin):
     __tablename__ = "program"
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
+
+    # in the old system a program is like a dataset in this system, but we create
+    # a program for the dataset with the same name in the new system
+    imported_id = Column(Integer)
+
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     team_id = Column(GUID, ForeignKey("team.id", ondelete="SET NULL"), index=True)
@@ -294,6 +299,10 @@ class Tag(Base):
         return self.__class__.clean_name(name)
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
+
+    # in the old system tags are called groups
+    imported_id = Column(Integer)
+
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     tag_type = Column(String(255), nullable=False)
@@ -562,6 +571,11 @@ class Dataset(Base, PermissionsMixin):
     __tablename__ = "dataset"
 
     id = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
+
+    # in the old system a program is like a dataset in this system, but we create
+    # a program for the dataset with the same name in the new system
+    imported_id = Column(Integer)
+
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     program = relationship("Program", back_populates="datasets")

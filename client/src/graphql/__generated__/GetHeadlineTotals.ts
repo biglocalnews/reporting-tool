@@ -9,10 +9,10 @@
 
 export interface GetHeadlineTotals_headlineTotals {
   readonly __typename: "HeadlineTotals";
-  readonly gender: number;
-  readonly ethnicity: number;
-  readonly disability: number;
-  readonly lgbtqa: number;
+  readonly gender: number | null;
+  readonly ethnicity: number | null;
+  readonly disability: number | null;
+  readonly lgbtqa: number | null;
 }
 
 export interface GetHeadlineTotals {

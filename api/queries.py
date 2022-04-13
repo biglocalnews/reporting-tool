@@ -431,8 +431,6 @@ def resolve_headline_totals(obj, info):
 
     headline_totals = get_or_create_cached_object(session, key, get_headline_totals)
 
-    headline_totals["lgbtqa"] = 0.0
-
     return headline_totals
 
 

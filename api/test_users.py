@@ -1,5 +1,6 @@
-import datetime
-from database import connection, User, Role
+from datetime import datetime
+from connection import connection
+from database import User, Role
 from settings import settings
 
 
@@ -20,6 +21,59 @@ def run():
         return bcrypt.hash(pw, salt="0" * 22, rounds=4)
 
     print("👩🏽‍💻 Adding test users ...")
+
+    admin_role = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
+
+    user_id = "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"
+    user_db = session.query(User).get(user_id)
+    if not user_db:
+        user = User(
+            id=user_id,
+            email="tester@notrealemail.info",
+            username="tester@notrealemail.info",
+            hashed_password=hash_test_password("password"),
+            first_name="Cat",
+            last_name="Berry",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+        )
+        session.add(user)
+
+    # Secondary app user (no perms, used for testing access controls)
+    other_user_id = "a47085ba-3d01-46a4-963b-9ffaeda18113"
+    other_user_db = session.query(User).get(other_user_id)
+    if not other_user_db:
+        other_user = User(
+            id=other_user_id,
+            email="other@notrealemail.info",
+            username="other@notrealemail.info",
+            hashed_password=hash_test_password("otherpassword"),
+            first_name="Penelope",
+            last_name="Pineapple",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+        )
+        session.add(other_user)
+
+    # Admin user
+    admin_id = "df6413b4-b910-4f6e-8f3c-8201c9e65af3"
+    admin_db = session.query(User).get(admin_id)
+    if not admin_db:
+        admin_user = User(
+            id=admin_id,
+            email="admin@notrealemail.info",
+            username="admin@notrealemail.info",
+            hashed_password=hash_test_password("adminpassword"),
+            first_name="Daisy",
+            last_name="Carrot",
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
+            roles=[],
+        )
+
+        admin_user.roles.append(admin_role)
+        session.add(admin_user)
+
     lara_id = "54bdbbef-9294-4ed9-8cd4-592b53e01391"
     lara_db = session.query(User).get(lara_id)
     if not lara_db:
@@ -30,8 +84,8 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Lara",
             last_name="Joannides",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
         session.add(lara)
 
@@ -46,11 +100,10 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Lara",
             last_name="Joannides",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
-        admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-        lara_admin.roles.append(admin)
+        lara_admin.roles.append(admin_role)
         session.add(lara_admin)
 
     daniel_id = "1d492c1c-426c-44ba-9cee-2e565e868dc1"
@@ -63,8 +116,8 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Daniel",
             last_name="Weber",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
         session.add(daniel)
 
@@ -79,11 +132,11 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Daniel",
             last_name="Weber",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
-        admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-        daniel_admin.roles.append(admin)
+
+        daniel_admin.roles.append(admin_role)
         session.add(daniel_admin)
 
     yasmin_id = "4f56c00d-c41a-45e6-b356-ac579f3f61da"
@@ -96,8 +149,8 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Yasmin",
             last_name="Khan",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
         session.add(yasmin)
 
@@ -112,11 +165,10 @@ def run():
             hashed_password=hash_test_password("password"),
             first_name="Yasmin",
             last_name="Khan",
-            last_changed_password=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
+            last_changed_password=datetime.now(),
+            last_login=datetime.now(),
         )
-        admin = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
-        yasmin_admin.roles.append(admin)
+        yasmin_admin.roles.append(admin_role)
         session.add(yasmin_admin)
 
     session.commit()

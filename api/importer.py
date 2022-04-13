@@ -2,6 +2,7 @@ import sys
 from typing import Set
 from datetime import datetime
 import calendar
+import logging
 
 from uuid import uuid4
 
@@ -63,7 +64,7 @@ def get_api_programmes():
         if "data" in parsed_response:
             data = parsed_response["data"]
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
     return data
 
@@ -82,7 +83,7 @@ def get_api_groups():
         if "data" in parsed_response:
             data = parsed_response["data"]
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
     return data
 
@@ -101,7 +102,7 @@ def get_api_records(prog_id):
         if "data" in parsed_response:
             data = parsed_response["data"]
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
     return data
 
@@ -120,36 +121,43 @@ def get_api_user(email):
         if "data" in parsed_response:
             users = parsed_response["data"]
             if len(users) > 1:
-                print(
+                logging.info(
                     f"More than one user with the same email {email} found, that's weird"
                 )
-                print(users)
+                logging.info(users)
                 exit(1)
             if not len(users):
-                print(f"User {email} not found in api")
+                logging.info(f"User {email} not found in api")
             if len(users) == 1:
                 user = users[0]
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
     return user
 
 
-def get_tag(tag_name):
+def get_tag(tag_name, old_system_id):
+
+    try:
+        old_system_id = int(old_system_id)
+    except ValueError as ex:
+        logging.info(
+            f"Old system Id {old_system_id} for tag {tag_name} is not a number"
+        )
+        return None
+
     tag_name = tag_name.strip()
-    if not tag_name:
+    if not tag_name or not old_system_id:
         return None
     db_tag = None
 
     try:
-        db_tag = (
-            session.query(Tag).filter(func.lower(Tag.name) == tag_name.lower()).one()
-        )
+        db_tag = session.query(Tag).filter(Tag.imported_id == old_system_id).one()
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Tag {tag_name} not found in 5050 db")
+        logging.info(f"Tag {tag_name} not found in 5050 db")
 
     if not db_tag:
         db_tag = Tag(
@@ -157,6 +165,7 @@ def get_tag(tag_name):
             name=tag_name,
             tag_type="unassigned",
             description="",
+            imported_id=old_system_id,
         )
         session.add(db_tag)
 
@@ -173,13 +182,12 @@ def get_team(team_name):
             session.query(Team).filter(func.lower(Team.name) == team_name.lower()).one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(e)
+        logging.info(f"Team {team_name} not found, creating new team")
 
     if not db_team:
-        print(f"Team {team_name} not found, creating new team")
         db_team = Team(id=uuid4(), name=team_name, organization=bbc_org)
         session.add(db_team)
 
@@ -192,21 +200,21 @@ non_bbc_emails = []
 def get_user(email):
     email = email.strip()
     if not email or "@" not in email:
-        print(f"non email address {email}")
+        logging.info(f"non email address {email}")
         return None
     email = email.lower()
 
     email_components = email.split("@")
 
     if len(email_components) != 2:
-        print(f"invalid email address {email}")
+        logging.info(f"invalid email address {email}")
         return None
 
     bbc_user = True
 
     if "bbc" not in email_components[1]:
         non_bbc_emails.append(email)
-        print(f"non bbc email address {email}")
+        logging.info(f"non bbc email address {email}")
         bbc_user = False
 
     db_user = None
@@ -214,10 +222,10 @@ def get_user(email):
     try:
         db_user = session.query(User).filter(func.lower(User.email) == email).one()
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"User {email} not found in 5050 db")
+        logging.info(f"User {email} not found in 5050 db")
 
     if not db_user:
         first_name = None
@@ -232,7 +240,9 @@ def get_user(email):
                 or "givenName" not in api_user
                 or "surname" not in api_user
             ):
-                print(f"{email} doesn't return all the normal metadata from the api")
+                logging.error(
+                    f"{email} doesn't return all the normal metadata from the api"
+                )
                 return None
             first_name = api_user["givenName"]
             last_name = api_user["surname"]
@@ -241,10 +251,10 @@ def get_user(email):
             # try and see if we can split it and get a name, seems they mostly follow this pattern
             username_components = email_components[0].split(".")
             if len(username_components) > 1:
-                first_name = username_components[0]
-                last_name = username_components[-1]
+                first_name = username_components[0].title()
+                last_name = username_components[-1].title()
             else:
-                first_name = email_components[0]
+                first_name = email_components[0].title()
                 last_name = ""
             username = email
 
@@ -277,10 +287,10 @@ def get_attribute(attribute_name, db_category):
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Creating new attribute {attribute_name}")
+        logging.error(f"Creating new attribute {attribute_name}")
 
     if not db_attribute:
         db_attribute = CategoryValue(
@@ -290,7 +300,7 @@ def get_attribute(attribute_name, db_category):
     return db_attribute
 
 
-def get_target(db_category, db_programme):
+def get_target(db_category, db_programme, male_attribute, female_attribute):
     # assumes Gender because thats all we have in the old data
     target = None
 
@@ -303,10 +313,10 @@ def get_target(db_category, db_programme):
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Creating new target for {db_category.name}")
+        logging.info(f"Creating new target for {db_category.name}")
 
     if not target:
         target = Target(
@@ -321,14 +331,14 @@ def get_target(db_category, db_programme):
     target.tracks.append(
         Track(
             id=uuid4(),
-            category_value=get_attribute("Women", category_gender),
+            category_value=female_attribute,
             target_member=True,
         )
     )
     target.tracks.append(
         Track(
             id=uuid4(),
-            category_value=get_attribute("Men", category_gender),
+            category_value=male_attribute,
             target_member=False,
         )
     )
@@ -336,26 +346,37 @@ def get_target(db_category, db_programme):
     return target
 
 
-def get_programme(programme_name):
-    programme_name = programme_name.strip()
-    if not programme_name:
+def get_programme(programme_name, old_system_id):
+
+    try:
+        old_system_id = int(old_system_id)
+    except ValueError as ex:
+        logging.error(
+            f"Old system Id {old_system_id} for programme {programme_name} is not a number"
+        )
         return None
+
+    programme_name = programme_name.strip()
+
+    if not old_system_id or not programme_name:
+        return None
+
     db_programme = None
 
     try:
         db_programme = (
-            session.query(Program)
-            .filter(func.lower(Program.name) == programme_name.lower())
-            .one()
+            session.query(Program).filter(Program.imported_id == old_system_id).one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Program {programme_name} not found in 5050 db")
+        logging.info(f"Program {programme_name} not found in 5050 db")
 
     if not db_programme:
-        db_programme = Program(id=uuid4(), name=programme_name, description="")
+        db_programme = Program(
+            id=uuid4(), name=programme_name, description="", imported_id=old_system_id
+        )
         session.add(db_programme)
 
     return db_programme
@@ -374,10 +395,10 @@ def get_person_type(person_type_name):
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"PersonType {person_type_name} not found in 5050 db")
+        logging.info(f"PersonType {person_type_name} not found in 5050 db")
 
     if not db_person_type:
         db_person_type = PersonType(id=uuid4(), person_type_name=person_type_name)
@@ -387,9 +408,19 @@ def get_person_type(person_type_name):
     return db_person_type
 
 
-def get_dataset(programme, dataset_name, everyone_person_type):
+def get_dataset(programme, dataset_name, everyone_person_type, old_system_id):
+
+    try:
+        old_system_id = int(old_system_id)
+    except ValueError as ex:
+        logging.error(
+            f"Old system Id {old_system_id} for dataset {dataset_name} is not a number"
+        )
+        return None
+
     dataset_name = dataset_name.strip()
-    if not dataset_name:
+
+    if not dataset_name or not old_system_id:
         return None
     db_dataset = None
 
@@ -397,16 +428,15 @@ def get_dataset(programme, dataset_name, everyone_person_type):
         db_dataset = (
             session.query(Dataset)
             .filter(
-                Dataset.program == programme,
-                func.lower(Dataset.name) == dataset_name.lower(),
+                Dataset.imported_id == old_system_id,
             )
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Dataset {dataset_name} not found in 5050 db")
+        logging.info(f"Dataset {dataset_name} not found in 5050 db")
 
     if not db_dataset:
         db_dataset = Dataset(
@@ -415,6 +445,7 @@ def get_dataset(programme, dataset_name, everyone_person_type):
             description="",
             person_types=[everyone_person_type],
             program=programme,
+            imported_id=old_system_id,
         )
         session.add(db_dataset)
 
@@ -438,10 +469,10 @@ def get_record(dataset, publication_date, created, updated):
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(f"Record for {publication_date} not found in 5050 db")
+        logging.info(f"Record for {publication_date} not found in 5050 db")
 
     if not db_record:
         db_record = Record(
@@ -455,14 +486,14 @@ def get_record(dataset, publication_date, created, updated):
             created = int(created)
             db_record.created = datetime.fromtimestamp(created)
         except Exception as ex:
-            print(f"invalid timestamp for dataset {dataset.name}: {created}")
+            logging.error(f"invalid timestamp for dataset {dataset.name}: {created}")
 
     if updated:
         try:
             updated = int(updated)
             db_record.updated = datetime.fromtimestamp(updated)
         except Exception as ex:
-            print(f"invalid timestamp for dataset {dataset.name}: {updated}")
+            logging.error(f"invalid timestamp for dataset {dataset.name}: {updated}")
 
     return db_record
 
@@ -473,7 +504,13 @@ def get_reporting_period(programme, year, month):
         return None
 
     begin = datetime(year, month, 1)
-    end = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+
+    if begin.hour == 23:
+        print(programme)
+        print(year)
+        print(month)
+        exit(1)
+    end = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59, 999999)
 
     db_reporting_period = None
 
@@ -488,10 +525,10 @@ def get_reporting_period(programme, year, month):
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(
+        logging.info(
             f"Reporting period starting {begin} and ending {end} not found in 5050 db"
         )
 
@@ -529,10 +566,10 @@ def get_published_record_set(
             .one()
         )
     except MultipleResultsFound as e:
-        print(f"{sys._getframe(  ).f_code.co_name} {e}")
+        logging.error(f"{sys._getframe(  ).f_code.co_name} {e}")
         exit(1)
     except NoResultFound as e:
-        print(
+        logging.info(
             f"Published record set starting {reporting_period.begin} and ending {reporting_period.begin} not found in 5050 db"
         )
 
@@ -615,6 +652,8 @@ groups = get_api_groups()
 
 for programme in get_api_programmes():
 
+    logging.error(f'{programme["name"]} {programme["id"]}')
+
     user_emails = (
         programme["emails"].strip().split(";")
         if "emails" in programme and len(programme["emails"]) > 8
@@ -624,7 +663,7 @@ for programme in get_api_programmes():
     db_users: Set[User] = []
 
     if len(user_emails) == 0:
-        print(f'programme {programme["name"]} has no contacts, that\'s weird')
+        logging.info(f'programme {programme["name"]} has no contacts, that\'s weird')
         continue
 
     for email in set(user_emails):
@@ -640,34 +679,38 @@ for programme in get_api_programmes():
                 x.username.lower() for x in db_team.users
             ]:
                 db_team.users.append(db_user)
-                print(
+                logging.info(
                     f'{db_user.first_name} {db_user.last_name} added to Team {programme["team"]}'
                 )
 
         session.add(db_team)
 
-    db_programme = get_programme(programme["name"])
+    db_programme = get_programme(programme["name"], programme["id"])
 
     if not db_programme.id in [x.id for x in db_team.programs]:
         db_team.programs.append(db_programme)
 
     everyone_person_type = get_person_type("Everyone")
 
-    db_dataset = get_dataset(db_programme, programme["name"], everyone_person_type)
-
-    if category_gender not in [x.category for x in db_programme.targets]:
-        db_programme.targets.append(get_target(category_gender, db_programme))
-
-    for tag in [
-        x["groupName"]
-        for x in groups
-        if programme["id"] in [y["id"] for y in x["programmes"]["data"]]
-    ]:
-        if tag not in [x.name for x in db_programme.tags]:
-            db_programme.tags.append(get_tag(tag))
+    db_dataset = get_dataset(
+        db_programme, programme["name"], everyone_person_type, programme["id"]
+    )
 
     male_attribute = get_attribute("Men", category_gender)
     female_attribute = get_attribute("Women", category_gender)
+
+    if category_gender not in [x.category for x in db_programme.targets]:
+        db_programme.targets.append(
+            get_target(category_gender, db_programme, male_attribute, female_attribute)
+        )
+
+    for tag in [
+        {"name": x["groupName"], "id": x["id"]}
+        for x in groups
+        if programme["id"] in [y["id"] for y in x["programmes"]["data"]]
+    ]:
+        if tag["id"] not in [x.imported_id for x in db_programme.tags]:
+            db_programme.tags.append(get_tag(tag["name"], tag["id"]))
 
     prev_month_year = None
 
@@ -712,4 +755,4 @@ for programme in get_api_programmes():
 
     session.commit()
 
-[print(x) for x in non_bbc_emails]
+[logging.info(x) for x in non_bbc_emails]
