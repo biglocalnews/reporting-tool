@@ -1,4 +1,4 @@
-import { Button, Col, Row, Switch } from "antd";
+import { Button, Col, Radio, Row } from "antd";
 import Title from "antd/lib/typography/Title";
 import moment from "moment";
 import { useMemo, useState } from "react";
@@ -235,12 +235,19 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
         <Row justify="center">
             <Col span={24}>
                 <Title level={2} style={{ textAlign: "center" }}>{document.reportingPeriodDescription}
-                    <Switch
+
+                    <Radio.Group
                         style={{ float: "right" }}
-                        checkedChildren={t("personType")}
-                        unCheckedChildren={t("everyone")}
-                        onChange={(checked) => setShowByPersonType(checked)}
-                    />
+                        defaultValue={showByPersonType}
+                        onChange={(e) => setShowByPersonType(e.target.value)}
+                    >
+                        <Radio value={false}>
+                            {t("everyone")}
+                        </Radio>
+                        <Radio value={true}>
+                            {t("personType")}
+                        </Radio>
+                    </Radio.Group>
                 </Title>
 
             </Col>
