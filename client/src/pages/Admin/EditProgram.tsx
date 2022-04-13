@@ -274,7 +274,7 @@ export const EditProgram = (): JSX.Element => {
     reportingPeriods: programResponse.data!.program.reportingPeriods!
       .map(rp => ({
         ...rp,
-        range: [moment(rp?.range?.[0]), moment(rp?.range?.[1])]
+        range: [moment.utc(rp?.range?.[0]), moment.utc(rp?.range?.[1])]
       })),
     datasets: programResponse.data!.program.datasets.map((ds) => ({
       ...ds,
@@ -282,7 +282,6 @@ export const EditProgram = (): JSX.Element => {
       customColumns: ds.customColumns?.map(({ name }) => name),
     })),
   };
-
 
   return (
     <div className="admin program-editprogram_container">
@@ -1131,6 +1130,13 @@ export const EditProgram = (): JSX.Element => {
                           <List.Item key={key}>
                             <Row gutter={16} justify="center" style={{ width: "100%" }}>
                               <Col span={6}>
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, "id"]}
+                                  noStyle
+                                >
+                                  <Input type="hidden" />
+                                </Form.Item>
                                 <Form.Item
                                   wrapperCol={{ span: 24 }}
                                   shouldUpdate={(prevValues, currentValues) =>

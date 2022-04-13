@@ -96,8 +96,8 @@ const reduceRecordsToOverallPercentages = (
 ) => {
     const a = dataset.records.filter(x =>
         reportingPeriod.range &&
-        moment(x.publicationDate)
-            .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
+        moment.utc(x.publicationDate)
+            .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
     )
         .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
         .reduce((groupedByPersonTypeCategoryAttribute, record, recordIndex, allRecords) => {

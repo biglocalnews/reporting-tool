@@ -158,8 +158,8 @@ export const DataEntryTable = (props: IProps) => {
     const customColumnArrayFromRecords = (range: GetDataset_dataset_program_reportingPeriods) => Array.from(new Set(getDatasetData?.dataset.records
         .filter(x =>
             range.range &&
-            moment(x.publicationDate)
-                .isBetween(moment(range.range[0]), moment(range.range[1]))
+            moment.utc(x.publicationDate)
+                .isBetween(moment.utc(range.range[0]), moment.utc(range.range[1]), null, "[]")
         )
         .map(r => r.customColumnValues).flat().map(x => x?.customColumn))) ?? [];
 
@@ -190,8 +190,8 @@ export const DataEntryTable = (props: IProps) => {
         getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
-                moment(x.publicationDate)
-                    .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
+                moment.utc(x.publicationDate)
+                    .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
             )
             .flatMap(x => x.entries)
             .filter(x => x.categoryValue.category.id === attributeCategory.id && x.personType?.id === personType.id)
@@ -381,7 +381,7 @@ export const DataEntryTable = (props: IProps) => {
             .filter(x =>
                 reportingPeriod.range &&
                 moment(x.publicationDate)
-                    .isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))
+                    .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
             )
             .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
             .reduce((tableData, record, i) => {
@@ -446,7 +446,7 @@ export const DataEntryTable = (props: IProps) => {
         tabBarExtraContent={{ left: <div style={{ minHeight: "6em" }} /> }}
         defaultActiveKey={getReportingPeriods(false)?.
             reduce((prev, reportingPeriod, rpIndex: number) => {
-                if (moment().isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1]))) { return rpIndex.toString() }
+                if (moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")) { return rpIndex.toString() }
                 return prev;
             }, "0") ?? "0"
         }
@@ -460,11 +460,11 @@ export const DataEntryTable = (props: IProps) => {
                                 style={{
                                     color:
                                         moment().add(-5, "days").isAfter(moment(reportingPeriod.range[1])) ? "red" :
-                                            moment().isBetween(moment(reportingPeriod.range[1]).add(-5, "days"), moment().add(1, "day")) ? "orange" : "unset",
-                                    fontWeight: moment().isBetween(moment(reportingPeriod.range[0]), moment(reportingPeriod.range[1])) ? 600 : 400
+                                            moment().isBetween(moment.utc(reportingPeriod.range[1]).add(-5, "days"), moment().add(1, "day"), null, "[]") ? "orange" : "unset",
+                                    fontWeight: moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]") ? 600 : 400
                                 }}
                             >
-                                {`${moment(reportingPeriod.range[0]).format("D MMM YY")} - ${moment(reportingPeriod.range[1]).format("D MMM YY")}`}
+                                {`${moment.utc(reportingPeriod.range[0]).format("D MMM YY")} - ${moment.utc(reportingPeriod.range[1]).format("D MMM YY")}`}
                             </span>
                         }
                         key={rpIndex}
@@ -520,7 +520,7 @@ export const DataEntryTable = (props: IProps) => {
                                                         onChange={e => {
                                                             switch (e.target.value) {
                                                                 case "currentrp":
-                                                                    setAddRecordDatePicker(moment(reportingPeriod.range[1]));
+                                                                    setAddRecordDatePicker(moment.utc(reportingPeriod.range[1]));
                                                                     break;
                                                                 default:
                                                                     setAddRecordDatePicker(moment());

@@ -510,7 +510,7 @@ def get_reporting_period(programme, year, month):
         print(year)
         print(month)
         exit(1)
-    end = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59, 999999)
+    end = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59, 999000)
 
     db_reporting_period = None
 
@@ -649,8 +649,11 @@ session.commit()
 
 
 groups = get_api_groups()
+programmes = get_api_programmes()
 
-for programme in get_api_programmes():
+print(len(programmes))
+
+for programme in programmes:
 
     logging.error(f'{programme["name"]} {programme["id"]}')
 
@@ -664,7 +667,6 @@ for programme in get_api_programmes():
 
     if len(user_emails) == 0:
         logging.info(f'programme {programme["name"]} has no contacts, that\'s weird')
-        continue
 
     for email in set(user_emails):
         db_user = get_user(email)

@@ -227,6 +227,7 @@ export const useSave = getOpHook(
             })),
             reportingPeriodType: input.reportingPeriodType,
             reportingPeriods: input.reportingPeriods?.map(rp => ({
+              id: rp.id,
               range: rp.range,
               programId: programId,
               description: rp.description
