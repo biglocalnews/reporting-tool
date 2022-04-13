@@ -380,12 +380,12 @@ export const DataEntryTable = (props: IProps) => {
         const tableData = getDatasetData.dataset.records
             .filter(x =>
                 reportingPeriod.range &&
-                moment(x.publicationDate)
+                moment.utc(x.publicationDate)
                     .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
             )
             .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
             .reduce((tableData, record, i) => {
-                const currDate = moment(record.publicationDate).toISOString();
+                const currDate = moment.utc(record.publicationDate).toISOString();
                 const entries = record.entries
                     .filter(x => !personType || x.personType?.id === personType.id)
                     .reduce((obj, currEntry) => {
@@ -429,7 +429,7 @@ export const DataEntryTable = (props: IProps) => {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
-    const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().subtract(1, "day").unix(), date.unix()));
+    const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0).unix(), date.unix()));
 
     const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset?.program?.reportingPeriods?.
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
