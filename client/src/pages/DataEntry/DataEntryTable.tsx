@@ -429,7 +429,12 @@ export const DataEntryTable = (props: IProps) => {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
-    const getRandomDateTime = (date: moment.Moment) => moment.unix(getRandomInt(date.clone().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0).unix(), date.unix()));
+    const getRandomDateTime = (date: moment.Moment) => moment.unix(
+        getRandomInt(
+            date.clone().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0).unix(),
+            date.clone().set("hour", 23).set("minute", 59).set("second", 59).set("millisecond", 999).unix()
+        )
+    );
 
     const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset?.program?.reportingPeriods?.
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))

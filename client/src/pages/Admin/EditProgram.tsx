@@ -118,8 +118,8 @@ const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], repor
   switch (reportingPeriodType) {
     case "monthly": {
       const addArrayOfMonths = (startDate: moment.Moment) => {
-        const endOfYear = startDate.clone().endOf("year");
-        startDate.startOf("year");
+        const endOfYear = startDate.clone().endOf("year").utc();
+        startDate.startOf("year").utc();
         while (startDate.isBefore(endOfYear)) {
           formOperations.add({
             range: [
@@ -129,7 +129,7 @@ const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], repor
             description: `${startDate.format("MMMM")}`,
             groupKey: `${startDate.format("YYYY")}-months`
           })
-          startDate.add(1, "month");
+          startDate.add(1, "hour").add(1, "month");
         }
       }
       if (!reportingPeriods || !reportingPeriods.length || !lastDate) {
@@ -140,8 +140,8 @@ const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], repor
     }
     case "quarterly": {
       const addArrayOfQuarters = (startDate: moment.Moment) => {
-        const endOfYear = startDate.clone().endOf("year");
-        startDate.startOf("quarter");
+        const endOfYear = startDate.clone().endOf("year").utc();
+        startDate.startOf("quarter").utc();
         while (startDate.isBefore(endOfYear)) {
           formOperations.add({
             range: [
@@ -151,7 +151,7 @@ const onClickAddNewReportingPeriod = (reportingPeriods: ReportingPeriod[], repor
             description: `Quarter ${startDate.quarter()}`,
             groupKey: `${startDate.format("YYYY")}-quarters`
           })
-          startDate.add(1, "quarter");
+          startDate.add(1, "hour").add(1, "quarter");
         }
       }
       if (!reportingPeriods || !reportingPeriods.length || !lastDate) {
