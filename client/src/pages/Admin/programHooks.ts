@@ -226,12 +226,16 @@ export const useSave = getOpHook(
               customColumns: dataset.customColumns
             })),
             reportingPeriodType: input.reportingPeriodType,
-            reportingPeriods: input.reportingPeriods?.map(rp => ({
-              id: rp.id,
-              range: rp.range,
-              programId: programId,
-              description: rp.description
-            })),
+            reportingPeriods: input.reportingPeriods?.map(rp => {
+              const begin = rp.range[0].set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0);
+              const end = rp.range[1].set("hour", 23).set("minute", 59).set("second", 59).set("millisecond", 999);
+              return {
+                id: rp.id,
+                range: [begin, end],
+                programId: programId,
+                description: rp.description
+              };
+            }),
             targets: input.targets.map(target => ({
               id: target.id,
               category: { id: target.category.id, name: target.category.name, description: target.category.description },
