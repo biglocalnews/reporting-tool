@@ -482,7 +482,6 @@ def resolve_update_program(obj, info, input):
             if "id" in rp_input and rp_input["id"]:
                 rp_input["id"] = uuid.UUID(rp_input["id"])
             [rp_input["begin"], rp_input["end"]] = rp_input.pop("range")
-            print(rp_input)
             rp = session.merge(ReportingPeriod(**rp_input))
             program.reporting_periods.append(rp)
 

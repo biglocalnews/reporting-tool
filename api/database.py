@@ -219,6 +219,7 @@ class Program(Base, PermissionsMixin):
     targets = relationship(
         "Target",
         primaryjoin="and_(Program.id == Target.program_id, Target.deleted == None)",
+        cascade="all, delete-orphan",
     )
     tags = relationship("Tag", secondary=program_tags, back_populates="programs")
 
