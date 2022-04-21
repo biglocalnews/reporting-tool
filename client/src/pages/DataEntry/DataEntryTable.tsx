@@ -143,15 +143,30 @@ export const DataEntryTable = (props: IProps) => {
 
     const personTypeArrayFromDataset = getDatasetData?.dataset.personTypes ?? [];
 
-    const personTypeArrayFromRecords = Array.from(new Set(getDatasetData?.dataset.records
+    /*const personTypeArrayFromRecords = Array.from(new Set(getDatasetData?.dataset.records
         .map(r => r.entries).flat().map(x => x.personType))) ?? [];
+    */
 
-    const mergedPersonTypes = personTypeArrayFromDataset
-        .filter(x => !personTypeArrayFromRecords.some(y => y?.id === x.id))
-        .concat(personTypeArrayFromRecords as GetRecord_record_entries_personType[])
-        .filter(x => x)
-        .map(x => ({ id: x.id, personTypeName: x.personTypeName }))
-        .sort((a, b) => a.personTypeName.localeCompare(b.personTypeName));
+    const personTypeArrayFromRecordsByReportingPeriod = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
+        Array.from(
+            new Set(
+                getDatasetData?.dataset.records
+                    .filter(x =>
+                        reportingPeriod.range &&
+                        moment.utc(x.publicationDate)
+                            .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
+                    )
+                    .map(r => r.entries).flat().map(x => x.personType)
+            )
+        ) ?? [];
+
+    const mergedPersonTypes = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
+        personTypeArrayFromDataset
+            .filter(x => !personTypeArrayFromRecordsByReportingPeriod(reportingPeriod).some(y => y?.id === x.id))
+            .concat(personTypeArrayFromRecordsByReportingPeriod(reportingPeriod) as GetRecord_record_entries_personType[])
+            .filter(x => x)
+            .map(x => ({ id: x.id, personTypeName: x.personTypeName }))
+            .sort((a, b) => a.personTypeName.localeCompare(b.personTypeName));
 
     const customColumnArrayFromDataset = getDatasetData?.dataset.customColumns ?? [];
 
@@ -602,7 +617,7 @@ export const DataEntryTable = (props: IProps) => {
                             <Col span={24}>
                                 <Tabs centered={true} type="card" size="large">
                                     {
-                                        (mergedPersonTypes.length ? mergedPersonTypes : [{ personTypeName: t("unknownPersonType"), id: undefined }])
+                                        (mergedPersonTypes(reportingPeriod).length ? mergedPersonTypes(reportingPeriod) : [{ personTypeName: t("unknownPersonType"), id: undefined }])
                                             .map((personType: IPersonType, pTypeindex: number) =>
                                                 <TabPane tab={personType.personTypeName} key={pTypeindex}>
                                                     <Table
