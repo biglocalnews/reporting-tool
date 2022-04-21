@@ -17,6 +17,7 @@ import { flattenChartData, groupedByMonthYearCategory, groupedByYearCategory } f
 import { useAuth } from "../../components/AuthProvider";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
+import { getPalette } from "../DatasetDetails/DatasetDetails";
 
 
 
@@ -377,7 +378,11 @@ export const Reports = () => {
                         data={flattenedChartData}
                         loading={loading}
                         options={{ seriesField: "category" }}
-                        columnOptions={{ isGroup: true }}
+                        columnOptions={{
+                            isGroup: true,
+                            colorField: "seriesField",
+                            color: (e: { category: string }) => getPalette(e.category)[0]
+                        }}
                     />
                 }
 
