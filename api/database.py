@@ -323,7 +323,10 @@ class Target(Base, PermissionsMixin):
     program = relationship("Program", back_populates="targets")
     target_date = Column(DateTime, nullable=True)
     target = Column(Float, nullable=False)
-    tracks = relationship("Track")
+    tracks = relationship(
+        "Track",
+        cascade="all, delete-orphan",
+    )
 
     category_id = Column(GUID, ForeignKey("category.id"), index=True, nullable=False)
     category = relationship("Category", back_populates="targets")

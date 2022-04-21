@@ -219,7 +219,7 @@ export const DataEntryTable = (props: IProps) => {
                 className: getColumnClassName(attributeCategory),
                 title: <b>{x.name}</b>,
                 dataIndex: x.name,
-                key: x.name,
+                key: x.id,
                 render: function pd(entry: ITableEntry, record: ITableRow) {
                     if (!entry) {
                         entry = {
