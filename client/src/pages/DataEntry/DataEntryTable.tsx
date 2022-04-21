@@ -134,6 +134,7 @@ export const DataEntryTable = (props: IProps) => {
     const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<number, boolean>);
     const [addRecordDatePicker, setAddRecordDatePicker] = useState<moment.Moment | undefined>(undefined);
     const [noOfNewRecords, setNoOfNewRecords] = useState(1);
+    const [activePersonTypeTab, setActivePersonTypeTab] = useState<string>("0");
 
     const { t } = useTranslation();
 
@@ -615,11 +616,23 @@ export const DataEntryTable = (props: IProps) => {
                                 </Button>
                             </Col>
                             <Col span={24}>
-                                <Tabs centered={true} type="card" size="large">
+                                <Tabs
+                                    centered={true}
+                                    type="card"
+                                    size="large"
+                                    onChange={(e) => setActivePersonTypeTab(e)}
+                                >
                                     {
                                         (mergedPersonTypes(reportingPeriod).length ? mergedPersonTypes(reportingPeriod) : [{ personTypeName: t("unknownPersonType"), id: undefined }])
                                             .map((personType: IPersonType, pTypeindex: number) =>
-                                                <TabPane tab={personType.personTypeName} key={pTypeindex}>
+                                                <TabPane
+                                                    tab={
+                                                        activePersonTypeTab === pTypeindex.toString() ?
+                                                            <span style={{ fontSize: "larger", fontWeight: 600 }}>{personType.personTypeName}</span>
+                                                            :
+                                                            <span style={{ fontSize: "smaller" }}>{personType.personTypeName}</span>}
+                                                    key={pTypeindex.toString()}
+                                                >
                                                     <Table
                                                         pagination={false}
                                                         scroll={{ x: "max-content" }}
