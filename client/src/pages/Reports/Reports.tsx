@@ -377,11 +377,13 @@ export const Reports = () => {
                     <LineColumn
                         data={flattenedChartData}
                         loading={loading}
-                        options={{ seriesField: "category" }}
-                        columnOptions={{
-                            isGroup: true,
+                        options={{
+                            seriesField: "category",
                             colorField: "seriesField",
                             color: (e: { category: string }) => getPalette(e.category)[0]
+                        }}
+                        columnOptions={{
+                            isGroup: true
                         }}
                     />
                 }

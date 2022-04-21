@@ -567,7 +567,6 @@ export const EditProgram = (): JSX.Element => {
                             type="number"
                             step={0.01}
                             addonAfter="%"
-                            onChange={(e) => console.log(e)}
                             formatter={value => `${Math.round(Number(value ?? 0) * 100)}`}
                             parser={value => (Number(value ?? 0) / 100).toFixed(2)}
                           />

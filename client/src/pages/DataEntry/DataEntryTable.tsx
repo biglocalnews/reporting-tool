@@ -504,7 +504,7 @@ export const DataEntryTable = (props: IProps) => {
                                         }
                                     }
                                 })
-                                    .then(() => console.log("Published!"))
+                                    .then(() => message.success(`${t("published")}!`))
                                     .catch((e) => message.error(e))
                                 setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }));
                             }
