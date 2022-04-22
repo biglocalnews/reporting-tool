@@ -74,17 +74,22 @@ export const Home = () => {
                 paragraph={{ rows: 1 }}
             >
                 <Space direction="vertical">
-                    <Space direction="horizontal">
+                    <Space
+                        direction="horizontal"
+                        size={50}
+                    >
                         {
                             headlineTotals &&
                             headlineTotals.headlineTotals.gender &&
                             headlineTotal("Gender", headlineTotals.headlineTotals.gender)
                         }
+                        <div>22</div>
                         {
                             headlineTotals &&
                             headlineTotals.headlineTotals.ethnicity &&
                             headlineTotal("Ethnicity", headlineTotals.headlineTotals.ethnicity)
                         }
+                        <div>23</div>
                         {
                             headlineTotals &&
                             headlineTotals.headlineTotals.disability &&
@@ -92,7 +97,7 @@ export const Home = () => {
                         }
 
                     </Space>
-                    Figures shown are for the last published record of each dataset
+                    Figures shown are percents for the last published record of each dataset
                 </Space>
             </Skeleton>
         </Col>
