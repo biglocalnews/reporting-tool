@@ -7,7 +7,7 @@ import { GET_DATASET } from '../../graphql/__queries__/GetDataset.gql';
 import { UPDATE_RECORD } from '../../graphql/__mutations__/UpdateRecord.gql';
 
 import {
-    GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_program_targets_category, GetDataset_dataset_records_entries_categoryValue
+    GetDataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_program_targets_category, GetDataset_dataset_records, GetDataset_dataset_records_entries_categoryValue
 } from "../../graphql/__generated__/GetDataset";
 
 import { CreatePublishedRecordSetInput, CreateRecordInput, CustomColumnType, CustomColumnValueInput, EntryInput, UpdateRecordInput } from "../../graphql/__generated__/globalTypes"
@@ -191,6 +191,20 @@ export const DataEntryTable = (props: IProps) => {
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue) ?? [];
 
+    const pastTrackedAttributesByCategory =
+        (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
+            attributeCategory: GetDataset_dataset_program_targets_category,
+            personType: IPersonType
+        ) => Array.from(
+            new Set(
+                getDatasetData.dataset.records
+                    .filter(x => reportingPeriodFilter(reportingPeriod, x))
+                    .flatMap(x => x.entries)
+                    .filter(x => x.categoryValue.category.id === attributeCategory.id && x.personType?.id === personType.id)
+                    .map(x => x.categoryValue)
+            )
+        );
+
     const currentTrackedAttributes = getDatasetData.dataset?.program?.targets
         .flatMap(x => x.tracks)
         .map(x => x.categoryValue);
@@ -199,19 +213,26 @@ export const DataEntryTable = (props: IProps) => {
         .sort((a, b) => catSort(a.category.name, b.category.name))
         .map(x => x.category);
 
+    const pastTrackedAttributeCategories = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) => Array.from(
+        new Set(
+            getDatasetData.dataset.records
+                .filter(x => reportingPeriodFilter(reportingPeriod, x))
+                .flatMap(x => x.entries)
+                .map(x => x.categoryValue.category)
+        )
+    );
+
+    const reportingPeriodFilter =
+        (reportingPeriod: GetDataset_dataset_program_reportingPeriods, x: GetDataset_dataset_records) =>
+            reportingPeriod.range &&
+            moment.utc(x.publicationDate)
+                .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
+
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         attributeCategory: GetDataset_dataset_program_targets_category,
         personType: IPersonType) =>
-        getDatasetData.dataset.records
-            .filter(x =>
-                reportingPeriod.range &&
-                moment.utc(x.publicationDate)
-                    .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
-            )
-            .flatMap(x => x.entries)
-            .filter(x => x.categoryValue.category.id === attributeCategory.id && x.personType?.id === personType.id)
-            .map(x => x.categoryValue)
+        pastTrackedAttributesByCategory(reportingPeriod, attributeCategory, personType)
             .filter(x => !currentTrackedAttributesByCategory(attributeCategory).some(y => y.id === x.id))
             .concat(currentTrackedAttributesByCategory(attributeCategory) as GetDataset_dataset_records_entries_categoryValue[])
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -220,6 +241,7 @@ export const DataEntryTable = (props: IProps) => {
                 title: <b>{x.name}</b>,
                 dataIndex: x.name,
                 key: x.id,
+                width: 100,
                 render: function pd(entry: ITableEntry, record: ITableRow) {
                     if (!entry) {
                         entry = {
@@ -293,22 +315,24 @@ export const DataEntryTable = (props: IProps) => {
                 }
             }));
 
+
     const getColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         personType: IPersonType) =>
-        getDatasetData.dataset.records
-            .flatMap(x => x.entries)
-            .map(x => x.categoryValue.category)
+        pastTrackedAttributeCategories(reportingPeriod)
             .filter(x => !currentTrackedAttributeCategories.some(y => y.id === x.id))
             .concat(currentTrackedAttributeCategories)
+            .sort((a, b) => catSort(a.name, b.name))
             .map((attributeCategory) => ({
                 title: <span style={{ fontSize: "larger" }}>{attributeCategory.name}</span>,
                 children: getChildren(reportingPeriod, attributeCategory, personType)
             }));
 
+
     const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         mergedCustomColumns(reportingPeriod)
             .map((customColumn) => ({
                 fixed: true,
+                width: 200,
                 title: customColumn.name,
                 dataIndex: customColumn.name,
                 key: customColumn.name,
@@ -635,12 +659,13 @@ export const DataEntryTable = (props: IProps) => {
                                                 >
                                                     <Table
                                                         pagination={false}
-                                                        scroll={{ x: "max-content" }}
+                                                        scroll={{ x: "scroll" }}
                                                         loading={getDatasetLoading || createRecordLoading || deleteRecordLoading}
                                                         dataSource={getTableData(reportingPeriod, personType)}
                                                         columns={[
                                                             {
                                                                 fixed: true,
+                                                                width: 50,
                                                                 render: function d(record) {
                                                                     return <Button
                                                                         tabIndex={-1}
@@ -662,6 +687,7 @@ export const DataEntryTable = (props: IProps) => {
                                                             },
                                                             {
                                                                 fixed: true,
+                                                                width: 160,
                                                                 title: "Date",
                                                                 dataIndex: "date",
                                                                 key: "date",
@@ -715,7 +741,6 @@ export const DataEntryTable = (props: IProps) => {
                                                             ...getCustomColumns(reportingPeriod),
                                                             ...getColumns(reportingPeriod, personType)
                                                         ]}
-
                                                     >
                                                     </Table>
                                                 </TabPane>
