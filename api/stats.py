@@ -572,14 +572,14 @@ def get_headline_totals(session: Session):
             end,
         ] in percents:
 
-            dataset_set.add(dataset_id)
-
             this_total_in_target = sum(target_member_percent)
             this_total_oot = sum(oot_member_percent)
 
             if this_total_in_target + this_total_oot == 0:
                 # eveything was zero so nothing actually recorded
                 continue
+
+            dataset_set.add(dataset_id)
 
             total += this_total_in_target
             count += 1

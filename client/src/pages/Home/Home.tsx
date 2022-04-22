@@ -56,11 +56,11 @@ export const Home = () => {
 
     const headlineTotal = (category: string, totals: { percent: number, noOfDatasets: number }) =>
         <Space direction="vertical">
-            <div style={gradientStyle("Gender")}>
+            <div style={gradientStyle(category)}>
                 <div>{Math.round(totals.percent)}</div>
             </div>
             <div
-                style={{ color: getPalette(category)[0], fontSize: "0.75rem" }}
+                style={{ color: getPalette(category)[0], fontSize: "0.6rem" }}
             >
                 {`${totals.noOfDatasets} ${t(category)} ${t("datasets")}`}
             </div>
