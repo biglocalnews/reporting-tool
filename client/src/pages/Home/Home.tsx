@@ -129,7 +129,7 @@ export const Home = () => {
             <Row gutter={[16, 16]}>
                 <Col span={24}>
                     <Typography>
-                        Datasets that meet the Gender target for contributors for at least three months and do not drop below 45% in any other month.
+                        Datasets that meet the Gender target for at least three months and do not drop below 45% in any other month.
                     </Typography>
                 </Col>
                 <Col span={24}>
@@ -146,12 +146,12 @@ export const Home = () => {
                                 seriesField="consistencyState"
                                 isPercent
                                 isStack
-                                height={150}
-                                width={300}
-                                barWidthRatio={1 / 3}
+                                autoFit={false}
+                                height={250}
+                                barWidthRatio={1 / 2}
                                 color={[getPalette("Gender")[0], "rgba(0,0,0,0)"]}
                                 label={{
-                                    formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${Math.round(Number(v.value)) * 100}%` : "",
+                                    formatter: (v) => Number(v.value) > 0 && v.consistencyState === "consistent" ? `${(Number(v.value) * 100).toFixed(2)}%` : "",
 
                                 }}
                                 xAxis={false}

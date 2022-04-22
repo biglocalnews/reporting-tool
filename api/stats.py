@@ -572,7 +572,7 @@ def get_consistencies(session: Session):
     stmt = select(
         func.jsonb_path_query_array(
             PublishedRecordSet.document,
-            f'$.segmentedRecord.*.{category}.entries.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true && @.personType like_regex "(?i).*contributor.*")."percent"',
+            f'$.segmentedRecord.*.{category}.entries.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
         ),
         func.jsonb_path_query_first(
             PublishedRecordSet.document,
