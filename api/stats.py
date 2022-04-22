@@ -497,6 +497,16 @@ def get_headline_totals(session: Session):
 
     headline_totals = {}
 
+    sbqry = (
+        select(
+            PublishedRecordSet.dataset_id.label("did"),
+            func.max(PublishedRecordSet.end).label("date_pos"),
+        )
+        .select_from(PublishedRecordSet)
+        .group_by("did")
+        .subquery()
+    )
+
     stmt = (
         select(
             func.jsonb_object_keys(
@@ -507,6 +517,13 @@ def get_headline_totals(session: Session):
             )
         )
         .select_from(PublishedRecordSet)
+        .join(
+            sbqry,
+            and_(
+                sbqry.c.did == PublishedRecordSet.dataset_id,
+                PublishedRecordSet.end == sbqry.c.date_pos,
+            ),
+        )
         .distinct()
     )
 
@@ -514,27 +531,38 @@ def get_headline_totals(session: Session):
 
     for [category] in cats:
         grouped_by_dataset_year = {}
-        stmt = select(
-            func.jsonb_path_query_array(
-                PublishedRecordSet.document,
-                f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
-            ),
-            func.jsonb_path_query_array(
-                PublishedRecordSet.document,
-                f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
-            ),
-            func.jsonb_path_query_first(
-                PublishedRecordSet.document,
-                f'$.targets[*] ? (@.category == "{category}")."target"',
-            ),
-            column("dataset_id"),
-            column("end"),
-        ).select_from(PublishedRecordSet)
+        stmt = (
+            select(
+                func.jsonb_path_query_array(
+                    PublishedRecordSet.document,
+                    f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == true)."percent"',
+                ),
+                func.jsonb_path_query_array(
+                    PublishedRecordSet.document,
+                    f'$.record.Everyone.{category}.*.* ? ((@.percent > 0 || @.percent == 0) && @.targetMember == false)."percent"',
+                ),
+                func.jsonb_path_query_first(
+                    PublishedRecordSet.document,
+                    f'$.targets[*] ? (@.category == "{category}")."target"',
+                ),
+                column("dataset_id"),
+                column("end"),
+            )
+            .select_from(PublishedRecordSet)
+            .join(
+                sbqry,
+                and_(
+                    sbqry.c.did == PublishedRecordSet.dataset_id,
+                    PublishedRecordSet.end == sbqry.c.date_pos,
+                ),
+            )
+        )
 
         percents = session.execute(stmt)
 
         total = 0
         count = 0
+        dataset_set = set()
 
         for [
             target_member_percent,
@@ -543,6 +571,8 @@ def get_headline_totals(session: Session):
             dataset_id,
             end,
         ] in percents:
+
+            dataset_set.add(dataset_id)
 
             this_total_in_target = sum(target_member_percent)
             this_total_oot = sum(oot_member_percent)
@@ -554,7 +584,10 @@ def get_headline_totals(session: Session):
             total += this_total_in_target
             count += 1
 
-        headline_totals[category.lower()] = total / count
+        headline_totals[category.lower()] = {
+            "percent": total / count,
+            "no_of_datasets": len(dataset_set),
+        }
 
     return headline_totals
 

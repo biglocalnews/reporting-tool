@@ -293,12 +293,16 @@ type Overview {
   value: Int!
   filter: String!
 }
+type HeadlineTotal {
+    percent: Float!
+    noOfDatasets: Int!
+}
 
 type HeadlineTotals {
-  gender: Float
-  ethnicity: Float
-  disability: Float
-  lgbtqa: Float
+  gender: HeadlineTotal
+  ethnicity: HeadlineTotal
+  disability: HeadlineTotal
+  lgbtqa: HeadlineTotal
 }
 
 type BasicStats {

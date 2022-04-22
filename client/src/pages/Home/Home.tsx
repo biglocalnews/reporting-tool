@@ -18,8 +18,8 @@ import { GetOverviews } from "../../graphql/__generated__/GetOverviews";
 
 const { Title } = Typography;
 
-const gradientStyle = ({
-    backgroundImage: `linear-gradient(to right, ${getPalette("Gender").join(",")}, ${getPalette("Ethnicity").join(",")}, ${getPalette("Disability").join(",")})`,
+const gradientStyle = (category: string) => ({
+    backgroundImage: `linear-gradient(to right, ${getPalette(category).join(",")})`,
     backgroundSize: "100%",
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
@@ -54,42 +54,46 @@ export const Home = () => {
         return Array.from(new Set(overviews?.overviews.map(x => x.filter)));
     }, [overviews]);
 
+    const headlineTotal = (category: string, totals: { percent: number, noOfDatasets: number }) =>
+        <Space direction="vertical">
+            <div style={gradientStyle("Gender")}>
+                <div>{Math.round(totals.percent)}</div>
+            </div>
+            <div
+                style={{ color: getPalette(category)[0], fontSize: "0.75rem" }}
+            >
+                {`${totals.noOfDatasets} ${t(category)} ${t("datasets")}`}
+            </div>
+
+        </Space>
+
     return <Row gutter={[32, 32]}>
-        <Col span={24}>
+        <Col span={24} style={{ textAlign: "center" }}>
             <Skeleton
                 loading={loadingHeadlineTotals}
                 paragraph={{ rows: 1 }}
             >
-                {headlineTotals &&
-                    <div style={gradientStyle}>
+                <Space direction="vertical">
+                    <Space direction="horizontal">
                         {
+                            headlineTotals &&
                             headlineTotals.headlineTotals.gender &&
-                            <Space direction="vertical">
-                                <div>{Math.round(headlineTotals.headlineTotals.gender)}</div>
-                                <div style={{ fontSize: "1rem" }}>{t("gender")}</div>
-                            </Space>
+                            headlineTotal("Gender", headlineTotals.headlineTotals.gender)
+                        }
+                        {
+                            headlineTotals &&
+                            headlineTotals.headlineTotals.ethnicity &&
+                            headlineTotal("Ethnicity", headlineTotals.headlineTotals.ethnicity)
+                        }
+                        {
+                            headlineTotals &&
+                            headlineTotals.headlineTotals.disability &&
+                            headlineTotal("Disability", headlineTotals.headlineTotals.disability)
                         }
 
-                        {
-                            headlineTotals.headlineTotals.ethnicity &&
-                            <span>&nbsp;:&nbsp;
-                                <Space direction="vertical">
-                                    <div>{Math.round(headlineTotals.headlineTotals.ethnicity)}</div>
-                                    <div style={{ fontSize: "1rem" }}>{t("ethnicity")}</div>
-                                </Space>
-                            </span>
-                        }
-                        {
-                            headlineTotals.headlineTotals.disability &&
-                            <span> &nbsp;:&nbsp;
-                                <Space direction="vertical">
-                                    <div>{Math.round(headlineTotals.headlineTotals.disability)}</div>
-                                    <div style={{ fontSize: "1rem" }}>{t("disability")}</div>
-                                </Space>
-                            </span>
-                        }
-                    </div>
-                }
+                    </Space>
+                    Figures shown are for the last published record of each dataset
+                </Space>
             </Skeleton>
         </Col>
         <Col span={8}>
