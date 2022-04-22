@@ -100,7 +100,8 @@ function App() {
         >
 
           <Button
-            type="text"
+            type="link"
+            href="#"
             style={{
               color: "white"
             }}
@@ -118,7 +119,8 @@ function App() {
           <div style={{ flexGrow: 1 }} />
 
           <Button
-            type="text"
+            type="link"
+            href="https://staff.bbc.com/gateway/northern-ireland/documents/5050-tracker-user-guide-quick-start-03.pdf"
             icon={<InfoCircleFilled />}
             style={{
               color: "white"
@@ -127,7 +129,8 @@ function App() {
             {t("userGuide")}
           </Button>
           <Button
-            type="text"
+            type="link"
+            href="https://confluence.dev.bbc.co.uk/display/NIPRODOPS/BBC+50%3A50+Equality+Project?src=contextnavpagetreemode"
             icon={<ProjectFilled />}
             style={{
               color: "white"
@@ -136,7 +139,8 @@ function App() {
             {t("project")}
           </Button>
           <Button
-            type="text"
+            type="link"
+            href="https://github.com/BBCNI/bbc-50-50"
             icon={<GithubFilled />}
             style={{
               color: "white"
