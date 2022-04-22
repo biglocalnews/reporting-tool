@@ -83,13 +83,11 @@ export const Home = () => {
                             headlineTotals.headlineTotals.gender &&
                             headlineTotal("Gender", headlineTotals.headlineTotals.gender)
                         }
-                        <div>22</div>
                         {
                             headlineTotals &&
                             headlineTotals.headlineTotals.ethnicity &&
                             headlineTotal("Ethnicity", headlineTotals.headlineTotals.ethnicity)
                         }
-                        <div>23</div>
                         {
                             headlineTotals &&
                             headlineTotals.headlineTotals.disability &&
