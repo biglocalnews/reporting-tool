@@ -18,6 +18,7 @@ import { useAuth } from "../../components/AuthProvider";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { getPalette } from "../DatasetDetails/DatasetDetails";
+import { catSort } from "../CatSort";
 
 
 
@@ -58,25 +59,29 @@ export const Reports = () => {
         return Array.from(new Set(data?.publishedRecordSets
             .flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
                 .map((r) => r.category))
-        ));
+        ))
+            .sort((a, b) => catSort(a, b));
     }, [data]);
 
     const teams = useMemo(() => {
         return Array.from(new Set(data?.publishedRecordSets
             .map(x => (x.document as IPublishedRecordSetDocument).teamName ?? "None")
-        ));
+        ))
+            .sort((a, b) => a.localeCompare(b));
     }, [data]);
 
     const tags = useMemo(() => {
         return Array.from(new Set(data?.publishedRecordSets
             .flatMap(x => (x.document as IPublishedRecordSetDocument).datasetGroupTags.map(y => y.name))
-        ));
+        ))
+            .sort((a, b) => a.localeCompare(b));
     }, [data]);
 
     const datasetGroups = useMemo(() => {
         return Array.from(new Set(data?.publishedRecordSets
             .map(x => (x.document as IPublishedRecordSetDocument).datasetGroup)
-        ));
+        ))
+            .sort((a, b) => a.localeCompare(b));
     }, [data]);
 
     const filteredByDateMinusOne = useMemo(() => {

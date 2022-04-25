@@ -331,7 +331,7 @@ const DatasetDetails = (): JSX.Element => {
                             .map(category => {
                               const target = queryData.dataset?.program?.targets
                                 .find(y => y.category.name.toLowerCase() === category.toLowerCase())?.target;
-                              if (!target) return //TODO: if nothing returned it will exception;
+                              if (!target) return { type: "line" }; //TODO: It is possible that the target could have been deleted even though there are published records
                               return {
                                 type: "line",
                                 top: true,

@@ -525,7 +525,8 @@ def resolve_restore_program(obj, info, id):
     program = session.query(Program).get(id)
     if program:
         program.deleted = None
-        session.merge(program)
+        for dataset in program.datasets:
+            dataset.deleted = None
     session.commit()
 
     return program
