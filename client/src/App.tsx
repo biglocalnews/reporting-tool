@@ -25,7 +25,7 @@ import { Reports } from "./pages/Reports/Reports";
 import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
-import { InfoCircleFilled, ProjectFilled, GithubFilled } from "@ant-design/icons";
+import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined } from "@ant-design/icons";
 
 
 function Redirecter(props: { from: string }) {
@@ -101,7 +101,7 @@ function App() {
 
           <Button
             type="link"
-            href="#"
+            href="https://staff.bbc.com/gateway/northern-ireland/ni-staff-tech-tools/"
             style={{
               color: "white"
             }}
@@ -120,8 +120,19 @@ function App() {
 
           <Button
             type="link"
+            href="https://50-50.esyscloud.io/Contributors/"
+            icon={<TeamOutlined />}
+            style={{
+              color: "white"
+            }}
+          >
+            Contributors Database
+          </Button>
+
+          <Button
+            type="link"
             href="https://staff.bbc.com/gateway/northern-ireland/documents/5050-tracker-user-guide-quick-start-03.pdf"
-            icon={<InfoCircleFilled />}
+            icon={<InfoCircleOutlined />}
             style={{
               color: "white"
             }}
@@ -131,7 +142,7 @@ function App() {
           <Button
             type="link"
             href="https://confluence.dev.bbc.co.uk/display/NIPRODOPS/BBC+50%3A50+Equality+Project?src=contextnavpagetreemode"
-            icon={<ProjectFilled />}
+            icon={<ProjectOutlined />}
             style={{
               color: "white"
             }}
@@ -141,12 +152,12 @@ function App() {
           <Button
             type="link"
             href="https://github.com/BBCNI/bbc-50-50"
-            icon={<GithubFilled />}
+            icon={<GithubOutlined />}
             style={{
               color: "white"
             }}
           >
-            {t("version")} 1.0
+            v1.0
           </Button>
         </Footer>
       </Layout>
