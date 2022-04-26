@@ -1,5 +1,7 @@
 import uuid
 import secrets
+
+from sqlalchemy import or_
 import mailer
 from more_itertools import chunked
 from ariadne import convert_kwargs_to_snake_case, ObjectType
@@ -30,6 +32,10 @@ from fastapi_users.router.verify import VERIFY_USER_TOKEN_AUDIENCE
 import json
 from smtplib import SMTP
 from email.message import EmailMessage
+from sqlalchemy.orm import (
+    selectinload,
+    with_loader_criteria,
+)
 
 mutation = ObjectType("Mutation")
 
@@ -522,11 +528,18 @@ def resolve_restore_program(obj, info, id):
     :returns: Program object
     """
     session = info.context["dbsession"]
-    program = session.query(Program).get(id)
+    program = session.get(Program, id)
     if program:
         program.deleted = None
         for dataset in program.datasets:
             dataset.deleted = None
+            for record in dataset.records:
+                record.deleted = None
+                for entry in record.entries:
+                    entry.deleted = None
+        for target in program.targets:
+            target.deleted = None
+
     session.commit()
 
     return program

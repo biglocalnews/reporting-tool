@@ -218,7 +218,7 @@ class Program(Base, PermissionsMixin):
     # for old ones.
     targets = relationship(
         "Target",
-        primaryjoin="and_(Program.id == Target.program_id, Target.deleted == None)",
+        # primaryjoin="and_(Program.id == Target.program_id, Target.deleted == None)",
         cascade="all, delete-orphan",
     )
     tags = relationship("Tag", secondary=program_tags, back_populates="programs")
@@ -236,7 +236,9 @@ class Program(Base, PermissionsMixin):
             session.query(Program)
             .options(
                 selectinload(Program.datasets),
+                selectinload(Program.targets),
                 with_loader_criteria(Dataset, Dataset.deleted == None),
+                with_loader_criteria(Target, Target.deleted == None),
             )
             .filter(Program.id == id_, Program.deleted == None)
             .scalar()

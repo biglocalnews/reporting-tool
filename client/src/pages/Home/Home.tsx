@@ -60,7 +60,7 @@ export const Home = () => {
                 <div>{Math.round(totals.percent)}</div>
             </div>
             <div
-                style={{ color: getPalette(category)[0], fontSize: "0.6rem" }}
+                style={{ color: getPalette(category)[0], fontSize: "0.7rem" }}
             >
                 {`${totals.noOfDatasets} ${t(category)} ${t("datasets")}`}
             </div>
@@ -95,7 +95,7 @@ export const Home = () => {
                         }
 
                     </Space>
-                    Figures shown are percents for the last published record of each dataset
+                    Figures shown are percentages for the last published record of each dataset
                 </Space>
             </Skeleton>
         </Col>
@@ -163,6 +163,7 @@ export const Home = () => {
                                 }}
                                 xAxis={false}
                                 legend={false}
+                                tooltip={{ showContent: false }}
                             />
 
                         }
@@ -253,6 +254,7 @@ export const Home = () => {
                                                 }
                                             }
                                         }}
+                                        tooltip={{ showContent: false }}
                                     />
                                 </Card>
 
