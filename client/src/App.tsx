@@ -25,7 +25,7 @@ import { Reports } from "./pages/Reports/Reports";
 import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
-import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleTwoTone } from "@ant-design/icons";
 
 
 function Redirecter(props: { from: string }) {
@@ -141,7 +141,7 @@ function App() {
           </Button>
           <Button
             type="link"
-            href="https://confluence.dev.bbc.co.uk/display/NIPRODOPS/BBC+50%3A50+Equality+Project?src=contextnavpagetreemode"
+            href="https://confluence.dev.bbc.co.uk/display/NIPRODOPS/BBC+50%3A50+Portal"
             icon={<ProjectOutlined />}
             style={{
               color: "white"
@@ -158,6 +158,13 @@ function App() {
             }}
           >
             v1.0
+          </Button>
+          <Button
+            type="link"
+            href="mailto:5050portalhelp@bbc.co.uk"
+            icon={<QuestionCircleTwoTone />}
+            size="large"
+          >
           </Button>
         </Footer>
       </Layout>

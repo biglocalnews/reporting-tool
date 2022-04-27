@@ -46,12 +46,15 @@ const AppHeader = () => {
               id="header__user"
               style={{ float: "right", lineHeight: "64px" }}
             >
+
               <Dropdown overlay={menu}>
                 <Button icon={<UserOutlined />}>
                   {auth.getFullName()} <DownOutlined />
                 </Button>
               </Dropdown>
+
             </div>
+
           </Col>
         </Row>
       </Header>
