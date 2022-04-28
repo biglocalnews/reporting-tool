@@ -131,7 +131,7 @@ export const DataEntryTable = (props: IProps) => {
     const [selectedForInput, setSelectedForInput] = useState<ITableEntry | undefined>();
     const [selectedForCustomInput, setSelectedForCustomInput] = useState<ITableCustomValue | undefined>();
     const [selectedForRowInput, setSelectedForRowInput] = useState<ITableRow | undefined>();
-    const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<number, boolean>);
+    const [publishedRecordSetModalVisiblity, setPublishedRecordSetModalVisiblity] = useState({} as Record<string, boolean>);
     const [addRecordDatePicker, setAddRecordDatePicker] = useState<moment.Moment | undefined>(undefined);
     const [noOfNewRecords, setNoOfNewRecords] = useState(1);
     const [activePersonTypeTab, setActivePersonTypeTab] = useState<string>("0");
@@ -490,15 +490,15 @@ export const DataEntryTable = (props: IProps) => {
         centered
         tabBarExtraContent={{ left: <div style={{ minHeight: "6em" }} /> }}
         defaultActiveKey={getReportingPeriods(false)?.
-            reduce((prev, reportingPeriod, rpIndex: number) => {
-                if (moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")) { return rpIndex.toString() }
+            reduce((prev, reportingPeriod) => {
+                if (moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")) { return reportingPeriod.id }
                 return prev;
             }, "0") ?? "0"
         }
     >
         {
             getReportingPeriods(false)?.
-                map((reportingPeriod, rpIndex: number) =>
+                map((reportingPeriod) =>
                     <TabPane
                         tab={
                             <span
@@ -512,10 +512,10 @@ export const DataEntryTable = (props: IProps) => {
                                 {`${moment.utc(reportingPeriod.range[0]).format("D MMM YY")} - ${moment.utc(reportingPeriod.range[1]).format("D MMM YY")}`}
                             </span>
                         }
-                        key={rpIndex}
+                        key={reportingPeriod.id}
                     >
                         <Modal title="Publish this?"
-                            visible={publishedRecordSetModalVisiblity[rpIndex]}
+                            visible={publishedRecordSetModalVisiblity[reportingPeriod.id]}
                             onOk={async () => {
                                 await createPublishedRecordSet({
                                     variables: {
@@ -530,10 +530,10 @@ export const DataEntryTable = (props: IProps) => {
                                 })
                                     .then(() => message.success(`${t("published")}!`))
                                     .catch((e) => message.error(e))
-                                setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }));
+                                setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [reportingPeriod.id]: false }));
                             }
                             }
-                            onCancel={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: false }))}
+                            onCancel={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [reportingPeriod.id]: false }))}
                         >
 
                             <PublishedRecordSet summary={true} dataset={getDatasetData.dataset} reportingPeriod={reportingPeriod} />
@@ -635,7 +635,7 @@ export const DataEntryTable = (props: IProps) => {
                                 <Button
                                     type="primary"
                                     icon={<SoundTwoTone twoToneColor="#ffaaaa" />}
-                                    onClick={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [rpIndex]: true }))}
+                                    onClick={() => setPublishedRecordSetModalVisiblity((curr) => ({ ...curr, [reportingPeriod.id]: true }))}
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                             </Col>
