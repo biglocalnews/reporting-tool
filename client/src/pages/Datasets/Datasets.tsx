@@ -96,30 +96,34 @@ const getTableData = (
   const rowData: Array<TableData> = [];
 
   queryData.map((team) => {
-    return team.programs.map((program) => {
-      program.datasets.map((dataset) => {
-        rowData.push({
-          id: dataset.id,
-          team: program.name,
-          dataset: dataset.name,
-          modified: dataset.lastUpdated ? dataset.lastUpdated : dayjs(0),
-          lastUpdated: dataset.lastUpdated
-            ? dayjs(dataset.lastUpdated).format("ll")
-            : t("noDataAvailable"),
-          tags: program.tags
-            .map(x => x.name)
-            .concat(
-              Array.from(
-                new Set(
-                  program.tags
-                    .filter(x => x.tagType !== "unassigned")
-                    .map(x => x.tagType)
-                )
-              )
-            ),
-        });
+    return team.programs
+      .filter(x => !x.deleted)
+      .map((program) => {
+        program.datasets
+          .filter(x => !x.deleted)
+          .map((dataset) => {
+            rowData.push({
+              id: dataset.id,
+              team: program.name,
+              dataset: dataset.name,
+              modified: dataset.lastUpdated ? dataset.lastUpdated : dayjs(0),
+              lastUpdated: dataset.lastUpdated
+                ? dayjs(dataset.lastUpdated).format("ll")
+                : t("noDataAvailable"),
+              tags: program.tags
+                .map(x => x.name)
+                .concat(
+                  Array.from(
+                    new Set(
+                      program.tags
+                        .filter(x => x.tagType !== "unassigned")
+                        .map(x => x.tagType)
+                    )
+                  )
+                ),
+            });
+          });
       });
-    });
   });
 
   return rowData.sort((a, b) => dayjs(b.modified).unix() - dayjs(a.modified).unix());

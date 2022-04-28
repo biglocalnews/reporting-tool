@@ -11,11 +11,13 @@ export const GET_USER = gql`
         programs {
           id
           name
+          deleted
           datasets {
             id
             name
             description
             lastUpdated
+            deleted
             records {
               id
               publicationDate

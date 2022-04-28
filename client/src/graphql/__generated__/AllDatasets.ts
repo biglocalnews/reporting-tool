@@ -25,6 +25,7 @@ export interface AllDatasets_teams_programs_datasets {
   readonly name: string;
   readonly description: string | null;
   readonly lastUpdated: any | null;
+  readonly deleted: any | null;
   readonly records: ReadonlyArray<AllDatasets_teams_programs_datasets_records>;
   readonly tags: ReadonlyArray<AllDatasets_teams_programs_datasets_tags>;
 }
@@ -39,6 +40,7 @@ export interface AllDatasets_teams_programs {
   readonly __typename: "Program";
   readonly id: string;
   readonly name: string;
+  readonly deleted: any | null;
   readonly datasets: ReadonlyArray<AllDatasets_teams_programs_datasets>;
   readonly tags: ReadonlyArray<AllDatasets_teams_programs_tags>;
 }

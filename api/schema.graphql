@@ -156,6 +156,7 @@ type Dataset @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   name: String!
   description: String
   lastUpdated: DateTime
+  deleted: DateTime
   program: Program
   records: [Record!]!
   publishedRecordSets: [PublishedRecordSet!]

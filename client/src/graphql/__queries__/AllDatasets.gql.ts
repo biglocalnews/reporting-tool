@@ -6,11 +6,13 @@ export const ALL_DATASETS = gql`
       programs {
         id
         name
+        deleted
         datasets {
           id
           name
           description
           lastUpdated
+          deleted
           records {
             id
             publicationDate
