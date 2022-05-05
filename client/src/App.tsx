@@ -131,7 +131,7 @@ function App() {
 
           <Button
             type="link"
-            href="https://staff.bbc.com/gateway/northern-ireland/documents/5050-tracker-user-guide-quick-start-03.pdf"
+            href="https://staff.bbc.com/gateway/northern-ireland/documents/5050-tracker-user-guide-quick-start-09.pdf"
             icon={<InfoCircleOutlined />}
             style={{
               color: "white"
