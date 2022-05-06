@@ -589,7 +589,7 @@ def get_headline_totals(session: Session):
             "percent": total / count,
             "no_of_datasets": len(dataset_set),
         }
-    logging.error(headline_totals)
+    logging.error(f"Headline totals: {headline_totals}")
     return headline_totals
 
 

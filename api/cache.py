@@ -1,4 +1,5 @@
 from database import Cache
+import logging
 
 
 def get_or_create_cached_object(session, key, new_func):
@@ -14,6 +15,6 @@ def get_or_create_cached_object(session, key, new_func):
         else:
             cached_object = db_cached_object.document
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
     return cached_object

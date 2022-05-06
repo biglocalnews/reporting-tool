@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import cast
 from ariadne import convert_kwargs_to_snake_case, ObjectType
 from sqlalchemy.orm import Session
@@ -412,7 +413,11 @@ def resolve_stats(obj, info):
 
     get_overview(stats, session)
 
-    get_headline_totals(stats, session)
+    try:
+        get_headline_totals(stats, session)
+    except Exception as ex:
+        logging.error(ex)
+        print(ex)
 
     get_consistencies(stats, session)
 
