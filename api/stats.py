@@ -6,6 +6,7 @@ from sqlalchemy import and_, column, func, select, subquery, text
 from sqlalchemy.orm import Session
 from database import Dataset, Program, PublishedRecordSet, ReportingPeriod, Tag, Team
 from enum import Enum
+import logging
 
 
 def get_basic_stats(session: Session):
@@ -588,7 +589,7 @@ def get_headline_totals(session: Session):
             "percent": total / count,
             "no_of_datasets": len(dataset_set),
         }
-
+    logging.error(headline_totals)
     return headline_totals
 
 
