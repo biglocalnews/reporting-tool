@@ -22,6 +22,13 @@ import {
 } from "@ant-design/icons";
 
 import moment from 'moment';
+
+import * as dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import isBetween from 'dayjs/plugin/isBetween';
+dayjs.extend(utc);
+dayjs.extend(isBetween);
+
 import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord.gql";
 import { useState } from "react";
 import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
@@ -225,8 +232,8 @@ export const DataEntryTable = (props: IProps) => {
     const reportingPeriodFilter =
         (reportingPeriod: GetDataset_dataset_program_reportingPeriods, x: GetDataset_dataset_records) =>
             reportingPeriod.range &&
-            moment.utc(x.publicationDate)
-                .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
+            dayjs.utc(x.publicationDate)
+                .isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")
 
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
@@ -418,11 +425,7 @@ export const DataEntryTable = (props: IProps) => {
     const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         personType: IPersonType) => {
         const tableData = getDatasetData.dataset.records
-            .filter(x =>
-                reportingPeriod.range &&
-                moment.utc(x.publicationDate)
-                    .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
-            )
+            .filter(x => reportingPeriodFilter(reportingPeriod, x))
             .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
             .reduce((tableData, record, i) => {
                 const currDate = moment.utc(record.publicationDate).toISOString();
