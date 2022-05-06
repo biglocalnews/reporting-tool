@@ -585,10 +585,11 @@ def get_headline_totals(session: Session):
             total += this_total_in_target
             count += 1
 
-        headline_totals[category.lower()] = {
-            "percent": total / count,
-            "no_of_datasets": len(dataset_set),
-        }
+        if count > 0:
+            headline_totals[category.lower()] = {
+                "percent": total / count,
+                "no_of_datasets": len(dataset_set),
+            }
     logging.error(f"Headline totals: {headline_totals}")
     return headline_totals
 
