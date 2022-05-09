@@ -201,7 +201,11 @@ export const AdminReports = () => {
                             .then(result => {
                                 if (result.data?.teamByDatasetId) {
                                     const team = result.data?.teamByDatasetId;
-                                    email(team.users.map(x => x.email));
+                                    const publisherEmails = team.users
+                                        .filter(x => x.roles.map(x => x.name).includes("publisher"))
+                                        .map(x => x.email);
+                                    if (publisherEmails.length === 0) return message.error(t("admin.reports.noPublishers"));
+                                    email(publisherEmails);
                                 }
                             })
                         }

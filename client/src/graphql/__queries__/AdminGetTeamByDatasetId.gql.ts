@@ -9,6 +9,9 @@ export const ADMIN_GET_TEAM_BY_DATASET_ID = gql`
         firstName
         lastName
         email
+        roles {
+          name
+        }
       }
     }
   }

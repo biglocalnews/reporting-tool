@@ -394,6 +394,7 @@
       "filtersTitle": "Filters",
       "statsTitle": "Stats",
       "emailTeam": "Email Team",
+      "noPublishers": "Team has no publishers",
       "alertTeam": "Alert Team",
       "dataTitle": "Results",
       "reqImprovementStatTitle": "Datasets showed improvement",
