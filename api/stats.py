@@ -292,13 +292,7 @@ def get_admin_needs_attention(stats: Dict, session: Session):
                 ReportingPeriod.end <= end_of_last_month,
             ),
         )
-        .outerjoin(
-            PublishedRecordSet,
-            and_(
-                PublishedRecordSet.reporting_period_id == ReportingPeriod.id,
-                PublishedRecordSet.deleted == None,
-            ),
-        )
+        .outerjoin(ReportingPeriod.published_record_set)
         .order_by(ReportingPeriod.end.desc())
     )
 
@@ -437,7 +431,7 @@ def get_admin_overdue(stats: Dict, session: Session):
 
     today = datetime.today()
     first = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    end_of_last_month = first - timedelta(microseconds=1)
+    end_of_last_month = first - timedelta(microseconds=1000)
     start_of_last_month = end_of_last_month.replace(
         day=1, hour=0, minute=0, second=0, microsecond=0
     )
@@ -456,7 +450,7 @@ def get_admin_overdue(stats: Dict, session: Session):
         .filter(
             and_(
                 ReportingPeriod.program_id != None,
-                ReportingPeriod.end <= end_of_last_month,
+                ReportingPeriod.end < first,
                 ReportingPeriod.end >= start_of_last_month,
             )
         )
@@ -464,13 +458,7 @@ def get_admin_overdue(stats: Dict, session: Session):
             Dataset,
             Dataset.program_id == ReportingPeriod.program_id,
         )
-        .outerjoin(
-            PublishedRecordSet,
-            and_(
-                PublishedRecordSet.dataset_id == Dataset.id,
-                PublishedRecordSet.deleted == None,
-            ),
-        )
+        .outerjoin(ReportingPeriod.published_record_set)
     )
 
     res = session.execute(stmt)
@@ -484,6 +472,7 @@ def get_admin_overdue(stats: Dict, session: Session):
         dataset_name,
         prs_id,
     ] in res:
+
         if not prs_id:
             dataset_details = {
                 "reporting_period_end": date_end,

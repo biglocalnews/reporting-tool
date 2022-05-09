@@ -215,44 +215,50 @@ export const AdminReports = () => {
 
         const overdueActionsColumn = {
             ...actionsColumn,
-            title:
-                <Popconfirm
-                    title={t("admin.reports.confirmSendEmails")}
-                    okText={t("confirm.yes")}
-                    cancelText={t("confirm.no")}
-                    onConfirm={
-                        () => datasetList && getTeams({ variables: { ids: datasetList.map(x => x.datasetId) } })
-                            .then(result => {
-                                if (result.data?.teamsByDatasetIds) {
-                                    const lastMonth = dayjs().subtract(1, "month");
-                                    const teams = result.data?.teamsByDatasetIds;
-                                    const emailAddresses = Array.from(new Set(teams.flatMap(x => x.users.map(x => x.email))));
-                                    sendEmail({
-                                        variables: {
-                                            input: {
-                                                to: emailAddresses,
-                                                subject: "Overdue",
-                                                body: emailBody(lastMonth, false),
-                                                monthYear: lastMonth.format("M YYYY")
-                                            }
+            title: false && <Popconfirm
+                title={t("admin.reports.confirmSendEmails")}
+                okText={t("confirm.yes")}
+                cancelText={t("confirm.no")}
+                onConfirm={
+                    () => datasetList && getTeams({ variables: { ids: datasetList.map(x => x.datasetId) } })
+                        .then(result => {
+                            if (result.data?.teamsByDatasetIds) {
+                                const lastMonth = dayjs().subtract(1, "month");
+                                const teams = result.data?.teamsByDatasetIds;
+                                const emailAddresses = Array.from(
+                                    new Set(
+                                        teams
+                                            .flatMap(x => x.users)
+                                            .filter(x => x.roles.map(y => y.name).includes("publisher"))
+                                            .map(x => x.email)
+                                    )
+                                );
+                                sendEmail({
+                                    variables: {
+                                        input: {
+                                            to: emailAddresses,
+                                            subject: "Overdue",
+                                            body: emailBody(lastMonth, false),
+                                            monthYear: lastMonth.format("M YYYY")
                                         }
-                                    })
-                                        .then(result => {
-                                            result.data.sendEmail ? message.error(result.data.sendEmail) : message.success(t("admin.reports.sentOk"));
-                                        });
-                                }
-                            })
-                    }
-                >
-                    <Button
-                        loading={teamsLoading}
-                        icon={<MailOutlined />}
-                        type="text"
+                                    }
+                                })
+                                    .then(result => {
+                                        result.data.sendEmail ? message.error(result.data.sendEmail) : message.success(t("admin.reports.sentOk"));
+                                    });
+                            }
+                        })
+                }
+            >
+                <Button
+                    loading={teamsLoading}
+                    icon={<MailOutlined />}
+                    type="text"
 
-                    >
-                        {t("admin.reports.emailAllOverdue")}
-                    </Button>
-                </Popconfirm>
+                >
+                    {t("admin.reports.emailAllOverdue")}
+                </Button>
+            </Popconfirm>
 
         }
 

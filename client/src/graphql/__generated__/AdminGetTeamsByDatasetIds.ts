@@ -7,12 +7,18 @@
 // GraphQL query operation: AdminGetTeamsByDatasetIds
 // ====================================================
 
+export interface AdminGetTeamsByDatasetIds_teamsByDatasetIds_users_roles {
+  readonly __typename: "Role";
+  readonly name: string;
+}
+
 export interface AdminGetTeamsByDatasetIds_teamsByDatasetIds_users {
   readonly __typename: "User";
   readonly id: string;
   readonly firstName: string;
   readonly lastName: string;
   readonly email: string;
+  readonly roles: ReadonlyArray<AdminGetTeamsByDatasetIds_teamsByDatasetIds_users_roles>;
 }
 
 export interface AdminGetTeamsByDatasetIds_teamsByDatasetIds {
