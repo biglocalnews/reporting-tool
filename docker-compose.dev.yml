@@ -42,7 +42,13 @@ services:
       - ./certs:/etc/certs
       - ./haproxy-config:/etc/haproxy
 
+  client:
+    networks:
+      - frontend
+  
   api:
+    networks:
+      - frontend
     environment:
       - rt_debug=True
 

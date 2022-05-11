@@ -11,7 +11,6 @@ services:
       - 127.0.0.11
     networks:
       - private
-      - frontend
     depends_on:
       - api
     deploy:
@@ -22,7 +21,6 @@ services:
     image: 5050.ni.bbc.co.uk:8443/5050-api-dev:latest
     networks:
       - private
-      - frontend
     environment:
       - rt_db_name=rt
       - rt_db_host=db
@@ -46,7 +44,6 @@ services:
     image: postgres:13.6
     networks:
       - private
-
     environment:
       - POSTGRES_DB=rt
       - POSTGRES_PASSWORD_FILE=/run/secrets/rt_db_pw
