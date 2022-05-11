@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  haproxy:
+    image: haproxy
+    entrypoint:
+      [
+        "/usr/local/sbin/haproxy",
+        "-f",
+        "/etc/haproxy/haproxy.cfg",
+        "-L",
+        "local_haproxy"
+      ]
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    dns:
+      - 127.0.0.11
+    networks:
+      - frontend
+    deploy:
+      mode: global
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      - target: 8443
+        published: 8443
+        protocol: tcp
+        mode: host
+      - target: 9101
+        published: 9101
+        protocol: tcp
+        mode: host
+    depends_on:
+      - client
+    volumes:
+      - ./certs:/etc/certs
+      - ./haproxy-config:/etc/haproxy
+
+  api:
+    environment:
+      - rt_debug=True
+
+  db:
+    volumes:
+      - /home/cobair01/5050-pgdata:/var/lib/postgresql/data
+
+networks:
+  frontend:
+    driver: overlay

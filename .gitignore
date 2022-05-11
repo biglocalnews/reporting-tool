@@ -130,10 +130,6 @@ dmypy.json
 # ESLint
 *.eslintcache
 
-# Production configs
-*.prod.*
-*.prod
-
 # Database
 data/
 

@@ -11,6 +11,8 @@ import datetime
 from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
 import dateutil.parser
+from typing import cast
+from sqlalchemy.orm import Session
 
 from ariadne import (
     load_schema_from_path,
@@ -22,7 +24,7 @@ from ariadne.asgi import GraphQL
 
 from connection import connection
 from seed import is_blank_slate
-from database import User, Role
+from database import Organization, User, Role
 from queries import queries
 from mutations import mutation
 from settings import settings
@@ -212,7 +214,7 @@ async def acs(request: Request, status_code=200):
             raise HTTPException(status_code=401, detail="Not authenticated")
 
         bbc_username = auth.get_nameid().lower()
-        print(f"{bbc_username} successfully authenticated")
+        logging.info(f"{bbc_username} successfully authenticated")
         samlUserdata = auth.get_attributes()
 
         if (
@@ -266,7 +268,7 @@ async def acs(request: Request, status_code=200):
         #    req["post_data"]["RelayState"] if "RelayState" in req["post_data"] else "/"
         # )
         response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-        print(str(bbc_db_user.id))
+        logging.info(str(bbc_db_user.id))
         response.set_cookie(
             key="rtauth",
             value=user.get_valid_token(
@@ -277,11 +279,25 @@ async def acs(request: Request, status_code=200):
         return response
 
     except Exception as e:
-        print(e)
+        logging.exception(e)
         if hasattr(e, "message"):
             raise HTTPException(status_code=500, detail=e.message)
         else:
             raise HTTPException(status_code=500, detail="Unknown error occurred")
+
+
+@app.get("/health")
+def get_health(request: Request):
+
+    try:
+        dbsession = cast(Session, request.scope.get("dbsession"))
+        org = dbsession.query(Organization).first()
+        return Response(
+            org.name if org else "No default organisation found", status_code=200
+        )
+    except Exception as ex:
+        logging.exception(ex)
+        raise HTTPException(status_code=500, detail=str(ex))
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

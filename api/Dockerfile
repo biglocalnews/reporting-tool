@@ -16,8 +16,10 @@ COPY requirements.txt requirements.txt
 
 RUN pip3 install -r requirements.txt
 
-ENV RT_debug=False
+ENV rt_debug=False
 
 COPY . .
+
+EXPOSE 8000
 
 ENTRYPOINT [ "bash", "start.sh" ]

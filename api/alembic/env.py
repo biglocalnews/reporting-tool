@@ -26,7 +26,6 @@ config = context.config
 
 db_driver = "postgresql+psycopg2://"
 url = f"{db_driver}{settings.db_user}:{settings.db_pw}@{settings.db_host}/{settings.db_name}"
-print(url)
 config.set_main_option("sqlalchemy.url", url)
 
 # Interpret the config file for Python logging.

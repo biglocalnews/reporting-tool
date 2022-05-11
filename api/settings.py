@@ -106,7 +106,7 @@ class Settings(BaseSettings):
         secrets_dir = "/run/secrets"
         env_file = ".env"
         env_file_encoding = "utf-8"
-        env_prefix = "RT_"
+        env_prefix = "rt_"
 
 
 settings = Settings()
