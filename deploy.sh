@@ -11,6 +11,6 @@ chmod +x ./docker-compose
 docker push 5050.ni.bbc.co.uk:8443/5050-api-prod
 docker push 5050.ni.bbc.co.uk:8443/5050-client-prod
 
-#docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml 5050
+docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml 5050
 
-#rm ./docker-compose
+rm ./docker-compose
