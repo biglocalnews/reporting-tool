@@ -10,7 +10,8 @@ services:
     dns:
       - 127.0.0.11
     networks:
-      - private
+      - 5050_private
+      - 5050_frontend
     depends_on:
       - api
     deploy:
@@ -21,7 +22,8 @@ services:
     build: api
     image: 5050.ni.bbc.co.uk:8443/5050-api-dev:latest
     networks:
-      - private
+      - 5050_private
+      - 5050_frontend
     environment:
       - rt_db_name=rt
       - rt_db_host=db
@@ -41,26 +43,6 @@ services:
       mode: global
       endpoint_mode: dnsrr
 
-  db:
-    image: postgres:13.6
-    networks:
-      - private
-    environment:
-      - POSTGRES_DB=rt
-      - POSTGRES_PASSWORD_FILE=/run/secrets/rt_db_pw
-    secrets:
-      - rt_db_pw
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - "node.labels.postgres==true"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d rt" ]
-      interval: 2s
-      timeout: 2s
-      retries: 20
-
 secrets:
   rt_db_pw:
     external: true
@@ -72,5 +54,7 @@ secrets:
     external: true
 
 networks:
-  private:
-    driver: overlay
+  5050_private:
+    external: true
+  5050_frontend:
+    external: true

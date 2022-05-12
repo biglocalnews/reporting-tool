@@ -144,19 +144,25 @@ export const filteredRecords = (queryData: GetDataset | undefined, selectedFilte
 
 export const targetStates = (queryData: GetDataset | undefined, selectedFilters: IDatasetDetailsFilter) => {
     return queryData?.dataset?.program?.targets.map((target) => {
+        const attributesInTarget = queryData?.dataset?.program?.targets
+            .find((x) => x.category.id === target.category.id)
+            ?.tracks
+            .filter(x => x.targetMember)
+            .map((x) => x.categoryValue.name) ?? new Array<string>();
+        const attributesOOTarget = queryData?.dataset?.program?.targets
+            .find((x) => x.category.id === target.category.id)
+            ?.tracks
+            .filter(x => !x.targetMember)
+            .map((x) => x.categoryValue.name) ?? new Array<string>();
         const status = filteredRecords
             ? percentOfInTargetAttributeCategories(
                 filteredRecords(queryData, selectedFilters),
                 target.category,
                 undefined,
-                queryData?.dataset?.program?.targets
-                    .find((x) => x.category.id === target.category.id)
-                    ?.tracks
-                    .filter(x => x.targetMember)
-                    .map((x) => x.categoryValue.name) ?? new Array<string>()
+                attributesInTarget
             )
             : 0;
-        return { target: target, status: status };
+        return { target: target, status: status, attributesInTarget, attributesOOTarget };
     })
         .sort((a, b) => catSort(a.target.category.name, b.target.category.name));
 }

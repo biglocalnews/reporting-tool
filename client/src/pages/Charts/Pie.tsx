@@ -1,7 +1,7 @@
 import { Pie, Datum, PieConfig } from "@ant-design/charts";
 import { AnnotationPosition } from "@antv/g2plot";
-import { useTranslation } from "react-i18next";
 import { getPalette } from "../DatasetDetails/DatasetDetails";
+import { useTranslation } from "react-i18next";
 
 interface IProps {
     categoryName: string,
@@ -9,7 +9,9 @@ interface IProps {
     personType?: string,
     target?: number,
     status: number,
-    legend?: boolean
+    legend?: boolean,
+    attrsInTarget?: string[],
+    attrsOOTarget?: string[]
 }
 
 const Pie5050 = (props: IProps) => {
@@ -30,9 +32,16 @@ const Pie5050 = (props: IProps) => {
                 : getPalette(props.categoryName)[0];
         },
         tooltip: {
-            formatter: (datum: Datum) => datum.targetName === "Other" ? { name: t("other"), value: `${Number(datum.value).toFixed(2)}%` } : {
-                value: `${Number(datum.value).toFixed(2)}%`, name: `${datum.targetName}`
-            }
+            formatter: (datum: Datum) => datum.targetName === "Other" ?
+                {
+                    name: props.attrsOOTarget ? props.attrsOOTarget.join(", ") : t("Other"),
+                    value: `${Number(datum.value).toFixed(2)}%`
+                }
+                :
+                {
+                    name: props.attrsInTarget ? props.attrsInTarget.join(", ") : datum.targetName,
+                    value: `${Number(datum.value).toFixed(2)}%`
+                }
         },
         legend: false,
         statistic: {
@@ -56,7 +65,7 @@ const Pie5050 = (props: IProps) => {
                 end: [0, props.target] as AnnotationPosition,
                 start: [1.2, props.target] as AnnotationPosition,
                 text: {
-                    content: `${props.target}%`,
+                    content: `${props.target}% `,
                     autoRotate: false,
                     style: { fontSize: 10 },
                     offsetX: 1,

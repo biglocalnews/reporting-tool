@@ -87,9 +87,9 @@ class EmailSettings(BaseModel):
 
 class Settings(BaseSettings):
     db_user: str = "postgres"
-    db_pw: str = "pass"
+    db_pw: str = "postgres"
     db_host: str = "localhost"
-    db_name: str = "bbc"
+    db_name: str = "rt"
     debug: bool = True
 
     app_account_pw: str = ""

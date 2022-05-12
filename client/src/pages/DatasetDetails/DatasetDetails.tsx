@@ -239,6 +239,8 @@ const DatasetDetails = (): JSX.Element => {
                           categoryName={targetState.target.category.name}
                           target={targetState.target.target * 100}
                           status={targetState.status}
+                          attrsInTarget={targetState.attributesInTarget}
+                          attrsOOTarget={targetState.attributesOOTarget}
                         />
                       ) : (
                         noDataAvailable()
