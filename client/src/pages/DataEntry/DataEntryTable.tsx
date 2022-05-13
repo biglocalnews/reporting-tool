@@ -23,14 +23,14 @@ import {
 
 import moment from 'moment';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(utc);
 dayjs.extend(isBetween);
 
 import { CREATE_RECORD } from "../../graphql/__mutations__/CreateRecord.gql";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import { GetRecord_record_customColumnValues_customColumn, GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
@@ -145,24 +145,36 @@ export const DataEntryTable = (props: IProps) => {
 
     const { t } = useTranslation();
 
+    const filteredRecords = useMemo(() => {
+        return getDatasetData?.dataset.records
+            .filter(x =>
+                !getDatasetData?.dataset.publishedRecordSets?.
+                    some(y => dayjs.utc(x.publicationDate)
+                        .isBetween(dayjs.utc(y.begin), dayjs.utc(y.end), null, "[]")
+                    )
+            );
+    }, [getDatasetData?.dataset.records, getDatasetData?.dataset.publishedRecordSets]);
+
     if (getDatasetLoading) return <p>Loading dataset...</p>
     if (getDatasetError) return <p>{`getDataset Error! ${getDatasetError.message}`}</p>
     if (!getDatasetData) return <p>no dataset data</p>
 
+
+
     const personTypeArrayFromDataset = getDatasetData?.dataset.personTypes ?? [];
 
-    /*const personTypeArrayFromRecords = Array.from(new Set(getDatasetData?.dataset.records
+    /*const personTypeArrayFromRecords = Array.from(new Set(filteredRecords?
         .map(r => r.entries).flat().map(x => x.personType))) ?? [];
     */
 
     const personTypeArrayFromRecordsByReportingPeriod = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         Array.from(
             new Set(
-                getDatasetData?.dataset.records
-                    .filter(x =>
+                filteredRecords?.
+                    filter(x =>
                         reportingPeriod.range &&
-                        moment.utc(x.publicationDate)
-                            .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
+                        dayjs.utc(x.publicationDate)
+                            .isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")
                     )
                     .map(r => r.entries).flat().map(x => x.personType)
             )
@@ -178,11 +190,11 @@ export const DataEntryTable = (props: IProps) => {
 
     const customColumnArrayFromDataset = getDatasetData?.dataset.customColumns ?? [];
 
-    const customColumnArrayFromRecords = (range: GetDataset_dataset_program_reportingPeriods) => Array.from(new Set(getDatasetData?.dataset.records
-        .filter(x =>
+    const customColumnArrayFromRecords = (range: GetDataset_dataset_program_reportingPeriods) => Array.from(new Set(filteredRecords?.
+        filter(x =>
             range.range &&
-            moment.utc(x.publicationDate)
-                .isBetween(moment.utc(range.range[0]), moment.utc(range.range[1]), null, "[]")
+            dayjs.utc(x.publicationDate)
+                .isBetween(dayjs.utc(range.range[0]), dayjs.utc(range.range[1]), null, "[]")
         )
         .map(r => r.customColumnValues).flat().map(x => x?.customColumn))) ?? [];
 
@@ -204,8 +216,8 @@ export const DataEntryTable = (props: IProps) => {
             personType: IPersonType
         ) => Array.from(
             new Set(
-                getDatasetData.dataset.records
-                    .filter(x => reportingPeriodFilter(reportingPeriod, x))
+                filteredRecords?.
+                    filter(x => reportingPeriodFilter(reportingPeriod, x))
                     .flatMap(x => x.entries)
                     .filter(x => x.categoryValue.category.id === attributeCategory.id && x.personType?.id === personType.id)
                     .map(x => x.categoryValue)
@@ -222,8 +234,8 @@ export const DataEntryTable = (props: IProps) => {
 
     const pastTrackedAttributeCategories = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) => Array.from(
         new Set(
-            getDatasetData.dataset.records
-                .filter(x => reportingPeriodFilter(reportingPeriod, x))
+            filteredRecords?.
+                filter(x => reportingPeriodFilter(reportingPeriod, x))
                 .flatMap(x => x.entries)
                 .map(x => x.categoryValue.category)
         )
@@ -278,7 +290,7 @@ export const DataEntryTable = (props: IProps) => {
                                 variables: {
                                     input: {
                                         datasetId: props.id,
-                                        publicationDate: moment().toISOString(),
+                                        publicationDate: dayjs().toISOString(),
                                         entries: [entryInput]
                                     }
                                 }
@@ -374,7 +386,7 @@ export const DataEntryTable = (props: IProps) => {
                                 variables: {
                                     input: {
                                         datasetId: props.id,
-                                        publicationDate: moment().toISOString(),
+                                        publicationDate: dayjs().toISOString(),
                                         customColumnValues: [customValueInput]
                                     }
                                 }
@@ -424,11 +436,11 @@ export const DataEntryTable = (props: IProps) => {
 
     const getTableData = (reportingPeriod: GetDataset_dataset_program_reportingPeriods,
         personType: IPersonType) => {
-        const tableData = getDatasetData.dataset.records
-            .filter(x => reportingPeriodFilter(reportingPeriod, x))
-            .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
+        const tableData = filteredRecords?.
+            filter(x => reportingPeriodFilter(reportingPeriod, x))
+            .sort((a, b) => dayjs(b.publicationDate).unix() - dayjs(a.publicationDate).unix())
             .reduce((tableData, record, i) => {
-                const currDate = moment.utc(record.publicationDate).toISOString();
+                const currDate = dayjs.utc(record.publicationDate).toISOString();
                 const entries = record.entries
                     .filter(x => !personType || x.personType?.id === personType.id)
                     .reduce((obj, currEntry) => {
@@ -472,7 +484,7 @@ export const DataEntryTable = (props: IProps) => {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
-    const getRandomDateTime = (date: moment.Moment) => moment.unix(
+    const getRandomDateTime = (date: moment.Moment) => dayjs.unix(
         getRandomInt(
             date.clone().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0).unix(),
             date.clone().set("hour", 23).set("minute", 59).set("second", 59).set("millisecond", 999).unix()
@@ -481,7 +493,7 @@ export const DataEntryTable = (props: IProps) => {
 
     const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset?.program?.reportingPeriods?.
         filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
-        .sort((a, b) => moment(a.range[1]).unix() - moment(b.range[1]).unix());
+        .sort((a, b) => dayjs(a.range[1]).unix() - dayjs(b.range[1]).unix());
 
     if (!getReportingPeriods(false)?.length) {
         if (getReportingPeriods(true)?.length) return <p>{t("allReportingPeriodsPublished")}</p>
@@ -494,7 +506,7 @@ export const DataEntryTable = (props: IProps) => {
         tabBarExtraContent={{ left: <div style={{ minHeight: "6em" }} /> }}
         defaultActiveKey={getReportingPeriods(false)?.
             reduce((prev, reportingPeriod) => {
-                if (moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")) { return reportingPeriod.id }
+                if (dayjs().isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")) { return reportingPeriod.id }
                 return prev;
             }, "0") ?? "0"
         }
@@ -507,12 +519,12 @@ export const DataEntryTable = (props: IProps) => {
                             <span
                                 style={{
                                     color:
-                                        moment().add(-5, "days").isAfter(moment(reportingPeriod.range[1])) ? "red" :
-                                            moment().isBetween(moment.utc(reportingPeriod.range[1]).add(-5, "days"), moment().add(1, "day"), null, "[]") ? "orange" : "unset",
-                                    fontWeight: moment().isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]") ? 600 : 400
+                                        dayjs().add(-5, "days").isAfter(dayjs(reportingPeriod.range[1])) ? "red" :
+                                            dayjs().isBetween(dayjs.utc(reportingPeriod.range[1]).add(-5, "days"), dayjs().add(1, "day"), null, "[]") ? "orange" : "unset",
+                                    fontWeight: dayjs().isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]") ? 600 : 400
                                 }}
                             >
-                                {`${moment.utc(reportingPeriod.range[0]).format("D MMM YY")} - ${moment.utc(reportingPeriod.range[1]).format("D MMM YY")}`}
+                                {`${dayjs.utc(reportingPeriod.range[0]).format("D MMM YY")} - ${dayjs.utc(reportingPeriod.range[1]).format("D MMM YY")}`}
                             </span>
                         }
                         key={reportingPeriod.id}
@@ -734,11 +746,11 @@ export const DataEntryTable = (props: IProps) => {
                                                                         onClick={() => setSelectedForRowInput(record)}
                                                                         onFocus={() => setSelectedForRowInput(record)}
                                                                     >
-                                                                        {moment(text).format("D MMM YYYY")}
+                                                                        {dayjs(text).format("D MMM YYYY")}
                                                                     </div>
                                                                     return;
                                                                 },
-                                                                sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
+                                                                sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
                                                                 sortDirections: ['ascend', 'descend'],
                                                             },
                                                             ...getCustomColumns(reportingPeriod),
