@@ -231,7 +231,7 @@ const DatasetDetails = (): JSX.Element => {
               <h2>{presetDate}</h2>
               <Row justify="center" gutter={[0, 50]}>
                 {
-                  false && targetStates(queryData, selectedFilters)?.map((targetState, i) => (
+                  targetStates(queryData, selectedFilters)?.map((targetState, i) => (
                     <Col key={i} span={4} offset={i ? 4 : 0}>
                       {!isNaN(targetState.status) ? (
                         <Pie5050
