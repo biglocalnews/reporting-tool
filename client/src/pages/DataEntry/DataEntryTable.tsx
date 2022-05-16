@@ -145,27 +145,38 @@ export const DataEntryTable = (props: IProps) => {
 
     const { t } = useTranslation();
 
-    const filteredRecords = useMemo(() => {
+    const parsedRecords = useMemo(() => {
         return getDatasetData?.dataset.records
-            .filter(x =>
-                !getDatasetData?.dataset.publishedRecordSets?.
-                    some(y => dayjs.utc(x.publicationDate)
-                        .isBetween(dayjs.utc(y.begin), dayjs.utc(y.end), null, "[]")
-                    )
-            );
-    }, [getDatasetData?.dataset.records, getDatasetData?.dataset.publishedRecordSets]);
+            .map(x => ({ ...x, publicationDate: dayjs.utc(x.publicationDate) }))
+    }, [getDatasetData?.dataset.records]);
+
+    const parsedPublishedRecordSets = useMemo(() => {
+        return getDatasetData?.dataset.publishedRecordSets?.
+            map(x => ({ ...x, begin: dayjs.utc(x.begin), end: dayjs.utc(x.end) }))
+    }, [getDatasetData?.dataset.publishedRecordSets]);
+
+    const parsedReportingPeriods = useMemo(() => {
+        return getDatasetData?.dataset?.program?.reportingPeriods?.
+            filter(x => x.range)
+            .map(x => ({ ...x, range: [dayjs.utc(x.range[0]), dayjs.utc(x.range[1])] }))
+            .sort((a, b) => a.range[1].unix() - b.range[1].unix());
+    }, [getDatasetData?.dataset?.program?.reportingPeriods]);
+
+    const unPublishedReportingPeriods = useMemo(() => {
+        return parsedReportingPeriods?.
+            filter(x => x.range && !parsedPublishedRecordSets?.some(y => y.reportingPeriodId === x.id));
+    }, [parsedReportingPeriods, parsedPublishedRecordSets]);
+
+    const filteredRecords = useMemo(() => {
+        return parsedRecords?.
+            filter(x => !parsedPublishedRecordSets?.some(y => x.publicationDate.isBetween(y.begin, y.end, null, "[]")));
+    }, [parsedRecords, parsedPublishedRecordSets]);
 
     if (getDatasetLoading) return <p>Loading dataset...</p>
     if (getDatasetError) return <p>{`getDataset Error! ${getDatasetError.message}`}</p>
     if (!getDatasetData) return <p>no dataset data</p>
 
-
-
     const personTypeArrayFromDataset = getDatasetData?.dataset.personTypes ?? [];
-
-    /*const personTypeArrayFromRecords = Array.from(new Set(filteredRecords?
-        .map(r => r.entries).flat().map(x => x.personType))) ?? [];
-    */
 
     const personTypeArrayFromRecordsByReportingPeriod = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         Array.from(
@@ -173,8 +184,8 @@ export const DataEntryTable = (props: IProps) => {
                 filteredRecords?.
                     filter(x =>
                         reportingPeriod.range &&
-                        dayjs.utc(x.publicationDate)
-                            .isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")
+                        x.publicationDate
+                            .isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]")
                     )
                     .map(r => r.entries).flat().map(x => x.personType)
             )
@@ -193,8 +204,8 @@ export const DataEntryTable = (props: IProps) => {
     const customColumnArrayFromRecords = (range: GetDataset_dataset_program_reportingPeriods) => Array.from(new Set(filteredRecords?.
         filter(x =>
             range.range &&
-            dayjs.utc(x.publicationDate)
-                .isBetween(dayjs.utc(range.range[0]), dayjs.utc(range.range[1]), null, "[]")
+            x.publicationDate
+                .isBetween(range.range[0], range.range[1], null, "[]")
         )
         .map(r => r.customColumnValues).flat().map(x => x?.customColumn))) ?? [];
 
@@ -244,8 +255,8 @@ export const DataEntryTable = (props: IProps) => {
     const reportingPeriodFilter =
         (reportingPeriod: GetDataset_dataset_program_reportingPeriods, x: GetDataset_dataset_records) =>
             reportingPeriod.range &&
-            dayjs.utc(x.publicationDate)
-                .isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")
+            x.publicationDate
+                .isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]")
 
     const getChildren = (
         reportingPeriod: GetDataset_dataset_program_reportingPeriods,
@@ -438,9 +449,9 @@ export const DataEntryTable = (props: IProps) => {
         personType: IPersonType) => {
         const tableData = filteredRecords?.
             filter(x => reportingPeriodFilter(reportingPeriod, x))
-            .sort((a, b) => dayjs(b.publicationDate).unix() - dayjs(a.publicationDate).unix())
+            .sort((a, b) => b.publicationDate.unix() - a.publicationDate.unix())
             .reduce((tableData, record, i) => {
-                const currDate = dayjs.utc(record.publicationDate).toISOString();
+                const currDate = record.publicationDate.toISOString();
                 const entries = record.entries
                     .filter(x => !personType || x.personType?.id === personType.id)
                     .reduce((obj, currEntry) => {
@@ -491,12 +502,10 @@ export const DataEntryTable = (props: IProps) => {
         )
     );
 
-    const getReportingPeriods = (includePublished: boolean) => getDatasetData.dataset?.program?.reportingPeriods?.
-        filter(x => x.range && (includePublished || !getDatasetData.dataset.publishedRecordSets?.some(y => y.reportingPeriodId === x.id)))
-        .sort((a, b) => dayjs(a.range[1]).unix() - dayjs(b.range[1]).unix());
 
-    if (!getReportingPeriods(false)?.length) {
-        if (getReportingPeriods(true)?.length) return <p>{t("allReportingPeriodsPublished")}</p>
+
+    if (!unPublishedReportingPeriods?.length) {
+        if (parsedReportingPeriods?.length) return <p>{t("allReportingPeriodsPublished")}</p>
         return <p>{t("noReportingPeriodsConfigured")}</p>
     }
 
@@ -504,27 +513,27 @@ export const DataEntryTable = (props: IProps) => {
         tabPosition="left"
         centered
         tabBarExtraContent={{ left: <div style={{ minHeight: "6em" }} /> }}
-        defaultActiveKey={getReportingPeriods(false)?.
+        defaultActiveKey={unPublishedReportingPeriods?.
             reduce((prev, reportingPeriod) => {
-                if (dayjs().isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]")) { return reportingPeriod.id }
+                if (dayjs().isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]")) { return reportingPeriod.id }
                 return prev;
             }, "0") ?? "0"
         }
     >
         {
-            getReportingPeriods(false)?.
+            unPublishedReportingPeriods?.
                 map((reportingPeriod) =>
                     <TabPane
                         tab={
                             <span
                                 style={{
                                     color:
-                                        dayjs().add(-5, "days").isAfter(dayjs(reportingPeriod.range[1])) ? "red" :
-                                            dayjs().isBetween(dayjs.utc(reportingPeriod.range[1]).add(-5, "days"), dayjs().add(1, "day"), null, "[]") ? "orange" : "unset",
-                                    fontWeight: dayjs().isBetween(dayjs.utc(reportingPeriod.range[0]), dayjs.utc(reportingPeriod.range[1]), null, "[]") ? 600 : 400
+                                        dayjs().add(-5, "days").isAfter(reportingPeriod.range[1]) ? "red" :
+                                            dayjs().isBetween(reportingPeriod.range[1].add(-5, "days"), dayjs().add(1, "day"), null, "[]") ? "orange" : "unset",
+                                    fontWeight: dayjs().isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]") ? 600 : 400
                                 }}
                             >
-                                {`${dayjs.utc(reportingPeriod.range[0]).format("D MMM YY")} - ${dayjs.utc(reportingPeriod.range[1]).format("D MMM YY")}`}
+                                {`${reportingPeriod.range[0].format("D MMM YY")} - ${reportingPeriod.range[1].format("D MMM YY")}`}
                             </span>
                         }
                         key={reportingPeriod.id}
@@ -580,7 +589,7 @@ export const DataEntryTable = (props: IProps) => {
                                                         onChange={e => {
                                                             switch (e.target.value) {
                                                                 case "currentrp":
-                                                                    setAddRecordDatePicker(moment.utc(reportingPeriod.range[1]));
+                                                                    setAddRecordDatePicker(moment.utc(reportingPeriod.range[1].toISOString()));
                                                                     break;
                                                                 default:
                                                                     setAddRecordDatePicker(moment());
@@ -750,7 +759,7 @@ export const DataEntryTable = (props: IProps) => {
                                                                     </div>
                                                                     return;
                                                                 },
-                                                                sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
+                                                                sorter: (a, b) => dayjs.utc(a.date).unix() - dayjs.utc(b.date).unix(),
                                                                 sortDirections: ['ascend', 'descend'],
                                                             },
                                                             ...getCustomColumns(reportingPeriod),
