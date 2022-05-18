@@ -1,6 +1,6 @@
 import { Button, Col, Radio, Row } from "antd";
 import Title from "antd/lib/typography/Title";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GetDataset_dataset, GetDataset_dataset_program_reportingPeriods } from "../../graphql/__generated__/GetDataset";
@@ -96,10 +96,10 @@ const reduceRecordsToOverallPercentages = (
 ) => {
     const a = dataset.records.filter(x =>
         reportingPeriod.range &&
-        moment.utc(x.publicationDate)
-            .isBetween(moment.utc(reportingPeriod.range[0]), moment.utc(reportingPeriod.range[1]), null, "[]")
+        dayjs.utc(x.publicationDate)
+            .isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]")
     )
-        .sort((a, b) => moment(b.publicationDate).unix() - moment(a.publicationDate).unix())
+        .sort((a, b) => dayjs(b.publicationDate).unix() - dayjs(a.publicationDate).unix())
         .reduce((groupedByPersonTypeCategoryAttribute, record, recordIndex, allRecords) => {
             record.entries
                 .flat() //just makes it sortable
