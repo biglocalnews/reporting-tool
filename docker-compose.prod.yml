@@ -14,6 +14,7 @@ services:
   db:
     volumes:
       - /mnt/data/postgres/5050:/var/lib/postgresql/data
+
 networks:
   haproxy-network:
     external: true

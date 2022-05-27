@@ -31,6 +31,7 @@ from settings import settings
 import mailer
 import user
 import directives
+import monitoring
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
@@ -292,11 +293,14 @@ def get_health(request: Request):
     try:
         dbsession = cast(Session, request.scope.get("dbsession"))
         org = dbsession.query(Organization).first()
+        monitoring.log_metric(1)
         return Response(
             org.name if org else "No default organisation found", status_code=200
         )
     except Exception as ex:
         logging.exception(ex)
+        monitoring.log_metric(0)
+        monitoring.log_event(str(ex))
         raise HTTPException(status_code=500, detail=str(ex))
 
 

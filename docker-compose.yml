@@ -32,6 +32,9 @@ services:
       - rt_app_account_pw
       - rt_db_pw
       - rt_secret
+      - source: 5050-aws-credentials
+        target: /root/.aws/credentials
+        mode: 400
     depends_on:
       - db
     dns:
@@ -69,6 +72,8 @@ secrets:
   rt_app_account_pw:
     external: true
   rt_secret:
+    external: true
+  5050-aws-credentials:
     external: true
 
 networks:
