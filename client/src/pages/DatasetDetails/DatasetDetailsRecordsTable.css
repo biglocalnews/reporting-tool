@@ -1,0 +1,7 @@
+.dataset-records-table {
+  margin-top: 10px;
+}
+
+th::first-letter {
+  text-transform: capitalize;
+}

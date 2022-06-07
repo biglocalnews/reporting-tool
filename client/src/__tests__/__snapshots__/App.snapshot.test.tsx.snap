@@ -1,0 +1,250 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders App correctly 1`] = `
+<BrowserRouter>
+  <Suspense
+    fallback={<Loading />}
+  >
+    <Layout
+      style={
+        Object {
+          "height": "100vh",
+        }
+      }
+    >
+      <RenderRoutes
+        adminRoutes={
+          Array [
+            Object {
+              "key": "admin",
+              "path": "/admin",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Manage Users",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "users",
+                  "path": "/admin/users",
+                },
+                Object {
+                  "breadcrumb": "Edit User",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "user",
+                  "path": "/admin/users/:userId",
+                },
+                Object {
+                  "breadcrumb": "Manage Teams",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "teams",
+                  "path": "/admin/teams",
+                },
+                Object {
+                  "breadcrumb": "Edit Team",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "team",
+                  "path": "/admin/teams/:teamId",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "programs",
+                  "path": "/admin/programs",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "program",
+                  "path": "/admin/programs/:programId",
+                },
+              ],
+            },
+          ]
+        }
+        loginComponent={[Function]}
+        protectedContainer={[Function]}
+        protectedRoutes={
+          Array [
+            Object {
+              "component": [Function],
+              "exact": true,
+              "path": "/dataset/:datasetId/entry/reload",
+            },
+            Object {
+              "breadcrumb": "Home",
+              "component": [Function],
+              "exact": true,
+              "key": "home",
+              "path": "/",
+            },
+            Object {
+              "breadcrumb": "Dataset Details",
+              "component": [Function],
+              "key": "dataset-details",
+              "path": "/dataset/:datasetId/details",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Add Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "add-entry",
+                  "path": "/dataset/:datasetId/entry",
+                },
+                Object {
+                  "breadcrumb": "Edit Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "edit-entry",
+                  "path": "/dataset/:datasetId/entry/edit/:recordId",
+                },
+              ],
+            },
+          ]
+        }
+      />
+    </Layout>
+  </Suspense>
+</BrowserRouter>
+`;
+
+exports[`renders ProtectedAppContainer correctly 1`] = `
+<Fragment>
+  <AppHeader />
+  <Layout>
+    <AppSidebar />
+    <Layout
+      style={
+        Object {
+          "padding": "0 24px 24px",
+        }
+      }
+    >
+      <Content
+        className="site-layout-background"
+      >
+        <div />
+      </Content>
+      <Footer
+        style={
+          Object {
+            "textAlign": "center",
+          }
+        }
+      >
+        Footer content
+      </Footer>
+    </Layout>
+  </Layout>
+</Fragment>
+`;
+
+exports[`renders admin stuff when authed as admin 1`] = `
+<BrowserRouter>
+  <Suspense
+    fallback={<Loading />}
+  >
+    <Layout
+      style={
+        Object {
+          "height": "100vh",
+        }
+      }
+    >
+      <RenderRoutes
+        adminRoutes={
+          Array [
+            Object {
+              "key": "admin",
+              "path": "/admin",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Manage Users",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "users",
+                  "path": "/admin/users",
+                },
+                Object {
+                  "breadcrumb": "Edit User",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "user",
+                  "path": "/admin/users/:userId",
+                },
+                Object {
+                  "breadcrumb": "Manage Teams",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "teams",
+                  "path": "/admin/teams",
+                },
+                Object {
+                  "breadcrumb": "Edit Team",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "team",
+                  "path": "/admin/teams/:teamId",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "programs",
+                  "path": "/admin/programs",
+                },
+                Object {
+                  "component": [Function],
+                  "exact": true,
+                  "key": "program",
+                  "path": "/admin/programs/:programId",
+                },
+              ],
+            },
+          ]
+        }
+        loginComponent={[Function]}
+        protectedContainer={[Function]}
+        protectedRoutes={
+          Array [
+            Object {
+              "component": [Function],
+              "exact": true,
+              "path": "/dataset/:datasetId/entry/reload",
+            },
+            Object {
+              "breadcrumb": "Home",
+              "component": [Function],
+              "exact": true,
+              "key": "home",
+              "path": "/",
+            },
+            Object {
+              "breadcrumb": "Dataset Details",
+              "component": [Function],
+              "key": "dataset-details",
+              "path": "/dataset/:datasetId/details",
+              "routes": Array [
+                Object {
+                  "breadcrumb": "Add Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "add-entry",
+                  "path": "/dataset/:datasetId/entry",
+                },
+                Object {
+                  "breadcrumb": "Edit Entry",
+                  "component": [Function],
+                  "exact": true,
+                  "key": "edit-entry",
+                  "path": "/dataset/:datasetId/entry/edit/:recordId",
+                },
+              ],
+            },
+          ]
+        }
+      />
+    </Layout>
+  </Suspense>
+</BrowserRouter>
+`;

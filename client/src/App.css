@@ -1,0 +1,175 @@
+@import "~antd/dist/antd.css";
+
+
+.ant-layout {
+  min-height: max-content;
+}
+
+.ant-page-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
+@font-face {
+  font-family: 'BBC Reith Sans Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Bold"), url("fonts/BBCReithSans_Bd.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Bold Italic"), url("fonts/BBCReithSans_BdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Extra Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Extra Bold"), url("fonts/BBCReithSans_ExBd.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Extra Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Extra Bold Italic"), url("fonts/BBCReithSans_ExBdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Italic"), url("fonts/BBCReithSans_It.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Light';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Light"), url("fonts/BBCReithSans_Lt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Light Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Light Italic"), url("fonts/BBCReithSans_LtIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Medium"), url("fonts/BBCReithSans_Md.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Medium Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Medium Italic"), url("fonts/BBCReithSans_MdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Regular"), url("fonts/BBCReithSans_Rg.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Condensed Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Condensed Bold"), url("fonts/BBCReithSansCd_Bd.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Sans Condensed Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Sans Condensed Regular"), url("fonts/BBCReithSansCd_Rg.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Bold"), url("fonts/BBCReithSerif_A_Bd.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Bold Italic"), url("fonts/BBCReithSerif_A_BdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Extra Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Extra Bold"), url("fonts/BBCReithSerif_A_ExBd.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Extra Bold Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Extra Bold Italic"), url("fonts/BBCReithSerif_A_ExBdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Italic"), url("fonts/BBCReithSerif_A_It.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Light';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Light"), url("fonts/BBCReithSerif_A_Lt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Light Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Light Italic"), url("fonts/BBCReithSerif_A_LtIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Medium"), url("fonts/BBCReithSerif_A_Md.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Medium Italic';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Medium Italic"), url("fonts/BBCReithSerif_A_MdIt.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'BBC Reith Serif Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local("BBC Reith Serif Regular"), url("fonts/BBCReithSerif_A_Rg.woff") format("woff");
+}
+
+body {
+  line-height: 1.5;
+  font-family: "BBC Reith Sans Regular";
+  -webkit-font-smoothing: antialiased;
+  color: rgba(0, 0, 0, 0.65);
+  width: 100vw;
+  height: 100vh;
+}

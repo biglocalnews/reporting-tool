@@ -1,0 +1,327 @@
+import { useMutation } from "@apollo/client";
+import {
+  Alert,
+  Button,
+  Col,
+  Divider,
+  Form,
+  Input,
+  PageHeader,
+  Popconfirm,
+  Row,
+  Space,
+  Tag,
+  Transfer,
+} from "antd";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Loading } from "../../components/Loading/Loading";
+import { messageError, messageSuccess } from "../../components/Message";
+import { usePrompt } from "../../components/usePrompt";
+import { useTranslationWithPrefix } from "../../components/useTranslationWithPrefix";
+import { useQueryWithErrorHandling } from "../../graphql/hooks/useQueryWithErrorHandling";
+import {
+  AdminDeleteTeam,
+  AdminDeleteTeamVariables,
+} from "../../graphql/__generated__/AdminDeleteTeam";
+import { AdminGetAllPrograms } from "../../graphql/__generated__/AdminGetAllPrograms";
+import {
+  AdminGetTeam,
+  AdminGetTeamVariables,
+} from "../../graphql/__generated__/AdminGetTeam";
+import {
+  AdminUpdateTeam,
+  AdminUpdateTeamVariables,
+} from "../../graphql/__generated__/AdminUpdateTeam";
+import { GetUserList } from "../../graphql/__generated__/GetUserList";
+import { ADMIN_DELETE_TEAM } from "../../graphql/__mutations__/AdminDeleteTeam.gql";
+import { ADMIN_UPDATE_TEAM } from "../../graphql/__mutations__/AdminUpdateTeam.gql";
+import { ADMIN_GET_ALL_PROGRAMS } from "../../graphql/__queries__/AdminGetAllPrograms.gql";
+import { ADMIN_GET_TEAM } from "../../graphql/__queries__/AdminGetTeam.gql";
+import { GET_USER_LIST } from "../../graphql/__queries__/GetUserList.gql";
+
+/**
+ * Parameters parsed from the URL.
+ */
+export type EditTeamRouteParams = {
+  teamId: string;
+};
+
+/**
+ * Form values set by the UI.
+ */
+export type EditTeamData = {
+  id: string;
+  name: string;
+  userIds: string[];
+  programIds: string[];
+};
+
+/**
+ * Hook to return all the data required to render the team edit form.
+ */
+const useEditTeamData = (teamId: string) => {
+  const { data: teamData, loading: loadingTeam } = useQueryWithErrorHandling<
+    AdminGetTeam,
+    AdminGetTeamVariables
+  >(ADMIN_GET_TEAM, "team", {
+    variables: {
+      id: teamId,
+    },
+    fetchPolicy: "network-only",
+  });
+
+  const { data: usersData, loading: loadingUsers } =
+    useQueryWithErrorHandling<GetUserList>(GET_USER_LIST, "users", {
+      fetchPolicy: "network-only",
+    });
+
+  const { data: programsData, loading: loadingPrograms } =
+    useQueryWithErrorHandling<AdminGetAllPrograms>(
+      ADMIN_GET_ALL_PROGRAMS,
+      "programs",
+      {
+        fetchPolicy: "network-only",
+      }
+    );
+
+  const loading = loadingTeam || loadingUsers || loadingPrograms;
+
+  const team: EditTeamData = {
+    id: teamId,
+    name: teamData?.team.name || "",
+    userIds: teamData?.team.users.map((user) => user.id) || [],
+    programIds: teamData?.team.programs.map((program) => program.id) || [],
+  };
+
+  return {
+    team,
+    loading,
+    allUsers: usersData?.users.map((user) => ({ ...user, key: user.id })),
+    allPrograms: programsData?.programs.map((program) => ({
+      ...program,
+      key: program.id,
+    })),
+    queries: [
+      { query: ADMIN_GET_TEAM, variables: { id: teamId } },
+      { query: ADMIN_GET_ALL_PROGRAMS },
+      { query: GET_USER_LIST },
+    ],
+  };
+};
+
+/**
+ * UI Component for editing a team.
+ */
+export const EditTeam = (): JSX.Element => {
+  const { tp, t } = useTranslationWithPrefix("admin.team.edit");
+  const { teamId } = useParams() as EditTeamRouteParams;
+
+  const { team, allUsers, allPrograms, loading, queries } =
+    useEditTeamData(teamId ?? "");
+  const [form] = Form.useForm<EditTeamData>();
+  const [dirty, setDirty] = useState(false);
+  const [saveTeam, { loading: saveTeamLoading, error: saveTeamError }] =
+    useMutation<AdminUpdateTeam, AdminUpdateTeamVariables>(ADMIN_UPDATE_TEAM, {
+      awaitRefetchQueries: true,
+      refetchQueries: queries,
+      onCompleted() {
+        messageSuccess(tp("saveSuccess"));
+        setDirty(false);
+      },
+      onError(e) {
+        messageError(tp("saveError"));
+        console.error(e);
+      },
+    });
+  const navigate = useNavigate();
+  const [deleteTeam, { loading: deleteTeamLoading, error: deleteTeamError }] =
+    useMutation<AdminDeleteTeam, AdminDeleteTeamVariables>(ADMIN_DELETE_TEAM, {
+      onCompleted() {
+        messageSuccess(tp("deleteSuccess"));
+        navigate("/admin/teams");
+      },
+      onError(e: unknown) {
+        messageError(tp("deleteFail"));
+        if (e instanceof Error) return console.error(e);
+      },
+    });
+
+  usePrompt(t("confirmLeavePage"), dirty);
+
+  if (!teamId) return <p>bad route</p>;
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
+    <div className="admin team-editteam_container">
+      <PageHeader
+        onBack={() => navigate("/admin/teams")}
+        title={tp("title")}
+      />
+
+      {saveTeamError && (
+        <>
+          <Alert
+            message={tp("saveTeamError")}
+            description={saveTeamError!.message}
+            type="error"
+            showIcon
+            closable
+          />
+          <br />
+        </>
+      )}
+
+      {deleteTeamError && (
+        <>
+          <Alert
+            message={tp("deleteTeamError")}
+            description={deleteTeamError!.message}
+            type="error"
+            showIcon
+            closable
+          />
+          <br />
+        </>
+      )}
+
+      <Form
+        form={form}
+        onFieldsChange={() => setDirty(true)}
+        scrollToFirstError
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 16 }}
+        initialValues={team}
+        onFinish={(values) =>
+          saveTeam({
+            variables: {
+              input: {
+                ...values,
+                id: teamId,
+              },
+            },
+          })
+        }
+      >
+        <Row>
+          <Col offset={2} span={20}>
+            <Form.Item
+              label={tp("name")}
+              rules={[
+                {
+                  required: true,
+                  message: tp("nameRequired"),
+                },
+              ]}
+              name="name"
+            >
+              <Input aria-label={tp("name")} aria-required="true" />
+            </Form.Item>
+
+            <Divider orientation="left">{tp("users")}</Divider>
+
+            <Form.Item
+              label={tp("usersInfo")}
+              valuePropName="targetKeys"
+              name="userIds"
+              wrapperCol={{ offset: 1, span: 22 }}
+            >
+              <Transfer
+                pagination
+                operations={[tp("add"), tp("remove")]}
+                showSearch
+                listStyle={{ width: 420 }}
+                filterOption={(input, option) =>
+                  `${option.firstName} ${option.lastName}`
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
+                titles={[tp("nonTeamMembers"), tp("teamMembers")]}
+                dataSource={
+                  allUsers?.map(x => ({ ...x, disabled: !x.active ? true : false }))
+                    .sort((a, b) => a.lastName.localeCompare(b.lastName))
+                }
+                onChange={(keys) => form.setFieldsValue({ userIds: keys })}
+                render={(user) => <Space>
+                  {`${user.firstName} ${user.lastName}`}
+                  {user.roles.some(x => x.name === "admin") && <Tag>Admin</Tag>}
+                  {user.roles.some(x => x.name === "publisher") && <Tag>Publisher</Tag>}
+                </Space>}
+              />
+            </Form.Item>
+
+            <Divider orientation="left">{tp("programs")}</Divider>
+
+            <Form.Item
+              label={tp("programsInfo")}
+              valuePropName="targetKeys"
+              name="programIds"
+              wrapperCol={{ offset: 1, span: 22 }}
+            >
+              <Transfer
+                pagination
+                operations={[tp("add"), tp("remove")]}
+                showSearch
+                listStyle={{ width: 420 }}
+                filterOption={(input, option) =>
+                  option.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                titles={[tp("otherPrograms"), tp("teamPrograms")]}
+                dataSource={allPrograms?.map(x => ({ ...x, disabled: x.deleted ? true : false }))}
+                onChange={(keys) => form.setFieldsValue({ programIds: keys })}
+                render={(program) =>
+                  program.name + (program.team ? ` [${program.team.name}]` : "") + (program.deleted ? ` [${tp("deleted")}]` : "")
+                }
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row justify="center">
+          <Form.Item style={{ paddingTop: 48 }} wrapperCol={{ span: 24 }}>
+            <Button
+              disabled={!dirty}
+              htmlType="submit"
+              type="primary"
+              loading={saveTeamLoading}
+            >
+              {tp("submit")}
+            </Button>
+
+            <Popconfirm
+              title={tp("confirmDelete")}
+              onConfirm={() => {
+                if (dirty) {
+                  messageError(tp("dirtyFormDeleteError"));
+                  return;
+                }
+
+                if (form.getFieldValue("programIds")?.length) {
+                  messageError(tp("deleteProgramIds"));
+                  return;
+                }
+
+                if (form.getFieldValue("userIds")?.length) {
+                  messageError(tp("deleteUserIds"));
+                  return;
+                }
+
+                deleteTeam({ variables: { id: teamId } });
+              }}
+              okText={t("confirm.yes")}
+              cancelText={t("confirm.no")}
+              disabled={dirty}
+            >
+              <Button danger disabled={dirty} loading={deleteTeamLoading}>
+                {tp("delete")}
+              </Button>
+            </Popconfirm>
+          </Form.Item>
+        </Row>
+      </Form>
+    </div>
+  );
+};

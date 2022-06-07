@@ -1,0 +1,38 @@
+.data-entry-form_input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+  grid-gap: 0.7em 0.3em;
+  margin-bottom: 1rem;
+}
+
+.data-entry-form_buttons {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+#data-entry-form input[type="text"],
+#data-entry-form select {
+  width: 50%;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+  height: 32px;
+}
+
+.data-entry-form_label {
+  text-transform: capitalize;
+}
+
+.data-entry-form_required-field {
+  color: red;
+}
+
+#data-entry-form input[type="date"],
+#data-entry-form select {
+  border: 1px solid #f0f0f0;
+  box-sizing: border-box;
+  padding: 2px 2px 2px 5px;
+  background-color: #fff;
+}
