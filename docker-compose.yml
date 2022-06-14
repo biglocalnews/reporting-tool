@@ -32,7 +32,7 @@ services:
       - private
     environment:
       - rt_db_name=rt
-      - rt_db_host=db
+      - rt_db_host=5050_db
       - rt_db_user=postgres
       - rt_debug=True
       - GUNICORN_WORKERS=32
