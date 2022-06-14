@@ -293,14 +293,13 @@ def get_health(request: Request):
     try:
         dbsession = cast(Session, request.scope.get("dbsession"))
         org = dbsession.query(Organization).first()
-        # monitoring.log_metric(1)
+        monitoring.log_metric(1)
         return Response(
             org.name if org else "No default organisation found", status_code=200
         )
     except Exception as ex:
         logging.exception(ex)
 
-    """
     try:
         monitoring.log_metric(0)
         monitoring.log_event(str(ex))
@@ -308,7 +307,6 @@ def get_health(request: Request):
         logging.exception(ex)
 
     raise HTTPException(status_code=500, detail=str(ex))
-    """
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

@@ -19,7 +19,7 @@ EVALUATION_PERIODS = 2
 
 DEBUG = os.environ.get("rt_debug")
 BOTO_CONFIG = Config()
-if not DEBUG:
+if DEBUG == "False":
     BOTO_CONFIG = Config(
         proxies={
             "https": "http://global-zen.reith.bbc.co.uk:9480/",
