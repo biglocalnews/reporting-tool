@@ -4,19 +4,28 @@ import boto3
 from botocore.config import Config
 
 NAMESPACE = "5050"
-LOG_STREAM_NAME = "HealthStream"
 LOG_GROUP_NAME = f"{NAMESPACE}LogGroup"
+
+# needed when running in swarm, uniquely identifies the replica, passed in via stack yml
+TASK_SLOT = os.environ.get("TASK_SLOT")
+
+SERVICE_NAME = "API"
+LOG_STREAM_NAME = f"{SERVICE_NAME}Health-{TASK_SLOT}"
 METRIC_NAME = "HealthCheck"
 TOPIC_ENDPOINT = "niproductteam@bbc.co.uk"
 AWS_ACCOUNT_ID = "699221667734"
 REGION = "eu-west-2"
 EVALUATION_PERIODS = 2
-BOTO_CONFIG = Config(
-    proxies={
-        "https": "http://global-zen.reith.bbc.co.uk:9480/",
-        "http": "http://global-zen.reith.bbc.co.uk:9480/",
-    }
-)
+
+DEBUG = os.environ.get("rt_debug")
+BOTO_CONFIG = Config()
+if not DEBUG:
+    BOTO_CONFIG = Config(
+        proxies={
+            "https": "http://global-zen.reith.bbc.co.uk:9480/",
+            "http": "http://global-zen.reith.bbc.co.uk:9480/",
+        }
+    )
 
 
 def setup_logging():

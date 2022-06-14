@@ -25,5 +25,5 @@ cd ..
 
 python3 monitoring.py
 
-gunicorn -w 32 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker app:app
+gunicorn --workers=$GUNICORN_WORKERS --bind=0.0.0.0:8000 --worker-class=uvicorn.workers.UvicornWorker app:app
 #uvicorn app:app --workers 32 --host 0.0.0.0 --port 8000

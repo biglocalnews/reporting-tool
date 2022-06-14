@@ -299,9 +299,14 @@ def get_health(request: Request):
         )
     except Exception as ex:
         logging.exception(ex)
+
+    try:
         monitoring.log_metric(0)
         monitoring.log_event(str(ex))
-        raise HTTPException(status_code=500, detail=str(ex))
+    except Exception as ex:
+        logging.exception(ex)
+
+    raise HTTPException(status_code=500, detail=str(ex))
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

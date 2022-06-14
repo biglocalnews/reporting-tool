@@ -16,6 +16,14 @@ services:
     deploy:
       mode: global
       endpoint_mode: dnsrr
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
   api:
     build: api
@@ -27,6 +35,8 @@ services:
       - rt_db_host=db
       - rt_db_user=postgres
       - rt_debug=True
+      - GUNICORN_WORKERS=32
+      - TASK_SLOT={{.Task.Slot}}
     secrets:
       - ni-app-tig.keytab
       - rt_app_account_pw
@@ -37,12 +47,18 @@ services:
         mode: 400
     depends_on:
       - db
-    dns:
-      - 127.0.0.11
-      - 10.68.140.2 #bbc dns
+    dns: [ 127.0.0.11, 10.68.140.2 ]
     deploy:
       mode: global
       endpoint_mode: dnsrr
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
   db:
     image: postgres:13.6
@@ -63,6 +79,40 @@ services:
       interval: 2s
       timeout: 2s
       retries: 20
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
+
+  backup:
+    build: backup-service
+    image: 5050.ni.bbc.co.uk:8443/5050-backup-dev:latest
+    environment:
+      - rt_debug=True
+    secrets:
+      - rt_db_pw
+      - source: 5050-aws-credentials
+        target: /root/.aws/credentials
+        mode: 400
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.labels.postgres==true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "awslogs"
+      options:
+        mode: non-blocking
+        awslogs-region: "eu-west-2"
+        awslogs-group: "5050LogGroup"
+        awslogs-force-flush-interval-seconds: 60
+        tag: "{{.Name}}"
 
 secrets:
   rt_db_pw:

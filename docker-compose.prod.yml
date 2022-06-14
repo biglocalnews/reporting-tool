@@ -14,6 +14,10 @@ services:
   db:
     volumes:
       - /mnt/data/postgres/5050:/var/lib/postgresql/data
+  backup:
+    image: 5050.ni.bbc.co.uk:8443/5050-backup-prod:latest
+    environment:
+      - rt_debug=False
 
 networks:
   haproxy-network:
