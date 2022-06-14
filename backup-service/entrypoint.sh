@@ -5,7 +5,7 @@ mkdir -p /etc/cron.d
 
 #set -f to stop the asterisk expanding to file list
 set -f
-echo "*/1 * * * * root /app/db_backup.sh" > /etc/cron.d/backup
+echo "0 0 * * * root /app/db_backup.sh" > /etc/cron.d/backup
 
 python3 monitoring.py
 
