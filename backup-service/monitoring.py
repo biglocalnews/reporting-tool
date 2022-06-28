@@ -13,7 +13,7 @@ PERIOD = 86400
 EVALUATION_PERIODS = 1
 BOTO_CONFIG = Config()
 
-if not DEBUG:
+if DEBUG == "False":
     TOPIC_ENDPOINT = "niproductteam@bbc.co.uk"
     BOTO_CONFIG = Config(
         proxies={

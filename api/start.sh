@@ -17,11 +17,11 @@ cron
 export HTTP_PROXY=
 export HTTPS_PROXY=
 
-#cd alembic
+cd alembic
 
-#alembic upgrade head
+alembic upgrade head
 
-#cd ..
+cd ..
 
 python3 monitoring.py
 

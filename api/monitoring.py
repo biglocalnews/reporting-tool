@@ -42,7 +42,17 @@ def setup_logging():
 
     log_streams = cloudwatch_logs.describe_log_streams(logGroupName=LOG_GROUP_NAME)
 
-    if LOG_STREAM_NAME not in [x["logStreamName"] for x in log_streams["logStreams"]]:
+    next_token = log_streams["nextToken"] if "nextToken" in log_streams else None
+    current_streams = [x["logStreamName"] for x in log_streams["logStreams"]]
+
+    while next_token:
+        log_streams = cloudwatch_logs.describe_log_streams(
+            logGroupName=LOG_GROUP_NAME, nextToken=next_token
+        )
+        current_streams.extend([x["logStreamName"] for x in log_streams["logStreams"]])
+        next_token = log_streams["nextToken"] if "nextToken" in log_streams else None
+
+    if LOG_STREAM_NAME not in current_streams:
         try:
             response = cloudwatch_logs.create_log_stream(
                 logGroupName=LOG_GROUP_NAME, logStreamName=LOG_STREAM_NAME

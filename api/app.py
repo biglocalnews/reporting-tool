@@ -293,7 +293,6 @@ def get_health(request: Request):
     try:
         dbsession = cast(Session, request.scope.get("dbsession"))
         org = dbsession.query(Organization).first()
-        monitoring.log_metric(1)
         return Response(
             org.name if org else "No default organisation found", status_code=200
         )
@@ -301,7 +300,6 @@ def get_health(request: Request):
         logging.exception(ex)
 
     try:
-        monitoring.log_metric(0)
         monitoring.log_event(str(ex))
     except Exception as ex:
         logging.exception(ex)

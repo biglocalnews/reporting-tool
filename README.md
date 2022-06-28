@@ -1,85 +1,83 @@
 # Reporting Tool [RT]
 
-### Built With
+## Built using
 
 - Typescript: React, Apollo, AntD
 - Python3: FastAPI, Ariadne (GraphQL), SQLAlchemy
 - Postgres
 
-## More info
+## Code
 
 Frontend
-[/client](https://github.com/stanford-policylab/bbc-50-50/tree/main/client)
+[/client](https://github.com/BBCNI/bbc-50-50/tree/main/client)
 
 Backend API
-[/api](https://github.com/stanford-policylab/bbc-50-50/tree/main/api)
+[/api](https://github.com/BBCNI/bbc-50-50/tree/main/api)
 
-## Deployment
+## Getting started
 
-The entire app (including database) can be started with docker-compose:
+The entire stack may be launched using deply_dev.sh It assumes that you have docker with swarm enabled.
+If using Windows, the Windows subsystem for Linux works great.  Just install docker as per usual.
+For normal dev you should start things manually as described below.
 
-```
-docker-compose up --build
-```
+## Secrets
 
-The app will be available at `http://localhost/`. See the `.env` file in the
-root directory for more configuration options available here.
+Some secrets are required which are listed at the end of the docker-compose.yml
 
-Docker compose should _not_ be used for production; it's better just for a
-quick demo.
+Some of these secrets have defaults which are found in api/settings.py
 
-The secrets used for development are in `./secrets/`; these should be replaced
-in production.
+These defaults can be overriden by docker secrets and can in turn be overridden by environment variables which must be prefixed by rt_
 
-### Production
+- rt_db_pw 
+  - Postgres database password
+- ni-app-tig.keytab
+  - a kerberos token to authenticate with the SAP data API - only works in dev over zscaler - not essential if not using the add user page
+- rt_app_account_pw
+  - the password for the app account - not essential if not using the add user page
+- rt_secret
+  - used by Fast_API for securing cookies
+- 5050-aws-credentials
+  - Used for cloudwatch logging and metrics, and also for the backup service to S3 - not essential
 
-You can deploy in production using docker swarm:
+## Postgres
 
-```
-set -a && source .env && set +a
-docker deploy stack -c docker-compose.yml -c docker-compose.prod.yml rt
-```
+The best way to run postgres is using the official docker hub image, for example,
 
-This will deploy the service based on the `.env` file, the `docker-compose.yml`,
-and any overrides you have in a custom `docker-compose.prod.yml` file.
+    docker run --name postgres\
+    -v /home/me/.postgres_pass:/run/secrets/5050_db_pass\
+    -e POSTGRES_PASSWORD_FILE=/run/secrets/5050_db_pass\
+    -e POSTGRES_DB=rt -p 5432:5432 -d postgres:13.6
 
-#### Overrides
+## Seeding the database with data
 
-The `.env` and `docker-compose.yml` provide a config that works well for a demo
-or test deployment, but you should add some overrides for production. A minimal
-`docker-compose.prod.yml` might look like:
+`seed.py` will create the db tables according to the schema in database.py
 
-```yml
-version: "3.9"
+`test_users.py` will create some test users
 
-# Use a persistent local volume for postgres data
-volumes:
-  pgdata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /path/to/my/db/data/
+`importer.py` will import data from the old 5050 system
 
-# Use strong secrets
-secrets:
-  db-password:
-    file: ./secrets/db-password.prod
-  app-secret:
-    file: ./secrets/app-secret.prod
-```
+## API
 
-The `.env` file can be used to configure the Python API as well, e.g. to
-provide settings for the SMTP server for sending email. See both the
-`./api/settings.py` file for what settings are available, and the `.env` for
-examples of how to override them with environment variables.
+In windows it is best to run it in the Windows subsystem for Linux. Visual Studio code can run inside it and you can debug as usual
 
-#### Scaling
+cd into the api/ folder
 
-The `api` and `nginx` services are both scalable if you need to add more
-replicas. (You never need to scale the `client` service as it is just static
-assets that are served by `nginx`.)
+Install the prerequisites,
 
-NOTE: Currently you are not able to replicate postgres with this configuration.
-You should **not** try to increase the replicas, as it will not behave as you
-hope. We will add support for high-availability eventually.
+    pip3 install -r requirements.txt
+
+then run,
+
+    python3 app.py
+
+## Client
+
+cd into the client/ folder
+
+Install the node modules,
+
+    npm install
+
+then run,
+
+    npm start

@@ -25,7 +25,7 @@ import { Reports } from "./pages/Reports/Reports";
 import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
 
-import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleTwoTone } from "@ant-design/icons";
+import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 
 
 function Redirecter(props: { from: string }) {
@@ -162,9 +162,12 @@ function App() {
           <Button
             type="link"
             href="mailto:5050portalhelp@bbc.co.uk"
-            icon={<QuestionCircleTwoTone />}
-            size="large"
+            icon={<QuestionCircleOutlined />}
+            style={{
+              color: "white"
+            }}
           >
+            Help
           </Button>
 
 

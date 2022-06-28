@@ -128,22 +128,78 @@ in the playground's query variables section:
 }
 ```
 
-### Db Migrations
+## Migrations
 
-```shell
-cd alembic"
-alembic revision --autogenerate -m "Added account table"
-alembic upgrade head
-```
+50:50 uses the python library Alembic for handling migrations. Migrations are only needed for the deployed, Live version. Migrations are not needed in Dev.
 
-### Db Hacking
+If you are working on the live system the process for updating the database schema is as follows. 
 
-```shell
-docker exec -it `docker ps --format '{{.ID}}' --filter label=com.docker.swarm.service.name=5050-api` psql -h 5050-db -U postgres
-\c rt
-select * from "user";
-delete from "user" where id = 'bb213e2f-1660-419e-baa9-30a8fa139b0c';
-update "user" set username='HogenMW1' where id='e443d3ca-02d7-4e3d-8b67-191989f63e7f';
-insert into role(id,name,description) values('ee2de3ff-e147-453c-b49c-88122e112095','publisher','User can publish records');
-select email from "user" group by email having count(*) >1
-```
+Update the schema in `database.py`
+
+cd into the alembic folder and run, for example,
+
+    alembic revision --autogenerate -m "Added account table"
+
+This will generate the migration script
+
+Then deploy the code to the swarm and from an API node, execute the migration script
+
+    alembic upgrade head
+
+The upgrade code is also found in the entrypoint `start.sh` of the API image. So any new migration scripts that are deployed will automatically be run before the api starts
+
+## Manually editing the database
+
+Sometimes it may be necessary to manually edit some data in the database.  The following code is an example of how you could do that. Basically we just attach to a running API instance (or postgres instance itself) and run psql
+
+    docker exec -it `docker ps --format '{{.ID}}' --filter label=com.docker.swarm.service.name=5050_api` psql -h  5050-db -U postgres
+
+Then inside psql repl, change to the database called rt
+
+    \c rt
+
+Run some SQL, note that 'user' is a keyword in postgres so if you have a table called user, you need to quote it.
+
+    select * from "user";
+    
+    delete from "user" where id = 'bb213e2f-1660-419e-baa9-30a8fa139b0c';
+    
+    update "user" set username='HogenMW1' where id='e443d3ca-02d7-4e3d-8b67-191989f63e7f';
+    
+    insert into role(id,name,description) values('ee2de3ff-e147-453c-b49c-88122e112095','publisher','User can publish records');
+    
+    select email from "user" group by email having count(*) >1
+
+## Backup Service
+
+`backup-service` is a swarm service for doing the backups. The code that does the actual backup is `db_backup.sh`. It uses aws credentials secret in order to log success or fail and in order to upload to an (encrypted) S3 bucket.
+
+## Restore
+
+In the case that you want to revert to an earlier dump/version of the Db, you have to truncate the database before restoring.
+
+In the case that the database is totally gone, then you need to remember to create the empty database, usually called `rt`
+
+Hop in to your running instance (if using docker) of postgres by running something like, 
+
+    docker exec -it `docker ps --format '{{.ID}}' --filter label=com.docker.swarm.service.name=5050_db` /bin/bash
+
+Then you can run something like,
+
+    psql -U postgres -h localhost rt < rt_2022-05-13.dump
+
+## Re-initialising (when running in swarm) to a blank state
+
+This is something you might do on your dev system, or if restoring a backup.
+
+Oddly there is no such thing as stop service in docker swarm, but you can achieve the same thing by giving the db service a constaint that it doesn't have.
+
+    docker service update --constraint-add no_such_node==true 5050_db
+
+Then you can just remove the data directory and then remove the constraint to make it start again
+
+    rm -rf /mnt/data/postgres/5050
+    
+    mkdir /mnt/data/postgres/5050
+    
+    docker service update --constraint-rm no_such_node==true 5050_db

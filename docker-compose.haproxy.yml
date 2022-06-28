@@ -39,5 +39,5 @@ services:
     depends_on:
       - client
     volumes:
-      - ./certs:/etc/certs
+      - ./certs:/certs
       - ./haproxy-config:/etc/haproxy
