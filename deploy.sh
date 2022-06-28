@@ -8,10 +8,10 @@ COMPOSE=$DOCKER_PLUGINS_PATH/docker-compose
 
 mkdir -p $DOCKER_PLUGINS_PATH
 
-if [ ! -f "$COMPOSE" ]; then
-    curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o $COMPOSE
-    chmod +x $COMPOSE
-fi
+#if [ ! -f "$COMPOSE" ]; then
+curl -SL https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-linux-x86_64 -o $COMPOSE
+chmod +x $COMPOSE
+#fi
 
 docker compose -f docker-compose.yml -f docker-compose.prod.yml -p 5050 build --build-arg HTTP_PROXY=$http_proxy --build-arg HTTPS_PROXY=$https_proxy
 
