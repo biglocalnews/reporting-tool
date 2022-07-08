@@ -15,9 +15,9 @@ chmod +x $COMPOSE
 
 docker compose -f docker-compose.yml -f docker-compose.prod.yml -p 5050 build --build-arg HTTP_PROXY=$http_proxy --build-arg HTTPS_PROXY=$https_proxy
 
-docker push 5050.ni.bbc.co.uk:8443/5050-api-prod
-docker push 5050.ni.bbc.co.uk:8443/5050-client-prod
-docker push 5050.ni.bbc.co.uk:8443/5050-backup-prod
+docker push 5050.ni.bbc.co.uk:8443/5050-api-prod:latest
+docker push 5050.ni.bbc.co.uk:8443/5050-client-prod:latest
+docker push 5050.ni.bbc.co.uk:8443/5050-backup-prod:latest
 
 docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml 5050
 
