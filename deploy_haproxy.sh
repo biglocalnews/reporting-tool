@@ -15,15 +15,8 @@ fi
 
 docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.haproxy.yml  -p 5050 build
 
-docker push 5050.ni.bbc.co.uk:8443/5050-api-dev
-docker push 5050.ni.bbc.co.uk:8443/5050-client-dev
-docker push 5050.ni.bbc.co.uk:8443/5050-backup-dev
 docker push 5050.ni.bbc.co.uk:8443/5050-haproxy-dev
 
-#docker stack deploy -c docker-compose.yml -c docker-compose.dev.yml -c docker-compose.haproxy.yml 5050
-docker stack deploy -c docker-compose.haproxy.yml 5050
+docker stack deploy -c docker-compose.yml -c docker-compose.dev.yml -c docker-compose.haproxy.yml 5050
 
-#docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-api-dev:latest 5050_api
-#docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-client-dev:latest 5050_client
-#docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-backup-dev:latest 5050_backup
 docker service update --force --image 5050.ni.bbc.co.uk:8443/5050-haproxy-dev:latest 5050_haproxy

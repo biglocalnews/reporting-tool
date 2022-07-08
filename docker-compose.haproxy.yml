@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   haproxy:
-    image: haproxy
+    build:
+      context: ./haproxy-config
+    image: 5050.ni.bbc.co.uk:8443/5050-haproxy-dev:latest
     entrypoint:
       [
         "/usr/local/sbin/haproxy",
@@ -13,8 +15,7 @@ services:
       ]
     sysctls:
       - net.ipv4.ip_unprivileged_port_start=0
-    dns:
-      - 127.0.0.11
+    dns: [ 127.0.0.11, 10.68.140.2 ]
     networks:
       - frontend
     deploy:
@@ -36,8 +37,10 @@ services:
         published: 9101
         protocol: tcp
         mode: host
-    depends_on:
-      - client
     volumes:
-      - ./certs:/certs
-      - ./haproxy-config:/etc/haproxy
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./haproxy-config/config:/etc/haproxy
+networks:
+  frontend:
+    driver: overlay

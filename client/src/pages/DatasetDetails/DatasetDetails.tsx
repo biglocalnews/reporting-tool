@@ -48,6 +48,7 @@ const PresetDateRanges: Record<
   string,
   [EventValue<Moment>, EventValue<Moment>]
 > = {
+  /*"Today": [moment().startOf("day"), moment().endOf("day")],*/
   "This Month": [moment().startOf("month"), moment().endOf("month")],
   "Last Month": [
     moment().subtract(1, "months").startOf("month"),
@@ -135,6 +136,33 @@ const DatasetDetails = (): JSX.Element => {
   const chartData = useMemo(() => {
     return flattened(grouped(filteredData));
   }, [filteredData]);
+
+  const fudgedChartData = useMemo(() => {
+    const cats = Array.from(new Set(chartData.map(x => x.category)))
+    return cats.map(cat => {
+      const filteredByCategory = chartData.filter(x => x.category === cat);
+      const monthYears = Array.from(new Set(filteredByCategory.map(x => x.groupedDate)))
+      return monthYears.map(my => {
+        const filteredByCategoryDate = filteredByCategory.filter(x => x.groupedDate === my)
+        const sum = filteredByCategoryDate
+          .reduce((sum, x) => {
+            return sum += x.percent
+          }, 0);
+        const diff = 100.0 - sum;
+        if (diff !== 0) {
+          const maxValue = Math.max(...filteredByCategoryDate.map(x => x.percent));
+          return filteredByCategoryDate.map(x => {
+            //fudges the biggest segment
+            if (x.percent === maxValue) {
+              return { ...x, percent: x.percent + diff };
+            }
+            return x;
+          });
+        }
+        return filteredByCategoryDate;
+      }).flat();
+    }).flat();
+  }, [chartData]);
 
   useEffect(() => {
 
@@ -323,7 +351,7 @@ const DatasetDetails = (): JSX.Element => {
                     </Col>
                     <Col span={24}>
                       <LineColumn
-                        data={chartData}
+                        data={fudgedChartData}
                         loading={queryLoading}
                         columnOptions={{
                           isGroup: true,

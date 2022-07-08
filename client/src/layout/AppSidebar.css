@@ -1,12 +1,4 @@
-.ant-layout-sider {
-  background: #fff !important;
-}
-
-.ant-menu-dark .ant-menu-inline.ant-menu-sub {
-  background: unset;
-}
-
-.ds-container > ul.ant-menu-sub {
+.ds-container>ul.ant-menu-sub {
   max-height: 60vh;
   overflow: auto;
   scrollbar-width: none;
