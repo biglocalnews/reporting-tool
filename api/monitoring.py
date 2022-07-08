@@ -172,4 +172,3 @@ def log_event(value):
 
 if __name__ == "__main__":
     setup_logging()
-    setup_alarms()
