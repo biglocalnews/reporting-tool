@@ -182,6 +182,7 @@ async def bbc_login(request: Request):
     )
     auth = init_saml_auth(req)
     redirect = auth.login()
+    logging.error(redirect)
     return RedirectResponse(redirect)
 
 
@@ -202,6 +203,7 @@ async def acs(request: Request, status_code=200):
         errors = auth.get_errors()
 
         if errors:
+            logging.error(", ".join(errors))
             raise HTTPException(
                 status_code=500,
                 detail="Error when processing SAML Response: %s %s"

@@ -87,7 +87,7 @@ services:
     build: backup-service
     image: 5050.ni.bbc.co.uk:8443/5050-backup-dev:latest
     environment:
-      - rt_debug=True
+      - rt_debug=False
     secrets:
       - rt_db_pw
       - source: 5050-aws-credentials

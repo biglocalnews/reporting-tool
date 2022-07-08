@@ -14,8 +14,9 @@ klist -e
 
 cron
 
-export HTTP_PROXY=
-export HTTPS_PROXY=
+export HTTP_PROXY=http://global-zen.reith.bbc.co.uk:9480/
+export HTTPS_PROXY=http://global-zen.reith.bbc.co.uk:9480/
+export NO_PROXY=.ni.bbc.co.uk,laravel-api.mobileapps.bbc.co.uk
 
 cd alembic
 
