@@ -51,6 +51,9 @@ services:
     deploy:
       mode: global
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - "node.labels.storage==true"
     logging:
       driver: "awslogs"
       options:

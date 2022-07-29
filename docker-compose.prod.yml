@@ -11,9 +11,7 @@ services:
       - rt_debug=False
     networks:
       - haproxy-network
-    placement:
-      constraints:
-        - "node.labels.storage==true"
+
   db:
     volumes:
       - /mnt/data/postgres/5050:/var/lib/postgresql/data
