@@ -83,32 +83,6 @@ services:
         awslogs-force-flush-interval-seconds: 60
         tag: "{{.Name}}"
 
-  backup:
-    build: backup-service
-    image: 5050.ni.bbc.co.uk:8443/5050-backup-dev:latest
-    environment:
-      - rt_debug=False
-    secrets:
-      - rt_db_pw
-      - source: 5050-aws-credentials
-        target: /root/.aws/credentials
-        mode: 400
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - "node.labels.postgres==true"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    logging:
-      driver: "awslogs"
-      options:
-        mode: non-blocking
-        awslogs-region: "eu-west-2"
-        awslogs-group: "5050LogGroup"
-        awslogs-force-flush-interval-seconds: 60
-        tag: "{{.Name}}"
-
 secrets:
   rt_db_pw:
     external: true

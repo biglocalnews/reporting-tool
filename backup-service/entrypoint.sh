@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-#mkdir just in case it doesnt exist
-mkdir -p /etc/cron.d
+rm -rf /etc/cron.*/*
+
+printenv | sed 's/^\(.*\)$/export \1/g' > /app/.env.sh
 
 #set -f to stop the asterisk expanding to file list
 set -f
-echo "0 0 * * * root /app/db_backup.sh" > /etc/cron.d/backup
+echo "0 0 * * * root timeout 5m /app/db_backup.sh" > /etc/crontab
 
 python3 monitoring.py
 
-cron
-
-sleep infinity
+cron -f -l 2

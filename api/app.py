@@ -292,6 +292,8 @@ async def acs(request: Request, status_code=200):
 @app.get("/health")
 def get_health(request: Request):
 
+    exception = None
+
     try:
         dbsession = cast(Session, request.scope.get("dbsession"))
         org = dbsession.query(Organization).first()
@@ -300,13 +302,18 @@ def get_health(request: Request):
         )
     except Exception as ex:
         logging.exception(ex)
+        exception = str(ex)
 
     try:
         monitoring.log_event(str(ex))
     except Exception as ex:
         logging.exception(ex)
+        exception = str(ex)
 
-    raise HTTPException(status_code=500, detail=str(ex))
+    if exception:
+        raise HTTPException(status_code=500, detail=exception)
+    else:
+        raise HTTPException(status_code=500, detail="Unknown error in health check")
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a

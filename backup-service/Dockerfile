@@ -20,10 +20,12 @@ RUN pip3 install -r requirements.txt
 
 COPY db_backup.sh .
 
+RUN chmod +x db_backup.sh
+
 COPY entrypoint.sh .
 
-COPY monitoring.py .
-
 RUN chmod +x entrypoint.sh
+
+COPY monitoring.py .
 
 ENTRYPOINT [ "/app/entrypoint.sh" ]

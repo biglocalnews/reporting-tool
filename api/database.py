@@ -101,7 +101,7 @@ class Team(Base, PermissionsMixin):
 
     id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
-    users = relationship("User", secondary=user_teams, backref="Team")
+    users = relationship("User", secondary=user_teams, back_populates="teams")
     programs = relationship("Program", back_populates="team")
     organization_id = Column(
         GUID, ForeignKey("organization.id"), nullable=False, index=True
@@ -125,7 +125,7 @@ class User(Base, SQLAlchemyBaseUserTable):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     roles = relationship("Role", secondary=user_roles, backref="User")
-    teams = relationship("Team", secondary=user_teams, backref="User")
+    teams = relationship("Team", secondary=user_teams, back_populates="users")
     last_login = Column(TIMESTAMP, nullable=True)
     last_changed_password = Column(TIMESTAMP, nullable=True)
 

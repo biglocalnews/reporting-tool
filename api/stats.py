@@ -251,7 +251,7 @@ def get_admin_overview(stats: Dict, session: Session, duration: int):
                 "dataset_id": dataset_id,
                 "name": dataset_name,
                 "percent": target_members_sum,
-                "target": target,
+                "target": round(target),
             }
 
             if target_members_sum >= target:
@@ -345,12 +345,21 @@ def get_admin_needs_attention(stats: Dict, session: Session):
                 if "entries" not in entries:
                     continue
 
-                [target, *_] = (
+                targets_int = [
                     x["target"] for x in targets if x["category"] == category
-                )
+                ]
+
+                if not targets_int:
+                    logging.error(
+                        f"Category {category} has no targets, possibly due to nothing in the published record set. Dateset Id is {dataset_id}"
+                    )
+                    continue
+
+                [target, *_] = targets_int
 
                 if not target:
                     continue
+
                 if category not in targets_missed:
                     targets_missed[category] = 0
                 target_member_count = 0

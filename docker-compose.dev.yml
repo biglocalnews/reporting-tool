@@ -36,16 +36,23 @@ services:
   db:
     volumes:
       - /home/cobair01/5050-pgdata:/var/lib/postgresql/data
-    logging:
-      driver: "awslogs"
-      options:
-        mode: non-blocking
-        awslogs-region: "eu-west-2"
-        awslogs-group: "RobTestLogGroup"
-        awslogs-force-flush-interval-seconds: 60
-        tag: "{{.Name}}"
-
-  backup:
+      - type: tmpfs
+        target: /dev/shm
+    command:
+      [
+        "-c",
+        "shared_buffers=512MB",
+        "-c",
+        "max_connections=400"
+      ]
+    shm_size: "1024M"
+    tmpfs:
+      - /tmp:size=1024M
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
     logging:
       driver: "awslogs"
       options:
