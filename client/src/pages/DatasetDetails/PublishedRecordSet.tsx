@@ -227,10 +227,6 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
         return null;
     }
 
-
-
-
-
     return <>
         <Row justify="center">
             <Col span={24}>

@@ -57,7 +57,7 @@ const Pie5050 = (props: IProps) => {
             },
         },
         label: false,
-        annotations: [
+        annotations: props.target ? [
             {
                 //type: 'dataMarker',
                 //position: ['median', props.target],
@@ -72,7 +72,7 @@ const Pie5050 = (props: IProps) => {
                     offsetY: 5
                 }
             },
-        ],
+        ] : [],
 
         //padding: 40
         padding: "auto" as const,
