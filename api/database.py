@@ -884,7 +884,7 @@ class PublishedRecordSet(Base, PermissionsMixin):
         GUID, ForeignKey("reporting_period.id"), index=True, nullable=False
     )
 
-    __table_args__ = (UniqueConstraint("reporting_period_id"),)
+    # __table_args__ = (UniqueConstraint("reporting_period_id"),)
 
     dataset = relationship("Dataset", back_populates="published_record_sets")
     dataset_id = Column(GUID, ForeignKey("dataset.id"), index=True, nullable=False)

@@ -21,7 +21,7 @@ const chartConfig = ({
     legend: {
         position: "right"
     },
-    //isPercent: true,
+    //isPercent: true
     tooltip: {
         formatter: (datum: Datum) => ({ name: datum.attribute ? datum.attribute : datum.category, value: `${Number(datum.percent).toFixed(2)}%` })
     },
@@ -34,7 +34,8 @@ const chartConfig = ({
     yAxis: {
         label: {
             formatter: (text: string) => `${text}%`
-        }
+        },
+        maxLimit: 100
     },
     /*color: ({ attribute }) => {
         const { targetMember, category } = chartData?.find(x => x.attribute === attribute) ?? {} as IChartData;

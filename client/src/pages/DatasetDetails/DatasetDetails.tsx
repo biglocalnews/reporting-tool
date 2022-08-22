@@ -159,6 +159,14 @@ const DatasetDetails = (): JSX.Element => {
             return x;
           });
         }
+        const sum2 = filteredByCategoryDate
+          .reduce((sum, x) => {
+            console.log(x.percent);
+            return sum += x.percent
+          }, 0);
+        const diff2 = 100.0 - sum2;
+        if (diff2 !== 0) { console.log(diff2) };
+
         return filteredByCategoryDate;
       }).flat();
     }).flat();
@@ -260,7 +268,7 @@ const DatasetDetails = (): JSX.Element => {
               <Row justify="center" gutter={[0, 50]}>
                 {
                   targetStates(queryData, selectedFilters)?.map((targetState, i) => (
-                    <Col key={i} span={4} offset={i ? 4 : 0}>
+                    <Col key={i} span={6}>
                       {!isNaN(targetState.status) ? (
                         <Pie5050
                           legend={false}

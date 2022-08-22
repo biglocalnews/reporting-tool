@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client"
 import { Button, Checkbox, Col, Collapse, DatePicker, PageHeader, Row, Space, Statistic, Tag } from "antd";
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, DownloadOutlined } from '@ant-design/icons';
 import moment from "moment";
 
 const { Panel } = Collapse;
@@ -11,7 +11,7 @@ import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPub
 import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalTypes";
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
 import Pie5050 from "../Charts/Pie";
-import { flattenPublishedDocumentEntries, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
+import { exportCSV, flattenPublishedDocumentEntries, IPublishedRecordSet, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 import { LineColumn } from "../Charts/LineColumn";
 import { flattenChartData, groupedByMonthYearCategory, groupedByYearCategory } from "../../selectors/ChartData";
 import { useAuth } from "../../components/AuthProvider";
@@ -125,7 +125,11 @@ export const Reports = () => {
     return <Space direction="vertical">
         <Row justify="center" gutter={[16, 16]}>
             <Col span={24}>
-                <PageHeader title={t("reports.title")} subTitle={t("reports.subtitle")} />
+                <PageHeader
+                    title={t("reports.title")}
+                    subTitle={t("reports.subtitle")}
+                    extra={<Button onClick={() => exportCSV(data?.publishedRecordSets as ReadonlyArray<IPublishedRecordSet>, undefined)} type="primary" shape="circle" icon={<DownloadOutlined />} />}
+                />
             </Col>
             <Col span={6}>
                 <Space direction="vertical">

@@ -73,10 +73,7 @@ const Pie5050 = (props: IProps) => {
                 }
             },
         ] : [],
-
-        //padding: 40
-        padding: "auto" as const,
-        appendPadding: 10
+        appendPadding: [15, 0]
     };
     return <Pie {...config} />
 }

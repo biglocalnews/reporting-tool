@@ -1,10 +1,10 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { useQuery } from "@apollo/client";
-import { Button, Table, Tag } from "antd";
+import { InfoCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { Button, message, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TFunction, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
@@ -14,14 +14,13 @@ import {
   AllDatasets,
   AllDatasets_teams
 } from "../../graphql/__generated__/AllDatasets";
+import { GetDataset } from "../../graphql/__generated__/GetDataset";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
+import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
+import { exportCSV, IPublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
 import { HomeSearchAutoComplete } from "./DatasetsSearchAutoComplete";
-/*import {
-  GetDataset
-} from "../../graphql/__generated__/GetDataset";
-import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";*/
 
 dayjs.extend(localizedFormat);
 
@@ -76,62 +75,6 @@ const getTableData = (
   return rowData.sort((a, b) => dayjs(b.modified).unix() - dayjs(a.modified).unix());
 };
 
-/*const arrayToCsv = (data: [string[]]) => {
-  return data.map(row =>
-    row
-      .map(String)  // convert every value to String
-      .map(v => v.replaceAll('"', '""'))  // escape double colons
-      .map(v => `"${v}"`)  // quote it
-      .join(',')  // comma-separated
-  ).join('\r\n');  // rows starting on new lines
-}
-
-const downloadBlob = (content: string, filename: string, contentType: string) => {
-  // Create a blob
-  const blob = new Blob([content], { type: contentType });
-  const url = URL.createObjectURL(blob);
-
-  // Create a link to download it
-  const pom = document.createElement('a');
-  pom.href = url;
-  pom.setAttribute('download', filename);
-  pom.click();
-}
-
-function csvIse(objectKey: string, obj: object, csv: Record<string, string>): Record<string, string> {
-  if (!obj) return csv;
-  Object
-    .entries(obj)
-    .forEach((kv) => {
-
-      let key = objectKey ? objectKey + "_" + kv[0] : kv[0];
-
-      if ((kv[0] === "category" && objectKey.indexOf("targets") === -1) || kv[0] === "attribute" || kv[0] === "personType") {
-        return csv;
-      }
-      if (kv[0] === "segmentedRecord" || kv[0] === "entries" || kv[0] === "record") {
-        key = objectKey;
-      }
-
-
-      if (
-        typeof (kv[0]) === "string" &&
-        (typeof (kv[1]) === "string" || typeof (kv[1]) === "number" || typeof (kv[1]) === "boolean")
-      ) {
-        csv[key] = kv[1].toString();
-      }
-
-      if (typeof (kv[0]) === "string" && typeof (kv[1]) === "object") {
-        csvIse(key, kv[1], csv);
-      }
-
-    }, {} as Record<string, string>);
-  return csv;
-}*/
-
-
-
-
 export const Datasets = (): JSX.Element => {
   const { t } = useTranslation();
   const auth = useAuth();
@@ -147,31 +90,20 @@ export const Datasets = (): JSX.Element => {
     skip: !auth.isAdmin(),
   });
 
-  /*const [getDataset, { loading: downloadingDataset, error: downloadError, data: downloadedDataset }] = useLazyQuery<GetDataset>(GET_DATASET);
+  const [getDataset, { error: downloadError, data: downloadedDataset }] = useLazyQuery<GetDataset>(GET_DATASET);
 
   useEffect(() => {
     const prss = downloadedDataset?.dataset.publishedRecordSets;
 
     if (!prss) return;
 
-    const csvs = prss.
-      reduce((csv, prs) => {
+    exportCSV(prss as ReadonlyArray<IPublishedRecordSet>, undefined);
 
-        const csvRecord = csvIse("", prs.document, {} as Record<string, string>);
-        Object.entries(csvRecord).map(([k, v]) => k in csv ? csv[k].push(v) : csv[k] = [v]);
-        return csv;
-
-      }, {} as Record<string, string[]>);
-
-    downloadBlob(
-      arrayToCsv([Object.keys(csvs)]),
-      `${downloadedDataset?.dataset.name}_${new Date(downloadedDataset?.dataset.lastUpdated).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(prss[0].end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}.csv`,
-      "text/csv");
   }, [downloadedDataset]);
 
   useEffect(() => {
     downloadError && message.error(downloadError);
-  }, [downloadError]);*/
+  }, [downloadError]);
 
   const [filteredData, setFilteredData] = useState<Array<TableData>>([]);
 
@@ -194,7 +126,7 @@ export const Datasets = (): JSX.Element => {
 
   if (error) return <ErrorFallback error={error} />;
 
-  /*const downloadColumn = {
+  const downloadColumn: ColumnsType<TableData> = [{
     dataIndex: "id",
     width: 50,
     align: "center",
@@ -202,10 +134,10 @@ export const Datasets = (): JSX.Element => {
       return (
         <Button onClick={() => getDataset({
           variables: { id: datasetId },
-        })} type="primary" shape="circle" icon={!downloadingDataset ? <DownloadOutlined /> : <InfoCircleOutlined />} />
+        })} type="primary" shape="circle" icon={<DownloadOutlined />} />
       )
     },
-  }*/
+  }]
 
   const columns: ColumnsType<TableData> = [
     {
@@ -262,6 +194,7 @@ export const Datasets = (): JSX.Element => {
         )
       }
     },
+    ...downloadColumn
   ];
 
   return (
