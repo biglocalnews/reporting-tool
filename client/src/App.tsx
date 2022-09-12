@@ -48,12 +48,14 @@ const NotFound = () => {
   </div>
 }
 
+export const footerHeight = "48px";
+
 /**
  * Top-level app layout.
  */
 function App() {
   const [sidebarCollapsed, setSidebarCollapse] = useState(false);
-  const footerHeight = "48px";
+
   const { t } = useTranslation();
   /**
  * Layout container for an authenticated user.

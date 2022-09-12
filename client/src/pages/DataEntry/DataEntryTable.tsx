@@ -18,6 +18,9 @@ const { TabPane } = Tabs;
 import {
 
     PlusCircleOutlined,
+    SoundTwoTone,
+    PushpinFilled,
+    PushpinOutlined
 
 } from "@ant-design/icons";
 
@@ -34,10 +37,10 @@ import { useMemo, useState } from "react";
 import { DELETE_RECORD } from "../../graphql/__mutations__/DeleteRecord.gql";
 import CloseCircleOutlined from "@ant-design/icons/lib/icons/CloseCircleOutlined";
 import { GetRecord_record_customColumnValues_customColumn, GetRecord_record_entries_personType } from "../../graphql/__generated__/GetRecord";
-import SoundTwoTone from "@ant-design/icons/lib/icons/SoundTwoTone";
 import { CREATE_PUBLISHED_RECORD_SET } from "../../graphql/__mutations__/CreatePublishedRecordSet.gql";
 import { getRecordSetDocument, PublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
 import { catSort } from "../CatSort";
+import { footerHeight } from "../../App";
 
 
 interface IProps {
@@ -142,6 +145,7 @@ export const DataEntryTable = (props: IProps) => {
     const [addRecordDatePicker, setAddRecordDatePicker] = useState<moment.Moment | undefined>(undefined);
     const [noOfNewRecords, setNoOfNewRecords] = useState(1);
     const [activePersonTypeTab, setActivePersonTypeTab] = useState<string>("0");
+    const [fixedColumns, setFixedColumns] = useState<Record<string, boolean>>({});
 
     const { t } = useTranslation();
 
@@ -171,6 +175,24 @@ export const DataEntryTable = (props: IProps) => {
         return parsedRecords?.
             filter(x => !parsedPublishedRecordSets?.some(y => x.publicationDate.isBetween(y.begin, y.end, null, "[]")));
     }, [parsedRecords, parsedPublishedRecordSets]);
+
+    useMemo(() => {
+        const customColumnArrayFromDataset = getDatasetData?.dataset.customColumns ?? [];
+
+        const customColumnArrayFromRecords = Array.from(new Set(filteredRecords?.
+            map(r => r.customColumnValues).flat().map(x => x?.customColumn))) ?? [];
+
+        const merged = customColumnArrayFromDataset
+            .concat(customColumnArrayFromRecords as GetRecord_record_customColumnValues_customColumn[])
+            .filter(x => x)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        setFixedColumns(merged.reduce((record, x) => {
+            record[x.id] = false;
+            return record;
+        }, {} as Record<string, boolean>
+        ))
+    }, [filteredRecords, getDatasetData?.dataset.customColumns]);
 
     if (getDatasetLoading) return <p>Loading dataset...</p>
     if (getDatasetError) return <p>{`getDataset Error! ${getDatasetError.message}`}</p>
@@ -361,9 +383,25 @@ export const DataEntryTable = (props: IProps) => {
     const getCustomColumns = (reportingPeriod: GetDataset_dataset_program_reportingPeriods) =>
         mergedCustomColumns(reportingPeriod)
             .map((customColumn) => ({
-                fixed: true,
-                width: 200,
-                title: customColumn.name,
+                fixed: fixedColumns[customColumn.id],
+                width: 150,
+                title: () => <Row>
+                    <Col span={22}>{customColumn.name}</Col>
+                    <Col span={2} style={{ textAlign: "right" }}>
+                        <Button
+                            icon={
+                                fixedColumns[customColumn.id] ?
+                                    <PushpinFilled /> :
+                                    <PushpinOutlined />
+                            }
+                            type="text"
+                            shape="circle"
+                            size="small"
+                            onClick={() => setFixedColumns((curr) => ({ ...curr, [customColumn.id]: !curr[customColumn.id] }))}
+                        >
+                        </Button>
+                    </Col>
+                </Row>,
                 dataIndex: customColumn.name,
                 key: customColumn.name,
                 render: function pd(customValue: ITableCustomValue, record: ITableRow) {
@@ -663,7 +701,7 @@ export const DataEntryTable = (props: IProps) => {
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                             </Col>
-                            <Col span={24}>
+                            <Col span={48}>
                                 <Tabs
                                     centered={true}
                                     type="card"
@@ -683,9 +721,9 @@ export const DataEntryTable = (props: IProps) => {
                                                 >
                                                     <Table
                                                         pagination={false}
-                                                        scroll={{ x: "scroll" }}
                                                         loading={getDatasetLoading || createRecordLoading || deleteRecordLoading}
                                                         dataSource={getTableData(reportingPeriod, personType)}
+                                                        scroll={{ x: "max-content", y: `calc(100vh - ${footerHeight} - 221px)` }}
                                                         columns={[
                                                             {
                                                                 fixed: true,

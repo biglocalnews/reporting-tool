@@ -65,7 +65,7 @@ const Pie5050 = (props: IProps) => {
                 end: [0, props.target] as AnnotationPosition,
                 start: [1.2, props.target] as AnnotationPosition,
                 text: {
-                    content: `${props.target}% `,
+                    content: `${Math.round(props.target)}% `,
                     autoRotate: false,
                     style: { fontSize: 10 },
                     offsetX: 1,

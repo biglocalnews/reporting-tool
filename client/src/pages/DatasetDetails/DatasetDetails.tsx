@@ -48,7 +48,7 @@ const PresetDateRanges: Record<
   string,
   [EventValue<Moment>, EventValue<Moment>]
 > = {
-  /*"Today": [moment().startOf("day"), moment().endOf("day")],*/
+  "Today": [moment().startOf("day"), moment().endOf("day")],
   "This Month": [moment().startOf("month"), moment().endOf("month")],
   "Last Month": [
     moment().subtract(1, "months").startOf("month"),
@@ -159,13 +159,6 @@ const DatasetDetails = (): JSX.Element => {
             return x;
           });
         }
-        const sum2 = filteredByCategoryDate
-          .reduce((sum, x) => {
-            console.log(x.percent);
-            return sum += x.percent
-          }, 0);
-        const diff2 = 100.0 - sum2;
-        if (diff2 !== 0) { console.log(diff2) };
 
         return filteredByCategoryDate;
       }).flat();
@@ -238,10 +231,10 @@ const DatasetDetails = (): JSX.Element => {
         }).format(val.toDate())
       }
       value={
-        selectedFilters?.DateRange?.length == 2
+        selectedFilters?.DateRange?.length == 2 && selectedFilters?.DateRange[0] && selectedFilters?.DateRange[1]
           ? [
-            selectedFilters?.DateRange[0],
-            selectedFilters.DateRange[1],
+            selectedFilters.DateRange[0],
+            selectedFilters.DateRange[1].endOf("day"),
           ]
           : [null, null]
       }
