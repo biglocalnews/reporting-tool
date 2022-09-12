@@ -85,12 +85,13 @@ export const csvIse = (objectKey: string, obj: object, csv: Record<string, strin
 }
 
 export const arrayToCsv = (data: Array<Array<string | null>>) => {
-    return data.map(row =>
-        row
+    return data.map(row => {
+        return row
             .map(String)  // convert every value to String
             .map(v => v.replaceAll('"', '""'))  // escape double colons
             .map(v => `"${v}"`)  // quote it
             .join(',')  // comma-separated
+    }
     ).join('\r\n');  // rows starting on new lines
 }
 
@@ -126,7 +127,7 @@ export const exportCSV = (publishedRecordSets: ReadonlyArray<IPublishedRecordSet
     const csvArrayCombined = csvArray.reduce((csv, curr, i) => {
         i === 0 && csv.push(Array.from(headings));
         const row = new Array<string | null>();
-        headings.forEach(x => Object.keys(curr).includes(x) ? row.push(curr[x]) : row.push(null));
+        headings.forEach(x => Object.keys(curr).includes(x) ? row.push(curr[x]) : row.push(""));
         csv.push(row);
         return csv;
     }, new Array<Array<string | null>>());
