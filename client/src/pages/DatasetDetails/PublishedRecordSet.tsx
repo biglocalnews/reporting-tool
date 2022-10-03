@@ -26,6 +26,18 @@ interface IPublishedTarget {
     target: number
 }
 
+export interface IMungedPublishedRecordSetDocument {
+    Reporting_Period_End: string,
+    Name: string,
+    TAGS: string,
+    Gender_TARGET: number | string,
+    Gender_ACTUAL: number | string,
+    Ethnicity_TARGET: number | string,
+    Ethnicity_ACTUAL: number | string,
+    Disability_TARGET: number | string,
+    Disability_ACTUAL: number | string
+}
+
 export interface IPublishedRecordSetDocument {
     datasetName: string,
     datasetGroup: string,
@@ -141,6 +153,48 @@ export const exportCSV = (publishedRecordSets: ReadonlyArray<IPublishedRecordSet
 
     if (!filename) {
         filename = `${new Date(publishedRecordSets[0].begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(publishedRecordSets[publishedRecordSets.length - 1].end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`
+    }
+
+    downloadBlob(
+        csv,
+        `${filename}.csv`,
+        "text/csv");
+}
+
+export const exportCSVTwo = (mungedPublishedRecordSets: IMungedPublishedRecordSetDocument[] | undefined, filename: string | undefined): void => {
+    if (!mungedPublishedRecordSets) {
+        message.error("No Published Record sets");
+        return;
+    }
+
+    const csvArray = mungedPublishedRecordSets.
+        reduce((csv, prs) => {
+            csv.push(csvIse("", prs, {} as Record<string, string>));
+            return csv;
+        }, [] as Record<string, string>[]);
+
+    const headings = csvArray.reduce((keys, curr) => {
+        Object.keys(curr).forEach(x => x in keys || keys.add(x));
+        return keys;
+    }, new Set<string>());
+
+    const csvArrayCombined = csvArray.reduce((csv, curr, i) => {
+        i === 0 && csv.push(Array.from(headings));
+        const row = new Array<string | null>();
+        headings.forEach(x => Object.keys(curr).includes(x) ? row.push(curr[x]) : row.push(""));
+        csv.push(row);
+        return csv;
+    }, new Array<Array<string | null>>());
+
+    const csv = arrayToCsv(csvArrayCombined);
+
+    if (!csv) {
+        message.error("No data in published record sets");
+        return;
+    }
+
+    if (!filename) {
+        filename = `${mungedPublishedRecordSets.at(-1)?.Reporting_Period_End}`
     }
 
     downloadBlob(
@@ -333,7 +387,7 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
                 <Col span={2}>
                     <Button
                         type="primary"
-                        onClick={() => exportCSV([], `${document.datasetName}_${new Date(document.begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(document.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`)}
+                        onClick={() => exportCSVTwo([], `${document.datasetName}_${new Date(document.begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(document.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`)}
                     >{t("exportCSV")}</Button>
                 </Col>
             </Row>

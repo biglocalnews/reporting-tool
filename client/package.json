@@ -14,7 +14,7 @@
     "apollo": "^2.33.9",
     "axios": "^0.26.0",
     "axios-hooks": "^3.0.1",
-    "dayjs": "^1.10.4",
+    "dayjs": "^1.11.5",
     "graphql": "^15.5.0",
     "http-proxy-middleware": "^2.0.1",
     "i18next": "^19.9.1",

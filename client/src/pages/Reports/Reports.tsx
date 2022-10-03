@@ -11,7 +11,7 @@ import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPub
 import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalTypes";
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
 import Pie5050 from "../Charts/Pie";
-import { exportCSV, flattenPublishedDocumentEntries, IPublishedRecordSet, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
+import { exportCSVTwo, flattenPublishedDocumentEntries, IMungedPublishedRecordSetDocument, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
 import { LineColumn } from "../Charts/LineColumn";
 import { flattenChartData, groupedByMonthYearCategory, groupedByYearCategory } from "../../selectors/ChartData";
 import { useAuth } from "../../components/AuthProvider";
@@ -104,23 +104,45 @@ export const Reports = () => {
     }, [filteredByDate, filteredByDateMinusOne, filterState.tags, filterState.teams, filterState.datasetGroups]);
 
 
-
-    /*const chartData = useMemo(() => {
-        return filteredData[0]?.flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record)
-            .filter(x => !filterState.categories.length || filterState.categories.includes(x.category))
-            .map((r) => ({ ...r, date: new Date(x.end) } as IChartData))
-        )
-    }, [filterState.categories, filteredData]);*/
-
-    const chartData2 = useMemo(() => {
+    const chartData = useMemo(() => {
         return groupedByMonthYearCategory(filteredData[0], filterState.categories);
     }, [filterState.categories, filteredData]);
 
-    const flattenedChartData = useMemo(() => { return flattenChartData(chartData2) }, [chartData2]);
+    const flattenedChartData = useMemo(() => { return flattenChartData(chartData) }, [chartData]);
 
     const grouping = useMemo(() => {
         return groupedByYearCategory(filteredData) ?? [[]];
     }, [filteredData])
+
+    const mungedFilteredData = () =>
+        filteredData[0]?.
+            sort((a, b) => Math.round(new Date(a.end).valueOf() / 1000) - Math.round(new Date(b.end).valueOf() / 1000))
+            .reduce((x, curr) => {
+                const currentTarget = (category: string) => (curr.dataset?.program?.targets.find(x => x.category.name == category)?.target ?? 0) * 100;
+                const actual = (category: string) => prsDoc.record.Everyone && category in prsDoc.record.Everyone ? Object.values(prsDoc.record.Everyone[category].entries).filter(x => x.targetMember).reduce((sum, curr) => { return sum + curr.percent }, 0) : ""
+                const prsDoc = curr.document as IPublishedRecordSetDocument;
+                const formatDateTime = (x: string) => new Date(x).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions);
+                const row = {
+                    Reporting_Period_End: formatDateTime(curr.end),
+                    Name: prsDoc.datasetName,
+                    Group: prsDoc.datasetGroup,
+                    TAGS: prsDoc.datasetGroupTags.map(x => x.name).join(";"),
+                    TAGS_CURRENT: curr.dataset?.program?.tags.map(x => x.name).join(";"),
+                    Gender_TARGET: prsDoc.targets.find(x => x.category == "Gender")?.target ?? "",
+                    Gender_TARGET_CURRENT: currentTarget("Gender") || "",
+                    Gender_ACTUAL: actual("Gender"),
+                    Ethnicity_TARGET: prsDoc.targets.find(x => x.category == "Ethnicity")?.target ?? "",
+                    Ethnicity_TARGET_CURRENT: currentTarget("Ethnicity") || "",
+                    Ethnicity_ACTUAL: actual("Ethnicity"),
+                    Disability_TARGET: prsDoc.targets.find(x => x.category == "Disability")?.target ?? "",
+                    Disability_TARGET_CURRENT: currentTarget("Disability") || "",
+                    Disability_ACTUAL: actual("Disability")
+
+                }
+                x.push(row);
+                return x;
+            }, new Array<IMungedPublishedRecordSetDocument>());
+
 
     return <Space direction="vertical">
         <Row justify="center" gutter={[16, 16]}>
@@ -128,7 +150,7 @@ export const Reports = () => {
                 <PageHeader
                     title={t("reports.title")}
                     subTitle={t("reports.subtitle")}
-                    extra={<Button onClick={() => exportCSV(data?.publishedRecordSets as ReadonlyArray<IPublishedRecordSet>, undefined)} type="primary" shape="circle" icon={<DownloadOutlined />} />}
+                    extra={<Button onClick={() => exportCSVTwo(mungedFilteredData(), `${Object.values(filterState).filter(x => x && x.length).map(x => x.toString()).join("_")}`)} type="primary" shape="circle" icon={<DownloadOutlined />} />}
                 />
             </Col>
             <Col span={6}>

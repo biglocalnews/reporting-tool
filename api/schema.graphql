@@ -240,6 +240,7 @@ type PublishedRecordSet {
   begin: DateTime!
   end: DateTime!
   document: JSON
+  dataset: Dataset
 }
 
 type RecordSetDocument {

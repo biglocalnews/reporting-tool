@@ -8,6 +8,19 @@ export const GET_ALL_PUBLISHED_RECORD_SETS = gql`
       end
       document
       datasetId
+      dataset {
+        program {
+          tags {
+            name
+          }
+          targets {
+            category {
+              name
+            }
+            target
+          }
+        }
+      }      
     }
   }
 `;

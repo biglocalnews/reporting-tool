@@ -793,7 +793,7 @@ export const DataEntryTable = (props: IProps) => {
                                                                         onClick={() => setSelectedForRowInput(record)}
                                                                         onFocus={() => setSelectedForRowInput(record)}
                                                                     >
-                                                                        {dayjs(text).format("D MMM YYYY")}
+                                                                        {dayjs.utc(text).format("D MMM YYYY")}
                                                                     </div>
                                                                     return;
                                                                 },
