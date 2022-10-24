@@ -613,13 +613,7 @@ export const DataEntryTable = (props: IProps) => {
                                             <DatePicker
                                                 value={addRecordDatePicker}
                                                 onChange={(v) => v ? setAddRecordDatePicker(v) : setAddRecordDatePicker(undefined)}
-                                                format={(val) =>
-                                                    Intl.DateTimeFormat(window.navigator.language, {
-                                                        weekday: "short",
-                                                        year: "numeric",
-                                                        month: "short",
-                                                        day: "numeric",
-                                                    }).format(val.toDate())
+                                                format={(val) => dayjs.utc(val.toDate()).format("D MMM YYYY")
                                                 }
                                                 renderExtraFooter={() =>
                                                     <Radio.Group
@@ -681,7 +675,7 @@ export const DataEntryTable = (props: IProps) => {
                                                         }
                                                     })
                                                 }
-                                                const promises = [];
+                                                const promises: any[] = [];
                                                 for (let i = 0; i < noOfNewRecords; i++) {
                                                     promises.push(createRecordPromise());
                                                 }
@@ -776,11 +770,14 @@ export const DataEntryTable = (props: IProps) => {
                                                                         return <DatePicker
                                                                             aria-label={t("recordDate")}
                                                                             tabIndex={0}
-                                                                            value={moment(selectedForRowInput.date)}
-                                                                            onChange={(e) => e && setSelectedForRowInput({
-                                                                                ...record,
-                                                                                date: e.toISOString()
-                                                                            })}
+                                                                            value={moment.utc(selectedForRowInput.date)}
+                                                                            onChange={(e) => {
+                                                                                e && setSelectedForRowInput({
+                                                                                    ...record,
+                                                                                    date: e.toISOString()
+                                                                                }
+                                                                                )
+                                                                            }}
                                                                             onBlur={() => save()}
                                                                         />
                                                                     }

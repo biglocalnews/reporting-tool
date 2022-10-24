@@ -3,6 +3,9 @@ FROM node:16.13.2 AS builder
 RUN mkdir /client
 WORKDIR /client
 
+ARG NPM_TOKEN  
+COPY .npmrc .npmrc 
+
 COPY package.json package-lock.json ./
 RUN npm install
 

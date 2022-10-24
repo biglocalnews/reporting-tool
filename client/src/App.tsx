@@ -1,5 +1,5 @@
 import { Button, Divider, Empty, Layout } from "antd";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import { ErrorBoundary } from "./components/Error/ErrorBoundary";
@@ -24,8 +24,9 @@ import { Datasets } from "./pages/Datasets/Datasets";
 import { Reports } from "./pages/Reports/Reports";
 import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
-
 import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { ConfigKeys, Enums, EchoClient } from '@bbc/echo-client-js';
+
 
 
 function Redirecter(props: { from: string }) {
@@ -55,6 +56,7 @@ export const footerHeight = "48px";
  */
 function App() {
   const [sidebarCollapsed, setSidebarCollapse] = useState(false);
+
 
   const { t } = useTranslation();
   /**
@@ -224,32 +226,59 @@ function App() {
 
   }
 
+  const AnalyticsWrapper: React.FC = ({ children }) => {
+    const echo = useRef<EchoClient | undefined>();
+    const location = useLocation();
+
+    useEffect(() => {
+      if (!echo.current) {
+        const conf = {};
+        conf[ConfigKeys.DESTINATION] = Enums.Destinations.GATEWAY_TEST;
+        conf[ConfigKeys.PRODUCER] = Enums.Producers.NORTHERN_IRELAND;
+        const echoClient = new EchoClient('5050', Enums.ApplicationType.WEB, conf, null, () => {
+          echoClient.viewEvent(`bbcni.5050.${location.pathname}.page`);
+          echo.current = echoClient;
+        });
+        return;
+      }
+      echo.current.viewEvent(`bbcni.5050.${location.pathname}.page`);
+
+    }, [location]);
+
+    return <>
+      {children}
+    </>
+
+  }
+
 
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<WrappedPrivate />}>
-            <Route index element={<Home />} />
-            <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
-            <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
-            <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
-            <Route path="reports" element={<Reports />} />
-          </Route>
-          <Route path="/admin/" element={<WrappedPrivateAdmin />}>
-            <Route path="users" element={<UserList />} />
-            <Route path="users/:userId" element={<EditUser />} />
-            <Route path="teams" element={<TeamList />} />
-            <Route path="teams/:teamId" element={<EditTeam />} />
-            <Route path="programs" element={<ProgramList />} />
-            <Route path="programs/:programId" element={<EditProgram />} />
-            <Route path="tags" element={<EditTags />} />
-            <Route path="datasets" element={<Datasets />} />
-            <Route path="reports" element={<AdminReports />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AnalyticsWrapper>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<WrappedPrivate />}>
+              <Route index element={<Home />} />
+              <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
+              <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
+              <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
+              <Route path="reports" element={<Reports />} />
+            </Route>
+            <Route path="/admin/" element={<WrappedPrivateAdmin />}>
+              <Route path="users" element={<UserList />} />
+              <Route path="users/:userId" element={<EditUser />} />
+              <Route path="teams" element={<TeamList />} />
+              <Route path="teams/:teamId" element={<EditTeam />} />
+              <Route path="programs" element={<ProgramList />} />
+              <Route path="programs/:programId" element={<EditProgram />} />
+              <Route path="tags" element={<EditTags />} />
+              <Route path="datasets" element={<Datasets />} />
+              <Route path="reports" element={<AdminReports />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnalyticsWrapper>
       </BrowserRouter>
     </Suspense>
   );

@@ -13,7 +13,7 @@ curl -SL https://github.com/docker/compose/releases/download/v2.6.1/docker-compo
 chmod +x $COMPOSE
 #fi
 
-docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.haproxy.yml  -p 5050 build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.haproxy.yml  -p 5050 build --build-arg NPM_TOKEN=${NPM_TOKEN}
 
 docker push 5050.ni.bbc.co.uk:8443/5050-api-dev
 docker push 5050.ni.bbc.co.uk:8443/5050-client-dev

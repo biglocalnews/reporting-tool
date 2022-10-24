@@ -136,3 +136,7 @@ data/
 # Vim swapfiles
 *.swp
 *.swo
+
+*.dump
+.VSCodeCounter
+*.csv
