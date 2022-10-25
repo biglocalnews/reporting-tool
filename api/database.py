@@ -947,3 +947,21 @@ class Cache(Base, PermissionsMixin):
 
     id = Column(String(255), primary_key=True, index=True)
     document = Column(JSONB)
+
+
+def create_tables(session):
+    """Initialize the database with tables and objects.
+
+    :param session: Database session
+    """
+    print("🍽  Creating tables ...")
+    engine = session.bind
+    Base.metadata.create_all(engine)
+
+    # Default roles
+    session.add(Role(
+        id="be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
+        name="admin",
+        description="User is an admin and has administrative privileges"))
+
+    session.commit()

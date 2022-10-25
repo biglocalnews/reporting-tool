@@ -16,8 +16,6 @@ COPY requirements.txt requirements.txt
 
 RUN pip3 install -r requirements.txt
 
-ENV rt_debug False
-
 COPY . .
 
 EXPOSE 8000
