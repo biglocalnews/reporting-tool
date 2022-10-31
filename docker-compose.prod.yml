@@ -6,6 +6,8 @@ services:
     networks:
       - haproxy-network
   deploy:
+    mode: global
+    endpoint_mode: dnsrr
     placement:
       constraints:
         - "node.labels.storage==true"

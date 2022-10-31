@@ -13,9 +13,6 @@ services:
       - private
     depends_on:
       - api
-    deploy:
-      mode: global
-      endpoint_mode: dnsrr
     logging:
       driver: "awslogs"
       options:
