@@ -5,12 +5,6 @@ services:
     image: 5050.ni.bbc.co.uk:8443/5050-client-prod:latest
     networks:
       - haproxy-network
-  deploy:
-    mode: global
-    endpoint_mode: dnsrr
-    placement:
-      constraints:
-        - "node.labels.storage==true"
   api:
     image: 5050.ni.bbc.co.uk:8443/5050-api-prod:latest
     environment:
