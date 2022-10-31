@@ -109,6 +109,7 @@ type Program @needsPermission(permission: [ADMIN, TEAM_MEMBER]) {
   targets: [Target!]!
   tags: [Tag!]!
   deleted: DateTime
+  importedId: Int
 }
 
 type Tag {

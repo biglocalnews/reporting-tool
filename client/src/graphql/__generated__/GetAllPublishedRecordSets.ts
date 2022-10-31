@@ -27,6 +27,7 @@ export interface GetAllPublishedRecordSets_publishedRecordSets_dataset_program_t
 
 export interface GetAllPublishedRecordSets_publishedRecordSets_dataset_program {
   readonly __typename: "Program";
+  readonly importedId: number | null;
   readonly tags: ReadonlyArray<GetAllPublishedRecordSets_publishedRecordSets_dataset_program_tags>;
   readonly targets: ReadonlyArray<GetAllPublishedRecordSets_publishedRecordSets_dataset_program_targets>;
 }

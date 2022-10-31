@@ -123,6 +123,7 @@ export const Reports = () => {
                 const prsDoc = curr.document as IPublishedRecordSetDocument;
                 const formatDateTime = (x: string) => new Date(x).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions);
                 const row = {
+                    Imported_Id: curr.dataset?.program?.importedId,
                     Reporting_Period_End: formatDateTime(curr.end),
                     Name: prsDoc.datasetName,
                     Group: prsDoc.datasetGroup,

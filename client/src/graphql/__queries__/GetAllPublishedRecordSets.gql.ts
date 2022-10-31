@@ -10,6 +10,7 @@ export const GET_ALL_PUBLISHED_RECORD_SETS = gql`
       datasetId
       dataset {
         program {
+          importedId
           tags {
             name
           }
