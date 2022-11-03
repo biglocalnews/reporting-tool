@@ -157,7 +157,7 @@ seed_admins = [
 ]
 
 
-@app.get("/login")
+@app.get("/sso")
 async def login(request: Request):
     form = await request.form()
     req = build_saml_req(

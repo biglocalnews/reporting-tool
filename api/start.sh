@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 export HTTP_PROXY=
 export HTTPS_PROXY=
