@@ -125,22 +125,8 @@ def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)
     }
 
 
-"""
-idp_data = OneLogin_Saml2_IdPMetadataParser.parse_remote(
-    "https://gateway.id.tools.bbc.co.uk/.well-known/saml-metadata", timeout=5
-)
-with open("saml_settings.prod.json", "w") as saml_settings:
-    saml_settings.write(json.dumps(idp_data))
-"""
-
-
 def init_saml_auth(req):
-    # idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
-    # idp_data["sp"]["assertionConsumerService"] = {}
-    # idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
-    with open("saml_settings.prod.json", "r") as saml_settings:
-        idp_data = json.loads(saml_settings.read())
-    return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
+    return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(settings.saml))
 
 
 def build_saml_req(host, path, query_params, post_data):
@@ -171,11 +157,11 @@ seed_admins = [
 ]
 
 
-@app.get("/bbc-login")
-async def bbc_login(request: Request):
+@app.get("/login")
+async def login(request: Request):
     form = await request.form()
     req = build_saml_req(
-        "5050.ni.bbc.co.uk",
+        settings.host,
         request.url.path,
         request.query_params,
         form,
@@ -190,7 +176,7 @@ async def acs(request: Request, status_code=200):
     try:
         form = await request.form()
         req = build_saml_req(
-            "5050.ni.bbc.co.uk",
+            settings.host,
             request.url.path,
             request.query_params,
             form,

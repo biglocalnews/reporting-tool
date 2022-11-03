@@ -30,6 +30,9 @@ services:
       - source: api-env
         target: /app/.env
         mode: 0400
+      - source: saml
+        target: /run/secrets/rt_saml
+        mode: 0400
     depends_on:
       - db
 
@@ -112,6 +115,9 @@ secrets:
   # is checked into the repo and not secure; replace in production.
   app-secret:
     file: ./secrets/app-secret.dev
+  # File containing SAML configuration.
+  saml:
+    file: ./secrets/saml.json.dev
   # File containing environment for the API. These override the settings given
   # in ./api/settings.py. The example .env file given here has more info about
   # how these overrides work.

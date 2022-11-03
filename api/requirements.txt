@@ -47,7 +47,6 @@ python-multipart==0.0.5
 python3-saml==1.11.0
 PyYAML==5.4.1
 requests==2.25.1
-requests-kerberos
 requests-ntlm
 six==1.15.0
 SQLAlchemy==1.4
