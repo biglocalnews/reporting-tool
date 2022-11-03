@@ -1,5 +1,7 @@
 node_modules/
 Dockerfile
 build/
+src/__tests__/
+src/graphql/__mocks__/
 .eslintrc.js
 .prettierc.js

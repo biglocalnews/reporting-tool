@@ -12,7 +12,6 @@ import { tick } from "./utils";
 it("allows user to configure app on the first time", async () => {
   const { auth } = mockBlankSlate();
   await auth.init();
-  let navigate = createMemoryHistory();
   history.replace("/anywhere/but/home");
 
   await tick();

@@ -31,7 +31,7 @@ import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, Ques
 function Redirecter(props: { from: string }) {
   useEffect(() => {
     console.log(props.from);
-    window.location.href = `/api/login`;
+    window.location.href = `/api/sso`;
   });
   return <React.Fragment />;
 }

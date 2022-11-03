@@ -99,6 +99,8 @@ const MainApp = () => {
 };
 
 if (process.env.NODE_ENV !== "production") {
+  // eslint-disable @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   import("@axe-core/react").then((axe) => {
     axe.default(React, ReactDOM, 1000);
     ReactDOM.render(<MainApp />, document.getElementById("root"));
