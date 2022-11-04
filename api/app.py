@@ -1,19 +1,15 @@
+from typing import cast
 import json
 import logging
 from uuid import uuid4
-from onelogin.saml2.settings import OneLogin_Saml2_Settings
-from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
-from starlette.responses import RedirectResponse
-import uvicorn
-
 import datetime
 
+from starlette.responses import RedirectResponse
+import uvicorn
 from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
 import dateutil.parser
-from typing import cast
 from sqlalchemy.orm import Session
-
 from ariadne import (
     load_schema_from_path,
     make_executable_schema,
@@ -22,6 +18,7 @@ from ariadne import (
 )
 from ariadne.asgi import GraphQL
 
+from saml import get_saml_auth, dev_saml_idp
 from connection import connection
 from seed import is_blank_slate
 from database import Organization, User, Role
@@ -33,7 +30,7 @@ import user
 import directives
 import monitoring
 
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
+
 
 app = FastAPI(
     debug=settings.debug,
@@ -125,23 +122,7 @@ def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)
     }
 
 
-def init_saml_auth(req):
-    return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(settings.saml))
 
-
-def build_saml_req(host, path, query_params, post_data):
-    return {
-        "http_host": host,
-        "script_name": "/",
-        "get_data": query_params,
-        "post_data": post_data,
-        # Advanced request options
-        "https": "on" if not host.startswith('localhost') else "off",
-        # "request_uri": "",
-        "query_string": "",
-        "validate_signature_from_qs": False,
-        "lowercase_urlencoding": False,
-    }
 
 
 seed_admins = [
@@ -158,31 +139,14 @@ seed_admins = [
 
 
 @app.get("/sso")
-async def login(request: Request):
-    form = await request.form()
-    req = build_saml_req(
-        settings.host,
-        request.url.path,
-        request.query_params,
-        form,
-    )
-    auth = init_saml_auth(req)
+async def login(request: Request, auth = Depends(get_saml_auth)):
     redirect = auth.login()
     return RedirectResponse(redirect)
 
 
 @app.post("/acs")
-async def acs(request: Request, status_code=200):
+async def acs(request: Request, auth = Depends(get_saml_auth), status_code=200):
     try:
-        form = await request.form()
-        req = build_saml_req(
-            settings.host,
-            request.url.path,
-            request.query_params,
-            form,
-        )
-
-        auth = init_saml_auth(req)
         auth.process_response()
 
         errors = auth.get_errors()
@@ -203,7 +167,7 @@ async def acs(request: Request, status_code=200):
         username = auth.get_nameid().lower()
         from onelogin.saml2.xmlparser import tostring
         logging.info(f"{username} successfully authenticated")
-        samlUserdata = auth.get_friendlyname_attributes()
+        samlUserdata = auth.get_attributes()
         print('USER DATA', username, samlUserdata)
         print("EMAIL ADDRESS", samlUserdata['mail'])
 
@@ -214,7 +178,7 @@ async def acs(request: Request, status_code=200):
 
         email = samlUserdata["mail"][0]
         preferred_name = samlUserdata["givenName"][0]
-        last_name = samlUserdata["sn"][0]
+        last_name = samlUserdata["surname"][0]
 
         dbsession = request.scope.get("dbsession")
 
@@ -393,8 +357,8 @@ async def get_context(request: Request):
 app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
 
-def home():
-    return "Ahh!! Aliens!"
+if settings.debug:
+    app.mount("/__dev__/saml", dev_saml_idp)
 
 
 if __name__ == "__main__":
