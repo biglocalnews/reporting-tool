@@ -1,4 +1,7 @@
+import os
+
 from pydantic import BaseModel, BaseSettings
+
 
 
 class SmtpSettings(BaseModel):
@@ -94,9 +97,9 @@ class Settings(BaseSettings):
 
     app_account_pw: str = ""
 
-    secret: str = "shhhhhh its a secret"
+    app_secret: str = "shhhhhh its a secret"
 
-    host: str = "rt-dev.biglocalnews.stanford.edu"
+    host: str = "localhost:3000"
     saml: dict = {}
 
     # Whether to send cookies over HTTPS only. This should generally be turned
@@ -106,7 +109,7 @@ class Settings(BaseSettings):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        secrets_dir = "/run/secrets"
+        secrets_dir = os.getenv("RT_SECRETS_DIR", "/run/secrets")
         env_file = ".env"
         env_file_encoding = "utf-8"
         env_prefix = "rt_"

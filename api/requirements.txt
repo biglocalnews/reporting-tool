@@ -1,7 +1,7 @@
 aiosmtplib==1.1.6
 alembic==1.7.5
 ariadne==0.13.0
-asyncpg==0.22.0
+asyncpg==0.27.0
 attrs==19.3.0
 bcrypt==3.2.0
 certifi==2021.5.30
@@ -44,7 +44,7 @@ pytest==6.2.4
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 python-multipart==0.0.5
-python3-saml==1.11.0
+python3-saml==1.14.0
 PyYAML==5.4.1
 requests==2.25.1
 requests-ntlm

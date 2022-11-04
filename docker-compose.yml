@@ -110,14 +110,14 @@ secrets:
   #
   # Note that the postgres user is `postgres`; this is not configurable.
   db-password:
-    file: ./secrets/db-password.dev
+    file: ./secrets/rt_db_pw
   # File containing application secret used for signing cookies. The default
   # is checked into the repo and not secure; replace in production.
   app-secret:
-    file: ./secrets/app-secret.dev
+    file: ./secrets/rt_app_secret
   # File containing SAML configuration.
   saml:
-    file: ./secrets/saml.json.dev
+    file: ./secrets/rt_saml
   # File containing environment for the API. These override the settings given
   # in ./api/settings.py. The example .env file given here has more info about
   # how these overrides work.

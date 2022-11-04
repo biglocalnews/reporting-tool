@@ -96,7 +96,7 @@ app.include_router(
 )
 app.include_router(
     user.fastapi_users.get_reset_password_router(
-        settings.secret, after_forgot_password=on_after_forgot_password
+        settings.app_secret, after_forgot_password=on_after_forgot_password
     ),
     prefix="/auth",
     tags=["auth"],
@@ -104,7 +104,7 @@ app.include_router(
 
 app.include_router(
     user.fastapi_users.get_verify_router(
-        settings.secret,
+        settings.app_secret,
         after_verification_request=after_verification_request,
         after_verification=after_verify,
     ),
@@ -136,7 +136,7 @@ def build_saml_req(host, path, query_params, post_data):
         "get_data": query_params,
         "post_data": post_data,
         # Advanced request options
-        "https": "on",
+        "https": "on" if not host.startswith('localhost') else "off",
         # "request_uri": "",
         "query_string": "",
         "validate_signature_from_qs": False,
@@ -200,51 +200,42 @@ async def acs(request: Request, status_code=200):
         if not auth.is_authenticated():
             raise HTTPException(status_code=401, detail="Not authenticated")
 
-        bbc_username = auth.get_nameid().lower()
-        logging.info(f"{bbc_username} successfully authenticated")
-        samlUserdata = auth.get_attributes()
+        username = auth.get_nameid().lower()
+        from onelogin.saml2.xmlparser import tostring
+        logging.info(f"{username} successfully authenticated")
+        samlUserdata = auth.get_friendlyname_attributes()
+        print('USER DATA', username, samlUserdata)
+        print("EMAIL ADDRESS", samlUserdata['mail'])
 
         if (
-            not "email" in samlUserdata
-            or not "bbcPreferredName" in samlUserdata
-            or not "bbcLastName" in samlUserdata
+            not "mail" in samlUserdata
         ):
             raise HTTPException(status_code=500, detail="Unexpected SAML response")
 
-        bbc_email = (
-            samlUserdata["email"][0]
-            if samlUserdata["email"]
-            else f"{bbc_username}@onebbc.mail.onmicrosoft.com"
-        )
-        bbc_preferred_name = (
-            samlUserdata["bbcPreferredName"][0]
-            if samlUserdata["bbcPreferredName"]
-            else bbc_username
-        )
-        bbc_last_name = (
-            samlUserdata["bbcLastName"][0] if samlUserdata["bbcLastName"] else ""
-        )
+        email = samlUserdata["mail"][0]
+        preferred_name = samlUserdata["givenName"][0]
+        last_name = samlUserdata["sn"][0]
 
         dbsession = request.scope.get("dbsession")
 
         if not dbsession:
             raise HTTPException(status_code=500, detail="No dbsession found")
 
-        bbc_db_user = User.get_by_username(session=dbsession, username=bbc_username)
+        bbc_db_user = User.get_by_username(session=dbsession, username=username)
 
         if not bbc_db_user:
             new_id = uuid4()
             bbc_db_user = User(
                 id=new_id,
-                username=bbc_username,
-                email=bbc_email,
+                username=username,
+                email=email,
                 hashed_password=uuid4(),
-                first_name=bbc_preferred_name,
-                last_name=bbc_last_name,
+                first_name=preferred_name,
+                last_name=last_name,
                 last_changed_password=datetime.datetime.now(),
                 last_login=datetime.datetime.now(),
             )
-            if bbc_username in seed_admins:
+            if username in seed_admins:
                 admin = dbsession.query(Role).get(
                     "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
                 )

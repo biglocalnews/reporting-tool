@@ -17,8 +17,8 @@ Before you begin, ensure you have met the following requirements:
 ### Running a docker instance of postgresql for dev
 
 ```bash
-docker run -v /home/me/.postgres_pass:/run/secrets/5050_db_pass\
- -e POSTGRES_PASSWORD_FILE=/run/secrets/5050_db_pass \
+docker run -v "`git rev-parse --show-toplevel`/secrets/PGPASSFILE.dev:/run/secrets/rt_db_pass"\
+ -e POSTGRES_PASSWORD_FILE=/run/secrets/rt_db_pass \
  -e POSTGRES_DB=rt \
  -p 5432:5432 \
  -it postgres:13.2
@@ -54,6 +54,13 @@ source venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
+```
+
+**NOTE** On Apple M1 processors, `openssl` is installed in a directory that `psycopg2` has trouble finding.
+You will have to set the paths explicitly to install:
+
+```bash
+env LDFLAGS="-I/opt/homebrew/opt/openssl/include -L/opt/homebrew/opt/openssl/lib"
 ```
 
 🏁 start your new shiny server
