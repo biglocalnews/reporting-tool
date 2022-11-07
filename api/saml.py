@@ -12,8 +12,7 @@ from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from lxml import etree
 
 from settings import settings
-
-
+from templates import templates
 
 
 
@@ -100,93 +99,38 @@ def _encode_saml_resp(raw: etree.Element):
     return OneLogin_Saml2_Utils.b64encode(s)
 
 
-@dev_saml_idp.get("/sso")
+@dev_saml_idp.get("/sso", response_class=HTMLResponse)
 def get_sso(request: Request):
+    """For local development, mock out a SAML SSO form."""
     xml = _decode_saml_req(request.query_params.get('SAMLRequest'))
-    print(etree.tostring(xml))
     acs = xml.get('AssertionConsumerServiceURL'),
     if not acs:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="missing acs")
     id_ = xml.get('ID')
-    return HTMLResponse("""
-    <html>
-        <body>
-            <form name="login" action="/api/__dev__/saml/login" method="POST">
-                <input type="hidden" name="acs" value="{acs}" />
-                <input type="hidden" name="id" value="{id_}" />
-                <div>
-                    <input type="text" name="nameId" value="test_user" />
-                </div>
-                <div>
-                    <input type="text" name="givenName" value="Lactarius" />
-                    <input type="text" name="surname" value="Rubidus" />
-                </div>
-                <div>
-                    <input type="text" name="email" value="test@rt.dev" />
-                </div>
-                <div>
-                    <input type="submit" value="log in" />
-                </div>
-            </form>
-        </body>
-    </html>
-    """.format(acs=acs[0], id_=id_[0]))
+    return templates.TemplateResponse("saml_dev_sso.html", {
+        'request': request,
+        'acs': acs[0],
+        'id': id_[0],
+        })
 
 
 @dev_saml_idp.post("/login")
 async def post_login(request: Request):
+    """For local development, mock a POST-redirect to the home page."""
     form = await request.form()
-    assertion = """
-  <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="{uid}" Version="2.0" IssueInstant="2014-07-17T01:01:48Z">
-    <saml:Issuer>{issuer}</saml:Issuer>
-    <saml:Subject>
-      <saml:NameID SPNameQualifier="{sp}" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">{name_id}</saml:NameID>
-      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-        <saml:SubjectConfirmationData NotOnOrAfter="{not_after}" Recipient="{acs}" InResponseTo="{id_}"/>
-      </saml:SubjectConfirmation>
-    </saml:Subject>
-    <saml:Conditions NotBefore="{not_before}" NotOnOrAfter="{not_after}">
-      <saml:AudienceRestriction>
-        <saml:Audience>{sp}</saml:Audience>
-      </saml:AudienceRestriction>
-    </saml:Conditions>
-    <saml:AuthnStatement AuthnInstant="{not_before}" SessionNotOnOrAfter="{not_after}" SessionIndex="_be9967abd904ddcae3c0eb4189adbe3f71e327cf93">
-      <saml:AuthnContext>
-        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>
-      </saml:AuthnContext>
-    </saml:AuthnStatement>
-    <saml:AttributeStatement>
-      <saml:Attribute Name="uid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue xsi:type="xs:string">{name_id}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="mail" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue xsi:type="xs:string">{email}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="givenName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue xsi:type="xs:string">{given_name}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue xsi:type="xs:string">{surname}</saml:AttributeValue>
-      </saml:Attribute>
-      <saml:Attribute Name="roles" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-        <saml:AttributeValue xsi:type="xs:string">admin</saml:AttributeValue>
-        <saml:AttributeValue xsi:type="xs:string">staff</saml:AttributeValue>
-      </saml:Attribute>
-    </saml:AttributeStatement>
-  </saml:Assertion>
-    """.format(
-            id_=form['id'],
-            uid=OneLogin_Saml2_Utils.generate_unique_id(),
-            name_id=form['nameId'],
-            acs=form['acs'],
-            given_name=form['givenName'],
-            surname=form['surname'],
-            issuer=settings.saml['idp']['entityId'],
-            sp=settings.saml['sp']['entityId'],
-            not_before=datetime.utcnow().isoformat() + 'Z',
-            not_after=(datetime.utcnow() + timedelta(minutes=5)).isoformat() + 'Z',
-            email=form['email'],
-            )
+    assertion = templates.get_template("saml_dev_assertion.xml").render({
+        'id_': form['id'],
+        'uid': OneLogin_Saml2_Utils.generate_unique_id(),
+        'name_id': form['nameId'],
+        'acs': form['acs'],
+        'given_name': form['givenName'],
+        'surname': form['surname'],
+        'issuer': settings.saml['idp']['entityId'],
+        'sp': settings.saml['sp']['entityId'],
+        'not_before': datetime.utcnow().isoformat() + 'Z',
+        'not_after': (datetime.utcnow() + timedelta(minutes=5)).isoformat() + 'Z',
+        'email': form['email'],
+        })
 
     # Sign the assertion
     signed_assertion = OneLogin_Saml2_Utils.add_sign(assertion,
@@ -194,39 +138,17 @@ async def post_login(request: Request):
             settings.saml['idp']['x509cert'],
             debug=True)
 
-    full_resp = """
-    <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="{uid}" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="{acs}" InResponseTo="{id_}">
-      <saml:Issuer>{issuer}</saml:Issuer>
-      <samlp:Status>
-        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-      </samlp:Status>
-      {assertion}
-    </samlp:Response>
-    """.format(
-        id_=form['id'],
-        uid=OneLogin_Saml2_Utils.generate_unique_id(),
-        issuer=settings.saml['idp']['entityId'],
-        acs=form['acs'],
-        assertion=signed_assertion.decode('utf-8'),
-        )
+    full_resp = templates.get_template("saml_dev_response.xml").render({
+        'id_': form['id'],
+        'uid': OneLogin_Saml2_Utils.generate_unique_id(),
+        'issuer': settings.saml['idp']['entityId'],
+        'acs': form['acs'],
+        'assertion': signed_assertion.decode('utf-8'),
+        })
 
-    print("RESP==\n\n", full_resp, "\n\n")
-
-    return HTMLResponse("""
-    <html>
-        <body>
-            <form name="saml" action="{acs}" method="POST">
-                <input type="hidden" name="SAMLResponse" value="{content}" />
-                <input type="hidden" name="RelayState" value="{dest}" />
-            </form>
-            <script type="text/javascript">
-                document.forms[0].submit();
-            </script>
-        </body>
-    </html>
-    """.format(
-            acs=form['acs'],
-            content=_encode_saml_resp(etree.fromstring(full_resp)),
-            dest="",
-            ))
-
+    return templates.TemplateResponse("saml_dev_redirect.html", {
+        'request': request,
+        'acs': form['acs'],
+        'content': _encode_saml_resp(etree.fromstring(full_resp)),
+        'dest': '',
+        })

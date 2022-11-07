@@ -1,0 +1,21 @@
+<html>
+  <body>
+    <form name="login" action="/api/__dev__/saml/login" method="POST">
+      <input type="hidden" name="acs" value="{{ acs }}" />
+      <input type="hidden" name="id" value="{{ id }}" />
+      <div>
+        <input type="text" name="nameId" value="test_user" />
+      </div>
+      <div>
+        <input type="text" name="givenName" value="Lactarius" />
+        <input type="text" name="surname" value="Rubidus" />
+      </div>
+      <div>
+        <input type="text" name="email" value="test@rt.dev" />
+      </div>
+      <div>
+        <input type="submit" value="log in" />
+      </div>
+    </form>
+  </body>
+</html>
