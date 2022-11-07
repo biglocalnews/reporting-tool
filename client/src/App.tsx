@@ -1,5 +1,5 @@
 import { Button, Divider, Empty, Layout } from "antd";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import { ErrorBoundary } from "./components/Error/ErrorBoundary";
@@ -27,14 +27,6 @@ const { Footer, Content } = Layout;
 
 import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleTwoTone } from "@ant-design/icons";
 
-
-function Redirecter(props: { from: string }) {
-  useEffect(() => {
-    console.log(props.from);
-    window.location.href = `/api/sso`;
-  });
-  return <React.Fragment />;
-}
 
 const NotFound = () => {
   const { t } = useTranslation();
@@ -182,10 +174,7 @@ function App() {
     const auth = useAuth();
     const { t } = useTranslation();
     if (!auth.isLoggedIn()) {
-      if (process.env.NODE_ENV !== "production") {
-        return <Navigate to="/login" state={{ from: location }} />
-      }
-      return <Redirecter from={location.pathname} />
+      return <Navigate to="/login" state={{ from: location }} />
     }
     return <ProtectedAppContainer>
       <ErrorBoundary>
@@ -206,10 +195,7 @@ function App() {
     const location = useLocation();
     const auth = useAuth();
     if (!auth.isLoggedIn()) {
-      if (process.env.NODE_ENV !== "production") {
-        return <Navigate to="/login" state={{ from: location }} />
-      }
-      return <Redirecter from={location.pathname} />
+      return <Navigate to="/login" state={{ from: location }} />
     }
     return <ProtectedAppContainer>
       <ErrorBoundary>

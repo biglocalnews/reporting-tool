@@ -299,7 +299,6 @@ app.include_router(
     users_router,
     prefix="/users",
     tags=["users"],
-    dependencies=[Depends(blank_slate)],
 )
 
 

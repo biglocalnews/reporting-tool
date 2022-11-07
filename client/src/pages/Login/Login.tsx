@@ -1,3 +1,4 @@
+import {useEffect} from 'react';
 import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +32,18 @@ export const Login = () => {
   const [resettingPassword, setResettingPassword] = useState(false);
   const [forgotPasswordForm] = Form.useForm<{ email: string }>();
   const [loginForm] = Form.useForm<{ email: string; password: string }>();
+
+  // Force a redirect to the correct login page, which might e the SSO route.
+  const needsRedirect = auth.loginPath !== window.location.pathname;
+  useEffect(() => {
+    if (needsRedirect) {
+      window.location.pathname = auth.loginPath;
+    }
+  }, [needsRedirect]);
+
+  if (needsRedirect) {
+    return null;
+  }
 
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);

@@ -62,6 +62,14 @@ export class Auth {
   public initState: AuthInitState = "created";
 
   /**
+   * Custom route to use for logging in.
+   *
+   * XXX: Currently this is hardcoded to use the SSO method. We aren't currently
+   * supporting the native log-in mechanism.
+   */
+  public loginPath = "/api/sso";
+
+  /**
    * Initialization request. This is cached so that calls to `init` are
    * idempotent. Call `reset` to clear it.
    */
