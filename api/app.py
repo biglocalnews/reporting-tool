@@ -1,15 +1,17 @@
 from typing import cast
 import json
 import logging
-from uuid import uuid4
 import datetime
+import urllib
+from uuid import uuid4
 
-from starlette.responses import RedirectResponse
-import uvicorn
+from starlette.responses import RedirectResponse, HTMLResponse
 from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
-import dateutil.parser
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
+import uvicorn
+import dateutil.parser
 from ariadne import (
     load_schema_from_path,
     make_executable_schema,
@@ -18,9 +20,10 @@ from ariadne import (
 )
 from ariadne.asgi import GraphQL
 
-from saml import get_saml_auth, dev_saml_idp
+from saml import get_saml_auth, dev_saml_idp, get_saml_userdata
+from templates import templates
 from connection import connection
-from seed import is_blank_slate
+from seed import is_blank_slate, init_db
 from database import Organization, User, Role
 from queries import queries
 from mutations import mutation
@@ -39,6 +42,22 @@ app = FastAPI(
     # easier in testing.
     get_db_session=connection,
 )
+
+
+async def blank_slate(request: Request):
+    """Check if the app is configured correctly.
+
+    Use this as a dependency for entry routes so that the user is not allowed
+    to do anything until essential configuration is completed.
+    """
+    # TODO - redirect to Org config page
+    if is_blank_slate(request.scope.get("dbsession")):
+        q = urllib.parse.urlencode({'relay': '/'})
+        raise HTTPException(
+                status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                headers={
+                    'Location': f'/api/config?{q}',
+                    })
 
 
 async def on_after_register(user: user.UserDBModel, request: Request):
@@ -110,6 +129,31 @@ app.include_router(
 )
 
 
+@app.get("/config", response_class=HTMLResponse)
+def get_new_app_config(request: Request):
+    """Render form to configure app."""
+    return templates.TemplateResponse("setup.html", {
+        'request': request,
+        'relay': request.query_params.get('relay', '/'),
+        })
+
+
+@app.post("/config")
+async def post_new_app_config(request: Request):
+    """Instantiate application."""
+    session = request.scope.get("dbsession")
+    if not is_blank_slate(session):
+        raise HTTPException(status_code=400,
+                detail="App has already been configured.")
+
+    data = await request.form()
+    session.add(Organization(id=uuid4(), name=data['organization']))
+    session.commit()
+    relay = data.get('relay', '/')
+    return RedirectResponse(url=relay, status_code=status.HTTP_302_FOUND)
+
+
+
 @app.get("/reset-my-password")
 def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)):
     """Get a token to reset one's own password."""
@@ -122,30 +166,18 @@ def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)
     }
 
 
-
-
-
-seed_admins = [
-    "cobair01",
-    "joannl01",
-    "webers02",
-    "lismoc01",
-    "brownc09",
-    "khany88",
-    "oconnk11",
-    "wrighg24",
-    "weberd01",
-]
-
-
-@app.get("/sso")
+@app.get("/sso", dependencies=[Depends(blank_slate)])
 async def login(request: Request, auth = Depends(get_saml_auth)):
     redirect = auth.login()
     return RedirectResponse(redirect)
 
 
 @app.post("/acs")
-async def acs(request: Request, auth = Depends(get_saml_auth), status_code=200):
+async def acs(request: Request, auth=Depends(get_saml_auth), status_code=200):
+    """Auth consumer service endpoint.
+
+    This handles the response from SAML to interpret the auth info.
+    """
     try:
         auth.process_response()
 
@@ -164,57 +196,51 @@ async def acs(request: Request, auth = Depends(get_saml_auth), status_code=200):
         if not auth.is_authenticated():
             raise HTTPException(status_code=401, detail="Not authenticated")
 
-        username = auth.get_nameid().lower()
-        from onelogin.saml2.xmlparser import tostring
-        logging.info(f"{username} successfully authenticated")
-        samlUserdata = auth.get_attributes()
-        print('USER DATA', username, samlUserdata)
-        print("EMAIL ADDRESS", samlUserdata['mail'])
+        try:
+            userdata = get_saml_userdata(auth)
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
-        if (
-            not "mail" in samlUserdata
-        ):
-            raise HTTPException(status_code=500, detail="Unexpected SAML response")
-
-        email = samlUserdata["mail"][0]
-        preferred_name = samlUserdata["givenName"][0]
-        last_name = samlUserdata["surname"][0]
+        logging.info(f"{userdata.username} successfully authenticated")
 
         dbsession = request.scope.get("dbsession")
 
         if not dbsession:
             raise HTTPException(status_code=500, detail="No dbsession found")
 
-        bbc_db_user = User.get_by_username(session=dbsession, username=username)
+        db_user = User.get_by_username(
+                session=dbsession,
+                username=userdata.username)
 
-        if not bbc_db_user:
+        if not db_user:
             new_id = uuid4()
-            bbc_db_user = User(
+            db_user = User(
                 id=new_id,
-                username=username,
-                email=email,
-                hashed_password=uuid4(),
-                first_name=preferred_name,
-                last_name=last_name,
+                username=userdata.username,
+                email=userdata.email,
+                hashed_password=uuid4(), # TODO - CHANGE THIS
+                first_name=userdata.first_name,
+                last_name=userdata.last_name,
                 last_changed_password=datetime.datetime.now(),
                 last_login=datetime.datetime.now(),
             )
-            if username in seed_admins:
+            # TODO - REWRITE TO LOOKUP FOR REAL
+            if "admin" in userdata.roles:
                 admin = dbsession.query(Role).get(
                     "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
                 )
-                bbc_db_user.roles.append(admin)
-            dbsession.add(bbc_db_user)
+                db_user.roles.append(admin)
+            dbsession.add(db_user)
             dbsession.commit()
-        # redirect_url = (
-        #    req["post_data"]["RelayState"] if "RelayState" in req["post_data"] else "/"
-        # )
-        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-        logging.info(str(bbc_db_user.id))
+
+        # Issue redirect to complete the relay. If no relay is defined, send
+        # the user to the home page.
+        redirect_url = auth._request_data.get('post_data', {}).get('RelayState', '/')
+        response = RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie(
             key="rtauth",
             value=user.get_valid_token(
-                "fastapi-users:auth", user_id=str(bbc_db_user.id)
+                "fastapi-users:auth", user_id=str(db_user.id)
             ),
         )
         dbsession.close()
@@ -267,12 +293,6 @@ def get_health(request: Request):
 users_router = user.fastapi_users.get_users_router()
 delete_route = [r for r in users_router.routes if r.name == "delete_user"][0]
 delete_route.response_class = Response
-
-# Separately, to implement "blank slate" mode, use a dependency that returns
-# a 418 code when the app is not yet configured.
-async def blank_slate(request: Request):
-    if is_blank_slate(request.scope.get("dbsession")):
-        raise HTTPException(status_code=418, detail="App is not yet configured")
 
 
 app.include_router(
@@ -362,4 +382,5 @@ if settings.debug:
 
 
 if __name__ == "__main__":
+    init_db()
     uvicorn.run("app:app", reload=True)

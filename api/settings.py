@@ -101,6 +101,7 @@ class Settings(BaseSettings):
 
     host: str = "localhost:3000"
     saml: dict = {}
+    saml_userdata: dict = {}
 
     # Whether to send cookies over HTTPS only. This should generally be turned
     # on in production.

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, UUID4, EmailStr
 from datetime import datetime
+from typing import Optional, List, Dict
+
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from fastapi_users import models
@@ -7,10 +9,11 @@ from fastapi_users.utils import generate_jwt
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.db.sqlalchemy import GUID
 from sqlalchemy.sql import func
-from typing import Optional, List, Dict
+
 from settings import settings
 import database
 from connection import connection
+
 
 
 class BaseUserCreateUpdate(BaseModel):

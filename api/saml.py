@@ -10,9 +10,20 @@ from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from lxml import etree
+from pydantic import BaseModel
 
 from settings import settings
 from templates import templates
+
+
+
+class SamlUserdata(BaseModel):
+    """Object representing user data from SAML assertion."""
+    username: str
+    first_name: str
+    last_name: str
+    roles: list[str]
+    email: str
 
 
 
@@ -62,16 +73,55 @@ async def get_saml_auth(request: Request):
     yield auth
 
 
+def get_saml_userdata(auth: OneLogin_Saml2_Auth):
+    """Get standardized SAML userdata from the auth object.
+
+    Aliases for the standard fields can be defined in the rt_saml_userdata
+    secret. See `settings` for more details.
+
+    Args:
+        auth - Auth object that has been parsed
+
+    Returns:
+        SamlUserdata
+    """
+    # Hardcode username, which we fetch from the name ID instead of the
+    # attribute fields of the assertion.
+    values = {'username': auth.get_nameid()}
+
+    # Accept either raw names or "friendly" names -- different SAML configs
+    # will use these differently.
+    raw_userdata = auth.get_attributes().copy()
+    raw_userdata.update(auth.get_friendlyname_attributes())
+    aliases = settings.saml_userdata
+
+    # Run through all our standard fields and look them up in the raw data.
+    # Use the alias for the field from the settings if one is given.
+    for field, spec in SamlUserdata.schema()['properties'].items():
+        # Skip hardcoded values (see above).
+        if field in values:
+            continue
+
+        key = aliases.get(field, field)
+        value = raw_userdata[key]
+
+        # SAML assertions tend to return lists of things, even if we should
+        # only expect one single value. Fix that here, unless our standard
+        # schema actually expects a list.
+        if spec['type'] != 'array' and isinstance(value, list):
+            value = value[0]
+
+        values[field] = value
+
+    return SamlUserdata.parse_obj(values)
+
+
+
+## -- LOCAL DEVELOPMENT CODE --------------------------------------------------
 
 # Development SAML2 IDP endpoint.
 dev_saml_idp = FastAPI()
 
-# Namespaces used for SAML requests.
-_nsmap = {
-        'samlp': 'urn:oasis:names:tc:SAML:2.0:protocol',
-        'saml': 'urn:oasis:names:tc:SAML:2.0:assertion',
-        'ds': 'http://www.w3.org/2000/09/xmldsig#',
-        }
 
 def _decode_saml_req(enc: str):
     """Decode a deflated/encoded SAML2 request.
@@ -150,5 +200,5 @@ async def post_login(request: Request):
         'request': request,
         'acs': form['acs'],
         'content': _encode_saml_resp(etree.fromstring(full_resp)),
-        'dest': '',
+        'dest': '/',
         })
