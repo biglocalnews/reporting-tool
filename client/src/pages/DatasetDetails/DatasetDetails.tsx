@@ -110,6 +110,10 @@ const DatasetDetails = (): JSX.Element => {
     }
   );
 
+  const filteredRecordsMemo = useMemo(() => {
+    return filteredRecords(queryData, selectedFilters);
+  }, [queryData, selectedFilters]);
+
   const categories = useMemo(() => {
     return Array.from(new Set(queryData?.dataset.publishedRecordSets?.
       flatMap(x => flattenPublishedDocumentEntries((x.document as IPublishedRecordSetDocument).record).map(x => x.category))));
@@ -288,20 +292,20 @@ const DatasetDetails = (): JSX.Element => {
             </TabPane>
             <TabPane tab="Details">
               {
-                filteredRecords?.length ? (
+                filteredRecordsMemo?.length ? (
                   <Row>
                     <Col span={24}>
                       <DatasetDetailsScoreCard
                         data={queryData}
                         datasetId={datasetId}
-                        filteredRecords={filteredRecords(queryData, selectedFilters)}
+                        filteredRecords={filteredRecordsMemo}
                       />
                     </Col>
                     <Col span={24}>
                       <DatasetDetailsRecordsTable
                         datasetId={datasetId}
                         datasetData={queryData}
-                        records={filteredRecords(queryData, selectedFilters)}
+                        records={filteredRecordsMemo}
                         isLoading={queryLoading}
 
                       />

@@ -18,11 +18,25 @@
 }
 
 .col-gender {
-  background-color: rgba(255,51,0,0.3);
+  background-color: rgba(255, 51, 0, 0.3);
 }
+
+.ant-table-tbody>tr>td.col-gender.ant-table-cell-row-hover {
+  background-color: rgba(255, 51, 0, 0.2);
+}
+
 .col-ethnicity {
-  background-color: rgba(112,48,160,0.3);
+  background-color: rgba(112, 48, 160, 0.3);
 }
+
+.ant-table-tbody>tr>td.col-ethnicity.ant-table-cell-row-hover {
+  background-color: rgba(112, 48, 160, 0.2);
+}
+
 .col-disability {
-  background-color: rgba(255,255,0,0.3);
+  background-color: rgba(255, 255, 0, 0.3);
+}
+
+.ant-table-tbody>tr>td.col-disability.ant-table-cell-row-hover {
+  background-color: rgba(255, 255, 0, 0.2);
 }

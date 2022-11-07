@@ -77,7 +77,7 @@ export const getColumnClassName = (targetCategory: GetDataset_dataset_program_ta
         case "Disability":
             return "col-disability";
         default:
-            return null;
+            return undefined;
     }
 };
 
@@ -187,8 +187,8 @@ export const DataEntryTable = (props: IProps) => {
             .filter(x => x)
             .sort((a, b) => a.name.localeCompare(b.name));
 
-        setFixedColumns(merged.reduce((record, x) => {
-            record[x.id] = false;
+        setFixedColumns((curr) => merged.reduce((record, x) => {
+            record[x.id] = curr && curr[x.id] !== undefined ? curr[x.id] : false;
             return record;
         }, {} as Record<string, boolean>
         ))
