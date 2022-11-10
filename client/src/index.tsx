@@ -6,30 +6,33 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { message } from 'antd';
-import { RetryLink } from "@apollo/client/link/retry";
 import { onError } from "@apollo/client/link/error";
+import { RetryLink } from "@apollo/client/link/retry";
+import { message } from "antd";
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { AuthProvider } from "./components/AuthProvider";
+import { ConfigProvider } from "./components/ConfigProvider";
 import { Loading } from "./components/Loading/Loading";
 import { UserAccountManagerProvider } from "./components/UserAccountManagerProvider";
 import reportWebVitals from "./reportWebVitals";
 import * as account from "./services/account";
 import { Auth } from "./services/auth";
+import { AppConfigService } from "./services/config";
 import "./services/i18next";
+import "./theme.css";
 
 const retryLink = new RetryLink({
   delay: {
     initial: 300,
     max: Infinity,
-    jitter: true
+    jitter: true,
   },
   attempts: {
     max: 5,
-    retryIf: (error, _operation) => !!error || !!_operation
-  }
+    retryIf: (error, _operation) => !!error || !!_operation,
+  },
 });
 
 const errorLink = onError((err) => {
@@ -50,7 +53,6 @@ const errorLink = onError((err) => {
       )
     );
   }*/
-
 });
 
 const httpLink = new HttpLink({
@@ -58,7 +60,6 @@ const httpLink = new HttpLink({
     process.env.REACT_APP_ENV === "mock"
       ? "http://localhost:4000"
       : "/api/graphql/",
-
 });
 
 const cache = new InMemoryCache({
@@ -84,15 +85,20 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
 const auth = new Auth(window.fetch.bind(window));
 auth.init();
 
+// Create the app config fetcher service.
+const config = new AppConfigService();
+
 const MainApp = () => {
   return (
     <Suspense fallback={<Loading />}>
       <ApolloProvider client={client}>
-        <AuthProvider auth={auth}>
-          <UserAccountManagerProvider value={account}>
-            <App />
-          </UserAccountManagerProvider>
-        </AuthProvider>
+        <ConfigProvider config={config}>
+          <AuthProvider auth={auth}>
+            <UserAccountManagerProvider value={account}>
+              <App />
+            </UserAccountManagerProvider>
+          </AuthProvider>
+        </ConfigProvider>
       </ApolloProvider>
     </Suspense>
   );

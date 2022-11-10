@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      /**
+       * Function to fill the form with a predefined object and submit.
+       */
+      function setUser(user) {
+        // Mapping from form field name to JSON object field.
+        const mapping = [
+          ["email", "email"],
+          ["nameId", "username"],
+          ["givenName", "first_name"],
+          ["surname", "last_name"],
+        ];
+
+        const userForm = document.forms[0];
+
+        for (const [formField, userAttr] of mapping) {
+          userForm[formField].value = user[userAttr];
+        }
+
+        userForm.submit();
+      }
+    </script>
+    <style type="text/css">
+      body {
+        font-family: Helvetica, arial, sans-serif;
+      }
+
+      label {
+        display: inline-block;
+        width: 5rem;
+        text-align: right;
+        padding-right: 1rem;
+        line-height: 1.5;
+      }
+
+      h1,
+      h2 {
+        margin: 2rem 0;
+      }
+
+      li {
+        padding-bottom: 0.5rem;
+      }
+
+      input[type="submit"] {
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SSO [dev]</h1>
+    <div>
+      <p>
+        This is a <strong>mock SSO page</strong> that is configured for use in
+        the development environment.
+      </p>
+      <p>
+        In production, your organization's SSO should be configured via SAML.
+      </p>
+      <p>
+        Use this page to log in, either by selecting an existing user from the
+        database (if any exist), or by creating a new user.
+      </p>
+    </div>
+
+    <h2>Log in with an existing user</h2>
+    <div>
+      {% if users %}
+      <ol>
+        {% for user in users %}
+        <li>
+          <button
+            type="button"
+            onclick='javascript:setUser({{ user | pickattrs("email", "username", "first_name", "last_name") | jsonify}})'
+          >
+            {{ user.first_name }} {{ user.last_name }}
+          </button>
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <em>No users exist yet! Create a new one below.</em>
+      {% endif %}
+    </div>
+    <h2>Log in with new user</h2>
+    <div>
+      <form name="login" action="/api/__dev__/saml/login" method="POST">
+        <input type="hidden" name="acs" value="{{ acs }}" />
+        <input type="hidden" name="id" value="{{ id }}" />
+        <div>
+          <label for="nameId">Username</label>
+          <input type="text" name="nameId" value="" />
+        </div>
+        <div>
+          <label for="givenName">First name</label>
+          <input type="text" name="givenName" value="" />
+        </div>
+        <div>
+          <label for="surname">Last name</label>
+          <input type="text" name="surname" value="" />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="text" name="email" value="" />
+        </div>
+        <div>
+          <label for="admin">Admin</label>
+          <input type="checkbox" name="admin" />
+        </div>
+        <div>
+          <input type="submit" value="Create user & Log in" />
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,8 +1,9 @@
 import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../components/AuthProvider";
+import { useConfig } from "../../components/ConfigProvider";
 import { useUserAccountManager } from "../../components/UserAccountManagerProvider";
 import "./Login.css";
 
@@ -16,7 +17,6 @@ type LoginRequest = {
   password: string;
 };
 
-
 /**
  * Login UI form.
  */
@@ -24,6 +24,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuth();
+  const cfg = useConfig();
   const account = useUserAccountManager();
   const { t } = useTranslation();
   const [error, setError] = useState<Error | null>(null);
@@ -31,6 +32,20 @@ export const Login = () => {
   const [resettingPassword, setResettingPassword] = useState(false);
   const [forgotPasswordForm] = Form.useForm<{ email: string }>();
   const [loginForm] = Form.useForm<{ email: string; password: string }>();
+
+  // Force a redirect to the correct login page, which might e the SSO route.
+  // TODO(jnu): make this conditional on whether an SSO URL is given; we could
+  // still support native email-based login.
+  const needsRedirect = cfg.sso_url !== window.location.pathname;
+  useEffect(() => {
+    if (needsRedirect) {
+      window.location.pathname = cfg.sso_url;
+    }
+  }, [needsRedirect]);
+
+  if (needsRedirect) {
+    return null;
+  }
 
   const onFinish = async ({ email, password }: LoginRequest) => {
     setError(null);

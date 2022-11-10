@@ -1,22 +1,16 @@
-FROM node:16.13.2 AS builder
+FROM node:16.18.0
+
+#RUN apt update -y && \
+#    apt install -y libcairo2-dev libjpeg-dev libgif-dev libpango1.0-dev libpangocairo-1.0-0
 
 RUN mkdir /client
 WORKDIR /client
 
-ARG NPM_TOKEN  
-COPY .npmrc .npmrc 
-
-COPY package.json package-lock.json ./
-RUN npm install
+COPY package.json .yarnrc yarn.lock ./
+COPY node_modules_offline_cache ./
+RUN yarn install --frozen-lockfile --production
 
 COPY . .
-RUN npm run build
+RUN NODE_ENV=production DISABLE_ESLINT_PLUGIN=true yarn build
 
-
-FROM nginx:1.20
-COPY nginx.stack.conf /etc/nginx/nginx.conf
-COPY --from=builder /client/build/ /www/
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["tail", "-f", "/dev/null"]

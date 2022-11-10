@@ -35,7 +35,6 @@ from stats import (
     get_overviews,
 )
 
-import sap_data
 
 query = ObjectType("Query")
 dataset = ObjectType("Dataset")
@@ -373,8 +372,7 @@ def resolve_published_record_set(obj, info, id):
 
 @query.field("publishedRecordSets")
 def resolve_published_record_sets(obj, info, input):
-    # to get intellisense
-    session = cast(Session, info.context["dbsession"])
+    session = info.context["dbsession"]
     record_sets = session.query(PublishedRecordSet).all()
     return record_sets
 
@@ -479,4 +477,5 @@ def resolve_admin_stats(obj, info, input):
 
 @query.field("adUsers")
 def resolve_ad_users(obj, info, search):
-    return sap_data.search(search)
+    # TODO - bbc used sap_data module
+    return []

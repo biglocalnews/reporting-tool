@@ -1,11 +1,13 @@
 import {
   BarChartOutlined,
+  CaretLeftOutlined,
+  CaretRightOutlined,
   DatabaseOutlined,
+  HomeOutlined,
   SettingOutlined,
   TableOutlined,
   TeamOutlined,
   UserSwitchOutlined,
-  HomeOutlined
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Layout, Menu } from "antd";
@@ -17,7 +19,6 @@ import { GET_USER } from "../graphql/__queries__/GetUser.gql";
 import "./AppSidebar.css";
 const { SubMenu } = Menu;
 const { Sider } = Layout;
-
 
 /**
  * Sidebar content for all users.
@@ -59,24 +60,20 @@ export const AppSidebarMenu = () => {
     return {
       key: team.id,
       name: team.name,
-      programmes:
-        team.programs.map((program) => {
-          return {
-            key: program.id,
-            team: program.name,
-            datasets: program.datasets.map((dataset) => {
-              return {
-                id: dataset.id,
-                title: dataset.name,
-              };
-            }),
-          };
-        })
+      programmes: team.programs.map((program) => {
+        return {
+          key: program.id,
+          team: program.name,
+          datasets: program.datasets.map((dataset) => {
+            return {
+              id: dataset.id,
+              title: dataset.name,
+            };
+          }),
+        };
+      }),
     };
-  }
-
-
-  );
+  });
 
   return (
     <Menu
@@ -88,44 +85,34 @@ export const AppSidebarMenu = () => {
       <Menu.Item key="home" icon={<HomeOutlined />} role="menuitem">
         <Link to="/">{t("admin.sidebar.home")}</Link>
       </Menu.Item>
-      {
-        auth.isAdmin() &&
+      {auth.isAdmin() && (
         <Menu.Item key="alldata" icon={<DatabaseOutlined />} role="menuitem">
           <Link to="/admin/datasets">{t("admin.sidebar.viewAll")}</Link>
         </Menu.Item>
-      }
+      )}
 
-
-      <SubMenu
-        key="my-datasets"
-        title="My Datasets"
-        icon={<TeamOutlined />}
-      >
-        {
-          sidebarTeams?.
-            flatMap((x) => x.programmes)
-            .flatMap(x => x.datasets)
-            .map((dataset) => (
-              <Menu.Item key={dataset.id}>
-                <Link
-                  to={{
-                    pathname: `/dataset/${dataset.id}/details`,
-                  }}
-                >
-                  {dataset.title}
-                </Link>
-              </Menu.Item>
-            ))
-        }
+      <SubMenu key="my-datasets" title="My Datasets" icon={<TeamOutlined />}>
+        {sidebarTeams
+          ?.flatMap((x) => x.programmes)
+          .flatMap((x) => x.datasets)
+          .map((dataset) => (
+            <Menu.Item key={dataset.id}>
+              <Link
+                to={{
+                  pathname: `/dataset/${dataset.id}/details`,
+                }}
+              >
+                {dataset.title}
+              </Link>
+            </Menu.Item>
+          ))}
       </SubMenu>
 
       <Menu.Item key="reports" role="menuitem" icon={<BarChartOutlined />}>
         <Link to="/reports">{t("admin.sidebar.reports")}</Link>
       </Menu.Item>
 
-
-      {
-        auth.isAdmin() &&
+      {auth.isAdmin() && (
         <SubMenu key="admin" title="Admin" icon={<SettingOutlined />}>
           <Menu.Item key="users" role="menuitem">
             <Link to="/admin/users">{t("admin.sidebar.manageUsers")}</Link>
@@ -139,22 +126,24 @@ export const AppSidebarMenu = () => {
             </Link>
           </Menu.Item>
           <Menu.Item key="tags" role="menuitem">
-            <Link to="/admin/tags">
-              {t("admin.sidebar.manageTags")}
-            </Link>
+            <Link to="/admin/tags">{t("admin.sidebar.manageTags")}</Link>
           </Menu.Item>
-          <Menu.Item key="admin.reports" role="menuitem" icon={<BarChartOutlined />}>
+          <Menu.Item
+            key="admin.reports"
+            role="menuitem"
+            icon={<BarChartOutlined />}
+          >
             <Link to="/admin/reports">{t("admin.sidebar.reports")}</Link>
           </Menu.Item>
         </SubMenu>
-      }
+      )}
     </Menu>
   );
 };
 
 interface IProps {
-  setCollapseState: (newState: boolean) => void
-  collapsed: boolean
+  setCollapseState: (newState: boolean) => void;
+  collapsed: boolean;
 }
 
 /**
@@ -163,17 +152,16 @@ interface IProps {
 const AppSidebar = ({ setCollapseState, collapsed }: IProps): JSX.Element => {
   return (
     <Sider
-
       collapsed={collapsed}
-      width={300}
+      width="var(--sidebarWidth)"
       className="sidebar"
       breakpoint="md"
       theme="dark"
       collapsible
       style={{
-        overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
+        overflow: "auto",
+        height: "100vh",
+        position: "fixed",
         left: 0,
         top: 0,
         bottom: 0,
@@ -182,18 +170,17 @@ const AppSidebar = ({ setCollapseState, collapsed }: IProps): JSX.Element => {
         <Button
           type="text"
           style={{
-            color: "white",
-            fontSize: "xx-large",
-            width: "100%"
+            color: "var(--white)",
+            fontSize: "1rem",
+            width: "100%",
           }}
           onClick={() => setCollapseState(!collapsed)}
         >
-          {collapsed ? <>&gt;</> : <>&lt;</>}
+          {collapsed ? <CaretRightOutlined /> : <CaretLeftOutlined />}
         </Button>
       }
     >
       <AppSidebarMenu />
-      {/*auth.isAdmin() ? <AppAdminSidebarMenu /> : <AppNormalUserSidebarMenu />*/}
     </Sider>
   );
 };

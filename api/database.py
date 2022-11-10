@@ -884,6 +884,7 @@ class PublishedRecordSet(Base, PermissionsMixin):
         GUID, ForeignKey("reporting_period.id"), index=True, nullable=False
     )
 
+    # TODO(jnu): clarify why this is removed
     # __table_args__ = (UniqueConstraint("reporting_period_id"),)
 
     dataset = relationship("Dataset", back_populates="published_record_sets")
@@ -947,3 +948,21 @@ class Cache(Base, PermissionsMixin):
 
     id = Column(String(255), primary_key=True, index=True)
     document = Column(JSONB)
+
+
+def create_tables(session):
+    """Initialize the database with tables and objects.
+
+    :param session: Database session
+    """
+    print("🍽  Creating tables ...")
+    engine = session.bind
+    Base.metadata.create_all(engine)
+
+    # Default roles
+    session.add(Role(
+        id="be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
+        name="admin",
+        description="User is an admin and has administrative privileges"))
+
+    session.commit()

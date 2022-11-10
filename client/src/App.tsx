@@ -1,11 +1,27 @@
+import {
+  GithubOutlined,
+  InfoCircleOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import { Button, Divider, Empty, Layout } from "antd";
-import { Suspense, useEffect, useState, useRef } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import React, { Suspense, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import "./App.css";
+import { useAuth } from "./components/AuthProvider";
+import { useConfig } from "./components/ConfigProvider";
 import { ErrorBoundary } from "./components/Error/ErrorBoundary";
 import { Loading } from "./components/Loading/Loading";
 import AppHeader from "./layout/AppHeader";
 import { AppSidebar } from "./layout/AppSidebar";
+import { AdminReports } from "./pages/Admin/AdminReports";
 import { EditProgram } from "./pages/Admin/EditProgram";
 import { EditTags } from "./pages/Admin/EditTags";
 import { EditTeam } from "./pages/Admin/EditTeam";
@@ -15,39 +31,27 @@ import { TeamList } from "./pages/Admin/TeamList";
 import { UserList } from "./pages/Admin/UserList";
 import { DataEntry } from "./pages/DataEntry/DataEntry";
 import { DatasetDetails } from "./pages/DatasetDetails/DatasetDetails";
-import { Login } from "./pages/Login/Login";
-import { useAuth } from "./components/AuthProvider";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { Home } from "./pages/Home/Home";
 import { Datasets } from "./pages/Datasets/Datasets";
+import { Home } from "./pages/Home/Home";
+import { Login } from "./pages/Login/Login";
 import { Reports } from "./pages/Reports/Reports";
-import { AdminReports } from "./pages/Admin/AdminReports";
 const { Footer, Content } = Layout;
-import { InfoCircleOutlined, ProjectOutlined, GithubOutlined, TeamOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { ConfigKeys, Enums, EchoClient } from '@bbc/echo-client-js';
-
-
-
-function Redirecter(props: { from: string }) {
-  useEffect(() => {
-    console.log(props.from);
-    window.location.href = `/api/bbc-login`;
-  });
-  return <React.Fragment />;
-}
 
 const NotFound = () => {
   const { t } = useTranslation();
-  return <div style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', height: "100%" }}>
-    <Empty
-      description={
-        <span>{t("pageNotFound")}</span>
-      }
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
     >
-    </Empty>
-  </div>
-}
+      <Empty description={<span>{t("pageNotFound")}</span>}></Empty>
+    </div>
+  );
+};
 
 export const footerHeight = "48px";
 
@@ -57,63 +61,69 @@ export const footerHeight = "48px";
 function App() {
   const [sidebarCollapsed, setSidebarCollapse] = useState(false);
 
-
   const { t } = useTranslation();
+  const cfg = useConfig();
+  const sidebarDim = sidebarCollapsed
+    ? "var(--sidebarCollapsedWidth)"
+    : "var(--sidebarWidth)";
   /**
- * Layout container for an authenticated user.
- */
-  const ProtectedAppContainer: React.FC = ({ children }) =>
+   * Layout container for an authenticated user.
+   */
+  const ProtectedAppContainer: React.FC = ({ children }) => (
     <Layout hasSider>
-      <AppSidebar setCollapseState={setSidebarCollapse} collapsed={sidebarCollapsed} />
+      <AppSidebar
+        setCollapseState={setSidebarCollapse}
+        collapsed={sidebarCollapsed}
+      />
       <Layout
         style={{
-          background: "#fff",
-          marginLeft: sidebarCollapsed ? 80 : 300,
+          background: "var(--background)",
+          marginLeft: sidebarDim,
           overflowY: "auto",
           overflowX: "auto",
           height: `calc(100vh - ${footerHeight})`,
-          width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
+          width: `calc(100vw - ${sidebarDim}`,
         }}
       >
         <AppHeader />
-        <Divider style={{ margin: 0, borderTop: "15px solid #f0f2f5" }} />
+        <Divider
+          style={{
+            margin: 0,
+            borderTop: "var(--dividerSize) solid var(--lightAccent)",
+          }}
+        />
         <Content
           style={{
             padding: "20px",
             height: "auto",
-            width: "100%"
+            width: "100%",
           }}
         >
           {children}
         </Content>
         <Footer
           style={{
-            padding: "14px",
+            padding: "1rem",
             height: footerHeight,
-            textAlign: 'left',
-            position: 'fixed',
+            textAlign: "left",
+            position: "fixed",
             zIndex: 1,
             bottom: 0,
-            boxShadow: "0.5em 0.5em 0.5em rgba(0,0,50,0.6)",
-            width: `calc(100vw - ${sidebarCollapsed ? 80 : 300}px`,
-            background: "#002140",
+            boxShadow: "var(--footerShadow)",
+            width: `calc(100vw - ${sidebarDim}`,
+            background: "var(--darkBlue)",
             display: "flex",
-            alignItems: "center"
-
+            alignItems: "center",
           }}
         >
-
           <Button
             type="link"
-            href="https://staff.bbc.com/gateway/northern-ireland/ni-staff-tech-tools/"
-            style={{
-              color: "white"
-            }}
+            href="https://github.com/stanford-policylab/bbc-50-50/graphs/contributors"
           >
             <span
               style={{
                 fontFamily: "monospace",
-                color: "#33FF33"
+                color: "var(--cyberText)",
               }}
             >
               &gt;_&nbsp;{t("footer")}
@@ -124,60 +134,38 @@ function App() {
 
           <Button
             type="link"
-            href="https://50-50.esyscloud.io/Contributors/"
-            icon={<TeamOutlined />}
-            style={{
-              color: "white"
-            }}
-          >
-            Contributors Database
-          </Button>
-
-          <Button
-            type="link"
-            href="https://staff.bbc.com/gateway/northern-ireland/documents/5050-tracker-user-guide-quick-start-09.pdf"
+            href="https://github.com/stanford-policylab/bbc-50-50/blob/main/README.md"
             icon={<InfoCircleOutlined />}
             style={{
-              color: "white"
+              color: "var(--lightText)",
             }}
           >
             {t("userGuide")}
           </Button>
           <Button
             type="link"
-            href="https://confluence.dev.bbc.co.uk/display/NIPRODOPS/BBC+50%3A50+Portal"
-            icon={<ProjectOutlined />}
-            style={{
-              color: "white"
-            }}
-          >
-            {t("project")}
-          </Button>
-          <Button
-            type="link"
-            href="https://github.com/BBCNI/bbc-50-50"
+            href="https://github.com/stanford-policylab/bbc-50-50"
             icon={<GithubOutlined />}
             style={{
-              color: "white"
+              color: "var(--lightText)",
             }}
           >
             v1.0
           </Button>
           <Button
             type="link"
-            href="mailto:5050portalhelp@bbc.co.uk"
+            href={`mailto:${cfg.help_email}`}
             icon={<QuestionCircleOutlined />}
             style={{
-              color: "white"
+              color: "var(--lightText)",
             }}
           >
             Help
           </Button>
-
-
         </Footer>
       </Layout>
-    </Layout >
+    </Layout>
+  );
 
   // Additional routes that only authed admins can visit.
   // When a user is logged in but lacks permission, they will see an error
@@ -189,23 +177,16 @@ function App() {
     const auth = useAuth();
     const { t } = useTranslation();
     if (!auth.isLoggedIn()) {
-      if (process.env.NODE_ENV !== "production") {
-        return <Navigate to="/login" state={{ from: location }} />
-      }
-      return <Redirecter from={location.pathname} />
+      return <Navigate to={cfg.sso_url} state={{ from: location }} />;
     }
-    return <ProtectedAppContainer>
-      <ErrorBoundary>
-        {auth.isAdmin() ? (
-          <Outlet />
-        ) : (
-          <div>{t("notAuthorized")}</div>
-        )}
-      </ErrorBoundary>
-    </ProtectedAppContainer>
-  }
-
-
+    return (
+      <ProtectedAppContainer>
+        <ErrorBoundary>
+          {auth.isAdmin() ? <Outlet /> : <div>{t("notAuthorized")}</div>}
+        </ErrorBoundary>
+      </ProtectedAppContainer>
+    );
+  };
 
   // Routes that a normal authed user can visit.
   // If the user is not logged in, they will be redirected to the login screen.
@@ -213,44 +194,26 @@ function App() {
     const location = useLocation();
     const auth = useAuth();
     if (!auth.isLoggedIn()) {
-      if (process.env.NODE_ENV !== "production") {
-        return <Navigate to="/login" state={{ from: location }} />
-      }
-      return <Redirecter from={location.pathname} />
+      return <Navigate to={cfg.sso_url} state={{ from: location }} />;
     }
-    return <ProtectedAppContainer>
-      <ErrorBoundary>
-        <Outlet />
-      </ErrorBoundary>
-    </ProtectedAppContainer>
-
-  }
+    return (
+      <ProtectedAppContainer>
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
+      </ProtectedAppContainer>
+    );
+  };
 
   const AnalyticsWrapper: React.FC = ({ children }) => {
-    const echo = useRef<EchoClient | undefined>();
     const location = useLocation();
 
     useEffect(() => {
-      if (!echo.current) {
-        const conf = {};
-        conf[ConfigKeys.DESTINATION] = Enums.Destinations.GATEWAY_TEST;
-        conf[ConfigKeys.PRODUCER] = Enums.Producers.NORTHERN_IRELAND;
-        const echoClient = new EchoClient('5050', Enums.ApplicationType.WEB, conf, null, () => {
-          echoClient.viewEvent(`bbcni.5050.${location.pathname}.page`);
-          echo.current = echoClient;
-        });
-        return;
-      }
-      echo.current.viewEvent(`bbcni.5050.${location.pathname}.page`);
-
+      console.log(`[TODO] No analytics currently configured for ${location}`);
     }, [location]);
 
-    return <>
-      {children}
-    </>
-
-  }
-
+    return <>{children}</>;
+  };
 
   return (
     <Suspense fallback={<Loading />}>
@@ -260,9 +223,15 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<WrappedPrivate />}>
               <Route index element={<Home />} />
-              <Route path="dataset/:datasetId/details" element={<DatasetDetails />} />
+              <Route
+                path="dataset/:datasetId/details"
+                element={<DatasetDetails />}
+              />
               <Route path="dataset/:datasetId/entry" element={<DataEntry />} />
-              <Route path="dataset/:datasetId/entry/edit/:recordId" element={<DataEntry />} />
+              <Route
+                path="dataset/:datasetId/entry/edit/:recordId"
+                element={<DataEntry />}
+              />
               <Route path="reports" element={<Reports />} />
             </Route>
             <Route path="/admin/" element={<WrappedPrivateAdmin />}>

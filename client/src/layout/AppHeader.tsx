@@ -1,16 +1,16 @@
-import { LogoutOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
-import { Menu, Dropdown, Button, Col, Layout, Row } from "antd";
+import { DownOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Col, Dropdown, Layout, Menu, Row } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/5050logo-only.jpg";
-import bbclogo from "../assets/logo_bbc_dark.png";
 import { useAuth } from "../components/AuthProvider";
-
+import { useConfig } from "../components/ConfigProvider";
+import { getAssetUrl } from "../services/config";
 import "./AppHeader.css";
 
 const { Header } = Layout;
 
 const AppHeader = () => {
   const auth = useAuth();
+  const cfg = useConfig();
 
   const navigate = useNavigate();
 
@@ -32,29 +32,31 @@ const AppHeader = () => {
       <Header className="header">
         <Row wrap={false}>
           <Col flex="none">
-
             <div className="header__logo">
               <Link to="/">
-                <img src={bbclogo} alt="BBC Logo" style={{ width: "120px", marginRight: "20px" }} />
-                <img src={logo} alt="50:50 - The Equality Project Logo" style={{ width: "110px" }} />
+                <img
+                  src={getAssetUrl(cfg, "logo")}
+                  alt={cfg.logo.alt}
+                  style={{
+                    width: cfg.logo.width,
+                    height: cfg.logo.height,
+                    marginRight: "20px",
+                  }}
+                />
               </Link>
             </div>
           </Col>
           <Col flex="auto">
-
             <div
               id="header__user"
               style={{ float: "right", lineHeight: "64px" }}
             >
-
               <Dropdown overlay={menu}>
                 <Button icon={<UserOutlined />}>
                   {auth.getFullName()} <DownOutlined />
                 </Button>
               </Dropdown>
-
             </div>
-
           </Col>
         </Row>
       </Header>
