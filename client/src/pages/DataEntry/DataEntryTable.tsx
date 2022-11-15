@@ -671,7 +671,7 @@ export const DataEntryTable = (props: IProps) => {
                                             />
                                             <InputNumber
                                                 min={1}
-                                                max={500}
+                                                max={10}
                                                 defaultValue={1}
                                                 value={noOfNewRecords}
                                                 onChange={e => setNoOfNewRecords(e)}
