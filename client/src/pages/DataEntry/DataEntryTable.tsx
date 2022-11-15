@@ -146,6 +146,7 @@ export const DataEntryTable = (props: IProps) => {
     const [noOfNewRecords, setNoOfNewRecords] = useState(1);
     const [activePersonTypeTab, setActivePersonTypeTab] = useState<string>("0");
     const [fixedColumns, setFixedColumns] = useState<Record<string, boolean>>({});
+    const [createRecordsConfirm, setCreateRecordsConfirm] = useState(false);
 
     const { t } = useTranslation();
 
@@ -540,6 +541,39 @@ export const DataEntryTable = (props: IProps) => {
         )
     );
 
+    const createRecordPromise = () => {
+        return addRecordDatePicker && createRecord({
+            variables: {
+                input: {
+                    publicationDate: getRandomDateTime(addRecordDatePicker).toISOString(),
+                    datasetId: getDatasetData.dataset.id,
+                    entries: currentTrackedAttributes?.map(cv => {
+                        if (personTypeArrayFromDataset.length) {
+                            return personTypeArrayFromDataset.map(pt => ({
+                                personTypeId: pt.id,
+                                categoryValueId: cv.id,
+                                count: 0,
+                            }))
+                        }
+                        return ({
+                            categoryValueId: cv.id,
+                            count: 0,
+                        })
+                    }).flat()
+                }
+            }
+        })
+    }
+
+    const executeCreateRecordTasks = async () => {
+        const promises: any[] = [];
+        for (let i = 0; i < noOfNewRecords; i++) {
+            promises.push(createRecordPromise());
+        }
+        await Promise.all(promises)
+            .then(() => setAddRecordDatePicker(undefined));
+    }
+
 
 
     if (!unPublishedReportingPeriods?.length) {
@@ -637,6 +671,7 @@ export const DataEntryTable = (props: IProps) => {
                                             />
                                             <InputNumber
                                                 min={1}
+                                                max={500}
                                                 defaultValue={1}
                                                 value={noOfNewRecords}
                                                 onChange={e => setNoOfNewRecords(e)}
@@ -651,41 +686,35 @@ export const DataEntryTable = (props: IProps) => {
                                         icon={addRecordDatePicker ? undefined : <PlusCircleOutlined />}
                                         onClick={
                                             async () => {
-                                                if (!addRecordDatePicker) return setAddRecordDatePicker(moment())
-                                                const createRecordPromise = () => {
-                                                    return createRecord({
-                                                        variables: {
-                                                            input: {
-                                                                publicationDate: getRandomDateTime(addRecordDatePicker).toISOString(),
-                                                                datasetId: getDatasetData.dataset.id,
-                                                                entries: currentTrackedAttributes?.map(cv => {
-                                                                    if (personTypeArrayFromDataset.length) {
-                                                                        return personTypeArrayFromDataset.map(pt => ({
-                                                                            personTypeId: pt.id,
-                                                                            categoryValueId: cv.id,
-                                                                            count: 0,
-                                                                        }))
-                                                                    }
-                                                                    return ({
-                                                                        categoryValueId: cv.id,
-                                                                        count: 0,
-                                                                    })
-                                                                }).flat()
-                                                            }
-                                                        }
-                                                    })
+                                                if (!addRecordDatePicker) return setAddRecordDatePicker(moment());
+                                                const pickerDate = dayjs.utc(addRecordDatePicker.toISOString());
+                                                if (!pickerDate.isBetween(reportingPeriod.range[0], reportingPeriod.range[1], null, "[]")) {
+                                                    if (!unPublishedReportingPeriods.some(x => dayjs.utc(addRecordDatePicker.toISOString()).isBetween(x.range[0], x.range[1], null, "[]"))) {
+                                                        return message.error(t("datasetDetails.newRecordNotAllowed"));
+                                                    }
+                                                    setCreateRecordsConfirm(true);
                                                 }
-                                                const promises: any[] = [];
-                                                for (let i = 0; i < noOfNewRecords; i++) {
-                                                    promises.push(createRecordPromise());
+                                                else {
+                                                    await executeCreateRecordTasks();
                                                 }
-                                                await Promise.all(promises)
-                                                    .then(() => setAddRecordDatePicker(undefined));
                                             }
                                         }
                                     >
                                         {addRecordDatePicker ? t("saveRecord") : t("newRow")}
                                     </Button>
+                                    <Modal
+                                        title={t("datasetDetails.createRecordsConfirmTitle")}
+                                        onOk={async () => await executeCreateRecordTasks()
+                                            .finally(() => setCreateRecordsConfirm(false))
+                                            .catch(() => message.error("There was a problem creating the records"))
+                                        }
+                                        okText="Yes"
+                                        onCancel={() => setCreateRecordsConfirm(false)}
+                                        cancelText="No"
+                                        visible={createRecordsConfirm}
+                                    >
+                                        {t("datasetDetails.createRecordsConfirmBody")}
+                                    </Modal>
                                 </Space>
                                 <div style={{ flexGrow: 1 }} />
                                 <Button

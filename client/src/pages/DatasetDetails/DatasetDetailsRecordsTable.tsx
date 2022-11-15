@@ -43,6 +43,7 @@ const DatasetDetailsRecordsTable = ({
       accumulator[catValName] = (previousCount || 0) + currentItem.count;
       accumulator["id"] = record.id;
       accumulator["publicationDate"] = record.publicationDate;
+      record.customColumnValues?.forEach(x => accumulator[x.customColumn.name] = x.value ?? "");
       return accumulator;
     }, {} as TableData);
   });
@@ -73,6 +74,16 @@ const DatasetDetailsRecordsTable = ({
         width={120}
         render={(date: string) => dayjs(date).format("YYYY-MM-DD")}
       />
+      {
+        Array.from(new Set(records?.map(r => r.customColumnValues).flat().map(x => x?.customColumn.name)))
+          .map(x =>
+            <Table.Column<TableData>
+              title={x}
+              dataIndex={x}
+              key={x}
+            />
+          )
+      }
       {
         datasetData?.dataset?.program?.targets
           .flatMap((target) => target.tracks)

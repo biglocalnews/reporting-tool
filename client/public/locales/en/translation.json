@@ -163,7 +163,10 @@
     "deletePublishedRecordSet": "Deleted Published Record Set",
     "unPublish": "Unpublish",
     "last3Periods": "Last 3 periods",
-    "last6Periods": "Last 6 periods"
+    "last6Periods": "Last 6 periods",
+    "newRecordNotAllowed": "You may only create records in reporting periods that exist, or have not been published yet.",
+    "createRecordsConfirmTitle": "Are you sure?",
+    "createRecordsConfirmBody": "The row you're trying to add won't appear in the table below.\nYou are trying to add a row for a different reporting period than you have selected on the left hand menu or that has already been published.\n\n\nPlease double-check the month you have selected on the left hand."
   },
   "admin": {
     "sidebar": {

@@ -1172,7 +1172,9 @@ export const EditProgram = (): JSX.Element => {
                                               ]}
                                               {...restField}
                                             >
-                                              <RangePicker />
+                                              <RangePicker
+                                                format={date => date.utc().format("D MMM YYYY")}
+                                              />
                                             </Form.Item>
                                           )
                                         }
