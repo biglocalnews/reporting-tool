@@ -1,0 +1,11 @@
+<html>
+  <body>
+    <form name="saml" action="{{ acs }}" method="POST">
+      <input type="hidden" name="SAMLResponse" value="{{ content }}" />
+      <input type="hidden" name="RelayState" value="{{ dest }}" />
+    </form>
+    <script type="text/javascript">
+      document.forms[0].submit();
+    </script>
+  </body>
+</html>

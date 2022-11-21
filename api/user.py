@@ -1,5 +1,7 @@
 from pydantic import BaseModel, UUID4, EmailStr
 from datetime import datetime
+from typing import Optional, List, Dict
+
 from fastapi_users.authentication import CookieAuthentication
 from fastapi_users import FastAPIUsers
 from fastapi_users import models
@@ -7,10 +9,11 @@ from fastapi_users.utils import generate_jwt
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.db.sqlalchemy import GUID
 from sqlalchemy.sql import func
-from typing import Optional, List, Dict
+
 from settings import settings
 import database
 from connection import connection
+
 
 
 class BaseUserCreateUpdate(BaseModel):
@@ -243,7 +246,7 @@ user_db = SQLAlchemyORMUserDatabase(connection)
 
 # remove cookie_secure=False later for production
 cookie_authentication = CookieAuthentication(
-    secret=settings.secret,
+    secret=settings.app_secret,
     lifetime_seconds=1209600,
     cookie_secure=settings.use_secure_cookies,
     cookie_name="rtauth",
