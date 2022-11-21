@@ -10,6 +10,7 @@ export const GET_USER = gql`
         name
         programs {
           id
+          importedId
           name
           deleted
           datasets {

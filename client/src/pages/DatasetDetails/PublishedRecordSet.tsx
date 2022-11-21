@@ -3,7 +3,8 @@ import Title from "antd/lib/typography/Title";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GetDataset_dataset, GetDataset_dataset_program_reportingPeriods } from "../../graphql/__generated__/GetDataset";
+import { GetAllPublishedRecordSets_publishedRecordSets_dataset, GetAllPublishedRecordSets_publishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets";
+import { GetDataset_dataset, GetDataset_dataset_program_reportingPeriods, GetDataset_dataset_publishedRecordSets } from "../../graphql/__generated__/GetDataset";
 import { catSort } from "../CatSort";
 import Pie5050 from "../Charts/Pie";
 
@@ -119,32 +120,20 @@ export function downloadBlob(content: string, filename: string, contentType: str
     pom.click();
 }
 
-export const exportCSV = (publishedRecordSets: ReadonlyArray<IPublishedRecordSet> | undefined, filename: string | undefined): void => {
-    if (!publishedRecordSets) {
+export const exportCSV = (publishedRecordSetDoc: IPublishedRecordSetDocument, filename: string | undefined): void => {
+    if (!publishedRecordSetDoc) {
         message.error("No Published Record sets");
         return;
     }
 
-    const csvArray = publishedRecordSets.
-        reduce((csv, prs) => {
-            csv.push(csvIse("", prs.document, {} as Record<string, string>));
-            return csv;
-        }, [] as Record<string, string>[]);
+    const csvLikeRecords = csvIse("", publishedRecordSetDoc, {} as Record<string, string>);
 
-    const headings = csvArray.reduce((keys, curr) => {
-        Object.keys(curr).forEach(x => x in keys || keys.add(x));
-        return keys;
-    }, new Set<string>());
+    const csvLikeArray = new Array<Array<string>>();
 
-    const csvArrayCombined = csvArray.reduce((csv, curr, i) => {
-        i === 0 && csv.push(Array.from(headings));
-        const row = new Array<string | null>();
-        headings.forEach(x => Object.keys(curr).includes(x) ? row.push(curr[x]) : row.push(""));
-        csv.push(row);
-        return csv;
-    }, new Array<Array<string | null>>());
+    csvLikeArray.push(Object.keys(csvLikeRecords));
+    csvLikeArray.push(Object.values(csvLikeRecords))
 
-    const csv = arrayToCsv(csvArrayCombined);
+    const csv = arrayToCsv(csvLikeArray);
 
     if (!csv) {
         message.error("No data in published record sets");
@@ -152,7 +141,7 @@ export const exportCSV = (publishedRecordSets: ReadonlyArray<IPublishedRecordSet
     }
 
     if (!filename) {
-        filename = `${new Date(publishedRecordSets[0].begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(publishedRecordSets[publishedRecordSets.length - 1].end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`
+        filename = `${new Date(publishedRecordSetDoc[0].begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(publishedRecordSetDoc.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`
     }
 
     downloadBlob(
@@ -189,6 +178,7 @@ export const exportCSVTwo = (mungedPublishedRecordSets: IMungedPublishedRecordSe
     const csv = arrayToCsv(csvArrayCombined);
 
     if (!csv) {
+        debugger;
         message.error("No data in published record sets");
         return;
     }
@@ -310,6 +300,48 @@ export const getRecordSetDocument = (dataset: GetDataset_dataset, reportingPerio
         segmentedRecord: stripCountsFromEntries(reduceRecordsToOverallPercentages(dataset, reportingPeriod, false))
     }) as IPublishedRecordSetDocument;
 
+const mungedRow = (prsDoc: IPublishedRecordSetDocument, dataset: GetDataset_dataset | GetAllPublishedRecordSets_publishedRecordSets_dataset, isFirstRecord: boolean) => {
+
+    const currentTarget = (category: string) => (dataset.program?.targets.find(x => x.category.name == category)?.target ?? 0) * 100;
+    const actual = (category: string) => prsDoc.record.Everyone && category in prsDoc.record.Everyone ? Object.values(prsDoc.record.Everyone[category].entries).filter(x => x.targetMember).reduce((sum, curr) => { return sum + curr.percent }, 0) : ""
+    const formatDateTime = (x: Date) => x.toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions);
+    const row = {
+        Imported_Id: dataset?.program?.importedId,
+        Reporting_Period_Begin: formatDateTime(prsDoc.begin),
+        Reporting_Period_End: formatDateTime(prsDoc.end),
+        Is_First_Record: isFirstRecord,
+        Name: prsDoc.datasetName,
+        Group: prsDoc.datasetGroup,
+        TAGS: prsDoc.datasetGroupTags.map(x => x.name).join(";"),
+        TAGS_CURRENT: dataset?.program?.tags.map(x => x.name).join(";"),
+        Gender_TARGET: prsDoc.targets.find(x => x.category == "Gender")?.target ?? "",
+        Gender_TARGET_CURRENT: currentTarget("Gender") || "",
+        Gender_ACTUAL: actual("Gender"),
+        Ethnicity_TARGET: prsDoc.targets.find(x => x.category == "Ethnicity")?.target ?? "",
+        Ethnicity_TARGET_CURRENT: currentTarget("Ethnicity") || "",
+        Ethnicity_ACTUAL: actual("Ethnicity"),
+        Disability_TARGET: prsDoc.targets.find(x => x.category == "Disability")?.target ?? "",
+        Disability_TARGET_CURRENT: currentTarget("Disability") || "",
+        Disability_ACTUAL: actual("Disability")
+    }
+    return row;
+}
+
+export const mungedFilteredData = (publishedRecordSets: (GetAllPublishedRecordSets_publishedRecordSets | GetDataset_dataset_publishedRecordSets)[], isFirstRecord: boolean, dataset?: GetDataset_dataset) =>
+    publishedRecordSets?.
+        sort((a, b) => Math.round(new Date(a.end).valueOf() / 1000) - Math.round(new Date(b.end).valueOf() / 1000))
+        .reduce((x, curr) => {
+            const thisDataset = "dataset" in curr && curr.dataset && !dataset ?
+                curr.dataset : dataset;
+            if (!thisDataset) {
+                message.error("Dataset was unexpectedly undefined");
+                return x;
+            }
+            const row = mungedRow(curr.document as IPublishedRecordSetDocument, thisDataset, isFirstRecord);
+            x.push(row);
+            return x;
+        }, new Array<IMungedPublishedRecordSetDocument>());
+
 export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod, summary }: IProps) => {
     const { t } = useTranslation();
     const [showByPersonType, setShowByPersonType] = useState(false);
@@ -387,7 +419,7 @@ export const PublishedRecordSet = ({ publishedDocument, dataset, reportingPeriod
                 <Col span={2}>
                     <Button
                         type="primary"
-                        onClick={() => exportCSVTwo([], `${document.datasetName}_${new Date(document.begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(document.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`)}
+                        onClick={() => document && exportCSV(document, `${document.datasetName}_${new Date(document.begin).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}-${new Date(document.end).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions)}`)}
                     >{t("exportCSV")}</Button>
                 </Col>
             </Row>

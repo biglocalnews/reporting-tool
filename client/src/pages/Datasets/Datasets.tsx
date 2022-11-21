@@ -19,13 +19,14 @@ import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { ALL_DATASETS } from "../../graphql/__queries__/AllDatasets.gql";
 import { GET_DATASET } from "../../graphql/__queries__/GetDataset.gql";
 import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
-import { exportCSV, IPublishedRecordSet } from "../DatasetDetails/PublishedRecordSet";
+import { exportCSVTwo, mungedFilteredData } from "../DatasetDetails/PublishedRecordSet";
 import { HomeSearchAutoComplete } from "./DatasetsSearchAutoComplete";
 
 dayjs.extend(localizedFormat);
 
 export interface TableData {
   id: string;
+  importedId: number | null;
   team: string;
   dataset: string;
   lastUpdated: string;
@@ -50,6 +51,7 @@ const getTableData = (
           .map((dataset) => {
             rowData.push({
               id: dataset.id,
+              importedId: program.importedId,
               team: program.name,
               dataset: dataset.name,
               modified: dataset.lastUpdated ? dataset.lastUpdated : dayjs(0),
@@ -94,11 +96,8 @@ export const Datasets = (): JSX.Element => {
 
   useEffect(() => {
     const prss = downloadedDataset?.dataset.publishedRecordSets;
-
     if (!prss) return;
-
-    exportCSV(prss as ReadonlyArray<IPublishedRecordSet>, undefined);
-
+    exportCSVTwo(mungedFilteredData(prss.flat(), false, downloadedDataset?.dataset), undefined);
   }, [downloadedDataset]);
 
   useEffect(() => {

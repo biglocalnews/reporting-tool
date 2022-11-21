@@ -39,6 +39,7 @@ export interface GetUser_user_teams_programs_tags {
 export interface GetUser_user_teams_programs {
   readonly __typename: "Program";
   readonly id: string;
+  readonly importedId: number | null;
   readonly name: string;
   readonly deleted: any | null;
   readonly datasets: ReadonlyArray<GetUser_user_teams_programs_datasets>;

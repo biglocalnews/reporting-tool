@@ -83,6 +83,7 @@ export interface GetDataset_dataset_program_team {
 export interface GetDataset_dataset_program {
   readonly __typename: "Program";
   readonly name: string;
+  readonly importedId: number | null;
   readonly targets: ReadonlyArray<GetDataset_dataset_program_targets>;
   readonly reportingPeriods: ReadonlyArray<GetDataset_dataset_program_reportingPeriods> | null;
   readonly tags: ReadonlyArray<GetDataset_dataset_program_tags>;

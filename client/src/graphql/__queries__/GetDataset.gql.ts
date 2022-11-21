@@ -24,6 +24,7 @@ export const GET_DATASET = gql`
       }
       program {
         name
+        importedId
         targets {
           id
           target

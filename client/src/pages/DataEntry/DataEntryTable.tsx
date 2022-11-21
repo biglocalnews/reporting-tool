@@ -724,7 +724,7 @@ export const DataEntryTable = (props: IProps) => {
                                 >{`${t("publishRecordSet")} ${reportingPeriod.description}`}
                                 </Button>
                             </Col>
-                            <Col span={48}>
+                            <Col span={48} className="card-container">
                                 <Tabs
                                     centered={true}
                                     type="card"

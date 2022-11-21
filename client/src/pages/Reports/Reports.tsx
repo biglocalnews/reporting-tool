@@ -7,11 +7,11 @@ const { Panel } = Collapse;
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { GetAllPublishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets"
+import { GetAllPublishedRecordSets, GetAllPublishedRecordSets_publishedRecordSets } from "../../graphql/__generated__/GetAllPublishedRecordSets"
 import { PublishedRecordSetsInput } from "../../graphql/__generated__/globalTypes";
 import { GET_ALL_PUBLISHED_RECORD_SETS } from "../../graphql/__queries__/GetAllPublishedRecordSets.gql"
 import Pie5050 from "../Charts/Pie";
-import { exportCSVTwo, flattenPublishedDocumentEntries, IMungedPublishedRecordSetDocument, IPublishedRecordSetDocument } from "../DatasetDetails/PublishedRecordSet";
+import { exportCSVTwo, flattenPublishedDocumentEntries, IPublishedRecordSetDocument, mungedFilteredData } from "../DatasetDetails/PublishedRecordSet";
 import { LineColumn } from "../Charts/LineColumn";
 import { flattenChartData, groupedByMonthYearCategory, groupedByYearCategory } from "../../selectors/ChartData";
 import { useAuth } from "../../components/AuthProvider";
@@ -19,8 +19,6 @@ import { GET_USER } from "../../graphql/__queries__/GetUser.gql";
 import { GetUser, GetUserVariables } from "../../graphql/__generated__/getUser";
 import { getPalette } from "../DatasetDetails/DatasetDetails";
 import { catSort } from "../CatSort";
-
-
 
 const panelStyle = { borderTopLeftRadius: "9px", borderTopRightRadius: "9px" };
 
@@ -84,6 +82,12 @@ export const Reports = () => {
             .sort((a, b) => a.localeCompare(b));
     }, [data]);
 
+    const datasetGroupIds = useMemo(() => {
+        return Array.from(new Set(data?.publishedRecordSets
+            .map(x => x.datasetId)));
+    }, [data]);
+
+
     const filteredByDateMinusOne = useMemo(() => {
         return data?.publishedRecordSets
             .filter(x => !filterState.year || filterState.year - 1 === new Date(x.end).getFullYear())
@@ -114,35 +118,17 @@ export const Reports = () => {
         return groupedByYearCategory(filteredData) ?? [[]];
     }, [filteredData])
 
-    const mungedFilteredData = () =>
-        filteredData[0]?.
-            sort((a, b) => Math.round(new Date(a.end).valueOf() / 1000) - Math.round(new Date(b.end).valueOf() / 1000))
-            .reduce((x, curr) => {
-                const currentTarget = (category: string) => (curr.dataset?.program?.targets.find(x => x.category.name == category)?.target ?? 0) * 100;
-                const actual = (category: string) => prsDoc.record.Everyone && category in prsDoc.record.Everyone ? Object.values(prsDoc.record.Everyone[category].entries).filter(x => x.targetMember).reduce((sum, curr) => { return sum + curr.percent }, 0) : ""
-                const prsDoc = curr.document as IPublishedRecordSetDocument;
-                const formatDateTime = (x: string) => new Date(x).toLocaleString(navigator.language, { day: "2-digit", month: "short", year: "numeric" } as Intl.DateTimeFormatOptions);
-                const row = {
-                    Imported_Id: curr.dataset?.program?.importedId,
-                    Reporting_Period_End: formatDateTime(curr.end),
-                    Name: prsDoc.datasetName,
-                    Group: prsDoc.datasetGroup,
-                    TAGS: prsDoc.datasetGroupTags.map(x => x.name).join(";"),
-                    TAGS_CURRENT: curr.dataset?.program?.tags.map(x => x.name).join(";"),
-                    Gender_TARGET: prsDoc.targets.find(x => x.category == "Gender")?.target ?? "",
-                    Gender_TARGET_CURRENT: currentTarget("Gender") || "",
-                    Gender_ACTUAL: actual("Gender"),
-                    Ethnicity_TARGET: prsDoc.targets.find(x => x.category == "Ethnicity")?.target ?? "",
-                    Ethnicity_TARGET_CURRENT: currentTarget("Ethnicity") || "",
-                    Ethnicity_ACTUAL: actual("Ethnicity"),
-                    Disability_TARGET: prsDoc.targets.find(x => x.category == "Disability")?.target ?? "",
-                    Disability_TARGET_CURRENT: currentTarget("Disability") || "",
-                    Disability_ACTUAL: actual("Disability")
 
-                }
-                x.push(row);
-                return x;
-            }, new Array<IMungedPublishedRecordSetDocument>());
+    const filteredByIsFirst = () =>
+        datasetGroupIds
+            .flatMap(dg =>
+                data?.publishedRecordSets
+                    .filter(x => x.datasetId === dg)?.
+                    sort((a, b) => new Date(b.begin).valueOf() - new Date(a.begin).valueOf())
+                    .pop()
+            )
+            .filter((x): x is GetAllPublishedRecordSets_publishedRecordSets => x !== undefined);
+
 
 
     return <Space direction="vertical">
@@ -151,7 +137,16 @@ export const Reports = () => {
                 <PageHeader
                     title={t("reports.title")}
                     subTitle={t("reports.subtitle")}
-                    extra={<Button onClick={() => exportCSVTwo(mungedFilteredData(), `${Object.values(filterState).filter(x => x && x.length).map(x => x.toString()).join("_")}`)} type="primary" shape="circle" icon={<DownloadOutlined />} />}
+                    extra={
+                        <Button onClick={
+                            () => filteredData[0] && filteredByIsFirst &&
+                                exportCSVTwo(mungedFilteredData(filteredByIsFirst(), true)?.concat(mungedFilteredData(filteredData[0], false)), `${Object.values(filterState).filter(x => x && x.length).map(x => x.toString()).join("_")}`)
+                        }
+                            type="primary"
+                            shape="circle"
+                            icon={<DownloadOutlined />}
+                        />
+                    }
                 />
             </Col>
             <Col span={6}>

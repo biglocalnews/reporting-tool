@@ -39,6 +39,7 @@ export interface AllDatasets_teams_programs_tags {
 export interface AllDatasets_teams_programs {
   readonly __typename: "Program";
   readonly id: string;
+  readonly importedId: number | null;
   readonly name: string;
   readonly deleted: any | null;
   readonly datasets: ReadonlyArray<AllDatasets_teams_programs_datasets>;
