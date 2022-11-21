@@ -1,0 +1,28 @@
+:root {
+  /* Palette */
+  --white: #ffffff;
+  --darkGray: #1c304a;
+  --darkBlue: #002140;
+  --lightGray: #f0f2f5;
+  --techGreen: rgb(51, 255, 51);
+
+  /* Theme -- colors */
+  --background: var(--white);
+  --darkText: var(--darkGray);
+  --darkAccent: var(--darkBlue);
+  --lightText: var(--white);
+  --lightAccent: var(--lightGray);
+  --cyberText: var(--techGreen);
+
+  /* Theme -- dimensions */
+  --dividerSize: 1rem;
+  --sidebarWidth: 250px;
+  --sidebarCollapsedWidth: 80px;
+
+  /* Theme -- fonts */
+  --bodyFont: Helvetica, Arial, sans-serif;
+  --bodyFontSize: 14px;
+
+  /* Theme -- other */
+  --footerShadow: 0.5em 0.5em 0.5em var(--darkAccent);
+}

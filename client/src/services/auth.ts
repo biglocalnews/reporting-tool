@@ -53,7 +53,7 @@ export class Auth {
    * By default this just uses the native `fetch` implementation, but it can be
    * replaced with a customized one, or a mock for testing.
    */
-  constructor(private fetcher: typeof fetch) { }
+  constructor(private fetcher: typeof fetch) {}
 
   /**
    * State of the singleton. This only represents the initialization state, not
@@ -237,13 +237,11 @@ export class Auth {
         try {
           const json = await response.json();
           return (json && json["detail"]) || errors.UNKNOWN_ERROR;
-        }
-        catch {
+        } catch {
           return errors.UNKNOWN_ERROR;
         }
       }
     }
-
   }
 
   /**

@@ -137,6 +137,4 @@ data/
 *.swp
 *.swo
 
-*.dump
-.VSCodeCounter
-*.csv
+.DS_Store

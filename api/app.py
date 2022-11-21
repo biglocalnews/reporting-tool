@@ -1,19 +1,19 @@
+from typing import cast
 import json
 import logging
-from uuid import uuid4
-from onelogin.saml2.settings import OneLogin_Saml2_Settings
-from onelogin.saml2.idp_metadata_parser import OneLogin_Saml2_IdPMetadataParser
-from starlette.responses import RedirectResponse
-import uvicorn
-
 import datetime
+import urllib
+import os
+from uuid import uuid4
 
+from starlette.responses import RedirectResponse, HTMLResponse
+from starlette.staticfiles import StaticFiles
 from fastapi import FastAPI, Request, Depends, HTTPException, Response, status
 from fastapi_users.router.reset import RESET_PASSWORD_TOKEN_AUDIENCE
-import dateutil.parser
-from typing import cast
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
-
+import uvicorn
+import dateutil.parser
 from ariadne import (
     load_schema_from_path,
     make_executable_schema,
@@ -22,6 +22,8 @@ from ariadne import (
 )
 from ariadne.asgi import GraphQL
 
+from saml import get_saml_auth, dev_saml_idp, get_saml_userdata
+from templates import templates
 from connection import connection
 from seed import is_blank_slate
 from database import Organization, User, Role
@@ -33,7 +35,7 @@ import user
 import directives
 import monitoring
 
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
+
 
 app = FastAPI(
     debug=settings.debug,
@@ -42,6 +44,22 @@ app = FastAPI(
     # easier in testing.
     get_db_session=connection,
 )
+
+
+async def blank_slate(request: Request):
+    """Check if the app is configured correctly.
+
+    Use this as a dependency for entry routes so that the user is not allowed
+    to do anything until essential configuration is completed.
+    """
+    # TODO - redirect to Org config page
+    if is_blank_slate(request.scope.get("dbsession")):
+        q = urllib.parse.urlencode({'relay': '/'})
+        raise HTTPException(
+                status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                headers={
+                    'Location': f'/api/configure?{q}',
+                    })
 
 
 async def on_after_register(user: user.UserDBModel, request: Request):
@@ -96,7 +114,7 @@ app.include_router(
 )
 app.include_router(
     user.fastapi_users.get_reset_password_router(
-        settings.secret, after_forgot_password=on_after_forgot_password
+        settings.app_secret, after_forgot_password=on_after_forgot_password
     ),
     prefix="/auth",
     tags=["auth"],
@@ -104,13 +122,44 @@ app.include_router(
 
 app.include_router(
     user.fastapi_users.get_verify_router(
-        settings.secret,
+        settings.app_secret,
         after_verification_request=after_verification_request,
         after_verification=after_verify,
     ),
     prefix="/auth",
     tags=["auth"],
 )
+
+
+@app.get("/config")
+def get_config():
+    """Return essential app configuration to the front-end."""
+    return settings.app_config
+
+
+@app.get("/configure", response_class=HTMLResponse)
+def get_new_app_config(request: Request):
+    """Render form to configure app."""
+    return templates.TemplateResponse("setup.html", {
+        'request': request,
+        'relay': request.query_params.get('relay', '/'),
+        })
+
+
+@app.post("/configure")
+async def post_new_app_config(request: Request):
+    """Instantiate application."""
+    session = request.scope.get("dbsession")
+    if not is_blank_slate(session):
+        raise HTTPException(status_code=400,
+                detail="App has already been configured.")
+
+    data = await request.form()
+    session.add(Organization(id=uuid4(), name=data['organization']))
+    session.commit()
+    relay = data.get('relay', '/')
+    return RedirectResponse(url=relay, status_code=status.HTTP_302_FOUND)
+
 
 
 @app.get("/reset-my-password")
@@ -125,85 +174,24 @@ def get_reset_password_token(dbuser=Depends(user.fastapi_users.get_current_user)
     }
 
 
-"""
-idp_data = OneLogin_Saml2_IdPMetadataParser.parse_remote(
-    "https://gateway.id.tools.bbc.co.uk/.well-known/saml-metadata", timeout=5
-)
-with open("saml_settings.prod.json", "w") as saml_settings:
-    saml_settings.write(json.dumps(idp_data))
-"""
-
-
-def init_saml_auth(req):
-    # idp_data["sp"]["entityId"] = "https://5050.ni.bbc.co.uk/"
-    # idp_data["sp"]["assertionConsumerService"] = {}
-    # idp_data["sp"]["assertionConsumerService"]["url"] = "https://5050.ni.bbc.co.uk/acs"
-    with open("saml_settings.prod.json", "r") as saml_settings:
-        idp_data = json.loads(saml_settings.read())
-    return OneLogin_Saml2_Auth(req, OneLogin_Saml2_Settings(idp_data))
-
-
-def build_saml_req(host, path, query_params, post_data):
-    return {
-        "http_host": host,
-        "script_name": "/",
-        "get_data": query_params,
-        "post_data": post_data,
-        # Advanced request options
-        "https": "on",
-        # "request_uri": "",
-        "query_string": "",
-        "validate_signature_from_qs": False,
-        "lowercase_urlencoding": False,
-    }
-
-
-seed_admins = [
-    "cobair01",
-    "joannl01",
-    "webers02",
-    "lismoc01",
-    "brownc09",
-    "khany88",
-    "oconnk11",
-    "wrighg24",
-    "weberd01",
-]
-
-
-@app.get("/bbc-login")
-async def bbc_login(request: Request):
-    form = await request.form()
-    req = build_saml_req(
-        "5050.ni.bbc.co.uk",
-        request.url.path,
-        request.query_params,
-        form,
-    )
-    auth = init_saml_auth(req)
+@app.get("/sso", dependencies=[Depends(blank_slate)])
+async def login(request: Request, auth = Depends(get_saml_auth)):
     redirect = auth.login()
-    logging.error(redirect)
     return RedirectResponse(redirect)
 
 
 @app.post("/acs")
-async def acs(request: Request, status_code=200):
-    try:
-        form = await request.form()
-        req = build_saml_req(
-            "5050.ni.bbc.co.uk",
-            request.url.path,
-            request.query_params,
-            form,
-        )
+async def acs(request: Request, auth=Depends(get_saml_auth), status_code=200):
+    """Auth consumer service endpoint.
 
-        auth = init_saml_auth(req)
+    This handles the response from SAML to interpret the auth info.
+    """
+    try:
         auth.process_response()
 
         errors = auth.get_errors()
 
         if errors:
-            logging.error(", ".join(errors))
             raise HTTPException(
                 status_code=500,
                 detail="Error when processing SAML Response: %s %s"
@@ -216,66 +204,51 @@ async def acs(request: Request, status_code=200):
         if not auth.is_authenticated():
             raise HTTPException(status_code=401, detail="Not authenticated")
 
-        bbc_username = auth.get_nameid().lower()
-        logging.info(f"{bbc_username} successfully authenticated")
-        samlUserdata = auth.get_attributes()
+        try:
+            userdata = get_saml_userdata(auth)
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
-        if (
-            not "email" in samlUserdata
-            or not "bbcPreferredName" in samlUserdata
-            or not "bbcLastName" in samlUserdata
-        ):
-            raise HTTPException(status_code=500, detail="Unexpected SAML response")
-
-        bbc_email = (
-            samlUserdata["email"][0]
-            if samlUserdata["email"]
-            else f"{bbc_username}@onebbc.mail.onmicrosoft.com"
-        )
-        bbc_preferred_name = (
-            samlUserdata["bbcPreferredName"][0]
-            if samlUserdata["bbcPreferredName"]
-            else bbc_username
-        )
-        bbc_last_name = (
-            samlUserdata["bbcLastName"][0] if samlUserdata["bbcLastName"] else ""
-        )
+        logging.info(f"{userdata.username} successfully authenticated")
 
         dbsession = request.scope.get("dbsession")
 
         if not dbsession:
             raise HTTPException(status_code=500, detail="No dbsession found")
 
-        bbc_db_user = User.get_by_username(session=dbsession, username=bbc_username)
+        db_user = User.get_by_username(
+                session=dbsession,
+                username=userdata.username)
 
-        if not bbc_db_user:
+        if not db_user:
             new_id = uuid4()
-            bbc_db_user = User(
+            db_user = User(
                 id=new_id,
-                username=bbc_username,
-                email=bbc_email,
-                hashed_password=uuid4(),
-                first_name=bbc_preferred_name,
-                last_name=bbc_last_name,
+                username=userdata.username,
+                email=userdata.email,
+                hashed_password=uuid4(), # TODO - CHANGE THIS
+                first_name=userdata.first_name,
+                last_name=userdata.last_name,
                 last_changed_password=datetime.datetime.now(),
                 last_login=datetime.datetime.now(),
             )
-            if bbc_username in seed_admins:
+            # TODO - Rewrite to look up all roles, not just admin.
+            if "admin" in userdata.roles:
                 admin = dbsession.query(Role).get(
                     "be5f8cac-ac65-4f75-8052-8d1b5d40dffe"
                 )
-                bbc_db_user.roles.append(admin)
-            dbsession.add(bbc_db_user)
+                db_user.roles.append(admin)
+            dbsession.add(db_user)
             dbsession.commit()
-        # redirect_url = (
-        #    req["post_data"]["RelayState"] if "RelayState" in req["post_data"] else "/"
-        # )
-        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-        logging.info(str(bbc_db_user.id))
+
+        # Issue redirect to complete the relay. If no relay is defined, send
+        # the user to the home page.
+        redirect_url = auth._request_data.get('post_data', {}).get('RelayState', '/')
+        response = RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie(
             key="rtauth",
             value=user.get_valid_token(
-                "fastapi-users:auth", user_id=str(bbc_db_user.id)
+                "fastapi-users:auth", user_id=str(db_user.id)
             ),
         )
         dbsession.close()
@@ -291,29 +264,23 @@ async def acs(request: Request, status_code=200):
 
 @app.get("/health")
 def get_health(request: Request):
-
-    exception = None
-
     try:
         dbsession = cast(Session, request.scope.get("dbsession"))
         org = dbsession.query(Organization).first()
+        monitoring.log_metric(1)
         return Response(
             org.name if org else "No default organisation found", status_code=200
         )
     except Exception as ex:
         logging.exception(ex)
-        exception = str(ex)
 
-    try:
-        monitoring.log_event(str(ex))
-    except Exception as ex:
-        logging.exception(ex)
-        exception = str(ex)
+        try:
+            monitoring.log_metric(0)
+            monitoring.log_event(str(ex))
+        except Exception as ex:
+            logging.exception(ex)
 
-    if exception:
-        raise HTTPException(status_code=500, detail=exception)
-    else:
-        raise HTTPException(status_code=500, detail="Unknown error in health check")
+        raise HTTPException(status_code=500, detail=str(ex))
 
 
 # HACK(jnu): There's a bug in FastAPI where the /users/delete route returns a
@@ -335,18 +302,11 @@ users_router = user.fastapi_users.get_users_router()
 delete_route = [r for r in users_router.routes if r.name == "delete_user"][0]
 delete_route.response_class = Response
 
-# Separately, to implement "blank slate" mode, use a dependency that returns
-# a 418 code when the app is not yet configured.
-async def blank_slate(request: Request):
-    if is_blank_slate(request.scope.get("dbsession")):
-        raise HTTPException(status_code=418, detail="App is not yet configured")
-
 
 app.include_router(
     users_router,
     prefix="/users",
     tags=["users"],
-    dependencies=[Depends(blank_slate)],
 )
 
 
@@ -423,9 +383,12 @@ async def get_context(request: Request):
 # Mount ariadne to fastapi
 app.mount("/graphql", GraphQL(schema, debug=settings.debug, context_value=get_context))
 
+# Mount static files
+app.mount("/static", StaticFiles(directory=os.getenv("RT_STATIC_DIR", "./static")), name="static")
 
-def home():
-    return "Ahh!! Aliens!"
+
+if settings.debug:
+    app.mount("/__dev__/saml", dev_saml_idp)
 
 
 if __name__ == "__main__":

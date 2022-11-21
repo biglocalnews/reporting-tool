@@ -1,4 +1,8 @@
+import os
+from typing import Optional
+
 from pydantic import BaseModel, BaseSettings
+
 
 
 class SmtpSettings(BaseModel):
@@ -85,6 +89,41 @@ class EmailSettings(BaseModel):
     )
 
 
+class ImageAsset(BaseModel):
+    """Describe an image reference for the front-end."""
+    # URL can be any of the following:
+    #  - A full URL to the image path;
+    #  - An absolute path on the server (e.g., "/img/foo.png")
+    #  - A relative path on the server (e.g., "foo.png")
+    # If a relative path is given, it should be combined with the `static_base`
+    # in the AppConfig to find the full URL.
+    url: str
+    # Alt-text to display if image fails to load / for screen readers.
+    alt: str
+    # Ideal width of image (px)
+    width: Optional[int]
+    # Ideal height of image (px)
+    height: Optional[int]
+
+
+class AppConfig(BaseModel):
+    """Front-end application configuration."""
+    # Email that should be displayed for users to send questions/feedback to.
+    help_email: str = "help@foo.org"
+    # URL to use for SSO authentication.
+    sso_url: str = "/api/sso"
+    # Base URL to use for fetching assets. Might differ between local, dev,
+    # and production environments.
+    static_base: str = "/api/static/"
+    # Custom stylesheet to use on the front-end.
+    theme: Optional[str]
+    # Image to use for header logo of the app.
+    logo: ImageAsset = ImageAsset(
+            url="logo.png",
+            alt="Reporting Tool Logo",
+            width=55)
+
+
 class Settings(BaseSettings):
     db_user: str = "postgres"
     db_pw: str = "postgres"
@@ -94,7 +133,13 @@ class Settings(BaseSettings):
 
     app_account_pw: str = ""
 
-    secret: str = "shhhhhh its a secret"
+    app_secret: str = "shhhhhh its a secret"
+
+    app_config: AppConfig = AppConfig()
+
+    host: str = "localhost:3000"
+    saml: dict = {}
+    saml_userdata: dict = {}
 
     # Whether to send cookies over HTTPS only. This should generally be turned
     # on in production.
@@ -103,7 +148,7 @@ class Settings(BaseSettings):
     email: EmailSettings = EmailSettings()
 
     class Config:
-        secrets_dir = "/run/secrets"
+        secrets_dir = os.getenv("RT_SECRETS_DIR", "/run/secrets")
         env_file = ".env"
         env_file_encoding = "utf-8"
         env_prefix = "rt_"

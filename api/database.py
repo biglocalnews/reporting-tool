@@ -884,6 +884,7 @@ class PublishedRecordSet(Base, PermissionsMixin):
         GUID, ForeignKey("reporting_period.id"), index=True, nullable=False
     )
 
+    # TODO(jnu): clarify why this is removed
     # __table_args__ = (UniqueConstraint("reporting_period_id"),)
 
     dataset = relationship("Dataset", back_populates="published_record_sets")
