@@ -25,7 +25,7 @@ from ariadne.asgi import GraphQL
 from saml import get_saml_auth, dev_saml_idp, get_saml_userdata
 from templates import templates
 from connection import connection
-from seed import is_blank_slate, init_db
+from seed import is_blank_slate
 from database import Organization, User, Role
 from queries import queries
 from mutations import mutation
@@ -392,5 +392,4 @@ if settings.debug:
 
 
 if __name__ == "__main__":
-    init_db()
     uvicorn.run("app:app", reload=True)

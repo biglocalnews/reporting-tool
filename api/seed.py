@@ -14,6 +14,7 @@ from sqlalchemy import create_engine
 import click
 from datetime import datetime
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from seed_values import SeedValues, Roles
 from database import (
     Base,
     Organization,
@@ -31,6 +32,7 @@ from database import (
     Record,
     Entry,
 )
+
 
 
 def init_db():
@@ -74,7 +76,7 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(
                 """
-                SELECT 1 FROM organization
+                SELECT 1 FROM role
             """
             )
     except ProgrammingError:
@@ -138,65 +140,8 @@ def create_tables(session):
     engine = session.bind
     Base.metadata.create_all(engine)
 
-    # Default roles
-    session.add(
-        Role(
-            id="be5f8cac-ac65-4f75-8052-8d1b5d40dffe",
-            name="admin",
-            description="User is an admin and has administrative privileges",
-        )
-    )
-
-    session.add(
-        Role(
-            id="ee2de3ff-e147-453c-b49c-88122e112095",
-            name="publisher",
-            description="User can publish records",
-        )
-    )
-
-    # Default demographic categories
-    session.add(
-        Category(
-            id="51349e29-290e-4398-a401-5bf7d04af75e",
-            name="Gender",
-            description=(
-                "Gender: A social construct based on a group of emotional and "
-                "psychological characteristics that classify an individual as "
-                "feminine, masculine, androgynous or other. Gender can be "
-                "understood to have several components, including gender identity, "
-                "gender expression and gender role."
-            ),
-        )
-    )
-    session.add(
-        Category(
-            id="2f98f223-417f-41ea-8fdb-35f0c5fe5b41",
-            name="Ethnicity",
-            description=(
-                "Race & Ethnicity: Social constructs that categorize groups of "
-                "people based on shared social and physical qualities. Definitions "
-                "of race and ethnicity are not universally agreed upon and vary "
-                "over time and place. Individuals may identify as belonging to "
-                "multiple racial and ethnic groups."
-            ),
-        )
-    )
-    session.add(
-        Category(
-            id="55119215-71e9-43ca-b2c1-7e7fb8cec2fd",
-            name="Disability",
-            description=(
-                "A disability is any condition of the body or mind (impairment) "
-                "that makes it more difficult for the person with the condition "
-                "to do certain activities (activity limitation) and interact with "
-                "the world around them (participation restrictions). Some "
-                "disabilities may be hidden or not easy to see."
-            ),
-        )
-    )
-
-    session.add(Organization(id="15d89a19-b78d-4ee8-b321-043f26bdd48a", name="BBC"))
+    print("🍕 Populating tables with default records ...")
+    SeedValues.merge_all(session)
 
     session.commit()
 
@@ -218,7 +163,7 @@ def create_dummy_data(session):
 
     print("👩🏽‍💻 Adding dummy data ...")
 
-    admin_role = session.query(Role).get("be5f8cac-ac65-4f75-8052-8d1b5d40dffe")
+    admin_role = Roles.admin
 
     user_id = "cd7e6d44-4b4d-4d7a-8a67-31efffe53e77"
     user = session.query(User).get(user_id)
