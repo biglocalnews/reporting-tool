@@ -1,5 +1,4 @@
 from typing import cast
-import json
 import logging
 import datetime
 import urllib
@@ -333,7 +332,7 @@ schema = make_executable_schema(
     mutation,
     datetime_scalar,
     snake_case_fallback_resolvers,
-    directives={"needsPermission": directives.NeedsPermissionDirective},
+    directives={"needsPermission": directives.NeedsPermissionDirective}
 )
 
 

@@ -6,20 +6,26 @@ authors = ["Joe Nudell <jnu@stanford.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.95.0"
+python = "^3.9"
 pydantic = "^1.10.7"
-sqlalchemy = "^2.0.7"
+sqlalchemy = "1.4.0"
 uvicorn = "^0.21.1"
 python-dateutil = "^2.8.2"
-ariadne = "^0.19.0"
-fastapi-users = "^10.4.1"
+fastapi-users = "6.1.2"
 lxml = "^4.9.2"
 psycopg2 = "^2.9.5"
 lazy-object-proxy = "^1.9.0"
 aiosmtplib = "^2.0.1"
 html2text = "^2020.1.16"
 more-itertools = "^9.1.0"
+python3-saml = "^1.15.0"
+fastapi = "0.65.2"
+ariadne = "0.13.0"
+aiofiles = "22.1.0"
+jinja2 = "2.11.2"
+markupsafe = "1.1.1"
+databases = "0.5.3"
+graphql-core = "3.1.5"
 
 
 [build-system]
