@@ -449,10 +449,6 @@ class Category(Base):
             existing = cls.get_by_name(session, spec["name"])
             if existing:
                 return existing
-            else:
-                spec = {
-                    "name": spec["name"],
-                }
 
         return session.merge(cls(**spec))
 
@@ -519,11 +515,11 @@ class CategoryValue(Base):
             if existing:
                 return existing
             else:
-                spec = {
+                category = spec.pop('category')
+                spec.update({
                     "id": None,
-                    "name": spec["name"],
-                    "category_id": spec["category"]["id"],
-                }
+                    "category_id": category['id'],
+                })
         return session.merge(cls(**spec))
 
     @classmethod
