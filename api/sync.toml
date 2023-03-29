@@ -1,0 +1,20 @@
+[general]
+id = "155JtrPzvJ9iDI_Pr2URM-znXq6YlBBF2RBM1cqBjdH0"
+has_header = true
+sheet_id = 0
+reporting_period = "monthly"
+team = "admin"
+
+[targets]
+race = { percent = 15, values = [ "Black or African American" ] }
+gender = { percent = 48, values = [ "Woman" ] }
+sexual_orientation = { percent = 5, values = ["Lesbian", "Gay", "Bisexual", "Queer" ] }
+
+[columns]
+publish_date = "A"
+program_name = "B"
+program_id = "O"
+episode = "C"
+sub_episode = "D"
+guest = "F"
+categories = { race = ["G", "H"], gender = ["I", "J"], sexual_orientation = ["K", "L"] }
