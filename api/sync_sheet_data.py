@@ -5,9 +5,11 @@ from datetime import datetime
 import os
 import logging
 
+import arrow
 import tomli
 import click
 from dateutil.parser import parse as parse_date
+from dateutil.tz import tzutc
 from pydantic import BaseModel
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -16,7 +18,19 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from connection import connection
-from database import Program, Dataset, Category, CategoryValue, Record, Entry
+from database import (
+        Organization,
+        Program,
+        Dataset,
+        Category,
+        CategoryValue,
+        Record,
+        Entry,
+        Team,
+        Target,
+        Track,
+        ReportingPeriod,
+        )
 
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
@@ -25,9 +39,17 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 logger = logging.getLogger(__name__)
 
 
-class SyncSheetConfig(BaseModel):
-    ids: List[str]
+class SyncGeneralConfig(BaseModel):
+    id: str
     has_header: bool = True
+    sheet_id: int
+    reporting_period: str
+    team: str
+
+
+class SyncTargetConfig(BaseModel):
+    percent: float
+    values: List[str]
 
 
 class SyncColumnsConfig(BaseModel):
@@ -40,6 +62,12 @@ class SyncColumnsConfig(BaseModel):
     categories: Dict[str, Union[str, List[str]]]
 
 
+class SyncConfig(BaseModel):
+    general: SyncGeneralConfig
+    targets: Dict[str, SyncTargetConfig]
+    columns: SyncColumnsConfig
+
+
 class Row(BaseModel):
     publish_date: datetime
     program_name: str
@@ -49,10 +77,6 @@ class Row(BaseModel):
     guest: str
     categories: Dict[str, str]
 
-
-class SyncConfig(BaseModel):
-    sheets: SyncSheetConfig
-    columns: SyncColumnsConfig
 
 
 def load_config(path: str) -> SyncConfig:
@@ -268,6 +292,8 @@ def sync_metadata(session, info: Dict):
 
         # Then ensure a CategoryValue object exists for each possible value.
         for value in values:
+            if not value:
+                continue
             CategoryValue.get_or_create(session, {
                 'category': {'id': category.id},
                 'name': value,
@@ -286,38 +312,124 @@ def groupby(A: List[T], key: Callable[[T], U]) -> Dict[U, List[T]]:
     return groups
 
 
-def sync_data(session, rows: List[Row]):
+def get_team(session, team_name: str) -> Team:
+    """Get the Team by ID or create a special one for the sync."""
+    team = session.query(Team).filter(Team.name == team_name).first()
+    if not team:
+        # Get the first organization and create a team.
+        org = session.query(Organization).filter(Organization.deleted == None).first()
+        if org is None:
+            raise Exception("No organizations exist in the database.")
+        team = Team(name=team_name, organization_id=org.id)
+        session.add(team)
+        session.flush()
+    return team
+
+
+def sync_reporting_periods(session, config: SyncConfig, program: Program, data: List[Row]):
+    """Ensure reporting periods exist to span the data."""
+    # Find the min date and max date in the data.
+    min_date = min(row.publish_date for row in data)
+    max_date = max(row.publish_date for row in data)
+
+    # Fetch reporting periods that have already been created for this program.
+    existing_periods = {
+            (p.begin.replace(tzinfo=tzutc()).timestamp(),
+             p.end.replace(tzinfo=tzutc()).timestamp())
+            for p in 
+            session.query(ReportingPeriod).filter(ReportingPeriod.program_id == program.id).all()
+            }
+
+    periods = {
+            'monthly': ['month', 'MMM'],
+            'yearly': ['year', 'YYYY'],
+            'quarterly': ['quarter', 'Q MMM'],  # TODO this is not quite right
+            }
+
+    period, fmt = periods[config.general.reporting_period]
+
+    # Start at the beginning of the first reporting period for which we have
+    # any row data.
+    first_date = arrow.get(min_date).floor(period)
+    # Fill through the end of the last year in the data
+    last_date = arrow.get(max_date).ceil('year')
+    for (begin, end) in arrow.Arrow.interval(period, first_date, last_date):
+        # Create the reporting period if it doesn't already exist.
+        if (begin.timestamp(), end.timestamp()) not in existing_periods:
+            session.add(ReportingPeriod(
+                program_id=program.id,
+                begin=begin.datetime,
+                end=end.datetime,
+                description=begin.format(fmt)
+                ))
+
+    # Don't try to clean up reporting periods that exist which we didn't infer
+    # here, since we don't know if they were created manually or not.
+
+    session.flush()
+
+
+def sync_targets(session, program: Program, config: Dict[str, SyncTargetConfig]):
+    """Make sure that the Targets for this Program are up-to-date."""
+    for target_name, target_config in config.items():
+        category = Category.get_by_name(session, target_name)
+        target = Target.get_or_create(
+                session,
+                program.id,
+                {'target': target_config.percent / 100.0},
+                category.id)
+        session.flush()
+
+
+        # Now ensure that the components of the target exist.
+        cvs = session.query(CategoryValue).filter(CategoryValue.category_id == category.id, CategoryValue.deleted == None).all()
+
+        tracked_values = set(target_config.values)
+        for cv in cvs:
+            Track.get_or_create(session, target.id, cv.id, {
+                "target_member": cv.name in tracked_values,
+                })
+    session.flush()
+
+
+def sync_data(session, config: SyncConfig, rows: List[Row]):
     """Syncs the data from the Google Sheet into the database."""
     grouped_rows = groupby(rows, lambda r: r.program_id)
 
+    team = get_team(session, config.general.team)
+
+    # Use the first row to get attributes about the program; they will be the
+    # same for all the rows in the group.
+    row = rows[0]
+    # First ensure that the Program exists.
+    program = session.query(Program).filter(Program.name == row.program_name).first()
+    # If it doesn't exist, create it.
+    if program is None:
+        program = Program(
+                name=row.program_name,
+                description="Synced automatically from Google Sheets",
+                reporting_period_type="custom",
+                team_id=team.id,
+                )
+        session.add(program)
+        session.flush()
+
+    # Now ensure that the Dataset exists for this program.
+    dataset = session.query(Dataset).filter(Dataset.program_id == program.id, Dataset.name == row.program_name).first()
+    # If it doesn't exist, create it.
+    if dataset is None:
+        dataset = Dataset(
+                name=row.program_name,
+                description="Synced automatically from Google Sheets",
+                program_id=program.id)
+        session.add(dataset)
+        session.flush()
+
+    # Iterate over every episode and aggregate / sync data for each into a
+    # new Record object.
     for id_, entries in grouped_rows.items():
-        # Use the first row to get attributes about the row; they will be the
-        # same for all the rows in the group.
+        # Use the first row to get attributes about the episode.
         row = entries[0]
-        # First ensure that the Program exists.
-        program = session.query(Program).filter(Program.name == row.program_name).first()
-        # If it doesn't exist, create it.
-        if program is None:
-            program = Program(
-                    name=row.program_name,
-                    description="Synced automatically from Google Sheets",
-                    reporting_period_type="unknown",
-                    )
-            session.add(program)
-            session.flush()
-
-        # Now ensure that the Dataset exists for this program.
-        dataset = session.query(Dataset).filter(Dataset.program_id == program.id, Dataset.name == row.program_name).first()
-        # If it doesn't exist, create it.
-        if dataset is None:
-            dataset = Dataset(
-                    name=row.program_name,
-                    description="Synced automatically from Google Sheets",
-                    program_id=program.id)
-            session.add(dataset)
-            session.flush()
-
-
         # Now ensure a record exists for this row.
         record = session.query(Record).filter(Record.dataset_id == dataset.id, Record.publication_date == row.publish_date).first()
         # If it exists, move on.
@@ -350,6 +462,9 @@ def sync_data(session, rows: List[Row]):
 
             # Now create an Entry representing each count.
             for value, count in values.items():
+                if not value:
+                    logger.warning("Skipping empty value!")
+                    continue
                 category_value = CategoryValue.get_or_create(session, {
                     'category': {'id': category.id},
                     'name': value,
@@ -366,8 +481,14 @@ def sync_data(session, rows: List[Row]):
                         )
                 session.add(entry)
                 session.flush()
-        # TODO CUstom column values
 
+    # Sync reporting period information
+    sync_reporting_periods(session, config, program, rows)
+
+    # Sync targets
+    sync_targets(session, program, config.targets)
+
+    # TODO - custom column values
 
 
 @click.command()
@@ -376,19 +497,27 @@ def main(config_path: str):
     """Imports reporting data from a Google Sheet into our database."""
     config = load_config(config_path)
     col_map = ColumnMap(config.columns)
-    for spreadsheet_id in config.sheets.ids:
-        # Fetch metadata about columns and possible values from the sheet.
-        metadata = fetch_sheet_metadata(spreadsheet_id, sheet_id=0, col_range=col_map.col_range(2), has_header=config.sheets.has_header)
-        info = parse_metadata(metadata, col_map)
 
-        # Fetch entry data from the sheet.
-        data = fetch_sheet_data(spreadsheet_id, sheet_id=0, col_range=col_map.col_range(), has_header=config.sheets.has_header)
-        rows = parse_data(data, col_map)
+    # Fetch metadata about columns and possible values from the sheet.
+    metadata = fetch_sheet_metadata(
+            config.general.id,
+            sheet_id=config.general.sheet_id,
+            col_range=col_map.col_range(2),
+            has_header=config.general.has_header)
+    info = parse_metadata(metadata, col_map)
 
-        session = connection()
-        sync_metadata(session, info)
-        sync_data(session, rows)
-        session.commit()
+    # Fetch entry data from the sheet.
+    data = fetch_sheet_data(
+            config.general.id,
+            sheet_id=config.general.sheet_id,
+            col_range=col_map.col_range(),
+            has_header=config.general.has_header)
+    rows = parse_data(data, col_map)
+
+    session = connection()
+    sync_metadata(session, info)
+    sync_data(session, config, rows)
+    session.commit()
 
 
 if __name__ == '__main__':

@@ -357,7 +357,9 @@ class Target(Base, PermissionsMixin):
                 session, prog_id, category_id
             )
             if existing_target:
-                target_dict = {"id": existing_target.id}
+                target_dict["id"] = existing_target.id
+            else:
+                target_dict.update({'program_id': prog_id, 'category_id': category_id})
 
         return session.merge(self(**target_dict))
 
@@ -399,7 +401,12 @@ class Track(Base, PermissionsMixin):
                 session, target_id, category_id
             )
             if existing_target:
-                track_dict = {"id": existing_target.id}
+                track_dict["id"] = existing_target.id
+            else:
+                track_dict.update({
+                    'target_id': target_id,
+                    'category_value_id': category_id,
+                    })
 
         return session.merge(self(**track_dict))
 
